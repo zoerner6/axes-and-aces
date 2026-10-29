@@ -1190,7 +1190,7 @@ const foeArt = (name, icon) => ART[name] ? `<img src="art/${ART[name]}.webp" alt
 const deadArt = (name, icon) => ART[name] ? `<img src="art/dead_${ART[name]}.webp" alt="${name}, defeated" draggable="false">` : icon;
 let BG = ['tavern','cellar','forest','castle'];
 /* moving monsters: a standing loop and an attack clip for each monster */
-const VIDS = new Set(["anglerfish", "babydragon", "bandit", "bat", "bear", "boar", "bogman", "captain", "cobra", "crab", "crocodile", "crows", "djinn", "dragon", "drowned", "eel", "firewisp", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gargoyle", "ghost", "ghostship", "ghoul", "giantguard", "goblin", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "jackal", "knight", "kraken", "leech", "mammoth", "merman", "mosquito", "mummy", "octopus", "pharaoh", "pirate", "plaguebeast", "plaguedoctor", "plaguerat", "priest", "raider", "rat", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "snake", "snowgoblin", "sphinx", "spider", "sunlord", "templeguard", "toad", "treant", "troll", "vampire", "witch", "wolf", "zombie"]);
+const VIDS = new Set(["abbot", "anglerfish", "babydragon", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonewalker", "captain", "caveworm", "cobra", "crab", "crocodile", "crows", "djinn", "dragon", "drowned", "eel", "firewisp", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gargoyle", "ghost", "ghostship", "ghoul", "giantguard", "goblin", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "jackal", "knight", "kraken", "leech", "mammoth", "merman", "mosquito", "mummy", "octopus", "pharaoh", "pirate", "plaguebeast", "plaguedoctor", "plaguerat", "priest", "raider", "rat", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "snake", "snowgoblin", "sphinx", "spider", "sunlord", "templeguard", "toad", "treant", "troll", "vampire", "witch", "wolf", "zombie"]);
 function setFoeVideo(name){
   const k=ART[name], st=$('monsterBox'), v=$('foeVid'), a=$('foeAtk'), w=$('foeVidWrap');
   w.className='foe-vidwrap'; a.classList.remove('on');
@@ -1201,7 +1201,7 @@ function setFoeVideo(name){
 }
 function stopFoeVideo(){ ['foeVid','foeAtk'].forEach(id=>{ const v=$(id); try{ v.pause(); }catch(e){} }); }
 /* when each attack clip lands its blow (seconds) */
-const HIT_AT = {"anglerfish": 1.3, "babydragon": 1.65, "bandit": 2.2, "bat": 2.2, "bear": 1.9, "boar": 2.3, "bogman": 1.2, "captain": 1.5, "cobra": 1.4, "crab": 1.8, "crocodile": 1.3, "crows": 1.1, "djinn": 1.2, "dragon": 2.1, "drowned": 1.3, "eel": 1.1, "firewisp": 1.7, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gargoyle": 2.2, "ghost": 1.7, "ghostship": 1.8, "ghoul": 1.7, "giantguard": 1.3, "goblin": 1.0, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "jackal": 1.7, "knight": 1.4, "kraken": 1.5, "leech": 1.5, "mammoth": 1.6, "merman": 1.5, "mosquito": 1.8, "mummy": 1.5, "octopus": 1.3, "pharaoh": 1.7, "pirate": 1.2, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "priest": 1.7, "raider": 1.0, "rat": 2.3, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.2, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "sunlord": 1.4, "templeguard": 1.3, "toad": 1.7, "treant": 1.7, "troll": 2.1, "vampire": 2.4, "witch": 2.2, "wolf": 1.5, "zombie": 2.0};
+const HIT_AT = {"abbot": 1.5, "anglerfish": 1.3, "babydragon": 1.65, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cobra": 1.4, "crab": 1.8, "crocodile": 1.3, "crows": 1.1, "djinn": 1.2, "dragon": 2.1, "drowned": 1.3, "eel": 1.1, "firewisp": 1.7, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gargoyle": 2.2, "ghost": 1.7, "ghostship": 1.8, "ghoul": 1.7, "giantguard": 1.3, "goblin": 1.0, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "jackal": 1.7, "knight": 1.4, "kraken": 1.5, "leech": 1.5, "mammoth": 1.6, "merman": 1.5, "mosquito": 1.8, "mummy": 1.5, "octopus": 1.3, "pharaoh": 1.7, "pirate": 1.2, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "priest": 1.7, "raider": 1.0, "rat": 2.3, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.2, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "sunlord": 1.4, "templeguard": 1.3, "toad": 1.7, "treant": 1.7, "troll": 2.1, "vampire": 2.4, "witch": 2.2, "wolf": 1.5, "zombie": 2.0};
 function playFoeAttack(){
   if(!$('monsterBox').classList.contains('hasvid')) return 0;
   const a=$('foeAtk'), v=$('foeVid'); a.currentTime=0; a.classList.add('on');
@@ -1543,7 +1543,7 @@ function startFight(){
   S.fight = {id, hp:d.hp, max:d.hp, block:0, turn:0, frozen:false,
              draw:shuffle(DECK.map(c=>c.id)), disc:[], hand:[], discards:1+S.discBonus+gearHas('disc')};
   S.block = gearHas('turn'); S.rage=false; S.cast={};
-  if(S.coach===0 && S.idx===0){ S.fight.draw=S.fight.draw.filter(x=>!TUTOR_HAND.includes(x)); S.fight.hand=TUTOR_HAND.slice(); }
+  if(S.coach===0 && S.idx===0){ S.fight.draw=S.fight.draw.filter(x=>!TUTOR_HAND.includes(x)&&x!==cid(14,2)); S.fight.draw.push(cid(14,2)); S.fight.hand=TUTOR_HAND.slice(); }
   S.phase='play'; sel=[]; infoSel=null; $('foeSay').hidden=true; $('foeIcon').className='foe-icon'; $('foeIcon').dataset.name='';
   const enc=S.enc; S.enc=null;
   if(enc==='spot') S.fight.stunned=true;
@@ -1729,18 +1729,21 @@ function renderButtons(){
 }
 
 /* ---------- Old Bram's tips for the first fight ---------- */
-const KINGS=[cid(14,0),cid(14,1)];
+const KINGS=[cid(14,0),cid(14,1)], JUNK=[cid(4,0),cid(6,1),cid(2,3)], FULL=[cid(14,0),cid(14,1),cid(14,2),cid(9,3),cid(9,2)];
 const ALL=['play','discard','hint','spell'];
 const STEPS = [
   {target:'#monsterBox', html:'A goblin! 👺 The red bar is its <b>health</b>. Knock it down to 0 to win the fight.', btn:'Got it', lock:ALL},
   {target:'#monsterBox', html:'Careful: after each of your attacks, the goblin <b>hits back</b>.', btn:'Got it', lock:ALL},
   {target:'#heroBox', html:'This is <b>you</b>. The green bar is your health. If it hits 0, you lose. You also have your level and your gold here.', btn:'Got it', lock:ALL},
-  {target:'#hand', html:'Your attacks come from <b>poker hands</b>. See the <b>two Aces</b>? Tap both of them to make a <b>Pair</b>.', glow:KINGS, lock:ALL,
-    done:()=>sel.length===2&&KINGS.every(k=>sel.includes(k))},
-  {target:'#atkBtn', html:'A <b>Pair</b>! Better hands like Three of a Kind or a Flush hit <b>much</b> harder, and every level you gain multiplies your damage. Now tap <b>Attack!</b>', lock:['discard','hint','spell'], event:'attacked'},
+  {target:'#hand', html:'Your attacks come from <b>poker hands</b>. You have two Aces and two 9s. Before you attack, use your <b>discard</b>: you get <b>1 every turn</b>. Tap the 3 cards that don\'t match anything: the <b>4, 6 and 2</b>.', glow:JUNK, lock:ALL,
+    done:()=>sel.length===3&&JUNK.every(k=>sel.includes(k))},
+  {target:'#discBtn', html:'Now tap <b>Discard</b>. Those 3 cards get swapped for new ones, and you might draw another Ace!', lock:['play','hint','spell'], event:'discarded'},
+  {target:'#hand', html:'Lucky! You drew <b>another Ace</b>. Now pick your <b>best hand</b>: tap the <b>three Aces</b> and the <b>two 9s</b>. Not sure what\'s best? <b>Hint</b> picks it for you.', glow:FULL, lock:['play','discard','spell'],
+    done:()=>sel.length===5&&FULL.every(k=>sel.includes(k))},
+  {target:'#atkBtn', html:'A <b>Full House</b>! Bigger hands hit <b>much</b> harder, and every level you gain multiplies your damage. Now tap <b>Attack!</b>', lock:['discard','hint','spell'], event:'attacked'},
   {target:'#monsterBox', html:()=>`You hit it for <b>${fmt(S.lastHit||0)}</b>! Then the goblin hit you back. Keep attacking until its health is 0.`, btn:'Got it', lock:ALL},
   {target:'#spellBox', html:'This is your <b>Healing Potion</b>. Tap it, then tap <b>Drink it</b>, when you\'re hurt. You\'ll find more spells as you travel.', btn:'Got it', lock:ALL},
-  {target:'#discBtn', html:'Bad cards? Pick up to 5 and tap <b>Discard</b> to swap them all at once. You get <b>1 discard per turn</b>, and after every attack you get a <b>whole new hand</b>. The monster <b>doesn\'t</b> attack when you discard. Stuck? Tap <b>Hint</b>. Now go get it!', btn:'Let me fight!'}
+  {target:'#discBtn', html:'Every turn: <b>1.</b> Discard the cards that don\'t help (up to 5) to fish for a better hand. The monster <b>doesn\'t</b> attack when you discard. <b>2.</b> Pick your best hand. <b>3.</b> Tap <b>Attack!</b> After every attack you get a whole new hand. Now go get it!', btn:'Let me fight!'}
 ];
 const coachStep = () => (S && S.coach>=0 && S.coach<STEPS.length && S.phase==='play') ? STEPS[S.coach] : null;
 function coachNext(){ S.coach++; if(S.coach>=STEPS.length){ S.coach=-1; store.set('tutorialDone',true); } render(); }
@@ -2075,7 +2078,7 @@ async function discard(){
     t.innerHTML=cardHTML(c,'flipin'+(isOff(c)?' off':'')).trim(); el.replaceWith(t.content.firstChild);
     blip(420,.05,'triangle'); await wait(110);
   }
-  f.disc.push(...out); busy=false; render();
+  f.disc.push(...out); busy=false; render(); coachEvent('discarded');
 }
 function hint(){
   if(busy||!S.fight) return;
