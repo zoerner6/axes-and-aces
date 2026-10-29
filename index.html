@@ -1056,6 +1056,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 /* video monsters: a touch more punch so the ink lines read crisper when enlarged */
 .foe-vidwrap video{filter:contrast(1.06) saturate(1.06)}
 
+.hpbar.healing{box-shadow:0 0 0 3px #7be38a,0 0 18px rgba(123,227,138,.7)!important}
 /* level-up scene: keep the banners off the soldier */
 .lvl-title{top:10px;left:14px;transform:rotate(-4deg)}
 .lvl-num{bottom:10px;left:auto;right:14px;transform:none}
@@ -2044,7 +2045,7 @@ function rollDrop(){
   if(S.coach>=0 && S.idx===0) return null;
   const r=Math.random(), g=gearDrops();
   if(r<1/6 && g.length){ const it=g[rnd(g.length)], old=S.eq[it.slot]; if(old){ (S.oldGear=S.oldGear||[]).push({type:old.type,tier:old.tier}); } S.eq[it.slot]={type:it.type,tier:it.tier}; return {kind:'gear', type:it.type, tier:it.tier, old:old?eqName(old.type,old.tier):null}; }
-  if(r<1/6+1/3){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } const b=S.hp; S.hp=Math.min(S.maxHp,S.hp+150); return {kind:'drink', heal:S.hp-b}; }
+  if(r<1/6+1/3){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } return {kind:'drink', heal:Math.min(S.maxHp-S.hp,150), pending:true}; }
   return null;
 }
 function dropHTML(w){
@@ -2242,6 +2243,20 @@ function victoryPanel(){
     <div class="vic-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     <button class="btn big vic-btn" data-act="afterVictory">${S.pendingLv?'Level up!':'Visit the merchant'}</button>
   </div>`);
+  if(w.drop&&w.drop.kind==='drink'&&w.drop.pending) drinkEvent(w.drop.heal, '.vic-hp .hpbar', 900, ()=>{ w.drop.pending=false; });
+}
+/* a potion you had no room for: show it, then drink it and let the health bar visibly fill */
+function drinkEvent(heal, barSel, delay, done){
+  itemSplash(I('potion'), 'Bag full! You drink it', delay, heal>0?`+${heal}`:'', soothe);
+  setTimeout(()=>{
+    const from=S.hp; S.hp=Math.min(S.maxHp,S.hp+heal); done&&done(); setMyBars(); render();
+    const bar=document.querySelector(barSel); if(!bar) return;
+    const fill=bar.querySelector('i'), txt=bar.querySelector('span'); fill.style.transition='width 1.4s ease';
+    requestAnimationFrame(()=>{ fill.style.width=Math.max(0,S.hp/S.maxHp*100)+'%'; });
+    const t0=performance.now(), to=S.hp; bar.classList.add('healing');
+    const tick=now=>{ const k=Math.min(1,(now-t0)/1400), v=Math.round(from+(to-from)*k); if(txt) txt.textContent=`HP ${v} / ${S.maxHp}`; if(k<1) requestAnimationFrame(tick); else bar.classList.remove('healing'); };
+    requestAnimationFrame(tick); blip(880,.12,'sine',.05); setTimeout(()=>blip(1320,.14,'sine',.05),180);
+  }, delay+2200);
 }
 function rollPerks(){
   const opts=shuffle(PERKS.filter(p=>p.id!=='size')).slice(0,3);
@@ -2443,10 +2458,10 @@ function makeFind(){
                 '"They\'re taking her to Castle Grimstone. Follow the smoke above the trees."',
                 '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][Math.floor(S.idx/3)];
     const people=[['hermit','An old hermit'],['farmer','A kind farmer'],['minstrel','A traveling minstrel'],['knight','A wandering knight']], [scene,title]=people[rnd(people.length)];
-    let gift, giftGold=0, giftItem=null;
-    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b> 🧪'; giftItem=[I('potion'),'Healing Potion']; } else { const b=S.hp; S.hp=Math.min(S.maxHp,S.hp+100); gift=`a sip from their flask (<b>+${S.hp-b} health</b>)`; } }
+    let gift, giftGold=0, giftItem=null, sipHeal=0;
+    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b> 🧪'; giftItem=[I('potion'),'Healing Potion']; } else { sipHeal=Math.min(S.maxHp-S.hp,100); gift=`a sip from their flask (<b>+${sipHeal} health</b>)`; } }
     else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; }
-    f={gold:giftGold,give:giftItem,scene,icon:'',title,text:`${clue}<br><br>Before you go, they give you ${gift}.`};
+    f={gold:giftGold,give:giftItem,sip:sipHeal,scene,icon:'',title,text:`${clue}<br><br>Before you go, they give you ${gift}.`};
   } else if(r<.85){
     const dmg=Math.max(10, 60-Math.floor(defense()/2)), b=S.hp; S.hp=Math.max(1,S.hp-dmg);
     f={scene:'trap',icon:I('trap'),title:'A trap!',text:`A hidden spike trap snaps shut. You lose <b>${b-S.hp} health</b>.${defense()?' Your armor took some of the hit.':' Better armor would help.'}`};
@@ -2464,6 +2479,7 @@ function findPanel(){
   $('panel').classList.add('cine');
   runCine('find_'+(f.scene||'chest'), f.title, plain);
   if(f.give && !f.shown){ f.shown=1; itemSplash(f.give[0], f.give[1], 1800); }
+  if(f.sip){ const h=f.sip; f.sip=0; drinkEvent(h, '.panel-hp .hpbar', 1800); }
   if(f.gold && !f.paid){ f.paid=1; setTimeout(()=>{ if(S.phase==='find') goldShower(f.gold); },1100); }
 }
 function summary(){
