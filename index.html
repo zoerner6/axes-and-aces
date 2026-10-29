@@ -1060,6 +1060,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .foe-vidwrap video{filter:contrast(1.06) saturate(1.06)}
 
 .hpbar.healing{box-shadow:0 0 0 3px #7be38a,0 0 18px rgba(123,227,138,.7)!important}
+.vbar.empty{opacity:0;transition:opacity .5s ease .5s}
 /* level-up scene: keep the banners off the soldier */
 .lvl-title{top:10px;left:14px;transform:rotate(-4deg)}
 .lvl-num{bottom:10px;left:auto;right:14px;transform:none}
@@ -1664,7 +1665,7 @@ function render(){
   if($('foeIcon').dataset.name!==d.name && !(S.phase==='victory'||S.phase==='level'||(S.fight&&S.fight.hp<=0))){ $('foeIcon').innerHTML = foeArt(d.name, d.icon); $('foeIcon').dataset.name=d.name; $('foeIcon').className='foe-icon'; setFoeVideo(d.name); } $('foeName').textContent = d.name + (d.lvl?` · Lv ${d.lvl}`:'') + (d.boss?' (boss)':'');
   $('foeRule').textContent = d.rule||''; $('monsterBox').classList.toggle('hasrule', !!d.rule);
   const hp = f?f.hp:d.hp, max=f?f.max:d.hp;
-  $('foeBar').style.height = Math.max(0,hp/max*100)+'%'; $('foeBar').style.setProperty('--pct', Math.max(0,hp/max*100)+'%'); $('foeHp').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeHpBar').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`;
+  $('foeBar').style.height = Math.max(0,hp/max*100)+'%'; $('foeBar').style.setProperty('--pct', Math.max(0,hp/max*100)+'%'); $('foeHp').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeHpBar').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeBar').parentElement.classList.toggle('empty', !!f && hp<=0);
   const mv = d.moves[(f?f.turn:0)%d.moves.length];
   $('intent').textContent = intentText(mv); $('intent').className = 'chip intent'+(mv.k==='atk'&&!(f&&f.frozen)?'':' calm');
   $('foeBlock').hidden = !(f&&f.block>0); if(f) $('foeBlock').textContent = `🛡️ ${f.block}`;
@@ -1842,7 +1843,7 @@ function hpLabel(){ const pc=Math.max(0,S.hp/S.maxHp*100); $('myBar').style.widt
 /* full-screen layout: remember where the cards start so the monster's health bar can sit just above them */
 function markHandTop(){ const h=$('hand'); if(h) document.documentElement.style.setProperty('--handtop', Math.round(h.getBoundingClientRect().top)+'px'); }
 addEventListener('resize', ()=>markHandTop());
-function showFoeHp(hp){ const f=S.fight, pc=Math.max(0,hp/f.max*100)+'%', t=`${fmt(Math.max(0,Math.round(hp)))} / ${fmt(f.max)}`; $('foeBar').style.height=pc; $('foeBar').style.setProperty('--pct',pc); $('foeHp').textContent=t; $('foeHpBar').textContent=t; }
+function showFoeHp(hp){ const f=S.fight, pc=Math.max(0,hp/f.max*100)+'%', t=`${fmt(Math.max(0,Math.round(hp)))} / ${fmt(f.max)}`; $('foeBar').style.height=pc; $('foeBar').style.setProperty('--pct',pc); $('foeBar').parentElement.classList.toggle('empty', hp<=0); $('foeHp').textContent=t; $('foeHpBar').textContent=t; }
 function setFoeBars(){ const f=S.fight; showFoeHp(f.hp); $('foeBlock').hidden=!(f.block>0); $('foeBlock').textContent=`🛡️ ${f.block}`; }
 function setMyBars(){ hpLabel(); $('myBlock').hidden=!(S.block>0); $('myBlock').textContent=`🛡️ ${S.block}`; $('goldNum').innerHTML=coin(S.gold); $('goldNum2').textContent=S.gold; }
 
