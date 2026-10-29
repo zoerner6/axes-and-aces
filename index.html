@@ -876,6 +876,12 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .itemsplash b{position:relative;font-family:var(--f-title);font-weight:400;font-size:clamp(1.8rem,7vw,3rem);color:#ffcf3d;text-shadow:3px 3px 0 #000,-1px -1px 0 #000;text-align:center;padding:0 16px}
 @keyframes isIn{0%{opacity:0;transform:scale(.3)}14%{opacity:1;transform:scale(1.08)}22%{transform:scale(1)}72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.15)}}
 @keyframes isGlow{0%{transform:scale(.4) rotate(0)}100%{transform:scale(1.2) rotate(40deg)}}
+.menu-list{display:flex;flex-direction:column;gap:10px;width:100%}
+.menu-list .btn.danger{color:#ff8b7e}
+.menu-confirm .btn.danger{background:#8e1a14;color:#fff;border-color:#000}
+.menu-confirm{background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:12px;display:flex;flex-direction:column;gap:10px;text-align:center}
+.menu-confirm p{margin:0;color:#16100d}.menu-confirm .row{display:flex;gap:8px}.menu-confirm .row .btn{flex:1}
+.menu-note{text-align:center;color:var(--parch-dim);font-size:.9rem;margin:0}
 .save-box{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:10px 12px;margin:6px 0}
 .save-box span{display:flex;flex-direction:column;gap:2px;text-align:left}.save-box b{font-family:var(--f-title);font-weight:400;font-size:1.25rem;color:#8e1a14}
 .save-box small{font-size:.92rem;color:#3a2a1c}.save-box .btn{flex:0 0 auto;min-width:96px;background:var(--gold,#f2b632);color:#16100d;border:3px solid #000}.save-box .btn:disabled{background:#3d7a3a;color:#fff;opacity:1}
@@ -1057,7 +1063,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
   <header class="top">
     <div class="brand">Axes &amp; Aces</div>
     <div class="tools">
-      <button class="tool" data-act="save">Save</button>
+      <button class="tool" data-act="menu">Menu</button>
       <button class="tool" data-act="guide"><span class="wide-only">Hand </span>guide</button>
       <button class="tool" data-act="help" aria-label="How to play">?</button>
       <div class="sndwrap"><button class="tool" data-act="sound" id="soundBtn" aria-haspopup="true">Sound</button>
@@ -1198,7 +1204,7 @@ const foeArt = (name, icon) => ART[name] ? `<img src="art/${ART[name]}.webp" alt
 const deadArt = (name, icon) => ART[name] ? `<img src="art/dead_${ART[name]}.webp" alt="${name}, defeated" draggable="false">` : icon;
 let BG = ['tavern','cellar','forest','castle'];
 /* moving monsters: a standing loop and an attack clip for each monster */
-const VIDS = new Set(["abbot", "anglerfish", "babydragon", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "djinn", "djinnwarrior", "dragon", "drowned", "eel", "firedwarf", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "hagspawn", "headless", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "irongolem", "jackal", "knight", "kobold", "kraken", "lavagolem", "leech", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "octopus", "pharaoh", "pirate", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rootbeast", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "sunlord", "templeguard", "toad", "tombguard", "treant", "troll", "vampire", "vulture", "wight", "willowisp", "witch", "wolf", "wyrm", "yetichief", "zombie"]);
+const VIDS = new Set(["abbot", "anglerfish", "babydragon", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "djinn", "djinnwarrior", "dragon", "drowned", "dryad", "eel", "elfgeneral", "elfknight", "elfmage", "firedwarf", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gardenguard", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "griffon", "hagspawn", "harpy", "headless", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "irongolem", "jackal", "knight", "kobold", "kraken", "lavagolem", "leech", "lich", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "mushroomman", "octopus", "owlbear", "pharaoh", "pirate", "pixie", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rootbeast", "rootgolem", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "skyserpent", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "stormdrake", "stormsoldier", "sunlord", "templeguard", "thornbear", "thornbeast", "thornelf", "thornqueen", "thunderbird", "toad", "tombguard", "treant", "troll", "unicorn", "vampire", "vulture", "wight", "willowisp", "witch", "wolf", "wyrm", "yetichief", "zombie"]);
 function setFoeVideo(name){
   const k=ART[name], st=$('monsterBox'), v=$('foeVid'), a=$('foeAtk'), w=$('foeVidWrap');
   w.className='foe-vidwrap'; a.classList.remove('on');
@@ -1209,7 +1215,7 @@ function setFoeVideo(name){
 }
 function stopFoeVideo(){ ['foeVid','foeAtk'].forEach(id=>{ const v=$(id); try{ v.pause(); }catch(e){} }); }
 /* when each attack clip lands its blow (seconds) */
-const HIT_AT = {"abbot": 1.5, "anglerfish": 1.3, "babydragon": 1.65, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.3, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "eel": 1.1, "firedwarf": 1.3, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "hagspawn": 1.5, "headless": 1.5, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "irongolem": 1.3, "jackal": 1.7, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "leech": 1.5, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "octopus": 1.3, "pharaoh": 1.7, "pirate": 1.2, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.4, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rootbeast": 1.2, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.2, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "sunlord": 1.4, "templeguard": 1.3, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "vampire": 2.4, "vulture": 1.9, "wight": 0.8, "willowisp": 0.8, "witch": 2.2, "wolf": 1.5, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
+const HIT_AT = {"abbot": 1.5, "anglerfish": 1.3, "babydragon": 1.65, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.3, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "irongolem": 1.3, "jackal": 1.7, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.4, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.2, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormsoldier": 1.5, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vulture": 1.9, "wight": 0.8, "willowisp": 0.8, "witch": 2.2, "wolf": 1.5, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
 function playFoeAttack(){
   if(!$('monsterBox').classList.contains('hasvid')) return 0;
   const a=$('foeAtk'), v=$('foeVid'); a.currentTime=0; a.classList.add('on');
@@ -2573,6 +2579,11 @@ document.addEventListener('click', e=>{
     case 'help': if(!busy) helpPanel(); break;
     case 'soldier': if(!busy) soldierPanel(); break;
     case 'close': closePanel(); resumePhase(); break;
+    case 'menu': if(!busy) menuPanel(); break;
+    case 'menuSave': { saveGame(true); t.textContent='Saved ✓'; t.disabled=true; const v=loadSaved(), n=document.querySelector('.menu-note'); if(v&&n) n.textContent='Last saved: '+savedInfo(v); break; }
+    case 'menuQuit': { saveGame(true); const sv=loadSave(); if(sv){ canSave=false; titlePanel(sv); } else closePanel(); break; }
+    case 'menuNew': $('menuConfirm').hidden=false; t.hidden=true; break;
+    case 'menuNewYes': canSave=true; clearSave(); newRun(!store.get('tutorialDone',false)); render(); storyPanel(); break;
     case 'sound': audio(); $('sndMenu').hidden=!$('sndMenu').hidden; break;
     case 'togMusic': musicOn=!musicOn; store.set('music',musicOn); audio(); render(); break;
     case 'togVoice': voiceOn=!voiceOn; store.set('voice2',voiceOn); if(!voiceOn) stopVoice(); render(); break;
@@ -2603,6 +2614,20 @@ function savedInfo(v){ const L=v.S; loadWorld(L.world||0); const where=AREAS[Mat
 function saveBox(){ return `<div class="save-box"><span><b>Save your game!</b><small>If you fall, you can pick up again from here.</small></span><button class="btn" data-act="saveHere">Save</button></div>`; }
 function clearSave(){ try{ localStorage.removeItem('aa_save'); }catch(e){} }
 function loadSave(){ try{ const v=JSON.parse(localStorage.getItem('aa_save')||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
+/* the game menu: save, save and quit to the title screen, keep playing, or start over */
+function menuPanel(){
+  const sv=loadSaved();
+  openPanel(`<div class="eyebrow">Paused</div><h2>Menu</h2>
+    <div class="menu-list">
+      <button class="btn big" data-act="close">Continue playing</button>
+      <button class="btn big ghost" data-act="menuSave">Save game</button>
+      <button class="btn big ghost" data-act="menuQuit">Save and quit</button>
+      <button class="btn big ghost danger" data-act="menuNew">Start over</button>
+      <div class="menu-confirm" id="menuConfirm" hidden><p>Start a brand-new game? Your progress since your last save will be lost.</p>
+        <div class="row"><button class="btn big danger" data-act="menuNewYes">Yes, start over</button><button class="btn big ghost" data-act="close">Keep playing</button></div></div>
+    </div>
+    <p class="menu-note">${sv?`Last saved: ${savedInfo(sv)}`:'You have not saved yet.'}</p>`);
+}
 function titlePanel(sv){
   loadWorld(sv.S.world||0); const L=sv.S, where=AREAS[Math.min(3,Math.floor((L.idx||0)/3))].name, when=new Date(sv.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
