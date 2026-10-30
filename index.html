@@ -1065,6 +1065,19 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .lvl-title{top:10px;left:14px;transform:rotate(-4deg)}
 .lvl-num{bottom:10px;left:auto;right:14px;transform:none}
 .lvl-hero{margin-top:0}
+
+/* phones: keep the top bar on one line */
+@media (max-width:440px){ .top{gap:6px} .brand{font-size:1.05rem;white-space:nowrap} .tools{flex-wrap:nowrap;gap:4px} .tool{padding:3px 8px;font-size:.66rem;white-space:nowrap} }
+/* short laptop screens: story-style popups (welcome back, you have fallen) fit without scrolling */
+@media (max-height:860px) and (min-aspect-ratio:5/4){
+  .panel.cine .cine-scene{max-height:34vh;aspect-ratio:auto;height:34vh}
+  .panel.cine .cine-scene.death{height:30vh}
+  .panel.cine{gap:8px;padding:12px 16px}
+  .panel.cine .lines>div{padding-block:2px}
+  .death-why{padding:6px 12px}
+  .death-why small{display:none}
+}
+@media (min-width:1000px) and (min-aspect-ratio:5/4){ #bubble{font-size:1.15rem;z-index:50} #bubble .who{font-size:.8rem} #bubble .bb button{font-size:1rem;padding:6px 14px} }
 </style>
 
 <div id="app">
@@ -1223,7 +1236,7 @@ function setFoeVideo(name){
 }
 function stopFoeVideo(){ ['foeVid','foeAtk'].forEach(id=>{ const v=$(id); try{ v.pause(); }catch(e){} }); }
 /* when each attack clip lands its blow (seconds) */
-const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfish": 1.3, "ashghoul": 1.3, "babydragon": 1.65, "balrog": 1.2, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cerberus": 1.8, "chaindemon": 1.3, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.3, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "demonking": 1.0, "demonknight": 0.7, "demonmage": 2.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firegiant": 1.7, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "hellhound": 1.7, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "imp2": 2.2, "irongolem": 1.3, "jackal": 1.7, "jailer": 1.2, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "lavaserpent": 1.3, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "phoenix": 0.8, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.4, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rocbird": 1.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.2, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormgiant": 0.8, "stormsoldier": 1.5, "stormtitan": 1.6, "stormwraith": 1.0, "succubus": 1.1, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "thunderknight": 1.6, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vampirebat": 1.3, "vinesnake": 0.8, "vulture": 1.9, "warden": 1.1, "werewolf": 1.1, "wight": 0.8, "willowisp": 0.8, "windspirit": 1.8, "witch": 2.2, "wolf": 1.5, "wolfpack": 1.4, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
+const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfish": 1.3, "ashghoul": 1.3, "babydragon": 1.65, "balrog": 1.2, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cerberus": 1.8, "chaindemon": 1.3, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.6, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "demonking": 1.0, "demonknight": 0.7, "demonmage": 2.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firegiant": 1.7, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "hellhound": 1.7, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "imp2": 2.2, "irongolem": 1.3, "jackal": 1.7, "jailer": 1.2, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "lavaserpent": 1.3, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "phoenix": 0.8, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.0, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rocbird": 1.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.3, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormgiant": 0.8, "stormsoldier": 1.5, "stormtitan": 1.6, "stormwraith": 1.0, "succubus": 1.1, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "thunderknight": 1.6, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vampirebat": 1.3, "vinesnake": 0.8, "vulture": 1.9, "warden": 1.1, "werewolf": 1.1, "wight": 0.8, "willowisp": 1.5, "windspirit": 1.8, "witch": 2.2, "wolf": 1.5, "wolfpack": 1.4, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
 function playFoeAttack(){
   if(!$('monsterBox').classList.contains('hasvid')) return 0;
   const a=$('foeAtk'), v=$('foeVid'); a.currentTime=0; a.classList.add('on');
@@ -1781,9 +1794,10 @@ function placeBubble(){
   bub.innerHTML = `<div class="who">Old Bram · tip ${S.coach+1} of ${STEPS.length}</div><div>${html}</div>`+
     `<div class="bb"><button class="skip" data-act="skipTutorial">Skip tips</button>${st.btn?`<button data-act="coachNext">${st.btn}</button>`:''}</div><span class="arrow"></span>`;
   bub.hidden=false;
-  const vw=document.documentElement.clientWidth, bw=Math.min(330, vw-24);
+  const vw=document.documentElement.clientWidth, bw=Math.min(vw>1000?440:330, vw-24);
   bub.style.width=bw+'px';
-  const r=t.getBoundingClientRect(), bh=bub.offsetHeight;
+  let r=t.getBoundingClientRect(); const bh=bub.offsetHeight;
+  if(r.height>window.innerHeight*.7){ const h=$('hand').getBoundingClientRect(); r={left:r.left,width:r.width,top:Math.max(60,h.top*.15),bottom:Math.max(60,h.top*.15)}; }
   const left=Math.max(12, Math.min(vw-bw-12, r.left+r.width/2-bw/2));
   const above = r.top-bh-14 >= 8;
   const top = above ? r.top-bh-14 : Math.min(window.innerHeight-bh-8, r.bottom+14);
