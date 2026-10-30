@@ -1078,6 +1078,28 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
   .death-why small{display:none}
 }
 @media (min-width:1000px) and (min-aspect-ratio:5/4){ #bubble{font-size:1.15rem;z-index:50} #bubble .who{font-size:.8rem} #bubble .bb button{font-size:1rem;padding:6px 14px} }
+
+/* monster level badges */
+.lvb{--c:#3fae4a;--c2:#1d6b25;display:inline-flex;align-items:center;gap:8px;vertical-align:middle;font-style:normal}
+.lvb.even{--c:#e8c33a;--c2:#9b7a10}.lvb.tough{--c:#f08a24;--c2:#a14e06}.lvb.danger{--c:#e2342a;--c2:#7d0d0a}.lvb.deadly{--c:#b01c14;--c2:#3c0503}.lvb.boss{--c:#a63de0;--c2:#4a0f6e}
+.lvb-shield{display:grid;place-items:center;line-height:1;color:#fff;background:linear-gradient(var(--c),var(--c2));border:3px solid #000;box-shadow:2px 2px 0 #000,0 0 12px var(--c);
+  clip-path:polygon(50% 100%,0 72%,0 0,100% 0,100% 72%);text-shadow:1px 1px 0 #000;font-family:var(--f-num);font-weight:700}
+.lvb-shield small{font-size:.5em;letter-spacing:.1em;opacity:.9}
+.lvb.sm .lvb-shield{width:34px;height:40px;font-size:1.05rem;padding-bottom:5px;box-sizing:border-box}
+.lvb.lg .lvb-shield{width:62px;height:74px;font-size:2rem;padding-bottom:9px;box-sizing:border-box}
+.lvb-word{font-family:var(--f-title);font-size:1.25rem;color:var(--c);text-shadow:2px 2px 0 #000,0 0 6px #000;text-transform:uppercase;letter-spacing:.04em}
+.lvb.danger .lvb-shield,.lvb.deadly .lvb-shield,.lvb.boss .lvb-shield{animation:lvbPulse 1.4s ease-in-out infinite}
+@keyframes lvbPulse{50%{box-shadow:2px 2px 0 #000,0 0 22px var(--c);filter:brightness(1.25)}}
+.foe-name{display:inline-flex;align-items:center;gap:8px}
+.enc-info .lvb{margin-top:4px}
+@media (prefers-reduced-motion:reduce){.lvb-shield{animation:none!important}}
+
+/* encounter: name and level badge sit side by side so the speech bubble stays clear */
+.enc-info{flex-direction:row;justify-content:center;flex-wrap:wrap;gap:4px 12px}
+.enc-info>b{order:1}.enc-info .lvb{order:0;margin-top:0}
+.enc-say,.enc-say.you{bottom:auto;top:12%}
+@media (max-width:420px){ .enc-say,.enc-say.you{top:14%;bottom:auto} }
+@media (min-width:1000px) and (min-aspect-ratio:5/4){ #app .lvb.sm .lvb-shield{width:46px;height:54px;font-size:1.45rem;padding-bottom:7px} }
 </style>
 
 <div id="app">
@@ -1564,6 +1586,11 @@ function newRun(withTutorial){
 }
 const xpNeed = L => 25 + L*20;
 const cumNeed = L => { let t=0; for(let i=1;i<=L;i++) t+=xpNeed(i); return t; };
+/* the monster's level badge: its color warns how dangerous it is next to your own level */
+function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-S.level;
+  return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
+function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
+  return `<span class="lvb ${k} ${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
 const AREA_LEN=[4,5,6,7], AREA_START=[0,4,9,15], LAST_IDX=21;
 const areaOf = (i=S.idx) => AREA_START.filter(x=>x<=i).length-1;
@@ -1682,7 +1709,7 @@ function render(){
   const f=S.fight, d=foeDef();
   $('togMusic').classList.toggle('on',musicOn); $('togSfx').classList.toggle('on',soundOn); $('togVoice').classList.toggle('on',voiceOn); updateMusic();
   $('monsterBox').dataset.area = curArea(); $('monsterBox').classList.toggle('boss', !!d.boss); $('monsterBox').style.setProperty('--bgimg', `url(art/${BGF(curArea())}.webp)`);
-  if($('foeIcon').dataset.name!==d.name && !(S.phase==='victory'||S.phase==='level'||(S.fight&&S.fight.hp<=0))){ $('foeIcon').innerHTML = foeArt(d.name, d.icon); $('foeIcon').dataset.name=d.name; $('foeIcon').className='foe-icon'; setFoeVideo(d.name); } $('foeName').textContent = d.name + (d.lvl?` · Lv ${d.lvl}`:'') + (d.boss?' (boss)':'');
+  if($('foeIcon').dataset.name!==d.name && !(S.phase==='victory'||S.phase==='level'||(S.fight&&S.fight.hp<=0))){ $('foeIcon').innerHTML = foeArt(d.name, d.icon); $('foeIcon').dataset.name=d.name; $('foeIcon').className='foe-icon'; setFoeVideo(d.name); } $('foeName').innerHTML = lvBadge(d,'sm') + `<span class="fn">${d.name}</span>`;
   $('foeRule').textContent = d.rule||''; $('monsterBox').classList.toggle('hasrule', !!d.rule);
   const hp = f?f.hp:d.hp, max=f?f.max:d.hp;
   $('foeBar').style.height = Math.max(0,hp/max*100)+'%'; $('foeBar').style.setProperty('--pct', Math.max(0,hp/max*100)+'%'); $('foeHp').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeHpBar').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeBar').parentElement.classList.toggle('empty', !!f && hp<=0);
@@ -2239,8 +2266,8 @@ function fightIntro(){
       ${S.enc==='spot'?'<span class="enc-mark">?!</span>':''}
       <span class="cine-title">${t.title}</span>
       <div class="bubble-say enc-say ${say.who}" id="dealSay"><span id="encSay"></span></div>
-      <div class="enc-info"><b>${d.name}${d.boss?' <i>Boss</i>':''}</b>
-        <div class="fc-stats"><span>${I('level')} Lv <em>${d.lvl||'?'}</em></span></div></div>
+      <div class="enc-info"><b>${d.name}</b>
+        ${lvBadge(d,'lg')}</div>
     </div>
     <div class="cine-cap" data-act="capDone"><p><span class="ghost">${plain}</span><span class="typed" id="capTxt"></span></p></div>
     ${d.boss?tip('boss','Bosses guard the end of every area and fight with a <b>special rule</b>. Cards marked with a red ✖ still count toward your poker hand, but do no damage.'):''}
