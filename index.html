@@ -2240,7 +2240,7 @@ function fightIntro(){
       <span class="cine-title">${t.title}</span>
       <div class="bubble-say enc-say ${say.who}" id="dealSay"><span id="encSay"></span></div>
       <div class="enc-info"><b>${d.name}${d.boss?' <i>Boss</i>':''}</b>
-        <div class="fc-stats"><span>${I('level')} Lv <em>${d.lvl||'?'}</em></span><span>${I('heart')} <em>${fmt(d.hp)}</em> HP</span><span>${I('xp')} <em>${d.xp||'?'}</em> EXP</span><span>${I('coin')} <em>${d.gold+gearHas('earn')}</em> Gold</span></div></div>
+        <div class="fc-stats"><span>${I('level')} Lv <em>${d.lvl||'?'}</em></span></div></div>
     </div>
     <div class="cine-cap" data-act="capDone"><p><span class="ghost">${plain}</span><span class="typed" id="capTxt"></span></p></div>
     ${d.boss?tip('boss','Bosses guard the end of every area and fight with a <b>special rule</b>. Cards marked with a red ✖ still count toward your poker hand, but do no damage.'):''}
