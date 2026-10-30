@@ -1675,7 +1675,9 @@ function quickScore(cards){
   ev.cards.forEach(c=>{ if(isOff(c)) return; if(c.rank===14) p+=aceBonus(); });
   cards.filter(c=>!ev.cards.includes(c)&&!isOff(c)).forEach(c=>{ if(c.rank===14) p+=aceBonus(); });
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
-  return {ev, p, m:b.m, total:Math.floor(p*b.m*hitShare(ev)), heal, blk, gold};
+  const live=cards.filter(c=>!isOff(c)), share=hitShare(ev);
+  const floor=(share<1&&live.length&&live.length<cards.length)?quickScore(live).total:0;
+  return {ev, p, m:b.m, total:Math.max(Math.floor(p*b.m*share),floor), heal, blk, gold};
 }
 function bestHand(){
   const cards=S.fight.hand.map(cardById), d=foeDef(), n=cards.length; let best=null;
@@ -1767,7 +1769,9 @@ function renderPreview(){
   tag.hidden=false; fitButtons();
 }
 /* the damage an attack with these cards would do (same math as attack(), no side effects) */
-function previewHit(played){
+/* a hand with dead (✖) cards never hits for less than the live cards alone would */
+function liveFloor(played){ const live=played.filter(c=>!isOff(c)); return live.length && live.length<played.length ? previewHit(live,true).dmg : 0; }
+function previewHit(played, raw){
   const ev=evaluate(played), ids=ev.cards.map(c=>c.id), base=handBase(ev.type), ctx={type:ev.type, played};
   let P=base.p+weaponPts(), M=base.m;
   const add=eff=>{ if(!eff) return; if(eff.p) P+=eff.p; if(eff.m) M+=eff.m; if(eff.x) M*=eff.x; };
@@ -1775,7 +1779,7 @@ function previewHit(played){
   S.gear.forEach(g=>{ if(GR[g].hand) add(GR[g].hand(ctx)); });
   if(S.rage) M*=2;
   const share=hitShare(ev);
-  return {type:ev.type, dmg:Math.floor(P*M*share), share};
+  return {type:ev.type, dmg:Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)), share};
 }
 /* buttons keep their full name: shrink the text until it fits */
 function fitButtons(){
@@ -1934,7 +1938,7 @@ async function attack(){
   render();
   if(weaponPts()) anim($('gearBtn'),'wiggle');
   const [word, nSlash] = HIT_WORDS[ev.type];
-  const share=hitShare(ev), dmg=Math.floor(P*M*share); S.lastHit=dmg;
+  const share=hitShare(ev), dmg=Math.max(Math.floor(P*M*share), liveFloor(played)); S.lastHit=dmg;
   /* the health bar drops with every slash as it lands */
   const lands=Math.max(0, dmg-Math.min(f.block,dmg)), hp0=f.hp;
   await wait(120); await slashes(nSlash, k=>showFoeHp(hp0-lands*k/nSlash));
