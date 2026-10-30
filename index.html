@@ -1315,7 +1315,7 @@ function loadWorld(w){
 }
 function worldComplete(){
   S.world=(S.world||0)+1; S.knighted=true; loadWorld(S.world);
-  S.idx=0; S.huntFoe=null; S.foePick=null; S.enc=null; S.redo=false; S.oldGear=[];
+  S.idx=0; S.layout=2; S.huntFoe=null; S.foePick=null; S.enc=null; S.redo=false; S.oldGear=[];
   S.phase='story'; S.story={key:'start',page:0};
   try{ localStorage.setItem('aa_checkpoint', JSON.stringify(S)); }catch(e){}
   saveGame(); storyPanel();
@@ -1371,7 +1371,7 @@ const eqDesc = (type,tier) => { const e=EQUIP[type]; return e.atk ? `+${e.atk[ti
 const twoHanded = () => !!(S.eq.main && EQUIP[S.eq.main.type].hands===2);
 const weaponPts = () => (S.eq.main?EQUIP[S.eq.main.type].atk[S.eq.main.tier]:0) + (S.eq.off&&!twoHanded()?EQUIP[S.eq.off.type].atk[S.eq.off.tier]:0);
 const defense = () => ['shield','helm','armor'].reduce((a,k)=>a+(S.eq[k]?EQUIP[S.eq[k].type].def[S.eq[k].tier]:0),0);
-const tierCap = () => (S.world||0)>0 ? 5 : Math.min(5, Math.floor(S.idx/3)+2);
+const tierCap = () => (S.world||0)>0 ? 5 : Math.min(5, areaOf()+2);
 /* spellbooks: unlocked by level, bought once, cast once per fight */
 const BOOKS = [
   {id:'cleric1',name:'Cleric Training I',  icon:I('cleric'), school:'cleric', lvl:2, price:6,  desc:'Earn 1 healing round per fight (heals 30% of max health)'},
@@ -1555,7 +1555,7 @@ const cardById = id => DECK[id];
 
 function newRun(withTutorial){
   loadWorld(0);
-  S = { v:2, eq:{main:null,off:null,shield:null,helm:null,armor:null}, books:[], cast:{}, idx:0, hp:400, maxHp:400, block:0, gold:3, level:1, xp:0, pendingLv:0,
+  S = { v:2, eq:{main:null,off:null,shield:null,helm:null,armor:null}, books:[], cast:{}, idx:0, layout:2, hp:400, maxHp:400, block:0, gold:3, level:1, xp:0, pendingLv:0,
     flatP:0, flatM:0, handSize:7, discBonus:0, levels:{}, gear:[], spells:['potion'],
     fight:null, phase:'story', story:{key:'start',page:0}, shop:null, perks:null, sort:'rank', rage:false,
     stats:{best:0, bestName:'', hands:0},
@@ -1564,10 +1564,17 @@ function newRun(withTutorial){
 }
 const xpNeed = L => 25 + L*20;
 const cumNeed = L => { let t=0; for(let i=1;i<=L;i++) t+=xpNeed(i); return t; };
-const area = () => AREAS[Math.floor(S.idx/3)];
-const foeId = (i=S.idx) => AREAS[Math.floor(i/3)].foes[i%3];
+/* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
+const AREA_LEN=[4,5,6,7], AREA_START=[0,4,9,15], LAST_IDX=21;
+const areaOf = (i=S.idx) => AREA_START.filter(x=>x<=i).length-1;
+const posIn = (i=S.idx) => i-AREA_START[areaOf(i)];
+const isBossStep = (i=S.idx) => posIn(i)===AREA_LEN[areaOf(i)]-1;
+/* saves from before areas got longer: move them to the matching spot */
+function upgradeIdx(st){ if(!st||st.layout===2) return; const a=Math.min(3,Math.floor((st.idx||0)/3)), p=(st.idx||0)%3; st.idx=AREA_START[a]+(p===2?AREA_LEN[a]-1:p); st.layout=2; }
+const area = () => AREAS[areaOf()];
+const foeId = (i=S.idx) => isBossStep(i) ? AREAS[areaOf(i)].foes[2] : 'gen';
 const curFoeId = () => S.foePick || foeId();
-const curArea = () => S.huntFoe ? S.huntArea : Math.floor(S.idx/3);
+const curArea = () => S.huntFoe ? S.huntArea : areaOf();
 const foeDef = () => MONSTERS[S.fight ? S.fight.id : curFoeId()] || MONSTERS.gen || MONSTERS.goblin;
 const isOff = c => { const d=S.fight&&MONSTERS[S.fight.id]; return !!(d&&d.off&&d.off(c)); };
 const gearHas = k => S.gear.reduce((a,id)=>a+(GR[id][k]||0),0);
@@ -1925,7 +1932,7 @@ async function attack(){
 /* ---------- run: flee to the previous area and face something easier ---------- */
 function run(){
   const f=S.fight; if(busy||!f||$('runBtn').disabled) return;
-  const here=Math.floor(S.idx/3), back=Math.max(0, (S.huntFoe?S.huntArea:here)-1);
+  const here=areaOf(), back=Math.max(0, (S.huntFoe?S.huntArea:here)-1);
   S.redo = S.redo || !S.huntFoe;  /* come back to the quest fight you ran from */
   S.fight=null; sel=[]; infoSel=null; S.block=0;
   S.huntFoe='gen'; S.huntArea=back; S.foePick=null; S.enc='spot';
@@ -2095,7 +2102,7 @@ async function victory(){
   const gifts=[]; let ups=0;
   while(S.xp>=cumNeed(S.level)){ S.level++; S.pendingLv++; ups++; S.maxHp+=100; S.hp+=100; const g=levelGift(); if(g) gifts.push(g); }
   if(ups){ S.lvlReport={ups, gifts}; }
-  if(!S.huntFoe && S.idx===11 && d.boss){ S.pendingLv=0; S.lvlReport=null; S.phase='story'; S.story={key:'end',page:0}; storyPanel(); return; }
+  if(!S.huntFoe && S.idx===LAST_IDX && d.boss){ S.pendingLv=0; S.lvlReport=null; S.phase='story'; S.story={key:'end',page:0}; storyPanel(); return; }
   const drop=rollDrop();
   if(drop) setTimeout(()=>{ if(S.phase==='victory') (drop.kind==='gear'?anvil():coins()); },900);
   if(drop&&drop.kind!=='drink') itemSplash(drop.kind==='gear'?eqIcon(drop.type,drop.tier):I('potion'), drop.kind==='gear'?eqName(drop.type,drop.tier):'Healing Potion', 700);
@@ -2207,7 +2214,7 @@ function fightIntro(){
   if(!S.foePick){
     const ar=curArea(), [lo,hi]=AREA_LV[ar];
     if(!S.huntFoe && MONSTERS[foeId()] && MONSTERS[foeId()].boss) S.foePick=foeId();
-    else { S.genFoe=genMonster(ar, S.huntFoe ? lo+rnd(hi-lo+1) : lo+(S.idx%3), (!S.huntFoe&&S.idx===0&&!(S.world||0))?'Sneaky Goblin':null); MONSTERS.gen=S.genFoe; S.foePick='gen'; }
+    else { S.genFoe=genMonster(ar, S.huntFoe ? lo+rnd(hi-lo+1) : lo+Math.round(posIn()*(hi-lo)/(AREA_LEN[ar]-1)), (!S.huntFoe&&S.idx===0&&!(S.world||0))?'Sneaky Goblin':null); MONSTERS.gen=S.genFoe; S.foePick='gen'; }
   }
   const id=curFoeId(), d=MONSTERS[id], a=AREAS[curArea()];
   if(!S.enc){ S.enc = d.boss ? 'boss' : (S.coach===0&&S.idx===0) ? 'path' : ['ambush','spot','path'][rnd(3)]; }
@@ -2247,7 +2254,7 @@ function fightIntro(){
   if(S.enc==='boss') setTimeout(()=>{ if(S.phase==='intro') shake(); },500);
 }
 function victoryPanel(){
-  const w=S.lastWin, areaDone=!S.huntFoe && S.idx%3===2;
+  const w=S.lastWin, areaDone=!S.huntFoe && isBossStep();
   openPanel(`<div class="vic">
     <div class="vic-title">Victory!</div>
     <div class="vic-foe"><span class="vf deadpic">${deadArt(w.name, w.icon)}</span><span class="dizzy"><i>✦</i><i>✦</i><i>✦</i></span></div>
@@ -2440,22 +2447,22 @@ function sellPanel(){
 function pathPanel(){
   if(S.redo){ nextFight(); return; }
   S.phase='path';
-  const unlocked=Math.floor(S.idx/3), nextIdx=S.idx+1;
+  const unlocked=areaOf(), nextIdx=S.idx+1;
   const hunts=[unlocked].map(i=>AREAS[i]).map((a)=>`<button class="pathbtn hunt" data-act="hunt" data-a="${unlocked}"><span class="inn-ic">${a.icon}</span><span class="inn-txt"><b>Train at ${a.name}</b><small>Build up your experience and gold</small></span></button>`).reverse().join('');
-  const step = nextIdx < QUEST_STEPS.length ? QUEST_STEPS[nextIdx] : null, newLand = nextIdx%3===0;
+  const newLand = AREA_START.includes(nextIdx), step = nextIdx <= LAST_IDX ? QUEST_STEPS[newLand ? AREA_START.indexOf(nextIdx)*3 : Math.min(areaOf(nextIdx)*3+1, QUEST_STEPS.length-1)] : null;
   /* only a real choice before leaving for a new place; otherwise just keep going */
   if(step && !newLand){ S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); return; }
   openPanel(`<div class="eyebrow">Where to next?</div><h2>Choose your path</h2>
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     ${newLand?saveBox():''}
     ${tip('path','Not ready to push on? <b>Train</b> where you are to earn experience and gold, then continue the quest when you feel strong.')}
-    ${step?`<button class="pathbtn quest" data-act="quest"><span class="inn-ic">${newLand?AREAS[nextIdx/3].icon:I('map')}</span><span class="inn-txt"><b>${step.go}</b><small>${step.why}</small></span></button>`:''}
+    ${step?`<button class="pathbtn quest" data-act="quest"><span class="inn-ic">${newLand?AREAS[AREA_START.indexOf(nextIdx)].icon:I('map')}</span><span class="inn-txt"><b>${step.go}</b><small>${step.why}</small></span></button>`:''}
     ${hunts}`);
 }
 function nextFight(){
   if(S.redo){ S.redo=false; S.shop=null; S.huntFoe=null; S.foePick=null; S.enc=null; fightIntro(); return; }
   S.shop=null; S.idx++;
-  if(S.idx%3===0){ S.phase='story'; S.story={key:'a'+(S.idx/3),page:0}; storyPanel(); }
+  if(AREA_START.includes(S.idx)){ S.phase='story'; S.story={key:'a'+AREA_START.indexOf(S.idx),page:0}; storyPanel(); }
   else if(Math.random()<.35){ makeFind(); findPanel(); }
   else fightIntro();
 }
@@ -2474,7 +2481,7 @@ function makeFind(){
     const clue=['"The bandits dragged her down into the cellar. Watch out for their chief."',
                 '"Behind the cracked cellar wall there\'s a tunnel. It leads to the Dark Forest."',
                 '"They\'re taking her to Castle Grimstone. Follow the smoke above the trees."',
-                '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][Math.floor(S.idx/3)];
+                '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][areaOf()];
     const people=[['hermit','An old hermit'],['farmer','A kind farmer'],['minstrel','A traveling minstrel'],['knight','A wandering knight']], [scene,title]=people[rnd(people.length)];
     let gift, giftGold=0, giftItem=null, sipHeal=0;
     if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b> 🧪'; giftItem=[I('potion'),'Healing Potion']; } else { sipHeal=Math.min(S.maxHp-S.hp,100); gift=`a sip from their flask (<b>+${sipHeal} health</b>)`; } }
@@ -2609,14 +2616,14 @@ document.addEventListener('click', e=>{
       S.gold-=p.price; S.spells.push(p.id); coins(); render(); shopPanel(); itemSplash(p.icon, p.name, 0, '+1', coins); break; }
     case 'leaveShop': pathPanel(); break;
     case 'quest': S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); break;
-    case 'hunt': { const a=+t.dataset.a; if(a!==Math.floor(S.idx/3)) return;
+    case 'hunt': { const a=+t.dataset.a; if(a!==areaOf()) return;
       S.huntFoe='gen'; S.huntArea=a; S.shop=null; S.enc=null; S.foePick=null; fightIntro(); break; }
     case 'findOk': S.find=null; render(); fightIntro(); break;
     case 'eat': { const f=S.find; if(!f||!f.choice) return; f.choice=false; const b=S.hp;
       if(Math.random()<.5){ S.hp=Math.min(S.maxHp,S.hp+120); f.text=`Delicious! You feel warm all over and heal <b>${S.hp-b} health</b>.`; soothe(); }
       else { S.hp=Math.max(1,S.hp-50); f.text=`Yuck! Your stomach twists and you lose <b>${b-S.hp} health</b>.`; thud(); }
       render(); findPanel(); break; }
-    case 'retryWorld': { try{ const c=JSON.parse(localStorage.getItem('aa_checkpoint')||'null'); if(c){ S=c; loadWorld(S.world||0); canSave=true; render(); resumePhase(); break; } }catch(e){} newRun(false); render(); fightIntro(); break; }
+    case 'retryWorld': { try{ const c=JSON.parse(localStorage.getItem('aa_checkpoint')||'null'); if(c){ S=c; upgradeIdx(S); loadWorld(S.world||0); canSave=true; render(); resumePhase(); break; } }catch(e){} newRun(false); render(); fightIntro(); break; }
     case 'newRun': newRun(false); render(); fightIntro(); break;
     case 'guide': if(!busy) guidePanel(); break;
     case 'help': if(!busy) helpPanel(); break;
@@ -2651,7 +2658,7 @@ function saveGame(manual){
   catch(e){ if(manual) toast('Could not save in this browser'); }
 }
 function loadSaved(){ try{ const v=JSON.parse(localStorage.getItem('aa_saved')||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
-function savedInfo(v){ const L=v.S; loadWorld(L.world||0); const where=AREAS[Math.min(3,Math.floor((L.idx||0)/3))].name; loadWorld(S.world||0);
+function savedInfo(v){ const L=v.S; loadWorld(L.world||0); upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name; loadWorld(S.world||0);
   return `Level ${L.level} · ${where} · ${new Date(v.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`; }
 /* a reminder box with a save button, shown before heading somewhere new */
 function saveBox(){ return `<div class="save-box"><span><b>Save your game!</b><small>If you fall, you can pick up again from here.</small></span><button class="btn" data-act="saveHere">Save</button></div>`; }
@@ -2672,7 +2679,7 @@ function menuPanel(){
     <p class="menu-note">${sv?`Last saved: ${savedInfo(sv)}`:'You have not saved yet.'}</p>`);
 }
 function titlePanel(sv){
-  loadWorld(sv.S.world||0); const L=sv.S, where=AREAS[Math.min(3,Math.floor((L.idx||0)/3))].name, when=new Date(sv.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  loadWorld(sv.S.world||0); const L=sv.S; upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name, when=new Date(sv.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
     <h2>Welcome back, ${L.world>0||L.knighted?'Sir Edward':'Edward'}</h2>
     <div class="lines"><div><span>Quest</span><b>${worldName(L.world)}</b></div><div><span>Level</span><b>${L.level}</b></div><div><span>Where</span><b>${where}</b></div><div><span>Health</span><b>${L.hp} / ${L.maxHp}</b></div><div><span>Gold</span><b>${coin(L.gold)}</b></div><div><span>Saved</span><b>${when}</b></div></div>
@@ -2682,7 +2689,7 @@ function titlePanel(sv){
 }
 /* ---------- start ---------- */
 function start(data){
-  if(data&&data.S&&data.S.v===2){ S=data.S; loadWorld(S.world||0); if(S.maxHp<200){ S.maxHp*=10; S.hp*=10; } if(S.genFoe) MONSTERS.gen=S.genFoe; S.books=(S.books||[]).map(b=>b==='heal'?'cleric1':b).filter(b=>BK[b]); S.handSize=Math.min(7,S.handSize); sel=data.sel||[]; busy=false; render(); if(S.phase==='play'&&S.fight){ closePanel(); if(S.fight.hp<=0){ busy=true; victory(); } else { drawUp(); render(); } } else resumePhase(); return; }
+  if(data&&data.S&&data.S.v===2){ S=data.S; upgradeIdx(S); loadWorld(S.world||0); if(S.maxHp<200){ S.maxHp*=10; S.hp*=10; } if(S.genFoe) MONSTERS.gen=S.genFoe; S.books=(S.books||[]).map(b=>b==='heal'?'cleric1':b).filter(b=>BK[b]); S.handSize=Math.min(7,S.handSize); sel=data.sel||[]; busy=false; render(); if(S.phase==='play'&&S.fight){ closePanel(); if(S.fight.hp<=0){ busy=true; victory(); } else { drawUp(); render(); } } else resumePhase(); return; }
   const sv=loadSave();
   if(sv){ canSave=false; newRun(false); render(); titlePanel(sv); return; }
   const first=!store.get('tutorialDone',false);
