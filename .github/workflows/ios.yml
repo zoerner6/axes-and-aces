@@ -1,0 +1,102 @@
+# Builds the iPhone app on a macOS runner, so no Mac is needed locally.
+# The repo is public, so these runners cost nothing.
+#
+# Before the first signed build, three repository secrets must exist
+# (Settings > Secrets and variables > Actions):
+#   APPSTORE_ISSUER_ID   App Store Connect > Users and Access > Integrations
+#   APPSTORE_KEY_ID      the key's ID from that same page
+#   APPSTORE_P8          the whole contents of the AuthKey_XXXX.p8 file
+# Without them the workflow still runs and checks the app compiles,
+# it just cannot sign or upload.
+
+name: iPhone app
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Send the build to TestFlight'
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: dev/android-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install the app's packages
+        run: npm ci || npm install
+
+      - name: Copy the web files in
+        run: npx cap sync ios
+
+      - name: Install the iOS libraries
+        run: pod install
+        working-directory: dev/android-app/ios/App
+
+      - name: Check it compiles
+        if: ${{ !inputs.upload || secrets.APPSTORE_P8 == '' }}
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: Sign in to App Store Connect
+        if: ${{ inputs.upload && secrets.APPSTORE_P8 != '' }}
+        env:
+          P8: ${{ secrets.APPSTORE_P8 }}
+          KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          printf '%s' "$P8" > ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
+
+      - name: Build and sign
+        if: ${{ inputs.upload && secrets.APPSTORE_P8 != '' }}
+        env:
+          KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          ISSUER: ${{ secrets.APPSTORE_ISSUER_ID }}
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8 \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER" \
+            archive
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportPath "$RUNNER_TEMP/out" \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8 \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER"
+
+      - name: Keep the build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: ${{ runner.temp }}/out
+          if-no-files-found: ignore

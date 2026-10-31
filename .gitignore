@@ -5,3 +5,9 @@ dev/android-app/android/keystore.properties
 *.jks
 upload-key-password.txt
 dev/android-app/node_modules/
+
+# iOS build leftovers
+dev/android-app/ios/App/Pods/
+dev/android-app/ios/App/Podfile.lock
+dev/android-app/ios/App/App.xcworkspace/xcuserdata/
+dev/android-app/ios/App/App.xcodeproj/xcuserdata/

@@ -3219,7 +3219,7 @@ function winPanel(){
 }
 function guidePanel(){
   const rows=HAND_ORDER.slice().reverse().map(t=>{const b=handBase(t);
-    return `<div class="g-row"><b>${HANDS[t].name}</b><span class="sc">${b.p} × ${b.m}${HAND_GOLD[t]?` · +${coin(HAND_GOLD[t])}`:''}</span><div class="ex">${HANDS[t].ex.map(mini).join('')}</div><small>${HANDS[t].tip}</small></div>`;}).join('');
+    return `<div class="g-row"><b>${HANDS[t].name}</b><span class="sc">${b.p} × ${b.m.toFixed(2)}${HAND_GOLD[t]?` · +${coin(HAND_GOLD[t])}`:''}</span><div class="ex">${HANDS[t].ex.map(mini).join('')}</div><small>${HANDS[t].tip}</small></div>`;}).join('');
   openPanel(`<div class="eyebrow">Hand guide</div><h2>Your attacks, strongest first</h2>
     <p>Damage = <b>hand points × Attack × Level</b>. Your <b>Attack</b> score comes from your weapons: <b>+100 Attack means you hit twice as hard</b>. Every level adds another <b>32%</b> on top. Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
     <p><b>Aces</b> (gold cards) in your hand add <b>12% each</b>.</p>

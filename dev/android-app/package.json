@@ -1,1 +1,1 @@
-{"name":"axes-and-aces","version":"1.0.0","private":true,"dependencies":{"@capacitor/android":"^6.2.0","@capacitor/cli":"^6.2.0","@capacitor/core":"^6.2.0"}}
+{"name":"axes-and-aces","version":"1.0.0","private":true,"dependencies":{"@capacitor/android":"^6.2.0","@capacitor/cli":"^6.2.0","@capacitor/core":"^6.2.0","@capacitor/ios":"^6.2.3"}}
