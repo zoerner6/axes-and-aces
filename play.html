@@ -1166,6 +1166,24 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .aheadwarn span b{color:#ffd35c}
 @media (max-height:760px){ .aheadwarn{padding:7px 12px} .aheadwarn span{font-size:.86rem} }
 
+.nosaves{background:#2a1d16;border:3px solid #000;border-left:7px solid var(--gold);border-radius:10px;box-shadow:4px 4px 0 #000;padding:9px 14px;margin:2px 0;text-align:left}
+.panel.cine.slotsp{overflow:hidden}
+.panel.cine.slotsp .cine-scene{flex:0 1 auto;min-height:0;max-height:min(30vh,240px)!important}
+.panel.cine.slotsp .slots{gap:6px}
+@media (max-height:860px){
+  .panel.cine.slotsp .cine-scene{max-height:min(22vh,190px)!important}
+  .panel.cine.slotsp .slot-card{padding:6px 10px}
+  .nosaves{padding:7px 12px} .nosaves b{font-size:1rem} .nosaves span{font-size:.84rem;line-height:1.35}
+}
+@media (max-height:720px){
+  .panel.cine.slotsp .cine-scene{max-height:min(17vh,135px)!important}
+  .panel.cine.slotsp .slot-card{padding:4px 10px}
+  .nosaves span{font-size:.8rem;line-height:1.3}
+}
+.nosaves b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.1rem;color:var(--gold)}
+.nosaves span{display:block;margin-top:3px;font-size:.9rem;line-height:1.42;color:var(--parch)}
+.nosaves span b{display:inline;font-family:var(--f-body);font-weight:700;font-size:1em;color:#ff9b86}
+
 /* ---- being healed ---- */
 .healfx{position:absolute;inset:0;z-index:15;pointer-events:none;overflow:hidden;border-radius:13px;--hc:#5fe07a}
 .healfx .hf-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(95,224,122,.55),rgba(95,224,122,.12) 45%,transparent 70%);
@@ -2208,8 +2226,7 @@ function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map
   /* both numbers say what this monster does to you, the same way your own
      card reads, instead of a raw stat you have to do maths against */
   const armCut=Math.round((1 - 1/(1+def/100))*100);
-  const bite=Math.round(takeFrom(atk)/Math.max(1,S.maxHp)*100);
-  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>${bite}%</b><small>Of your health, per hit</small></span><span class="fs def">${I('shield')}<b>${armCut}%</b><small>Of your damage blocked</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
+  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>${fmt(takeFrom(atk))}</b><small>Damage to you, per hit</small></span><span class="fs def">${I('shield')}<b>${armCut}%</b><small>Of your damage blocked</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
@@ -2328,11 +2345,13 @@ function cardHTML(c, extra=''){
     `<span class="cn br">${RL(c.rank)}<i>${s.s}</i></span>${c.rank===14?`<span class="ace10">+${Math.round(ACE_MULT*100)}%</span>`:''}</button>`;
 }
 const mini = ([r,s]) => `<span class="mini ${SUITS[s].red?'red':''}">${RL(r)}${SUITS[s].s}</span>`;
+/* every swing rolls within 15% of the monster's usual hit */
+const swing = n => Math.max(1, Math.round(n * (0.85 + Math.random()*0.3)));
 function intentText(mv){
   if(!mv) return '';
   if(S.fight&&S.fight.stunned) return `${I('skull')} Startled: skips its first move`;
   if(S.fight&&S.fight.frozen) return `${I('frost')} Frozen: skips its next move`;
-  return mv.k==='atk' ? `${I('attack')} Next: attacks for ${mv.n}${defense()?` · you take ${takeFrom(mv.n)}`:''}` : mv.k==='blk' ? `${I('shield')} Next: raises a shield of ${mv.n}` : `${I('heart')} Next: will heal itself for ${mv.n}`;
+  return mv.k==='atk' ? `${I('attack')} Next: attacks for about ${fmt(takeFrom(mv.n))}` : mv.k==='blk' ? `${I('shield')} Next: raises a shield of ${mv.n}` : `${I('heart')} Next: will heal itself for ${mv.n}`;
 }
 function render(){
   const f=S.fight, d=foeDef();
@@ -2674,12 +2693,13 @@ async function foeTurn(){
     await wait(hitMs||300); if(hitMs) swoosh(); claws();
     const atks0=d.moves.filter(m=>m.k==='atk').map(m=>m.n), isBig=atks0.length>1 && mv.n>=Math.min(...atks0)*1.5;
     /* a critical blow punches through part of your armour */
-    const after=Math.max(1, Math.round(mv.n / (1 + defense()/(isBig?200:100))));
+    const raw=swing(mv.n);
+    const after=Math.max(1, Math.round(raw / (1 + defense()/(isBig?200:100))));
     const arm=mv.n-after, absorbed=Math.min(S.block,after), dmg=after-absorbed; S.hp-=dmg; if(dmg>0) f.hurt=true;
     const saved=arm+absorbed, atks=d.moves.filter(m=>m.k==='atk').map(m=>m.n), big=atks.length>1 && mv.n>=Math.min(...atks)*1.5;
     S.killer={name:d.name, dmg, raw:mv.n, saved, big, area:curArea()};
     if(big){ foeBanner('Critical blow!', `−${dmg} HP`, 'crit'); claws(); setTimeout(claws,120); }
-    say(`The ${d.name} swings for ${mv.n}` + (saved ? `. Your armor and blocks stop ${saved}, so you lose ${dmg}` : '') + '!');
+    say(`The ${d.name} swings for ${raw}` + (saved ? `. Your armor and blocks stop ${saved}, so you lose ${dmg}` : '') + '!');
     if(absorbed) pop($('myBlock'),`${absorbed} blocked`,'b');
     if(dmg>0){ setMyBars(); boom($('myBar').parentElement, dmg); anim($('heroBox'),'flash'); thud(); if(dmg>=8) shake(); }
     else blip(900,.1,'square',.04);
@@ -3479,11 +3499,17 @@ document.addEventListener('click', e=>{
 });
 document.addEventListener('keydown', e=>{ if($('overlay').hidden && e.key==='Enter' && !$('atkBtn').disabled) attack(); });
 
-/* ---------- save and continue (kept in this browser) ---------- */
-let canSave=true;
+/* ---------- save and continue ---------- */
+let canSave=true, lastCloud=0;
 function saveGame(manual){
   if(!canSave || !S || S.phase==='over' || S.phase==='win') return;
-  try{ const v=JSON.stringify({S, at:Date.now()}); localStorage.setItem(SK('save'), v); if(manual){ localStorage.setItem(SK('saved'), v); toast('Game saved'); if(store.get('aa_cloud','')) cloudSave(true); } }
+  try{ const v=JSON.stringify({S, at:Date.now()}); localStorage.setItem(SK('save'), v);
+    if(manual){ localStorage.setItem(SK('saved'), v); toast('Game saved'); }
+    /* Back the hero up to the cloud on its own, at most once a minute. The
+       browser's copy dies with a private window or a cleared cache; this is
+       what gets the hero back. */
+    if(manual || Date.now()-lastCloud > 60000){ lastCloud=Date.now(); cloudSave(true); }
+  }
   catch(e){ if(manual) toast('Could not save in this browser'); }
 }
 function loadSaved(n=SLOT){ try{ const v=JSON.parse(localStorage.getItem(SKn('saved',n))||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
@@ -3528,8 +3554,12 @@ function slotsPanel(){
       <div class="slot-btns"><button class="btn" data-act="slotPlay" data-slot="${n}">Play</button><button class="slot-del" data-act="slotDel" data-slot="${n}" aria-label="Delete this hero">Delete</button></div></div>`; }).join('');
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
     <h2>Choose your hero</h2><div class="slots">${cards}</div>
-    <button class="btn big ghost daily" data-act="daily">Daily Challenge</button>`);
-  $('panel').classList.add('cine');
+    ${!anySlots()?`<div class="nosaves">${I('cloud')||''}<b>Played before and your heroes are gone?</b>
+      <span>Heroes are kept in this browser. A <b>private or incognito window</b> throws them away when you close it, and so does clearing your browsing data.
+      If you saved to the cloud, your code brings them back.</span></div>`:''}
+    <div class="row"><button class="btn big ghost" data-act="cloud">${anySlots()?'Cloud save':'I have a cloud code'}</button>
+    <button class="btn big ghost daily" data-act="daily">Daily Challenge</button></div>`);
+  $('panel').classList.add('cine','slotsp');
 }
 function namePanel(n, current){
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">A new hero</span></div>
@@ -3922,9 +3952,10 @@ function start(data){
   migrateSaves(); const ch=readChallenge();
   /* the website's Continue button opens a hero's save directly */
   try{ const q=new URLSearchParams(location.search), n=+q.get('slot'); if(!ch && n>=1 && n<=3){ history.replaceState(null,'',location.pathname); const sv=loadSave(n)||loadSaved(n); if(sv){ setSlot(n); canSave=true; start({S:JSON.parse(JSON.stringify(sv.S))}); return; } } }catch(e){}
-  if(anySlots()){ canSave=false; newRun(false); render(); if(ch){ challengePanel(ch,'title'); return; } slotsPanel(); return; }
   const first=!store.get('tutorialDone',false);
-  canSave=false; newRun(first); render(); if(ch){ challengePanel(ch,'name'); return; } namePanel(1);
+  canSave=false; newRun(anySlots()?false:first); render();
+  if(ch){ challengePanel(ch, anySlots()?'title':'name'); return; }
+  slotsPanel();
 }
 setInterval(()=>{ if(busy && Date.now()-busySince>15000){ busy=false;
   if(S.phase==='play'&&S.fight&&S.fight.hp<=0) victory(); else { if(S.fight&&S.phase==='play') drawUp(); render(); } } }, 2000);
