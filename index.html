@@ -1255,6 +1255,34 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 .foe-name{font-size:clamp(1.25rem,5vw,1.6rem)}
 .enc-mark{left:40%!important;top:30%!important}
 @media (max-width:420px){ .enc-mark{left:30%!important;top:38%!important;font-size:2.4rem!important} }
+
+/* gratifying victory: gold pouch + experience bar */
+.loot2{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;width:100%}
+@media (max-width:520px){ .loot2{grid-template-columns:1fr} }
+.purse{position:relative;display:flex;align-items:center;gap:12px;background:linear-gradient(#3b2a0c,#1d1406);border:3px solid #000;border-radius:12px;box-shadow:4px 4px 0 #000,inset 0 0 0 1px rgba(242,182,50,.4);padding:10px 14px;transition:box-shadow .3s}
+.purse.lit{box-shadow:4px 4px 0 #000,0 0 26px rgba(255,200,60,.85),inset 0 0 0 2px #ffd35c}
+.purse.bump .purse-coin{animation:coinBump .3s cubic-bezier(.2,1.8,.4,1)}
+@keyframes coinBump{40%{transform:scale(1.3) rotate(-10deg)}}
+.purse-coin{width:72px;height:72px;filter:drop-shadow(0 0 10px rgba(255,200,60,.6)) drop-shadow(3px 3px 0 #000)}
+.purse-txt small{display:block;font-family:var(--f-num);font-weight:700;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:#e8c37a}
+.purse-txt b{display:block;font-family:var(--f-title);font-weight:400;font-size:2.8rem;line-height:1;color:#ffd35c;text-shadow:3px 3px 0 #000}
+.purse-gain{position:absolute;right:10px;top:8px;font-family:var(--f-num);font-weight:700;font-size:1.5rem;color:#fff;text-shadow:2px 2px 0 #000;opacity:0;transform:scale(.4)}
+.purse-gain.show,.xp-gain.show{animation:gainIn .45s cubic-bezier(.2,1.7,.4,1) forwards}
+@keyframes gainIn{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+.vcoin{position:fixed;width:54px;height:54px;margin:-27px 0 0 -27px;z-index:120;pointer-events:none;filter:drop-shadow(2px 3px 0 #000);animation:vcoinDrop .52s cubic-bezier(.5,0,.8,.5) forwards}
+@keyframes vcoinDrop{0%{transform:translateY(-55vh) rotate(-200deg) scale(1.3);opacity:0}15%{opacity:1}100%{transform:translateY(0) rotate(0) scale(.6);opacity:.2}}
+.xpbox{position:relative;background:linear-gradient(#123230,#081816);border:3px solid #000;border-radius:12px;box-shadow:4px 4px 0 #000,inset 0 0 0 1px rgba(80,210,195,.35);padding:10px 14px;display:flex;flex-direction:column;justify-content:center;gap:8px;transition:box-shadow .3s}
+.xpbox.lit{box-shadow:4px 4px 0 #000,0 0 26px rgba(80,210,195,.8),inset 0 0 0 2px #7fe3d8}
+.xp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.xp-gain{font-family:var(--f-title);font-size:2.6rem;line-height:1;color:#7fe3d8;text-shadow:3px 3px 0 #000;opacity:0}
+.xp-gain small{font-family:var(--f-num);font-weight:700;font-size:1rem;letter-spacing:.1em}
+.xp-lv{font-family:var(--f-num);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#e8d9bb}
+.xpbox.lvl .xp-lv{animation:lvFlash .8s ease}
+@keyframes lvFlash{0%,100%{color:#e8d9bb}30%{color:#ffd35c;transform:scale(1.4)}}
+.xpbar2{position:relative;height:26px;border:3px solid #000;border-radius:999px;background:#05100f;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.xpbar2 i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#1f8f86,#7fe3d8);box-shadow:0 0 12px rgba(127,227,216,.8)}
+.xpbar2 span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:.9rem;color:#fff;text-shadow:1px 1px 0 #000;line-height:1;padding-bottom:1px}
+.cine-scene>img.find-fig.obj{height:46%;bottom:10%}
 </style>
 
 <div id="app">
@@ -2325,8 +2353,8 @@ async function victory(){
   if(!S.huntFoe && S.idx===LAST_IDX && d.boss){ S.pendingLv=0; S.lvlReport=null; S.phase='story'; S.story={key:'end',page:0}; storyPanel(); return; }
   const drop=rollDrop();
   if(drop) setTimeout(()=>{ if(S.phase==='victory') (drop.kind==='gear'?anvil():coins()); },900);
-  if(drop&&drop.kind!=='drink') itemSplash(drop.kind==='gear'?eqIcon(drop.type,drop.tier):I('potion'), drop.kind==='gear'?eqName(drop.type,drop.tier):'Healing Potion', 700);
-  S.phase='victory'; S.lastWin={gold:gold+(S.fight.handGold||0), healed, xp:d.xp, name:d.name, icon:d.icon, boss:!!d.boss, drop};
+  if(drop&&drop.kind!=='drink') itemSplash(drop.kind==='gear'?eqIcon(drop.type,drop.tier):I('potion'), drop.kind==='gear'?eqName(drop.type,drop.tier):'Healing Potion', vicLen(gold+(S.fight.handGold||0)+((S.winMood&&S.winMood.bonus)||0), S.winMood&&(S.winMood.flawless||S.winMood.clutch)));
+  S.phase='victory'; S.lastWin={bonus:(S.winMood&&S.winMood.bonus)||0, gold:gold+(S.fight.handGold||0), healed, xp:d.xp, name:d.name, icon:d.icon, boss:!!d.boss, drop};
   victoryPanel();
 }
 async function defeat(){
@@ -2480,20 +2508,20 @@ function victoryPanel(){
     <div class="vic-title">Victory!</div>
     <div class="vic-foe"><span class="vf deadpic">${deadArt(w.name, w.icon)}</span><span class="dizzy"><i>✦</i><i>✦</i><i>✦</i></span></div>
     <div class="vic-sub">You defeated the ${w.name}!${areaDone?`<br><b>${area().name} is safe again!</b>`:''}</div>
-    <div class="rewards">
-      <div class="rw xp" style="--d:.15s"><span class="ri">${I('xp')}</span><b class="count" data-to="${w.xp}" data-pre="+">+0</b><small>Experience</small><em>Total ${S.xp}</em></div>
-      <div class="rw gd" style="--d:.3s"><span class="ri">${I('coin')}</span><b class="count coin-count" data-to="${w.gold+((S.winMood&&S.winMood.bonus)||0)}" data-pre="+">+0</b><small>Gold</small><em>Total ${S.gold}</em></div>
-      <div class="rw lv" style="--d:.45s"><span class="ri">${I('level')}</span><b>${S.level}</b><small>Level</small><em>Next at ${cumNeed(S.level)} XP</em></div>
+    <div class="loot2">
+      <div class="purse" id="vPurse"><img class="purse-coin" src="art/i_coin.webp" alt=""><div class="purse-txt"><small>Gold</small><b id="vGold">${fmt(S.gold-vicGold(w))}</b></div><span class="purse-gain" id="vGoldGain">+${fmt(vicGold(w))}</span></div>
+      <div class="xpbox" id="vXp"><div class="xp-head"><span class="xp-gain" id="vXpGain">+${fmt(w.xp)} <small>EXP</small></span><span class="xp-lv" id="vLv">Level ${vicOldLv(w)}</span></div>
+        <div class="xpbar2"><i id="vXpFill"></i><span id="vXpTxt"></span></div></div>
     </div>
     ${dropHTML(w)}
     <div class="vic-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     ${w.boss?'<button class="btn big brag-fb" data-act="brag" data-kind="boss">Brag about this win</button>':''}
     <button class="btn big vic-btn" data-act="afterVictory">${S.pendingLv?'Level up!':'Visit the merchant'}</button>
   </div>`);
-  countUp(); const mood=S.winMood; S.winMood=null;
-  const sd=(w.drop&&w.drop.kind!=='drink')?3500:500;
-  if(mood&&mood.flawless) setTimeout(()=>{ if(S.phase==='victory') stamp('FLAWLESS', mood.bonus?`Double gold +${mood.bonus}`:'Not a scratch'); }, sd);
-  else if(mood&&mood.clutch) setTimeout(()=>{ if(S.phase==='victory') stamp('CLUTCH!', 'Won by a hair','clutch'); }, sd);
+  const mood=S.winMood; S.winMood=null; if(mood) S.vicBonus=mood.bonus||0;
+  if(mood&&mood.flawless) setTimeout(()=>{ if(S.phase==='victory') stamp('FLAWLESS', mood.bonus?`Double gold +${mood.bonus}`:'Not a scratch'); }, 250);
+  else if(mood&&mood.clutch) setTimeout(()=>{ if(S.phase==='victory') stamp('CLUTCH!', 'Won by a hair','clutch'); }, 250);
+  vicRewards(w, mood&&(mood.flawless||mood.clutch) ? 2300 : 450);
   if(w.drop&&w.drop.kind==='drink'&&w.drop.pending) drinkEvent(w.drop.heal, '.vic-hp .hpbar', 900, ()=>{ w.drop.pending=false; });
 }
 /* a potion you had no room for: show it, then drink it and let the health bar visibly fill */
@@ -2715,18 +2743,23 @@ function makeFind(){
     f={gold:giftGold,give:giftItem,sip:sipHeal,scene,icon:'',title,text:`${clue}<br><br>Before you go, they give you ${gift}.`};
   } else if(r<.85){
     const dmg=Math.max(10, 60-Math.floor(defense()/2)), b=S.hp; S.hp=Math.max(1,S.hp-dmg);
-    f={scene:'trap',icon:I('trap'),title:'A trap!',text:`A hidden spike trap snaps shut. You lose <b>${b-S.hp} health</b>.${defense()?' Your armor took some of the hit.':' Better armor would help.'}`};
+    const pl=placeKind(), arm=defense()?' Your armor took some of the hit.':' Better armor would help.';
+    f = pl==='tavern' ? {scene:'brawl',title:'A bar brawl!',text:`A drunk brawler swings a chair at the wrong man: you. You lose <b>${b-S.hp} health</b>.${arm}`}
+      : {scene:'trap',icon:I('trap'),title:'A trap!',text:`A hidden spike trap snaps shut ${pl==='inside'?'under a loose floor stone':'in the undergrowth'}. You lose <b>${b-S.hp} health</b>.${arm}`};
   } else {
-    f={scene:'mushroom',icon:I('mushroom'),title:'A strange mushroom',text:'A glowing mushroom grows by the path. It smells sweet... and a little odd. Eat it?', choice:true};
+    const pl=placeKind();
+    f = pl==='tavern' ? {scene:'drink',title:'A mysterious drink',text:'A hooded stranger slides a glowing purple drink across the table, winks, and vanishes into the crowd. It smells sweet... and a little odd. Drink it?', choice:true, verb:'Drink it'}
+      : pl==='inside' ? {scene:'bottle',title:'A dusty old bottle',text:'Behind a cobwebbed shelf you find a corked bottle of glowing purple liquid. It smells sweet... and a little odd. Drink it?', choice:true, verb:'Drink it'}
+      : {scene:'mushroom',icon:I('mushroom'),title:'A strange mushroom',text:'A glowing mushroom grows by the path. It smells sweet... and a little odd. Eat it?', choice:true, verb:'Eat it'};
   }
   S.find=f;
 }
 function findPanel(){
   S.phase='find'; const f=S.find, plain=f.text.replace(/<br>/g,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
-  const fk=FIND_FIG[f.scene||'chest']||'p_chest', fhtml=cineHTML('find_'+(f.scene||'chest'), f.title, plain, `<img class="find-fig" src="art/${fk}.webp" alt="">`).replace(`src="${sceneImg('find_'+(f.scene||'chest'))}"`, `src="art/${BGF(curArea())}.webp"`);
+  const fk=FIND_FIG[f.scene||'chest']||'p_chest', fhtml=cineHTML('find_'+(f.scene||'chest'), f.title, plain, `<img class="find-fig ${['p_drink','p_bottle','p_chest','p_trap'].includes(fk)?'obj':''}" src="art/${fk}.webp" alt="">`).replace(`src="${sceneImg('find_'+(f.scene||'chest'))}"`, `src="art/${BGF(curArea())}.webp"`);
   openPanel(`${fhtml}
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
-    ${f.choice ? `<div class="row" style="width:100%"><button class="btn big vic-btn" data-act="eat">Eat it</button><button class="btn big vic-btn" data-act="findOk">Leave it</button></div>`
+    ${f.choice ? `<div class="row" style="width:100%"><button class="btn big vic-btn" data-act="eat">${f.verb||'Eat it'}</button><button class="btn big vic-btn" data-act="findOk">Leave it</button></div>`
                : `<button class="btn big vic-btn" data-act="findOk">Keep going</button>`}`);
   $('panel').classList.add('cine');
   runCine('find_'+(f.scene||'chest'), f.title, plain);
@@ -2845,7 +2878,7 @@ document.addEventListener('click', e=>{
     case 'findOk': S.find=null; render(); fightIntro(); break;
     case 'eat': { const f=S.find; if(!f||!f.choice) return; f.choice=false; const b=S.hp;
       if(Math.random()<.5){ S.hp=Math.min(S.maxHp,S.hp+120); f.text=`Delicious! You feel warm all over and heal <b>${S.hp-b} health</b>.`; soothe(); }
-      else { S.hp=Math.max(1,S.hp-50); f.text=`Yuck! Your stomach twists and you lose <b>${b-S.hp} health</b>.`; thud(); }
+      else { S.hp=Math.max(1,S.hp-50); f.text=f.scene==='drink'?`Blech! The room spins and you lose <b>${b-S.hp} health</b>. Somewhere, the stranger laughs.`:`Yuck! Your stomach twists and you lose <b>${b-S.hp} health</b>.`; thud(); }
       render(); findPanel(); break; }
     case 'retryWorld': { try{ const c=JSON.parse(localStorage.getItem('aa_checkpoint')||'null'); if(c){ S=c; upgradeIdx(S); loadWorld(S.world||0); canSave=true; render(); resumePhase(); break; } }catch(e){} newRun(false); render(); fightIntro(); break; }
     case 'newRun': newRun(false); render(); fightIntro(); break;
@@ -2966,7 +2999,10 @@ function worldClue(){ const a=areaOf(), b=MONSTERS['boss_'+a], st=QUEST_STEPS[Ma
   const go=st?st.go.toLowerCase():'keep going';
   const lines=[`"${b?b.name:'Something terrible'} waits up ahead. My advice? ${go}, and stay sharp."`, `"I barely escaped ${b?b.name:'it'}. If you're brave enough, ${go}."`, `"You're after ${b?b.name:'the beast'}? Then ${go}. And don't look back."`];
   return lines[rnd(lines.length)]; }
-const FIND_FIG = {chest:'p_chest', fallen:'p_fallen', trap:'p_trap', mushroom:'p_mushroom', hermit:'p_hermit', villager:'p_villager', farmer:'p_villager', minstrel:'p_minstrel', knight:'p_knight'};
+/* where is Edward right now? 'tavern', 'inside' or 'outside' — finds and strangers fit the place */
+function placeKind(){ const a=curArea(), w=S.world||0; if(w===0) return ['tavern','inside','outside','inside'][a];
+  const p=(PLACES[a]||'').toLowerCase(); return /tavern|inn|pub/.test(p)?'tavern':/hall|abbey|tomb|temple|crypt|castle|throne|mine|forge|ship|fortress|tower|palace|cave|chapel|library|dungeon|vault|keep|inside/.test(p)?'inside':'outside'; }
+const FIND_FIG = {drink:'p_drink', bottle:'p_bottle', brawl:'p_brawler', chest:'p_chest', fallen:'p_fallen', trap:'p_trap', mushroom:'p_mushroom', hermit:'p_hermit', villager:'p_villager', farmer:'p_villager', minstrel:'p_minstrel', knight:'p_knight'};
 
 /* ================= achievements, lifetime stats, brag cards, daily challenge ================= */
 const SITE='https://axesandaces.com/';
@@ -3152,6 +3188,32 @@ async function cloudLoad(){
 }
 
 
+
+/* ---- victory rewards: coins drop into your pouch, then experience pours into the bar ---- */
+const vicGold = w => (w.gold||0) + (w.bonus||0);
+function vicOldLv(w){ const old=S.xp-(w.xp||0); let L=1; while(old>=cumNeed(L)) L++; return L; }
+const vicLen = (g, stamped) => (stamped?2300:450) + Math.min(12,Math.max(1,g))*150 + 700 + 1900;
+function vicRewards(w, start){
+  const gain=vicGold(w), n=Math.min(12,Math.max(gain?1:0,gain)), purse=$('vPurse'), gEl=$('vGold'), from=S.gold-gain;
+  const at=(ms,fn)=>setTimeout(()=>{ if(S.phase==='victory'&&document.body.contains(purse)) fn(); }, reduced()?Math.min(ms,300):ms);
+  at(start-150,()=>{ purse.classList.add('lit'); $('vGoldGain').classList.add('show'); });
+  for(let k=0;k<n;k++) at(start+k*150,()=>{
+    const r=purse.querySelector('.purse-coin').getBoundingClientRect(), c=document.createElement('img'); c.src='art/i_coin.webp'; c.className='vcoin';
+    c.style.left=(r.left+r.width/2+(Math.random()*60-30))+'px'; c.style.top=(r.top+r.height/2)+'px'; document.body.appendChild(c);
+    setTimeout(()=>{ c.remove(); const v=Math.round(from+gain*(k+1)/n); gEl.textContent=fmt(v); purse.classList.remove('bump'); void purse.offsetWidth; purse.classList.add('bump'); if(soundOn&&ac) blip(1400+k*60,.07,'triangle',.05); },520);
+  });
+  const xs=start+n*150+700; at(xs-200,()=>{ purse.classList.remove('lit'); coins(); });
+  // experience
+  const fill=$('vXpFill'), txt=$('vXpTxt'), lvEl=$('vLv'), box=$('vXp'); let L=vicOldLv(w); const end=S.xp; let cur=S.xp-(w.xp||0);
+  const show=(x)=>{ const lo=cumNeed(L-1), hi=cumNeed(L); fill.style.width=Math.max(0,Math.min(100,(x-lo)/(hi-lo)*100))+'%'; txt.textContent=`${fmt(x)} / ${fmt(hi)} EXP`; };
+  show(cur);
+  at(xs,()=>{ box.classList.add('lit'); $('vXpGain').classList.add('show'); if(soundOn&&ac){ blip(660,.12,'sine',.05); blip(990,.18,'sine',.05,.08); } });
+  at(xs+450,()=>{ const t0=performance.now(), dur=1400, a=cur;
+    const step=now=>{ if(!document.body.contains(fill)) return; const q=Math.min(1,(now-t0)/dur), x=Math.round(a+(end-a)*(1-Math.pow(1-q,2)));
+      while(x>=cumNeed(L)){ L++; lvEl.textContent=`Level ${L}`; box.classList.remove('lvl'); void box.offsetWidth; box.classList.add('lvl'); trumpetCall(); }
+      show(x); if(q<1) requestAnimationFrame(step); else box.classList.remove('lit'); };
+    requestAnimationFrame(step); });
+}
 /* ---- round 1 juice: counting rewards, stamps, record ribbons ---- */
 function countUp(){
   document.querySelectorAll('#panel .count').forEach((el,k)=>{ const to=+el.dataset.to||0, pre=el.dataset.pre||'', coin=el.classList.contains('coin-count');
