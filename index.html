@@ -5,8 +5,8 @@
 <meta name="description" content="Axes & Aces: a free dark comic card adventure. Fight monsters with poker hands.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Axes &amp; Aces: fight monsters with poker hands">
 <meta property="og:description" content="Save Anna, become Sir Edward, conquer 10 quests and the Endless Abyss. Free in your browser.">
-<meta property="og:image" content="https://zoerner6.github.io/axes-and-aces/b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:url" content="https://zoerner6.github.io/axes-and-aces/"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://axesandaces.com/b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://axesandaces.com/"><meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
 <style>html,body{height:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}body{margin:0;font:14px system-ui,sans-serif;background:#14100d}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
@@ -1127,6 +1127,16 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .cine-scene>img.find-fig{inset:auto;top:auto;right:auto;position:absolute;left:50%;bottom:4%;height:84%;width:auto;max-width:70%;object-fit:contain;transform:translateX(-50%);z-index:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.75));animation:figIn .7s cubic-bezier(.2,1.3,.4,1) both}
 @keyframes figIn{0%{opacity:0;transform:translate(-50%,30px) scale(.9)}100%{opacity:1;transform:translate(-50%,0)}}
 .menu-list .btn.daily{background:linear-gradient(#5a3c0c,#2a1b06)!important;color:#ffd35c!important}
+
+.epic{position:fixed;inset:0;z-index:110;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(circle,rgba(60,30,0,.55),rgba(0,0,0,.75));animation:epicIn 2.6s ease forwards}
+.epic-rays{position:absolute;width:160vmax;height:160vmax;background:repeating-conic-gradient(rgba(255,210,90,.28) 0 8deg,transparent 8deg 16deg);animation:spin 9s linear infinite;-webkit-mask:radial-gradient(circle,#000 10%,transparent 55%);mask:radial-gradient(circle,#000 10%,transparent 55%)}
+.epic b{position:relative;font-family:var(--f-title);font-weight:400;font-size:clamp(3rem,13vw,8rem);line-height:1;color:#ffd35c;text-shadow:5px 5px 0 #000,-2px -2px 0 #000,0 0 40px rgba(255,200,60,.9);transform:rotate(-4deg);animation:epicSlam .55s cubic-bezier(.2,1.6,.4,1) both;text-align:center}
+.epic small{position:relative;margin-top:14px;font-family:var(--f-num);font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:clamp(1rem,3vw,1.6rem);color:#fff;text-shadow:2px 2px 0 #000}
+@keyframes epicIn{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes epicSlam{0%{transform:scale(3) rotate(-4deg);opacity:0}100%{transform:scale(1) rotate(-4deg);opacity:1}}
+.beat{background:#3d7a3a;color:#fff;font-family:var(--f-title);font-size:1.3rem;padding:6px 14px;border:3px solid #000;border-radius:10px;box-shadow:3px 3px 0 #000;text-align:center}
+.beat:not(.win){background:#5a2a12}
+.btn.daily-btn{background:linear-gradient(#5a3c0c,#2a1b06)!important;color:#ffd35c!important}
 </style>
 
 <div id="app">
@@ -1977,6 +1987,9 @@ async function attack(){
   if(share<1) toast(share===0 ? `No damage! The ${foeDef().name} shrugs off those cards.` : `Cards marked ✖ did no damage, so you hit for less.`);
   if(dmg>S.stats.best){ S.stats.best=dmg; S.stats.bestName=HANDS[ev.type].name; }
   achOnHand(ev, played, dmg); if(S.daily) S.daily.atks++;
+  if(ev.type==='sflush'&&ev.cards.some(c=>c.rank===14)&&ev.cards.some(c=>c.rank===13)) epicMoment('ROYAL FLUSH!','The rarest hand in poker');
+  else if(ev.type==='sflush') epicMoment('STRAIGHT FLUSH!','Legendary hand');
+  else if(ev.type==='four') epicMoment('FOUR OF A KIND!','Devastating');
   hitFoe(dmg);
   banner(word, HANDS[ev.type].name);
   const hg=HAND_GOLD[ev.type]||0;
@@ -2600,7 +2613,7 @@ function gameOverPanel(){
       <span class="death-title">You have fallen</span></div>
     <div class="death-why"><b>${k.big?'Critical blow!':'Defeated'}</b><p>${why}</p><small>${advice}</small></div>
     <p>Old Bram drags you back to the pub and patches you up. "Shake it off. Anna's still out there, and you're her only hope."</p>
-    <button class="btn big brag-fb" data-act="brag" data-kind="death">Share my score</button>${summary()}${sv?`<button class="btn big" data-act="loadSaved">Open saved game<small class="sv-sub">${savedInfo(sv)}</small></button>`:(S.world||0)>0?`<button class="btn big" data-act="retryWorld">Retry ${worldName(S.world)}</button>`:''}<button class="btn big ${sv||(S.world||0)>0?'newgame':''}" data-act="newRun">Start over</button>`);
+    <button class="btn big brag-fb" data-act="brag" data-kind="death">Challenge a friend to beat me</button>${summary()}${sv?`<button class="btn big" data-act="loadSaved">Open saved game<small class="sv-sub">${savedInfo(sv)}</small></button>`:(S.world||0)>0?`<button class="btn big" data-act="retryWorld">Retry ${worldName(S.world)}</button>`:''}<button class="btn big ${sv||(S.world||0)>0?'newgame':''}" data-act="newRun">Start over</button>`);
   $('panel').classList.add('cine');
   timpaniRoll(.2,.5); brass(98,.8,1.6,.05); brass(92.5,.8,1.6,.04);
 }
@@ -2704,18 +2717,19 @@ document.addEventListener('click', e=>{
     case 'close': closePanel(); resumePhase(); break;
     case 'brag': { const ov=!$('overlay').hidden; S.bragPrev = ov ? {html:$('panel').innerHTML, cls:$('panel').className} : null; bragPanel(t.dataset.kind, t.dataset.id); break; }
     case 'bragClose': { const pv=S.bragPrev; S.bragPrev=null; if(pv){ $('panel').innerHTML=pv.html; $('panel').className=pv.cls; } else closePanel(); break; }
-    case 'bragFb': { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(bragUrl())+'&quote='+encodeURIComponent(bragText()); const a=document.createElement('a'); a.href=u; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); break; }
-    case 'bragShare': { bragBlob().then(b=>{ const file=b&&new File([b],'axes-and-aces.jpg',{type:'image/jpeg'});
+    case 'bragFb': { shareReward(); const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(bragUrl())+'&quote='+encodeURIComponent(bragText()); const a=document.createElement('a'); a.href=u; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); break; }
+    case 'bragShare': { shareReward(); bragBlob().then(b=>{ const file=b&&new File([b],'axes-and-aces.jpg',{type:'image/jpeg'});
         if(file && navigator.canShare && navigator.canShare({files:[file]})) navigator.share({files:[file], text:bragText()+' '+bragUrl()}).catch(()=>{});
         else if(navigator.share) navigator.share({title:'Axes & Aces', text:bragText(), url:bragUrl()}).catch(()=>{});
         else toast('Use "Save picture", then post it with the link'); }); break; }
-    case 'bragSave': { bragBlob().then(b=>{ if(!b) return; const u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download='axes-and-aces-brag.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('Picture saved'); }); break; }
-    case 'bragCopy': { const txt=bragText()+' '+bragUrl(); (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Link copied')).catch(()=>toast(bragUrl())); break; }
+    case 'bragSave': { shareReward(); bragBlob().then(b=>{ if(!b) return; const u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download='axes-and-aces-brag.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('Picture saved'); }); break; }
+    case 'bragCopy': { shareReward(); const txt=bragText()+' '+bragUrl(); (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Link copied')).catch(()=>toast(bragUrl())); break; }
     case 'ach': achPanel(); break;
     case 'daily': startDaily(); break;
     case 'dailyGo': closePanel(); fightIntro(); break;
     case 'dailyNext': dailyNextFight(); break;
     case 'dailyQuit': dailyQuit(); break;
+    case 'chGo': { const sv=loadSave(); if(S.chAfter==='title'&&sv) titlePanel(sv); else storyPanel(); break; }
     case 'menu': if(!busy) menuPanel(); break;
     case 'menuSave': { saveGame(true); t.textContent='Saved ✓'; t.disabled=true; const v=loadSaved(), n=document.querySelector('.menu-note'); if(v&&n) n.textContent='Last saved: '+savedInfo(v); break; }
     case 'menuQuit': { saveGame(true); const sv=loadSave(); if(sv){ canSave=false; titlePanel(sv); } else closePanel(); break; }
@@ -2809,7 +2823,7 @@ function worldClue(){ const a=areaOf(), b=MONSTERS['boss_'+a], st=QUEST_STEPS[Ma
 const FIND_FIG = {chest:'p_chest', fallen:'p_fallen', trap:'p_trap', mushroom:'p_mushroom', hermit:'p_hermit', villager:'p_villager', farmer:'p_villager', minstrel:'p_minstrel', knight:'p_knight'};
 
 /* ================= achievements, lifetime stats, brag cards, daily challenge ================= */
-const SITE='https://zoerner6.github.io/axes-and-aces/';
+const SITE='https://axesandaces.com/';
 const ACH=[
  {id:'first_win', name:'First Blood', desc:'Win your first fight', icon:'sword'},
  {id:'one_shot', name:'One and Done', desc:'Defeat a monster with a single attack', icon:'attack'},
@@ -2892,7 +2906,7 @@ async function bragCard(o){
   x.font='500 28px "Alegreya Sans", Arial'; x.fillStyle='#e8d9bb'; x.lineWidth=5; const subs=[]; { const words=(o.sub||'').split(' '); let l=''; for(const w of words){ const t=l?l+' '+w:w; if(x.measureText(t).width>620&&l){ subs.push(l); l=w; } else l=t; } if(l) subs.push(l); }
   subs.slice(0, Math.max(1, Math.floor((505-(y+10))/34)+1)).forEach((l,i)=>{ x.strokeText(l,58,y+10+i*34); x.fillText(l,58,y+10+i*34); });
   x.fillStyle='#f2b632'; x.fillRect(56,532,560,58); x.strokeStyle='#000'; x.lineWidth=4; x.strokeRect(56,532,560,58);
-  x.font='700 28px Oswald, Arial'; x.fillStyle='#16100d'; x.fillText('PLAY FREE  ▸  zoerner6.github.io/axes-and-aces', 74, 571);
+  x.font='700 28px Oswald, Arial'; x.fillStyle='#16100d'; x.fillText('PLAY FREE  ▸  axesandaces.com', 74, 571);
   return c;
 }
 function bragInfo(kind, id){
@@ -2907,6 +2921,11 @@ function bragInfo(kind, id){
 }
 const heroTier = ()=>Math.max(0,...['armor','helm','shield'].map(k=>S.eq&&S.eq[k]?S.eq[k].tier:0));
 let bragCanvas=null, bragNow=null;
+function shareReward(){
+  if(!S||S.daily) return; const k=todayKey(); if(store.get('aa_shareday','')===k) return; store.set('aa_shareday',k);
+  setTimeout(()=>{ if(S.spells.length<3){ S.spells.push('potion'); itemSplash(I('potion'),'Thanks for sharing! Free potion',0,'+1',coins); }
+    else { S.gold+=5; itemSplash(I('coin'),'Thanks for sharing! Free gold',0,'+5',coins); } render(); saveGame(); }, 600);
+}
 async function bragPanel(kind, id){
   const info=bragInfo(kind,id); bragNow=info; const prev=S.phase;
   openPanel(`<div class="eyebrow">Share it</div><h2>Brag about it</h2><div class="brag-img" id="bragImg"><span>Making your picture...</span></div>
@@ -2916,16 +2935,25 @@ async function bragPanel(kind, id){
       <button class="btn big ghost" data-act="bragSave">Save picture</button>
       <button class="btn big ghost" data-act="bragCopy">Copy link</button>
     </div>
-    <p class="menu-note">Tip: on Facebook, post the saved picture with the link so friends can tap it and play.</p>
+    <p class="menu-note">${store.get('aa_shareday','')===todayKey()||(S&&S.daily)?'Tip: post the picture with the link so friends can tap it and play.':'<b>Share today and get a free potion!</b> Post the picture with the link so friends can tap it and play.'}</p>
     <button class="btn big" data-act="bragClose">Done</button>`);
   S.bragBack=prev;
   bragCanvas=await bragCard(info);
   const im=$('bragImg'); if(im){ im.innerHTML=''; const u=bragCanvas.toDataURL('image/jpeg',.9); const i=new Image(); i.src=u; i.alt=info.title; im.appendChild(i); }
 }
-const bragUrl = ()=>SITE+'b/'+(bragNow?bragNow.key:'game')+'.html';
+function bragQuery(){ if(!bragNow) return '';
+  if(bragNow.key==='daily'&&S.dailyResult) return `?c=daily&d=${S.dailyResult.date}&s=${S.dailyResult.score}`;
+  if(bragNow.key==='fallen'||bragNow.key==='level'||bragNow.key==='boss') return `?c=lvl&s=${S.level}&w=${(S.world||0)+1}`;
+  return ''; }
+const bragUrl = ()=>SITE+'b/'+(bragNow?bragNow.key:'game')+'.html'+bragQuery();
 const bragText = ()=>bragNow ? `${bragNow.title} ${bragNow.big?'('+bragNow.big+') ':''}Play Axes & Aces free:` : 'Play Axes & Aces free:';
 function bragBlob(){ return new Promise(r=>bragCanvas ? bragCanvas.toBlob(b=>r(b),'image/jpeg',.9) : r(null)); }
 
+/* ---- once-in-a-while hands get a huge, screenshot-worthy moment ---- */
+function epicMoment(t, sub){
+  const e=document.createElement('div'); e.className='epic'; e.innerHTML=`<span class="epic-rays"></span><b>${t}</b><small>${sub}</small>`;
+  document.body.appendChild(e); confetti(['✨','🪙','⭐','♠','♥','♦','♣']); trumpetCall(); shake(); setTimeout(()=>e.remove(),2600);
+}
 /* ---- daily challenge: same monsters and same card shuffles for everyone today ---- */
 const realRandom=Math.random;
 function seeded(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
@@ -2946,7 +2974,7 @@ function dailyIntro(){
   openPanel(`<div class="cine-scene"><img src="art/${BGF(1)}.webp" alt=""><span class="cine-title">Daily Challenge</span></div>
     <h2>${todayKey()}</h2>
     <p>Five fights in <b>${worldName(S.world)}</b>. Everyone gets the same monsters and the same cards today. Win as many as you can, as fast as you can.</p>
-    <div class="lines"><div><span>Your level</span><b>${S.level}</b></div><div><span>Best today</span><b>${fmt(store.get('aa_daily_'+todayKey(),0))} points</b></div></div>
+    <div class="lines">${(()=>{const b=store.get('aa_beat',null);return b&&b.d===todayKey()?`<div><span>Friend's score to beat</span><b style="color:#ff8b7e">${fmt(b.s)} points</b></div>`:''})()}<div><span>Your level</span><b>${S.level}</b></div><div><span>Best today</span><b>${fmt(store.get('aa_daily_'+todayKey(),0))} points</b></div></div>
     <button class="btn big" data-act="dailyGo">Start</button><button class="btn big ghost" data-act="dailyQuit">Back</button>`);
   $('panel').classList.add('cine');
 }
@@ -2958,7 +2986,8 @@ function dailyDone(){
   S.dailyResult={date:D.key, wins:D.wins, score, bg:`art/${BGF(1)}.webp`, fig:`art/hero_t${heroTier()}.webp`};
   unlock('daily'); if(D.wins>=5) unlock('daily5');
   S.phase='dailyDone';
-  openPanel(`<div class="vic"><div class="vic-title">${D.wins>=5?'Champion!':'Challenge over'}</div>
+  const tb=store.get('aa_beat',null), beat=tb&&tb.d===D.key ? (score>tb.s?`<div class="beat win">You beat your friend's ${fmt(tb.s)} points!</div>`:`<div class="beat">Your friend's score: ${fmt(tb.s)}. So close!</div>`) : '';
+  openPanel(`<div class="vic">${beat}<div class="vic-title">${D.wins>=5?'Champion!':'Challenge over'}</div>
     <div class="vic-sub">Daily Challenge · ${D.key}</div>
     <div class="rewards"><div class="rw gd" style="--d:.1s"><span class="ri">${I('chest')}</span><b>${D.wins}/5</b><small>Fights won</small></div>
       <div class="rw xp" style="--d:.2s"><span class="ri">${I('attack')}</span><b>${D.atks}</b><small>Attacks used</small></div>
@@ -2982,11 +3011,24 @@ function achPanel(){
     <button class="btn big" data-act="close">Back</button>`);
 }
 /* ---------- start ---------- */
+/* someone shared a challenge link with us */
+function readChallenge(){ try{ const q=new URLSearchParams(location.search), c=q.get('c'); if(!c) return null; const r={c, s:+q.get('s')||0, d:q.get('d')||'', w:+q.get('w')||1}; history.replaceState(null,'',location.pathname); return r; }catch(e){ return null; } }
+function challengePanel(ch, after){
+  const daily=ch.c==='daily'&&ch.d===todayKey();
+  if(daily) store.set('aa_beat',{d:ch.d,s:ch.s});
+  openPanel(`<div class="cine-scene"><img src="art/sc_merchant.webp" alt=""><span class="cine-title">You've been challenged!</span></div>
+    <h2>${daily?`Beat ${fmt(ch.s)} points`:ch.c==='daily'?'A friend took on the Daily Challenge':`A friend reached level ${ch.s}`}</h2>
+    <p>${daily?'A friend scored this in today\'s Daily Challenge. Same monsters, same cards. Can you beat it?':ch.c==='daily'?'That challenge has ended, but today\'s is waiting. Can you top your friend?':`They made it to level ${ch.s} in Quest ${ch.w}. Think you can go further?`}</p>
+    ${ch.c==='daily'?'<button class="btn big daily-btn" data-act="daily">Take the Daily Challenge</button>':''}
+    <button class="btn big ${ch.c==='daily'?'ghost':''}" data-act="chGo">${ch.c==='daily'?'Play the adventure instead':'Start my adventure'}</button>`);
+  $('panel').classList.add('cine'); S.chAfter=after;
+}
 function start(data){
   if(data&&data.S&&data.S.v===2){ S=data.S; upgradeIdx(S); loadWorld(S.world||0); if(S.maxHp<200){ S.maxHp*=10; S.hp*=10; } if(S.genFoe) MONSTERS.gen=S.genFoe; S.books=(S.books||[]).map(b=>b==='heal'?'cleric1':b).filter(b=>BK[b]); S.handSize=Math.min(7,S.handSize); sel=data.sel||[]; busy=false; render(); if(S.phase==='play'&&S.fight){ closePanel(); if(S.fight.hp<=0){ busy=true; victory(); } else { drawUp(); render(); } } else resumePhase(); return; }
-  const sv=loadSave();
-  if(sv){ canSave=false; newRun(false); render(); titlePanel(sv); return; }
+  const sv=loadSave(), ch=readChallenge();
+  if(sv){ canSave=false; newRun(false); render(); if(ch){ challengePanel(ch,'title'); return; } titlePanel(sv); return; }
   const first=!store.get('tutorialDone',false);
+  if(ch){ newRun(first); render(); challengePanel(ch,'story'); return; }
   newRun(first); render(); storyPanel();
 }
 setInterval(()=>{ if(busy && Date.now()-busySince>15000){ busy=false;
