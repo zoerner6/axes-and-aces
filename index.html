@@ -1137,6 +1137,18 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .beat{background:#3d7a3a;color:#fff;font-family:var(--f-title);font-size:1.3rem;padding:6px 14px;border:3px solid #000;border-radius:10px;box-shadow:3px 3px 0 #000;text-align:center}
 .beat:not(.win){background:#5a2a12}
 .btn.daily-btn{background:linear-gradient(#5a3c0c,#2a1b06)!important;color:#ffd35c!important}
+
+.name-row{display:flex;flex-direction:column;gap:4px;width:100%}
+.name-row label{font-family:var(--f-num);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--parch-dim)}
+.name-row input{font:inherit;font-size:1.1rem;padding:10px 12px;border-radius:8px;border:3px solid #000;background:#f3e6c8;color:#16100d;box-shadow:3px 3px 0 #000}
+.lb{list-style:none;margin:0;padding:0;width:100%;display:flex;flex-direction:column;gap:4px}
+.lb li{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:center;background:#120d0b;border:2px solid #000;border-radius:8px;padding:6px 10px}
+.lb li span{font-family:var(--f-num);color:var(--parch-dim)}.lb li b{font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lb li em{font-style:normal;font-family:var(--f-num);font-weight:700;color:var(--gold)}
+.lb li:nth-child(1) span{color:#ffd35c}.lb li.me{box-shadow:inset 0 0 0 2px var(--gold)}
+.lb-tabs{width:100%}.lb-tabs .btn{flex:1;font-size:.8rem}
+.cloud-code{font-family:var(--f-num);font-weight:700;font-size:clamp(1.4rem,6vw,2rem);letter-spacing:.12em;text-align:center;background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:10px;user-select:all}
+.lb-tabs .btn:not(.ghost){background:linear-gradient(#5a3c0c,#2a1b06)!important;color:#ffd35c!important}
+#lbList{width:100%}
 </style>
 
 <div id="app">
@@ -2613,7 +2625,7 @@ function gameOverPanel(){
       <span class="death-title">You have fallen</span></div>
     <div class="death-why"><b>${k.big?'Critical blow!':'Defeated'}</b><p>${why}</p><small>${advice}</small></div>
     <p>Old Bram drags you back to the pub and patches you up. "Shake it off. Anna's still out there, and you're her only hope."</p>
-    <button class="btn big brag-fb" data-act="brag" data-kind="death">Challenge a friend to beat me</button>${summary()}${sv?`<button class="btn big" data-act="loadSaved">Open saved game<small class="sv-sub">${savedInfo(sv)}</small></button>`:(S.world||0)>0?`<button class="btn big" data-act="retryWorld">Retry ${worldName(S.world)}</button>`:''}<button class="btn big ${sv||(S.world||0)>0?'newgame':''}" data-act="newRun">Start over</button>`);
+    ${nameRow()}<button class="btn big" data-act="postScore" data-board="level" data-score="${(S.world||0)*1000+S.level}">Post my level to the leaderboard</button><div id="lbList"></div><button class="btn big brag-fb" data-act="brag" data-kind="death">Challenge a friend to beat me</button>${summary()}${sv?`<button class="btn big" data-act="loadSaved">Open saved game<small class="sv-sub">${savedInfo(sv)}</small></button>`:(S.world||0)>0?`<button class="btn big" data-act="retryWorld">Retry ${worldName(S.world)}</button>`:''}<button class="btn big ${sv||(S.world||0)>0?'newgame':''}" data-act="newRun">Start over</button>`);
   $('panel').classList.add('cine');
   timpaniRoll(.2,.5); brass(98,.8,1.6,.05); brass(92.5,.8,1.6,.04);
 }
@@ -2729,6 +2741,12 @@ document.addEventListener('click', e=>{
     case 'dailyGo': closePanel(); fightIntro(); break;
     case 'dailyNext': dailyNextFight(); break;
     case 'dailyQuit': dailyQuit(); break;
+    case 'lb': lbPanel(t.dataset.board); break;
+    case 'postScore': postScore(t.dataset.board, +t.dataset.score, t); break;
+    case 'cloud': cloudPanel(); break;
+    case 'cloudSave': cloudSave(false); break;
+    case 'cloudLoad': cloudLoad(); break;
+    case 'cloudCopy': { const c=prettyCode(cloudCode()); (navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>toast('Code copied')).catch(()=>toast(c)); break; }
     case 'chGo': { const sv=loadSave(); if(S.chAfter==='title'&&sv) titlePanel(sv); else storyPanel(); break; }
     case 'menu': if(!busy) menuPanel(); break;
     case 'menuSave': { saveGame(true); t.textContent='Saved ✓'; t.disabled=true; const v=loadSaved(), n=document.querySelector('.menu-note'); if(v&&n) n.textContent='Last saved: '+savedInfo(v); break; }
@@ -2755,7 +2773,7 @@ document.addEventListener('keydown', e=>{ if($('overlay').hidden && e.key==='Ent
 let canSave=true;
 function saveGame(manual){
   if(!canSave || !S || S.phase==='over' || S.phase==='win') return;
-  try{ const v=JSON.stringify({S, at:Date.now()}); localStorage.setItem('aa_save', v); if(manual){ localStorage.setItem('aa_saved', v); toast('Game saved'); } }
+  try{ const v=JSON.stringify({S, at:Date.now()}); localStorage.setItem('aa_save', v); if(manual){ localStorage.setItem('aa_saved', v); toast('Game saved'); if(store.get('aa_cloud','')) cloudSave(true); } }
   catch(e){ if(manual) toast('Could not save in this browser'); }
 }
 function loadSaved(){ try{ const v=JSON.parse(localStorage.getItem('aa_saved')||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
@@ -2773,6 +2791,8 @@ function menuPanel(){
       <button class="btn big" data-act="close">Continue playing</button>
       <button class="btn big ghost daily" data-act="daily">Daily Challenge</button>
       <button class="btn big ghost" data-act="ach">Achievements and stats</button>
+      <button class="btn big ghost" data-act="lb">Leaderboard</button>
+      <button class="btn big ghost" data-act="cloud">Cloud save</button>
       <button class="btn big ghost" data-act="menuSave">Save game</button>
       <button class="btn big ghost" data-act="menuQuit">Save and quit</button>
       <button class="btn big ghost danger" data-act="menuNew">Start over</button>
@@ -2906,7 +2926,7 @@ async function bragCard(o){
   x.font='500 28px "Alegreya Sans", Arial'; x.fillStyle='#e8d9bb'; x.lineWidth=5; const subs=[]; { const words=(o.sub||'').split(' '); let l=''; for(const w of words){ const t=l?l+' '+w:w; if(x.measureText(t).width>620&&l){ subs.push(l); l=w; } else l=t; } if(l) subs.push(l); }
   subs.slice(0, Math.max(1, Math.floor((505-(y+10))/34)+1)).forEach((l,i)=>{ x.strokeText(l,58,y+10+i*34); x.fillText(l,58,y+10+i*34); });
   x.fillStyle='#f2b632'; x.fillRect(56,532,560,58); x.strokeStyle='#000'; x.lineWidth=4; x.strokeRect(56,532,560,58);
-  x.font='700 28px Oswald, Arial'; x.fillStyle='#16100d'; x.fillText('PLAY FREE  ▸  axesandaces.com', 74, 571);
+  x.font='700 28px Oswald, Arial'; x.fillStyle='#16100d'; x.fillText('PLAY FREE  ▸  AxesAndAces.com', 74, 571);
   return c;
 }
 function bragInfo(kind, id){
@@ -2948,6 +2968,62 @@ function bragQuery(){ if(!bragNow) return '';
 const bragUrl = ()=>SITE+'b/'+(bragNow?bragNow.key:'game')+'.html'+bragQuery();
 const bragText = ()=>bragNow ? `${bragNow.title} ${bragNow.big?'('+bragNow.big+') ':''}Play Axes & Aces free:` : 'Play Axes & Aces free:';
 function bragBlob(){ return new Promise(r=>bragCanvas ? bragCanvas.toBlob(b=>r(b),'image/jpeg',.9) : r(null)); }
+
+
+/* ================= online: leaderboards and cloud saves (Netlify functions + Neon) ================= */
+const API='/.netlify/functions/';
+async function api(path, body){
+  const r=await fetch(API+path, body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}:{});
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Could not reach the server'); return j;
+}
+const myName = ()=>store.get('aa_name','');
+function nameRow(){ return `<div class="name-row"><label for="lbName">Your name</label><input id="lbName" maxlength="20" placeholder="Sir Edward" value="${(myName()||'').replace(/"/g,'')}"></div>`; }
+function readName(){ const v=(($('lbName')||{}).value||'').trim().slice(0,20); if(v) store.set('aa_name',v); return v; }
+function scoreList(rows, mine){ if(!rows||!rows.length) return '<p class="menu-note">No scores yet. Be the first!</p>';
+  return `<ol class="lb">${rows.map((r,i)=>`<li class="${mine&&r.name===mine?'me':''}"><span>${i+1}</span><b>${String(r.name).replace(/</g,'')}</b><em>${fmt(r.score)}</em></li>`).join('')}</ol>`; }
+async function lbPanel(board){
+  board=board||'daily';
+  openPanel(`<div class="eyebrow">Hall of Heroes</div><h2>Leaderboard</h2>
+    <div class="row lb-tabs"><button class="btn ${board==='daily'?'':'ghost'}" data-act="lb" data-board="daily">Today's Daily Challenge</button><button class="btn ${board==='level'?'':'ghost'}" data-act="lb" data-board="level">Highest level</button></div>
+    <div id="lbList"><p class="menu-note">Loading...</p></div>
+    <button class="btn big" data-act="close">Back</button>`);
+  try{ const j=await api(`get-scores?board=${board}&day=${todayKey()}`); const el=$('lbList'); if(el) el.innerHTML=scoreList(j.scores, myName()); }
+  catch(e){ const el=$('lbList'); if(el) el.innerHTML=`<p class="menu-note">The leaderboard isn't available here. Play at AxesAndAces.com to join it.</p>`; }
+}
+async function postScore(board, score, btn){
+  const name=readName(); if(!name){ toast('Type your name first'); const i=$('lbName'); if(i) i.focus(); return; }
+  if(btn){ btn.disabled=true; btn.textContent='Posting...'; }
+  try{ await api('add-score',{board, day:todayKey(), name, score}); if(btn) btn.textContent='Posted ✓'; toast('Score posted!');
+    const j=await api(`get-scores?board=${board}&day=${todayKey()}`); const el=$('lbList'); if(el) el.innerHTML=scoreList(j.scores, name); }
+  catch(e){ if(btn){ btn.disabled=false; btn.textContent='Try again'; } toast(e.message); }
+}
+/* cloud save: a private code you can type on any device */
+function cloudCode(){ let c=store.get('aa_cloud',''); if(!c){ const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; c=Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>a[x%a.length]).join(''); store.set('aa_cloud',c); } return c; }
+const prettyCode = c=>c.match(/.{1,4}/g).join('-');
+function cloudPanel(){
+  const c=cloudCode();
+  openPanel(`<div class="eyebrow">Play on any device</div><h2>Cloud save</h2>
+    <p>Your private save code. Write it down or copy it. Type it on your phone or another computer to pick up where you left off.</p>
+    <div class="cloud-code">${prettyCode(c)}</div>
+    <div class="row"><button class="btn big" data-act="cloudSave">Save to cloud</button><button class="btn big ghost" data-act="cloudCopy">Copy code</button></div>
+    <div class="name-row"><label for="cloudIn">Load a save code</label><input id="cloudIn" maxlength="24" placeholder="ABCD-EFGH-JKLM-NPQR"></div>
+    <button class="btn big ghost" data-act="cloudLoad">Load from cloud</button>
+    <p class="menu-note" id="cloudMsg"></p>
+    <button class="btn big" data-act="close">Back</button>`);
+}
+async function cloudSave(quiet){
+  if(!S||S.daily) return; const m=$('cloudMsg');
+  try{ await api('save-game',{code:cloudCode(), data:{S, at:Date.now()}}); if(!quiet){ toast('Saved to the cloud'); if(m) m.textContent='Saved. Use your code on any device.'; } }
+  catch(e){ if(!quiet){ toast(e.message); if(m) m.textContent=e.message; } }
+}
+async function cloudLoad(){
+  const raw=(($('cloudIn')||{}).value||'').toUpperCase().replace(/[^A-Z0-9]/g,''), m=$('cloudMsg');
+  if(raw.length<12){ if(m) m.textContent='Type the 16-letter code.'; return; }
+  try{ const j=await api('load-game?code='+raw); const sv=j.data; if(!sv||!sv.S) throw new Error('No save found for that code');
+    store.set('aa_cloud',raw); try{ localStorage.setItem('aa_save', JSON.stringify(sv)); }catch(e){}
+    canSave=true; closePanel(); start({S:sv.S}); toast('Loaded your cloud save'); }
+  catch(e){ if(m) m.textContent=e.message; }
+}
 
 /* ---- once-in-a-while hands get a huge, screenshot-worthy moment ---- */
 function epicMoment(t, sub){
@@ -2992,8 +3068,11 @@ function dailyDone(){
     <div class="rewards"><div class="rw gd" style="--d:.1s"><span class="ri">${I('chest')}</span><b>${D.wins}/5</b><small>Fights won</small></div>
       <div class="rw xp" style="--d:.2s"><span class="ri">${I('attack')}</span><b>${D.atks}</b><small>Attacks used</small></div>
       <div class="rw lv" style="--d:.3s"><span class="ri">${I('level')}</span><b>${fmt(score)}</b><small>Points</small><em>Best today ${fmt(best)}</em></div></div>
+    ${nameRow()}<button class="btn big" data-act="postScore" data-board="daily" data-score="${score}">Post my score</button>
+    <div id="lbList"></div>
     <button class="btn big brag-fb" data-act="brag" data-kind="daily">Brag about it</button>
     <button class="btn big vic-btn" data-act="dailyQuit">Back to my adventure</button></div>`);
+  api(`get-scores?board=daily&day=${D.key}`).then(j=>{ const el=$('lbList'); if(el) el.innerHTML=scoreList(j.scores,myName()); }).catch(()=>{});
 }
 function dailyQuit(){
   Math.random=realRandom; canSave=true; closePanel();
