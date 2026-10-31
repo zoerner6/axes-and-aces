@@ -1147,6 +1147,13 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 #lbList{width:100%}
 
 /* round 1: bigger hits, stamps, ribbons */
+.aheadwarn{background:#2a1512;border:3px solid #000;border-left:7px solid var(--hp);border-radius:10px;box-shadow:4px 4px 0 #000;padding:10px 14px;margin:2px 0 4px;text-align:left}
+.aheadwarn>b{display:flex;align-items:center;gap:7px;font-family:var(--f-title);font-weight:400;font-size:1.12rem;color:#ff9b86}
+.aheadwarn>b .ico{width:22px;height:22px}
+.aheadwarn span{display:block;margin-top:3px;font-size:.92rem;line-height:1.4;color:var(--parch)}
+.aheadwarn span b{color:#ffd35c}
+@media (max-height:760px){ .aheadwarn{padding:7px 12px} .aheadwarn span{font-size:.86rem} }
+
 /* ---- being healed ---- */
 .healfx{position:absolute;inset:0;z-index:15;pointer-events:none;overflow:hidden;border-radius:13px;--hc:#5fe07a}
 .healfx .hf-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(95,224,122,.55),rgba(95,224,122,.12) 45%,transparent 70%);
@@ -1741,8 +1748,52 @@ const ART = {'Sneaky Goblin':'goblin','Giant Rat':'rat','Tavern Bat':'bat','Wild
   'Rattling Skeleton':'skeleton','Giant Spider':'spider','Cellar Snake':'snake','Lost Zombie':'zombie','Giant Scorpion':'scorpion','Cellar Ghoul':'ghoul',
   'Dire Wolf':'wolf','Wolf Pack':'wolf','Swamp Witch':'witch','Angry Bear':'bear','Treant':'treant','Giant Toad':'toad','Troll King':'troll',
   'Dark Knight':'knight','Stone Gargoyle':'gargoyle','Castle Ghost':'ghost','Vampire':'vampire','Baby Dragon':'babydragon','Grimstone Dragon':'dragon'};
-const foeArt = (name, icon) => ART[name] ? `<img src="art/${ART[name]}.webp" alt="${name}" draggable="false">` : icon;
-const deadArt = (name, icon) => ART[name] ? `<img src="art/dead_${ART[name]}.webp" alt="${name}, defeated" draggable="false">` : icon;
+/* ---------- recoloured cousins ----------
+   Each area only had three or five monsters to fill up to six fights, so you
+   met the same ones twice. A cousin borrows another monster's art and clips
+   and shifts the colour, which costs nothing and no new files, and carries its
+   own name and its own fighting style. */
+const TINT = {};                       /* monster name -> css filter */
+/* areas run 3, 4, 5 and 6 fights, so give each one more faces than fights */
+const POOL_WANT = [6, 7, 8, 9];
+const TINT_FAMILIES = [
+  {pre:['Frost','Pale','Glacier'],   css:'hue-rotate(165deg) saturate(1.1)',               hp:1.2, atk:.85, bad:/frost|ice|snow|glacier|pale|winter|wyrm/i},
+  {pre:['Ember','Blood','Scorched'], css:'hue-rotate(-30deg) saturate(1.4) brightness(1.05)', hp:.85, atk:1.25, bad:/fire|flame|lava|ember|blood|magma|scorch|demon|hell/i},
+  {pre:['Bog','Venom','Moss'],       css:'hue-rotate(80deg) saturate(1.2)',                hp:1.05, atk:1.05, bad:/bog|swamp|plague|venom|toad|moss|rot|marsh/i},
+  {pre:['Shadow','Cursed','Hollow'], css:'hue-rotate(250deg) saturate(.8) brightness(.85)', hp:1.1, atk:1.1, bad:/shadow|ghost|wraith|lich|cursed|dark|night|hollow|bone/i},
+  {pre:['Gilded','Royal','Elder'],   css:'hue-rotate(35deg) saturate(1.45) brightness(1.1)', hp:1.3, atk:.95, bad:/gold|gilded|royal|king|queen|elder|sun/i},
+];
+const tintStyle = name => TINT[name] ? ` style="filter:${TINT[name]}"` : '';
+/* the last word of a name is the creature: 'Sneaky Goblin' -> 'Goblin' */
+const creatureWord = n => n.trim().split(/\s+/).slice(-1)[0];
+/* build the recoloured cousins for one area's pool */
+function withCousins(pool, areaIdx, want){
+  const out=pool.slice(), taken=new Set(pool.map(m=>m.name.toLowerCase()));
+  let guard=0;
+  while(out.length<want && guard++<40){
+    const base=pool[(out.length-pool.length+guard)%pool.length];
+    const word=creatureWord(base.name);
+    /* step through the families in order so one colour cannot dominate,
+       skipping any that would clash with what the monster already is */
+    let fam=null;
+    for(let k=0;k<TINT_FAMILIES.length;k++){
+      const f=TINT_FAMILIES[(areaIdx*2 + (out.length-pool.length) + k) % TINT_FAMILIES.length];
+      if(!f.bad.test(base.name)){ fam=f; break; }
+    }
+    if(!fam) continue;
+    let name=null;
+    for(const pre of fam.pre){ const n=pre+' '+word; if(!taken.has(n.toLowerCase())){ name=n; break; } }
+    if(!name) continue;
+    taken.add(name.toLowerCase());
+    TINT[name]=fam.css;
+    ART[name]=ART[base.name];
+    out.push({name, icon:base.icon, hp:+(base.hp*fam.hp).toFixed(2), atk:+(base.atk*fam.atk).toFixed(2),
+              pat:base.pat.slice().reverse()});
+  }
+  return out;
+}
+const foeArt = (name, icon) => ART[name] ? `<img src="art/${ART[name]}.webp" alt="${name}" draggable="false"${tintStyle(name)}>` : icon;
+const deadArt = (name, icon) => ART[name] ? `<img src="art/dead_${ART[name]}.webp" alt="${name}, defeated" draggable="false"${tintStyle(name)}>` : icon;
 let BG = ['tavern','cellar','forest','castle'];
 /* moving monsters: a standing loop and an attack clip for each monster */
 const VIDS = new Set(["abbot", "abyssbeast", "airelemental", "anglerfish", "ashghoul", "babydragon", "balrog", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "cerberus", "chaindemon", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "demonking", "demonknight", "demonmage", "djinn", "djinnwarrior", "dragon", "drowned", "dryad", "eel", "elfgeneral", "elfknight", "elfmage", "firedwarf", "firegiant", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gardenguard", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "griffon", "hagspawn", "harpy", "headless", "hellhound", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "imp2", "irongolem", "jackal", "jailer", "knight", "kobold", "kraken", "lavagolem", "lavaserpent", "leech", "lich", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "mushroomman", "octopus", "owlbear", "pharaoh", "phoenix", "pirate", "pixie", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rocbird", "rootbeast", "rootgolem", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "skyserpent", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "stormdrake", "stormgiant", "stormsoldier", "stormtitan", "stormwraith", "succubus", "sunlord", "templeguard", "thornbear", "thornbeast", "thornelf", "thornqueen", "thunderbird", "thunderknight", "toad", "tombguard", "treant", "troll", "unicorn", "vampire", "vampirebat", "vinesnake", "vulture", "warden", "werewolf", "wight", "willowisp", "windspirit", "witch", "wolf", "wolfpack", "wyrm", "yetichief", "zombie"]);
@@ -1751,6 +1802,7 @@ function setFoeVideo(name){
   w.className='foe-vidwrap'; a.classList.remove('on');
   if(!k || !VIDS.has(k) || reduced()){ st.classList.remove('hasvid'); stopFoeVideo(); return; }
   v.src=`vid/${k}_idle.mp4`; a.src=`vid/${k}_attack.mp4`;
+  v.style.filter = a.style.filter = TINT[name] || '';
   st.classList.add('hasvid'); const p=v.play(); if(p&&p.catch) p.catch(()=>{});
   v.onerror=()=>{ st.classList.remove('hasvid'); };
 }
@@ -1831,19 +1883,21 @@ function genBoss(def, L){
 }
 function loadWorld(w){
   w=w||0; const b=w%10, off=w*8;
-  if(w===0){ AREAS=W1.areas; POOLS=W1.pools; AREA_LV=W1.lv; QUEST_STEPS=W1.steps; PLACES=W1.places; STORIES=W1.stories; WPFX=''; BGF=a=>'bg_'+W1.bg[a]; return; }
+  if(w===0){ AREAS=W1.areas; POOLS=W1.pools.map((p,i)=>withCousins(p,i,POOL_WANT[i]||6)); AREA_LV=W1.lv; QUEST_STEPS=W1.steps; PLACES=W1.places; STORIES=W1.stories; WPFX=''; BGF=a=>'bg_'+W1.bg[a]; return; }
   /* later worlds have no gentle opening area, so every area runs ahead */
   AREA_LV=[[3,5],[6,8],[9,11],[12,14]].map(([x,y])=>[x+off,y+off]);
   const bossLv=[5,8,11,14].map(x=>x+off);
   if(b===0){
-    POOLS=W1.pools; QUEST_STEPS=W1.steps; PLACES=W1.places; WPFX=''; BGF=a=>'bg_'+W1.bg[a];
+    POOLS=W1.pools.map((p,i)=>withCousins(p,i,POOL_WANT[i]||6));
+    QUEST_STEPS=W1.steps; PLACES=W1.places; WPFX=''; BGF=a=>'bg_'+W1.bg[a];
     AREAS=W1.areas.map((a,i)=>({name:a.name, icon:a.icon, foes:['gen','gen','boss_'+i]}));
     W1.bosses.forEach((d,i)=>{ MONSTERS['boss_'+i]=genBoss(d,bossLv[i]); });
   } else {
     const D=WORLDS[b-1];
-    POOLS=D.areas.map(a=>a.pool.map(m=>({name:m.name, icon:'', hp:m.hp, atk:m.atk, pat:m.pat})));
+    D.areas.forEach(a=>{ a.pool.forEach(m=>{ ART[m.name]=m.slug; }); ART[a.boss.name]=a.boss.slug; });
+    POOLS=D.areas.map((a,i)=>withCousins(a.pool.map(m=>({name:m.name, icon:'', hp:m.hp, atk:m.atk, pat:m.pat})), i, POOL_WANT[i]||6));
     AREAS=D.areas.map((a,i)=>({name:a.name, icon:`<img class="ico" src="art/i_area_${D.id}_${i}.webp" alt="">`, foes:['gen','gen','boss_'+i]}));
-    D.areas.forEach((a,i)=>{ MONSTERS['boss_'+i]=genBoss(a.boss,bossLv[i]); a.pool.forEach(m=>{ ART[m.name]=m.slug; }); ART[a.boss.name]=a.boss.slug; });
+    D.areas.forEach((a,i)=>{ MONSTERS['boss_'+i]=genBoss(a.boss,bossLv[i]); });
     QUEST_STEPS=D.steps.map(([go,why])=>({go,why})); PLACES=D.areas.map(a=>a.place);
     WPFX=D.id+'_'; BGF=a=>`bg_${D.id}_${a}`;
     STORIES={start:D.intro, a1:[D.story.a1], a2:[D.story.a2], a3:[D.story.a3], end:D.story.end};
@@ -3174,6 +3228,14 @@ function pathPanel(){
   openPanel(`<div class="eyebrow">Where to next?</div><h2>Choose your path</h2>
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     ${newLand?saveBox():''}
+    ${newLand&&nextIdx<=LAST_IDX?(()=>{
+      const [lo,hi]=AREA_LV[AREA_START.indexOf(nextIdx)]||[], gap=lo-(S.level||1);
+      if(!lo) return '';
+      const hard = gap>=3 ? 'far stronger than you' : gap>=1 ? 'stronger than you' : 'a match for you';
+      return `<div class="aheadwarn"><b>${I('skull')} ${AREAS[AREA_START.indexOf(nextIdx)].name} is dangerous</b>
+        <span>The monsters there are <b>level ${lo} to ${hi}</b> and you are <b>level ${S.level}</b> — ${hard}.
+        Train where you are until you feel ready, or push on and risk it.</span></div>`;
+    })():''}
     ${tip('path','Not ready to push on? <b>Train</b> where you are to earn experience and gold, then continue the quest when you feel strong.')}
     ${step?`<button class="pathbtn quest" data-act="quest"><span class="inn-ic">${newLand?AREAS[AREA_START.indexOf(nextIdx)].icon:I('map')}</span><span class="inn-txt"><b>${step.go}</b><small>${step.why}</small></span></button>`:''}
     ${hunts}`);
