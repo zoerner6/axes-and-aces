@@ -1303,6 +1303,19 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @keyframes gpIn{0%{opacity:0;transform:translateY(-30px) scale(.8)}100%{opacity:1;transform:none}}
 .gp-fly{position:fixed;width:38px;height:38px;margin:-19px 0 0 -19px;z-index:126;pointer-events:none;filter:drop-shadow(2px 2px 0 #000);animation:gpFly .75s cubic-bezier(.3,0,.7,1) forwards}
 @keyframes gpFly{0%{transform:translate(0,0) scale(1)}100%{transform:translate(var(--dx),55vh) rotate(260deg) scale(.6);opacity:0}}
+
+/* FLAWLESS / CLUTCH: a brand title tag inside the victory panel, never on top of anything */
+.vic-tag{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:-4px;transform:rotate(-3deg);animation:tagSlam .5s .3s cubic-bezier(.2,1.6,.4,1) both}
+.vic-tag b{font-family:var(--f-title);font-weight:400;font-size:clamp(1.6rem,5vw,2.2rem);line-height:1;background:linear-gradient(#ffd35c,#d89a14);color:#16100d;border:3px solid #000;border-radius:6px;box-shadow:4px 4px 0 #000;padding:2px 18px 4px}
+.vic-tag span{font-family:var(--f-num);font-weight:700;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:#ffd35c;text-shadow:1px 1px 0 #000}
+.vic-tag.clutch b{background:linear-gradient(#e2342a,#8e1a14);color:#fff;text-shadow:2px 2px 0 #000}
+.vic-tag.clutch span{color:#ff8b7e}
+@keyframes tagSlam{0%{opacity:0;transform:rotate(-3deg) scale(2.2)}100%{opacity:1;transform:rotate(-3deg) scale(1)}}
+
+/* achievement popup: a corner card on wide screens, at the bottom on phones, never over titles */
+@media (min-width:900px){ .ach-pop{left:max(16px,env(safe-area-inset-left,0px));top:calc(56px + env(safe-area-inset-top,0px));transform:none;max-width:380px;animation:achInL .5s cubic-bezier(.2,1.5,.4,1)} .ach-pop.out{transform:translateX(-30px)} }
+@media (max-width:899px){ .ach-pop{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
+@keyframes achInL{0%{opacity:0;transform:translateX(-120%)}100%{opacity:1;transform:none}}
 </style>
 
 <div id="app">
@@ -2526,6 +2539,7 @@ function victoryPanel(){
   const w=S.lastWin, areaDone=!S.huntFoe && isBossStep();
   openPanel(`<div class="vic">
     <div class="vic-title">Victory!</div>
+    ${S.winMood&&S.winMood.flawless?`<div class="vic-tag"><b>Flawless!</b><span>${S.winMood.bonus?`Not a scratch: double gold +${fmt(S.winMood.bonus)}`:'Not a scratch'}</span></div>`:S.winMood&&S.winMood.clutch?`<div class="vic-tag clutch"><b>Clutch!</b><span>Won by a hair</span></div>`:''}
     <div class="vic-foe"><span class="vf deadpic">${deadArt(w.name, w.icon)}</span><span class="dizzy"><i>✦</i><i>✦</i><i>✦</i></span></div>
     <div class="vic-sub">You defeated the ${w.name}!${areaDone?`<br><b>${area().name} is safe again!</b>`:''}</div>
     <div class="loot2">
@@ -2539,9 +2553,8 @@ function victoryPanel(){
     <button class="btn big vic-btn" data-act="afterVictory">${S.pendingLv?'Level up!':'Visit the merchant'}</button>
   </div>`);
   const mood=S.winMood; S.winMood=null; if(mood) S.vicBonus=mood.bonus||0;
-  if(mood&&mood.flawless) setTimeout(()=>{ if(S.phase==='victory') stamp('FLAWLESS', mood.bonus?`Double gold +${mood.bonus}`:'Not a scratch'); }, 250);
-  else if(mood&&mood.clutch) setTimeout(()=>{ if(S.phase==='victory') stamp('CLUTCH!', 'Won by a hair','clutch'); }, 250);
-  vicRewards(w, mood&&(mood.flawless||mood.clutch) ? 2300 : 450);
+  if(mood&&(mood.flawless||mood.clutch)) setTimeout(()=>{ if(S.phase!=='victory') return; thud(); if(mood.flawless) trumpetCall(); else { brass(196,0,.5,.05); brass(261.63,.25,.9,.05); } }, 350);
+  vicRewards(w, mood&&(mood.flawless||mood.clutch) ? 1100 : 450);
   if(w.drop&&w.drop.kind==='drink'&&w.drop.pending) drinkEvent(w.drop.heal, '.vic-hp .hpbar', 900, ()=>{ w.drop.pending=false; });
 }
 /* a potion you had no room for: show it, then drink it and let the health bar visibly fill */
@@ -3064,7 +3077,8 @@ function unlock(id){
   const a=ACH.find(x=>x.id===id); if(!a) return;
   const e=document.createElement('div'); e.className='ach-pop';
   e.innerHTML=`<span class="ach-ic">${I(a.icon)}</span><span><small>Achievement unlocked!</small><b>${a.name}</b><em>${a.desc}</em></span><button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`;
-  document.body.appendChild(e); trumpetCall(); setTimeout(()=>e.classList.add('out'),5200); setTimeout(()=>e.remove(),5800);
+  const narrow=innerWidth<900, wait=narrow&&S&&S.phase==='victory'?4200:0;
+  setTimeout(()=>{ document.body.appendChild(e); trumpetCall(); setTimeout(()=>e.classList.add('out'),5200); setTimeout(()=>e.remove(),5800); }, wait);
 }
 function achOnHand(ev, played, dmg){
   lifeAdd(L=>{ L.hands++; if(dmg>L.best){ L.best=dmg; L.bestName=HANDS[ev.type].name; } });
@@ -3230,7 +3244,7 @@ function goldPouch(before, delta, delay=0){
 /* ---- victory rewards: coins drop into your pouch, then experience pours into the bar ---- */
 const vicGold = w => (w.gold||0) + (w.bonus||0);
 function vicOldLv(w){ const old=S.xp-(w.xp||0); let L=1; while(old>=cumNeed(L)) L++; return L; }
-const vicLen = (g, stamped) => (stamped?2300:450) + Math.min(12,Math.max(1,g))*150 + 700 + 1900;
+const vicLen = (g, stamped) => (stamped?1100:450) + Math.min(12,Math.max(1,g))*150 + 700 + 1900;
 function vicRewards(w, start){
   const gain=vicGold(w), n=Math.min(12,Math.max(gain?1:0,gain)), purse=$('vPurse'), gEl=$('vGold'), from=S.gold-gain;
   const at=(ms,fn)=>setTimeout(()=>{ if(S.phase==='victory'&&document.body.contains(purse)) fn(); }, reduced()?Math.min(ms,300):ms);
