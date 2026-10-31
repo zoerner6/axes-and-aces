@@ -341,7 +341,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .slot.locked{font-size:.8rem!important;opacity:.45}
 .slot.heal{background:#d9f5dc}
 .pw{display:inline-block;white-space:nowrap;font-family:var(--f-num);font-weight:700;font-size:clamp(1rem,4.2vw,1.25rem);line-height:1.2;padding:1px 10px;border-radius:10px;border:2px solid #2a1608;color:#2a1608;margin:2px 0}
-.pw.a{background:#ffb8a6} .pw.d{background:#9fc8ff}
+.pw.a{background:#ffb8a6} .pw.d{background:#9fc8ff} .pw.h{background:#a8e6b0}
 .trade{display:flex;flex-direction:column;gap:8px}
 .tl{opacity:0;animation:rwIn .4s ease var(--d) forwards;border-radius:14px;padding:8px 12px;font-size:1rem;line-height:1.35}
 .tl.say{display:flex;gap:10px;align-items:flex-start;background:var(--bubble);color:var(--bubble-ink);border:2px solid #2a1608}
@@ -597,7 +597,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .ad .ico,.totB .ico{width:20px;height:20px}
 .item .tag{color:#7d1512}
 .buy{background:#000;color:var(--gold);font-family:var(--f-num);letter-spacing:.04em;display:inline-flex;justify-content:center;align-items:center;gap:3px}
-.pw{border:2px solid #000;font-family:var(--f-num)} .pw.a{background:var(--hp);color:#fff}.pw.d{background:var(--steel);color:#fff}
+.pw{border:2px solid #000;font-family:var(--f-num)} .pw.a{background:var(--hp);color:#fff}.pw.d{background:var(--steel);color:#fff}.pw.h{background:#2f7d43;color:#fff}
 .innbtn{border:3px solid #000;box-shadow:4px 4px 0 #000;background:#f3e6c8}
 .inn-ic{border:3px solid #000}.inn-ic .ico{width:38px;height:38px}
 .kit-label .ico{width:18px;height:18px}
@@ -1840,10 +1840,13 @@ GEAR.forEach(g=>{ g.tier=TIERS[g.id][0]; g.price=Math.round(TIERS[g.id][1]*1.25)
 const GR = Object.fromEntries(GEAR.map(g=>[g.id,g]));
 /* potions: bought with gold, used up when you drink them */
 const I = n => `<img class="ico" src="art/i_${n}.webp" alt="" draggable="false">`;
+const POTION_HEAL = .35, IRONSKIN_BLOCK = .5;
+const potionHeal = () => Math.round(S.maxHp*POTION_HEAL);
+const ironskinBlock = () => Math.round(S.maxHp*IRONSKIN_BLOCK);
 const SPELLS = [
-  {id:'potion',  name:'Healing Potion',  icon:I('potion'), price:4, desc:'Heal 150 health'},
-  {id:'ironskin',name:'Iron Skin Potion',icon:I('ironskin'), price:4, desc:'Block the next 200 damage this turn'},
-  {id:'rage',    name:'Rage Potion',     icon:I('rage'), price:5, desc:'Your next attack does double damage'}
+  {id:'potion',  name:'Healing Potion',  icon:I('potion'), price:4, chip:'Heal 35%', kind:'h', desc:'Your health, back in one gulp.'},
+  {id:'ironskin',name:'Iron Skin Potion',icon:I('ironskin'), price:4, chip:'Block 50%', kind:'d', desc:'Soaks the next hit this turn.'},
+  {id:'rage',    name:'Rage Potion',     icon:I('rage'), price:5, chip:'Double damage', kind:'a', desc:'Your next attack hits twice as hard.'}
 ];
 /* equipment: one item per slot, upgraded tier by tier */
 const MAT = {w:['','Wooden','Tin','Iron','Steel','Titanium'], a:['','Leather','Tin','Iron','Steel','Titanium']};
@@ -1878,12 +1881,12 @@ const defense = () => ['shield','helm','armor'].reduce((a,k)=>a+(S.eq[k]?EQUIP[S
 const tierCap = () => (S.world||0)>0 ? 5 : Math.min(5, areaOf()+2);
 /* spellbooks: unlocked by level, bought once, cast once per fight */
 const BOOKS = [
-  {id:'cleric1',name:'Cleric Training I',  icon:I('cleric'), school:'cleric', lvl:2, price:6,  desc:'Earn 1 healing round per fight (heals 30% of max health)'},
-  {id:'fire',   name:'Fire Bolt',          icon:I('fire'), school:'wizard', lvl:3, price:6,  desc:'Hit the monster for 10% of its full health'},
-  {id:'cleric2',name:'Cleric Training II', icon:I('cleric'), school:'cleric', lvl:4, price:10, need:'cleric1', desc:'Earn a 2nd healing round per fight'},
-  {id:'frost',  name:'Frost',              icon:I('frost'), school:'wizard', lvl:5, price:10, desc:'The monster skips its next move'},
-  {id:'bolt',   name:'Lightning',          icon:I('bolt'), school:'wizard', lvl:6, price:12, desc:'Hit the monster for 25% of its full health'},
-  {id:'cleric3',name:'Cleric Training III',icon:I('cleric'), school:'cleric', lvl:6, price:14, need:'cleric2', desc:'Earn a 3rd healing round per fight'}
+  {id:'cleric1',name:'Cleric Training I',  icon:I('cleric'), school:'cleric', lvl:2, price:6,  chip:'Heal 30%', desc:'One heal, every fight.'},
+  {id:'fire',   name:'Fire Bolt',          icon:I('fire'), school:'wizard', lvl:3, price:6,  chip:'10% damage', desc:"Takes 10% of the monster's full health."},
+  {id:'cleric2',name:'Cleric Training II', icon:I('cleric'), school:'cleric', lvl:4, price:10, need:'cleric1', chip:'2nd heal 30%', desc:'A second heal, every fight.'},
+  {id:'frost',  name:'Frost',              icon:I('frost'), school:'wizard', lvl:5, price:10, chip:'Skip a turn', desc:'The monster misses its next move.'},
+  {id:'bolt',   name:'Lightning',          icon:I('bolt'), school:'wizard', lvl:6, price:12, chip:'25% damage', desc:"Takes 25% of the monster's full health."},
+  {id:'cleric3',name:'Cleric Training III',icon:I('cleric'), school:'cleric', lvl:6, price:14, need:'cleric2', chip:'3rd heal 30%', desc:'A third heal, every fight.'}
 ];
 const healRounds = () => S.books.filter(b=>BK[b]&&BK[b].school==='cleric').length;
 const wizSpells = () => S.books.filter(b=>BK[b]&&BK[b].school==='wizard');
@@ -2614,7 +2617,7 @@ function rollDrop(){
   if(S.coach>=0 && S.idx===0) return null;
   const r=Math.random(), g=gearDrops();
   if(r<1/6 && g.length){ const it=g[rnd(g.length)], old=S.eq[it.slot]; if(old){ (S.oldGear=S.oldGear||[]).push({type:old.type,tier:old.tier}); } S.eq[it.slot]={type:it.type,tier:it.tier}; return {kind:'gear', type:it.type, tier:it.tier, old:old?eqName(old.type,old.tier):null}; }
-  if(r<1/6+1/6){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } return {kind:'drink', heal:Math.min(S.maxHp-S.hp,150), pending:true}; }
+  if(r<1/6+1/6){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } return {kind:'drink', heal:Math.min(S.maxHp-S.hp,potionHeal()), pending:true}; }
   return null;
 }
 /* how Edward takes a new piece of gear, in words that fit the item */
@@ -2704,8 +2707,8 @@ async function cast(){
   if(infoSel.k==='s'){
     const i=infoSel.i, id=S.spells[i]; if(!id) return;
     S.spells.splice(i,1); infoSel=null;
-    if(id==='potion'){ healMe(150); soothe(); lifeAdd(L=>{L.potions++;}); if(life().potions>=10) unlock('potions10'); }
-    else if(id==='ironskin'){ blockMe(200); blip(500,.15,'square',.05); }
+    if(id==='potion'){ healMe(potionHeal()); soothe(); lifeAdd(L=>{L.potions++;}); if(life().potions>=10) unlock('potions10'); }
+    else if(id==='ironskin'){ blockMe(ironskinBlock()); blip(500,.15,'square',.05); }
     else if(id==='rage'){ S.rage=true; pop($('heroBox'),'Next attack ×2!','m'); blip(300,.2,'sawtooth',.06); }
     render(); return;
   }
@@ -2944,10 +2947,12 @@ function shopPanel(){
   }).join('');
   const books = BOOKS.map(b=>{
     const have=S.books.includes(b.id), low=S.level<b.lvl, poor=S.gold<b.price, needs=b.need&&!S.books.includes(b.need);
-    return card('spell', `${b.school==='cleric'?'Cleric':'Wizard'} · level ${b.lvl}`, b.icon, b.name, b.desc+(b.school==='wizard'?'. Learn it once, cast it once per fight.':'.'), have?'Learned':needs?`Learn ${BK[b.need].name} first`:low?`Reach level ${b.lvl}`:poor?`Need ${coin(b.price)}`:`Learn ${coin(b.price)}`, 'buyBook', b.id, have||low||poor);
+    const note = `<span class="pw ${b.school==='cleric'?'h':'a'}">${b.chip}</span><span class="gain">${b.desc}${b.school==='wizard'?' Once a fight.':''}</span>`;
+    return card('spell', `${b.school==='cleric'?'Cleric':'Wizard'} · level ${b.lvl}`, b.icon, b.name, note, have?'Learned':needs?`Learn ${BK[b.need].name} first`:low?`Reach level ${b.lvl}`:poor?`Need ${coin(b.price)}`:`Learn ${coin(b.price)}`, 'buyBook', b.id, have||low||poor);
   }).join('');
   const pots = SPELLS.map(p=>{ const full=S.spells.length>=3, poor=S.gold<p.price;
-    return card('spell','Potion (one use)',p.icon,p.name,p.desc+'.', full?'Bag full (3 max)':poor?`Need ${coin(p.price)}`:`Buy ${coin(p.price)}`,'buyPot',p.id,full||poor); }).join('');
+    const note = `<span class="pw ${p.kind||'h'}">${p.chip}</span><span class="gain">${p.desc}</span>`;
+    return card('spell','Potion (one use)',p.icon,p.name,note, full?'Bag full (3 max)':poor?`Need ${coin(p.price)}`:`Buy ${coin(p.price)}`,'buyPot',p.id,full||poor); }).join('');
   openPanel(`<div class="split"><div class="split-side">${soldierCard()}</div><div class="split-main"><div class="row" style="justify-content:space-between;align-items:center"><h2>Traveling Merchant</h2><span class="money">${bag(S.gold)}</span></div>
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     <div class="shop-go"><button class="innbtn" data-act="rest" ${S.gold<innCost()||S.hp>=S.maxHp?'disabled':''}>
