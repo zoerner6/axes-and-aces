@@ -902,11 +902,11 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .actions .btn{text-overflow:clip}
 /* floating hand name + damage above the cards */
 .handwrap{position:relative}
-.hand-tag{position:absolute;left:50%;top:-8px;transform:translate(-50%,-100%);z-index:5;pointer-events:none;white-space:nowrap;
-  font-family:var(--f-title);font-size:clamp(1.15rem,5vw,1.6rem);line-height:1;color:#f3e6c8;background:linear-gradient(#2a1d16,#120d0b);border:2px solid #000;border-radius:10px;padding:5px 14px;
+.hand-tag{position:absolute;left:50%;top:-8px;transform:translate(-50%,-100%);z-index:5;pointer-events:none;white-space:normal;max-width:min(46vw,430px);text-align:center;
+  font-family:var(--f-title);font-size:clamp(1.15rem,5vw,1.6rem);line-height:1.15;color:#f3e6c8;background:linear-gradient(#2a1d16,#120d0b);border:2px solid #000;border-radius:10px;padding:5px 14px;
   box-shadow:inset 0 0 0 1px rgba(242,182,50,.5),3px 3px 0 #000;text-shadow:2px 2px 0 #000;animation:tagBob 1.6s ease-in-out infinite}
 .hand-tag b{font-family:var(--f-num);font-weight:700;color:var(--gold);margin-left:4px;font-size:1.1em}
-.hand-tag em{font-style:normal;font-family:var(--f-num);font-size:.6em;letter-spacing:.06em;color:#ff8a78;margin-left:6px;text-transform:uppercase}
+.hand-tag em{font-style:normal;font-family:var(--f-num);font-size:.56em;letter-spacing:.04em;color:#ff8a78;margin-left:6px;text-transform:uppercase;display:inline-block}
 .hand-tag.big{color:#ffd35c;font-size:clamp(1.35rem,6vw,2rem);box-shadow:inset 0 0 0 1px rgba(242,182,50,.8),3px 3px 0 #000,0 0 18px rgba(242,182,50,.45)}
 @media (max-width:300px){ .hand{gap:3px} .card{--w:clamp(24px, calc((100% - 20px) / var(--n, 8)), 82px)} .card .cn{font-size:16px} }
 @keyframes tagBob{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 7px))}}
@@ -1046,6 +1046,10 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
   #app>.handwrap{grid-column:2;grid-row:4;align-self:end;position:relative;z-index:3;max-width:760px;width:100%;justify-self:center}
   #app>.handwrap{min-width:0}
   #app>.handwrap .card{--w:clamp(44px,calc((100vw - 900px) / (var(--n,7) + .8)),104px)}
+  /* the damage read-out sits at the right of the hand, clear of the monster's name */
+  #app>.handwrap .hand-tag{left:auto;right:0;transform:translateY(-100%);max-width:min(40vw,400px)}
+  @keyframes tagBobR{50%{transform:translateY(calc(-100% - 5px))}}
+  #app>.handwrap .hand-tag{animation-name:tagBobR}
   #app>.actions{grid-column:3;grid-row:3/5;align-self:end;position:relative;z-index:3;grid-template-columns:1fr 1fr}
   #app>.actions .disc,#app>.actions .atk{grid-column:1/3}
 }
@@ -1615,15 +1619,15 @@ const cid = (rank,suit) => suit*13 + (rank-2);
 
 /* ---------- poker hands ---------- */
 const HANDS = {
-  high:    {name:'High Card',       t:10, l:1, ut:10, ul:1, tip:'No match. Only your highest card counts.', ex:[[14,0],[9,1],[6,3],[4,2],[2,0]]},
-  pair:    {name:'Pair',            t:30, l:2, ut:15, ul:1, tip:'2 cards with the same number.', ex:[[8,0],[8,1]]},
-  two:     {name:'Two Pair',        t:60, l:2, ut:20, ul:1, tip:'2 different pairs.', ex:[[8,0],[8,1],[4,2],[4,3]]},
-  trio:    {name:'Three of a Kind', t:100,l:3, ut:20, ul:2, tip:'3 cards with the same number.', ex:[[7,0],[7,1],[7,2]]},
-  straight:{name:'Straight',        t:140,l:4, ut:30, ul:3, tip:'5 numbers in a row. Suits can be mixed.', ex:[[5,0],[6,1],[7,3],[8,2],[9,0]]},
-  flush:   {name:'Flush',           t:150,l:4, ut:15, ul:2, tip:'5 cards of the same suit.', ex:[[2,1],[6,1],[9,1],[11,1],[13,1]]},
-  full:    {name:'Full House',      t:200,l:4, ut:25, ul:2, tip:'Three of a kind plus a pair.', ex:[[10,0],[10,1],[10,3],[3,2],[3,0]]},
-  four:    {name:'Four of a Kind',  t:350,l:7, ut:30, ul:3, tip:'4 cards with the same number.', ex:[[12,0],[12,1],[12,2],[12,3]]},
-  sflush:  {name:'Straight Flush',  t:550,l:8, ut:40, ul:4, tip:'5 in a row, all the same suit.', ex:[[5,3],[6,3],[7,3],[8,3],[9,3]]}
+  high:    {name:'High Card',       t:10, l:1, ut:3, ul:1, tip:'No match. Only your highest card counts.', ex:[[14,0],[9,1],[6,3],[4,2],[2,0]]},
+  pair:    {name:'Pair',            t:30, l:2, ut:8, ul:1, tip:'2 cards with the same number.', ex:[[8,0],[8,1]]},
+  two:     {name:'Two Pair',        t:60, l:2, ut:15, ul:1, tip:'2 different pairs.', ex:[[8,0],[8,1],[4,2],[4,3]]},
+  trio:    {name:'Three of a Kind', t:100,l:3, ut:25, ul:2, tip:'3 cards with the same number.', ex:[[7,0],[7,1],[7,2]]},
+  straight:{name:'Straight',        t:150,l:4, ut:38, ul:3, tip:'5 numbers in a row. Suits can be mixed.', ex:[[5,0],[6,1],[7,3],[8,2],[9,0]]},
+  flush:   {name:'Flush',           t:220,l:4, ut:55, ul:2, tip:'5 cards of the same suit.', ex:[[2,1],[6,1],[9,1],[11,1],[13,1]]},
+  full:    {name:'Full House',      t:320,l:4, ut:80, ul:2, tip:'Three of a kind plus a pair.', ex:[[10,0],[10,1],[10,3],[3,2],[3,0]]},
+  four:    {name:'Four of a Kind',  t:480,l:7, ut:120, ul:3, tip:'4 cards with the same number.', ex:[[12,0],[12,1],[12,2],[12,3]]},
+  sflush:  {name:'Straight Flush',  t:700,l:8, ut:175, ul:4, tip:'5 in a row, all the same suit.', ex:[[5,3],[6,3],[7,3],[8,3],[9,3]]}
 };
 const HAND_GOLD = {trio:1, straight:1, flush:2, full:2, four:3, sflush:5};
 const HAND_ORDER = ['high','pair','two','trio','straight','flush','full','four','sflush'];
@@ -1711,7 +1715,7 @@ const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,
 const FLOOR_DEF = 5;
 const foeArmorFor = (L, boss) => Math.max(FLOOR_DEF, Math.round((5 + 6.5*(Math.max(1,L)-1)) * (boss?1.5:1) / 5) * 5);
 const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss)) : 0;
-const armored = (dmg, d) => Math.max(Math.ceil(dmg/2), dmg - foeArmor(d));
+const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d)/100)));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
   /* the pub is where you start with no gear: its monsters are softer */
@@ -1845,7 +1849,16 @@ const eqName = (type,tier) => `${MAT[EQUIP[type].mat][tier]} ${EQUIP[type].name}
 const eqDesc = (type,tier) => { const e=EQUIP[type]; return e.atk ? `+${e.atk[tier]} Attack${e.hands===2?' · two hands':''}` : `+${e.def[tier]} Defense`; };
 const twoHanded = () => !!(S.eq.main && EQUIP[S.eq.main.type].hands===2);
 const weaponPts = () => (S.eq.main?EQUIP[S.eq.main.type].atk[S.eq.main.tier]:0) + (S.eq.off&&!twoHanded()?EQUIP[S.eq.off.type].atk[S.eq.off.tier]:0);
-/* no weapon at all means you are swinging your fists: half damage until you buy one */
+/* Your Attack and Defense scores are the numbers on the soldier card, and they
+   multiply straight into every fight:
+     +100 Attack  = you hit twice as hard
+     +100 Defense = you take half as much
+   Each level is a flat percentage step on top, not a raw multiple of your level. */
+const LVL_STEP = 1.32;
+const atkMult = () => 1 + weaponPts()/100;
+const defDiv = () => 1 + defense()/100;
+const lvlMult = () => Math.pow(LVL_STEP, Math.max(0,(S.level||1)-1) + (S.flatM||0));
+/* no weapon at all means you are swinging your fists */
 const FISTS = .7;
 const barehanded = () => !S.eq.main && !S.eq.off;
 const fistMult = () => barehanded() ? FISTS : 1;
@@ -2130,21 +2143,21 @@ function evaluate(cards){
 const lvl = t => S.levels[t]||1;
 /* Aces: +10 points each */
 /* Aces add a flat +10 points; your level multiplier already makes them grow */
+const ACE_MULT = .12;   /* each Ace in the hand adds 12% */
 const aceBonus = () => 10;
 /* Aces bonus: Aces that are part of the hand itself (a pair of Aces or better, or a straight) count triple */
 const acesIn = ev => ev.type==='high' ? 0 : ev.cards.filter(c=>c.rank===14&&!isOff(c)).length;
 const acesExtra = ev => acesIn(ev)*aceBonus();
+const aceMult = ev => 1 + acesIn(ev)*ACE_MULT;
 const hitShare = ev => ev.cards.filter(c=>!isOff(c)).length / ev.cards.length;
 const heartsFlush = ev => (ev.type==='flush'||ev.type==='sflush') && ev.cards.every(c=>c.suit===1&&!isOff(c));
-const handBase = t => { const h=HANDS[t], L=lvl(t)-1; return {p:h.t+L*h.ut+S.flatP, m:S.level+S.flatM}; };
+const handBase = t => { const h=HANDS[t], L=lvl(t)-1; return {p:h.t+L*h.ut+S.flatP, m:atkMult()*lvlMult()*fistMult()}; };
 const atkPts = () => S.eq ? weaponPts() : 0;
 function quickScore(cards){
   const ev=evaluate(cards), b=handBase(ev.type);
   let p=b.p, heal=0, blk=0, gold=0;
   p+=atkPts();
-  ev.cards.forEach(c=>{ if(isOff(c)) return; if(c.rank===14) p+=aceBonus(); });
-  cards.filter(c=>!ev.cards.includes(c)&&!isOff(c)).forEach(c=>{ if(c.rank===14) p+=aceBonus(); });
-  p+=acesExtra(ev);
+  p*=aceMult(ev);
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   const live=cards.filter(c=>!isOff(c)), share=hitShare(ev);
   const floor=(share<1&&live.length&&live.length<cards.length)?quickScore(live).total:0;
@@ -2170,7 +2183,7 @@ function cardHTML(c, extra=''){
   const s=SUITS[c.suit], face=c.rank>=11&&c.rank<=13;
   return `<button class="card ${s.red?'red':''} ${c.rank===14?'king':''} ${extra}" data-act="card" data-id="${c.id}" aria-label="${RNAME(c.rank)} of ${s.n}s">`+
     `<span class="cn">${RL(c.rank)}<i>${s.s}</i></span><span class="md ${face?'face':''}">${face?`<img src="art/face_${RL(c.rank).toLowerCase()}.webp" alt="" draggable="false">`:s.s}</span>`+
-    `<span class="cn br">${RL(c.rank)}<i>${s.s}</i></span>${c.rank===14?`<span class="ace10">+${aceBonus()}</span>`:''}</button>`;
+    `<span class="cn br">${RL(c.rank)}<i>${s.s}</i></span>${c.rank===14?`<span class="ace10">+${Math.round(ACE_MULT*100)}%</span>`:''}</button>`;
 }
 const mini = ([r,s]) => `<span class="mini ${SUITS[s].red?'red':''}">${RL(r)}${SUITS[s].s}</span>`;
 function intentText(mv){
@@ -2236,7 +2249,7 @@ function renderPreview(){
   if(!(f && sel.length && S.phase==='play')){ tag.hidden=true; fitButtons(); return; }
   const played=f.hand.filter(id=>sel.includes(id)).map(cardById), pv=previewHit(played), d=foeDef();
   const need5 = d.must5 && played.length!==5;
-  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces bonus ×2</em>`:''}${barehanded()?' <em>Fists −30%</em>':''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
+  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces +${Math.round(pv.aces*ACE_MULT*100)}%</em>`:''}${barehanded()?' <em>Fists −30%</em>':''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
   tag.classList.toggle('big', ['full','four','sflush','flush','straight'].includes(pv.type));
   tag.hidden=false; fitButtons();
 }
@@ -2245,13 +2258,12 @@ function renderPreview(){
 function liveFloor(played){ const live=played.filter(c=>!isOff(c)); return live.length && live.length<played.length ? previewHit(live,true).dmg : 0; }
 function previewHit(played, raw){
   const ev=evaluate(played), ids=ev.cards.map(c=>c.id), base=handBase(ev.type), ctx={type:ev.type, played};
-  let P=base.p+weaponPts(), M=base.m;
+  let P=base.p, M=base.m;
   const add=eff=>{ if(!eff) return; if(eff.p) P+=eff.p; if(eff.m) M+=eff.m; if(eff.x) M*=eff.x; };
-  for(const c of played){ if(isOff(c)) continue; if(c.rank===14) P+=aceBonus(); if(ids.includes(c.id)) S.gear.forEach(g=>{ if(GR[g].card) add(GR[g].card(c,ctx)); }); }
+  for(const c of played){ if(isOff(c)) continue; if(ids.includes(c.id)) S.gear.forEach(g=>{ if(GR[g].card) add(GR[g].card(c,ctx)); }); }
   S.gear.forEach(g=>{ if(GR[g].hand) add(GR[g].hand(ctx)); });
   if(S.rage) M*=2;
-  M*=fistMult();
-  P+=acesExtra(ev);
+  M*=aceMult(ev);
   const share=hitShare(ev);
   const dd=Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)); return {aces:acesIn(ev), type:ev.type, dmg:raw?dd:armored(dd, foeDef()), share};
 }
@@ -2403,17 +2415,15 @@ async function attack(){
   f.hand=f.hand.filter(id=>!sel.includes(id)); f.disc.push(...played.map(c=>c.id)); sel=[];
   S.stats.hands++;
   const ev=evaluate(played), ids=ev.cards.map(c=>c.id), base=handBase(ev.type), ctx={type:ev.type, played};
-  let P=base.p+weaponPts(), M=base.m, heal=0, blk=0; const fired=new Set();
+  let P=base.p, M=base.m, heal=0, blk=0; const fired=new Set();
   const add=(eff,i)=>{ if(!eff) return; fired.add(i); if(eff.p) P+=eff.p; if(eff.m) M+=eff.m; if(eff.x) M*=eff.x; if(eff.b) blk+=eff.b; if(eff.heal) heal+=eff.heal; };
   for(const c of played){
     if(isOff(c)) continue;
-    if(c.rank===14) P+=aceBonus();
     if(ids.includes(c.id)) S.gear.forEach((g,i)=>{ if(GR[g].card) add(GR[g].card(c,ctx),i); });
   }
   S.gear.forEach((g,i)=>{ if(GR[g].hand) add(GR[g].hand(ctx),i); });
   if(S.rage){ S.rage=false; M*=2; }
-  M*=fistMult();
-  const aceN=acesIn(ev), aceX=acesExtra(ev); P+=aceX;
+  const aceN=acesIn(ev), aceX=acesExtra(ev); M*=aceMult(ev);
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   render();
   if(weaponPts()) anim($('gearBtn'),'wiggle');
@@ -2484,7 +2494,9 @@ async function foeTurn(){
     const hitMs=playFoeAttack(); if(!hitMs){ anim($('foeIcon'),'lunge'); swoosh(); }
     await wait(hitMs||300); if(hitMs) swoosh(); claws();
     const atks0=d.moves.filter(m=>m.k==='atk').map(m=>m.n), isBig=atks0.length>1 && mv.n>=Math.min(...atks0)*1.5;
-    const arm=Math.min(defense(), Math.floor(mv.n*(isBig?.25:.5))), n2=mv.n-arm, absorbed=Math.min(S.block,n2), dmg=n2-absorbed; S.hp-=dmg; if(dmg>0) f.hurt=true;
+    /* a critical blow punches through part of your armour */
+    const after=Math.max(1, Math.round(mv.n / (1 + defense()/(isBig?200:100))));
+    const arm=mv.n-after, absorbed=Math.min(S.block,after), dmg=after-absorbed; S.hp-=dmg; if(dmg>0) f.hurt=true;
     const saved=arm+absorbed, atks=d.moves.filter(m=>m.k==='atk').map(m=>m.n), big=atks.length>1 && mv.n>=Math.min(...atks)*1.5;
     S.killer={name:d.name, dmg, raw:mv.n, saved, big, area:curArea()};
     if(big){ foeBanner('Critical blow!', `−${dmg} HP`, 'crit'); claws(); setTimeout(claws,120); }
@@ -2932,7 +2944,7 @@ function shopPanel(){
       <span class="inn-price">${coin(innCost())}</span>
     </button>
     <button class="btn big onward" data-act="leaveShop">Continue adventure</button></div>
-    ${tip('shop','<b>Weapons</b> add damage to every attack. <b>Shield, helmet and armor</b> block part of every monster hit. Each one upgrades from Wooden or Leather up to Titanium, and better metals show up in later areas. Reach <b>level 3</b> to buy your first spellbook. Save up!')}
+    ${tip('shop','<b>Weapons</b> raise your <b>Attack</b> score: +100 Attack means you hit twice as hard. <b>Shield, helmet and armor</b> raise <b>Defense</b>: +100 Defense means you take half as much. Each one upgrades from Wooden or Leather up to Titanium, and better metals show up in later areas. Reach <b>level 3</b> to buy your first spellbook. Save up!')}
     <div class="shop-tabs">${[['smith','sword','Blacksmith'],['books','fire','Spellbooks'],['pots','potion','Potions']].map(([k,ic,l])=>`<button class="stab ${(S.shopTab||'smith')===k?'on':''}" data-act="shopTab" data-tab="${k}">${I(ic)} ${l}</button>`).join('')}</div>
     <div class="shop shop-${S.shopTab||'smith'}">${{smith,books,pots}[S.shopTab||'smith']}</div>
     </div></div>`); $('panel').classList.add('wide');
@@ -3128,8 +3140,9 @@ function guidePanel(){
   const rows=HAND_ORDER.slice().reverse().map(t=>{const b=handBase(t);
     return `<div class="g-row"><b>${HANDS[t].name}</b><span class="sc">${b.p} × ${b.m}${HAND_GOLD[t]?` · +${coin(HAND_GOLD[t])}`:''}</span><div class="ex">${HANDS[t].ex.map(mini).join('')}</div><small>${HANDS[t].tip}</small></div>`;}).join('');
   openPanel(`<div class="eyebrow">Hand guide</div><h2>Your attacks, strongest first</h2>
-    <p>Damage = <b>Points × your Level</b> (plus gear bonuses). Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
-    <p><b>Aces</b> (gold cards) always add <b>+10 points</b>, even as extra cards (and your level multiplies it).</p>
+    <p>Damage = <b>hand points × Attack × Level</b>. Your <b>Attack</b> score comes from your weapons: <b>+100 Attack means you hit twice as hard</b>. Every level adds another <b>32%</b> on top. Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
+    <p><b>Aces</b> (gold cards) in your hand add <b>12% each</b>.</p>
+    <p><b>Defense</b> works the same way in reverse: <b>+100 Defense means you take half as much</b>. Critical blows punch through half of it.</p>
     <p><b>No weapon?</b> Bare fists do <b>30% less damage</b>. Buy any weapon from the merchant to hit full strength.</p>
     <div class="guide">${rows}</div><button class="btn big" data-act="close">Back to the fight</button>`);
 }
@@ -3139,10 +3152,10 @@ function helpPanel(){
       <li><span class="hn">1</span><div><b>Discard first.</b> Every turn you get 1 discard. Swap up to 5 cards that don't help, to fish for a better hand. The monster doesn't attack when you discard.</div></li>
       <li><span class="hn">2</span><div><b>Pick your best poker hand</b> (up to 5 cards). The damage shows above your cards before you attack. Stuck? Tap <b>Hint</b>.</div></li>
       <li><span class="hn">3</span><div><b>Tap Attack!</b> Then the monster hits back. Its next move shows under its name. Then you get a whole new hand.</div></li>
-      <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) always add ${aceBonus()} points right now, even as extra cards. When Aces are part of your hand (a pair of Aces or better, or a straight), each one counts <b>double</b>: the <b>Aces bonus</b>! Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
+      <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) that are part of your hand each add <b>12% more damage</b>. Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
       <li><span class="hn">${I('heart')}</span><div><b>Health doesn't refill by itself.</b> Rest at the inn, drink a potion, or tap <b>Rest</b> in a fight (the monster gets a free hit). Too tough? <b>Run</b> and train first.</div></li>
       <li><span class="hn">${I('sword')}</span><div><b>Get a weapon.</b> With empty hands you're punching, and every hit does <b>30% less damage</b>. The merchant's cheapest sword fixes that.</div></li>
-      <li><span class="hn">${I('level')}</span><div><b>Level up</b> to multiply every hit. Buy weapons and armor from the merchant, and learn spells from level 3.</div></li>
+      <li><span class="hn">${I('level')}</span><div><b>Level up</b> for <b>32% more damage</b> each time. Weapons raise your <b>Attack</b> score and armor raises your <b>Defense</b>, and both multiply into every fight.</div></li>
       <li><span class="hn">${I('map')}</span><div><b>Rescue Anna,</b> get knighted, then take on 9 more quests and the Endless Abyss.</div></li>
     </ol>
     <p><button class="link" data-act="replayTutorial">Start over with Old Bram's tips</button></p>
