@@ -25,6 +25,7 @@ jobs:
     timeout-minutes: 45
     env:
       HAS_KEY: ${{ secrets.APPSTORE_P8 != '' && 'yes' || '' }}
+      TEAM_ID: DC629ZLGZ6
       WANT_UPLOAD: ${{ inputs.upload && 'yes' || '' }}
     defaults:
       run:
@@ -85,6 +86,7 @@ jobs:
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
             <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
           </dict></plist>
           PLIST
           xcodebuild -exportArchive \
