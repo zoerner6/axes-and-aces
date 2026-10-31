@@ -2978,7 +2978,7 @@ function eqOffer(type){
   const cost = e.price[tier] - refund - dropDagger;
   let block='';
   if(same) block = tier>=5 ? 'Best there is' : 'You have this';
-  else if(tier>tierCap()) block='Better ones in the next area';
+  else if(tier>tierCap()) block='Available in the next area';
   else if(type==='dagger'&&twoHanded()) block='Your Battle Axe needs both hands';
   else if(S.gold<cost) block=`Need ${coin(cost)}`;
   return {type, tier, cur, refund:refund+dropDagger, cost:Math.max(0,cost), block, dropDagger};
