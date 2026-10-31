@@ -1368,6 +1368,36 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 .slot-card .btn{background:linear-gradient(#ffd35c,#d89a14)!important;color:#16100d!important;border:3px solid #000!important;box-shadow:3px 3px 0 #000;font-family:var(--f-num);font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 18px}
 .slot-del{background:none;border:0;color:#8e1a14;font-weight:700;font-size:.8rem;text-decoration:underline;cursor:pointer;padding:2px}
 .slot-del.sure{color:#fff;background:#8e1a14;border-radius:6px;text-decoration:none;padding:4px 6px}
+
+/* buying gear: a big moment */
+.gear-ev{position:fixed;inset:0;z-index:118;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(circle,rgba(70,42,8,.96),rgba(0,0,0,.97));cursor:pointer;animation:fadeIn .3s ease}
+.gear-ev.def{background:radial-gradient(circle,rgba(12,45,68,.96),rgba(0,0,0,.97))}
+.gear-ev.out{opacity:0;transition:opacity .35s}
+.ge-stage{position:relative;width:min(80vw,460px);height:min(46vh,340px)}
+.ge-hero{position:absolute;left:4%;bottom:0;height:100%;width:auto;filter:drop-shadow(0 0 18px rgba(255,210,90,.6)) drop-shadow(4px 4px 0 #000);transform-origin:50% 100%;animation:geHeroIn .5s cubic-bezier(.2,1.4,.4,1) both}
+.gear-ev.atk.hit .ge-hero{animation:geSwingBody .5s ease}
+.ge-item{position:absolute;right:2%;top:8%;width:52%;aspect-ratio:1;display:grid;place-items:center;animation:geItemIn .6s cubic-bezier(.2,1.6,.4,1) .15s both}
+.ge-item .ico{width:100%;height:100%;filter:drop-shadow(0 0 24px rgba(255,220,120,.95)) drop-shadow(5px 5px 0 #000)}
+.gear-ev.atk.hit .ge-item{animation:geSwing .55s cubic-bezier(.5,0,.3,1.4) both;transform-origin:20% 90%}
+.ge-slash{position:absolute;right:0;top:20%;width:90%;height:14px;border-radius:999px;background:linear-gradient(90deg,transparent,#fff,#ffe9a0,transparent);box-shadow:0 0 20px #ffd35c;transform:rotate(-28deg) scaleX(0);opacity:0}
+.gear-ev.hit .ge-slash{animation:geSlash .45s ease-out .15s}
+.ge-shine{position:absolute;inset:0;background:radial-gradient(circle at 70% 40%,rgba(160,220,255,.7),transparent 55%);opacity:0}
+.gear-ev.hit .ge-shine{animation:fadeIn .4s ease forwards}
+.ge-name{font-family:var(--f-title);font-weight:400;font-size:clamp(2rem,7vw,3.4rem);line-height:1;color:#ffd35c;text-shadow:4px 4px 0 #000,-1px -1px 0 #000;transform:rotate(-3deg)}
+.ge-stat{display:flex;align-items:center;gap:12px;background:#f3e6c8;color:#16100d;border:4px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;padding:8px 18px;font-family:var(--f-num);font-weight:700}
+.ge-ic .ico{width:46px;height:46px}.ge-lbl{font-family:var(--f-title);font-weight:400;font-size:1.6rem}
+.ge-from{font-size:1.8rem;color:#8a7a66}.ge-stat i{font-style:normal;color:#8e1a14;font-size:1.4rem}
+.ge-to{font-family:var(--f-title);font-weight:400;font-size:3.4rem;line-height:1;color:#c8241f;-webkit-text-stroke:1.5px #000;paint-order:stroke fill}
+.gear-ev.def .ge-to{color:#1f6fb0}
+.ge-plus{font-size:1.6rem;color:#2f8f3a;opacity:0}.gear-ev.done .ge-plus{animation:gainIn .4s cubic-bezier(.2,1.7,.4,1) forwards}
+.gear-ev.done .ge-to{animation:countPop .35s cubic-bezier(.2,1.6,.4,1)}
+.ge-tap{font-family:var(--f-num);letter-spacing:.14em;text-transform:uppercase;color:var(--parch-dim);font-size:.75rem}
+@keyframes geHeroIn{0%{opacity:0;transform:translateX(-40px) scale(.9)}100%{opacity:1;transform:none}}
+@keyframes geItemIn{0%{opacity:0;transform:scale(3) rotate(-30deg)}100%{opacity:1;transform:none}}
+@keyframes geSwing{0%{transform:rotate(-40deg) translate(-10%,0)}60%{transform:rotate(55deg) scale(1.15)}100%{transform:rotate(0)}}
+@keyframes geSwingBody{40%{transform:translateX(18px) rotate(4deg)}}
+@keyframes geSlash{0%{opacity:1;transform:rotate(-28deg) scaleX(0)}50%{opacity:1;transform:rotate(-28deg) scaleX(1)}100%{opacity:0;transform:rotate(-28deg) scaleX(1.1) translateY(8px)}}
+@media (max-width:520px){ .ge-stat{gap:8px;padding:6px 12px} .ge-to{font-size:2.6rem} .ge-lbl{font-size:1.2rem} .ge-ic .ico{width:34px;height:34px} }
 </style>
 
 <div id="app">
@@ -2734,7 +2764,7 @@ function tradePanel(){
   openPanel(`<div class="cine-scene kb2 deal"><img src="${sceneImg('merchant')}" alt=""><span class="cine-title">A deal is struck</span>
       <div class="bubble-say" id="dealSay"><span id="capTxt"></span></div>
       <span class="deal-coins">${[0,1,2,3].map(k=>`<i style="animation-delay:${1.5+k*.12}s">${I('coin')}</i>`).join('')}</span>
-      <span class="deal-item" style="animation-delay:${tItem}s">${eqIcon(t.type,t.tier)}</span></div>
+</div>
     <div class="deal-sum" style="animation-delay:${tSum}s">
       <div class="tl item"><span class="big-ic">${eqIcon(t.type,t.tier)}</span><span><b>${nm}</b><span class="pw ${e.atk?'a':'d'}">+${pw} ${e.atk?'Attack':'Defense'}</span></span></div>
       ${rows.join('')}
@@ -2744,8 +2774,23 @@ function tradePanel(){
   const say=(k)=>{ if(S.phase!=='trade'||!$('capTxt')) return; const b=$('dealSay'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); typeCaption(talk[k], talk[k].length/30); narrate(talk[k]); };
   say(0); setTimeout(()=>{ if(S.phase==='trade') coins(); },1600);
   t.trades.forEach((x,k)=>setTimeout(()=>{ say(k+1); if(S.phase==='trade') coins(); },st[k+1]*1000));
-  setTimeout(()=>{ if(S.phase==='trade') anvil(); },tItem*1000+300);
+  setTimeout(()=>{ if(S.phase==='trade') gearMoment(t); },tItem*1000);
   setTimeout(()=>say(talk.length-1),st[talk.length-1]*1000);
+}
+/* a new weapon or armor: Edward shows it off, and the stat jumps up big */
+function gearMoment(t){
+  const e=EQUIP[t.type], isAtk=!!e.atk, from=isAtk?(t.atk0||0):(t.def0||0), to=isAtk?(t.atk1||0):(t.def1||0);
+  const ev=document.createElement('div'); ev.className='gear-ev'+(isAtk?' atk':' def');
+  ev.innerHTML=`<span class="epic-rays"></span>
+    <div class="ge-stage"><img class="ge-hero" src="art/hero_t${heroTier()}.webp" alt=""><span class="ge-item">${eqIcon(t.type,t.tier)}</span>${isAtk?'<span class="ge-slash"></span>':'<span class="ge-shine"></span>'}</div>
+    <b class="ge-name">${eqName(t.type,t.tier)}</b>
+    <div class="ge-stat"><span class="ge-ic">${I(isAtk?'attack':'shield')}</span><span class="ge-lbl">${isAtk?'Attack':'Defense'}</span><span class="ge-from">${fmt(from)}</span><i>▸</i><b class="ge-to" id="geTo">${fmt(from)}</b><span class="ge-plus">+${fmt(to-from)}</span></div>
+    <small class="ge-tap">Tap to continue</small>`;
+  document.body.appendChild(ev); anvil(); trumpetCall();
+  setTimeout(()=>{ if(isAtk){ swoosh(); setTimeout(()=>{ thud(); bigBoom(2); shake(2); },180); } else { thud(); soothe(); } ev.classList.add('hit'); }, 650);
+  setTimeout(()=>{ const el=$('geTo'), t0=performance.now(); const step=now=>{ if(!el.isConnected) return; const q=Math.min(1,(now-t0)/700); el.textContent=fmt(Math.round(from+(to-from)*q)); if(q<1) requestAnimationFrame(step); else { ev.classList.add('done'); coins(); } }; requestAnimationFrame(step); }, 1100);
+  const close=()=>{ if(!ev.isConnected) return; ev.classList.add('out'); setTimeout(()=>ev.remove(),400); };
+  ev.addEventListener('click', close); setTimeout(close, 4200);
 }
 /* learning a spell is an event: a scene, then how to use it */
 /* the inn costs more as you level up: 2 gold at level 1, +1 per level */
@@ -2962,8 +3007,9 @@ document.addEventListener('click', e=>{
     case 'buyEq': { const o=eqOffer(t.dataset.id); if(o.block) return; const e=EQUIP[o.type];
       const trades=[]; if(o.cur && !(o.cur.type===o.type&&o.cur.tier===o.tier)) trades.push({name:eqName(o.cur.type,o.cur.tier), pay:Math.floor(EQUIP[o.cur.type].price[o.cur.tier]/2)});
       if(o.dropDagger && S.eq.off) trades.push({name:eqName(S.eq.off.type,S.eq.off.tier), pay:o.dropDagger});
+      const atk0=weaponPts(), def0=defense();
       if(o.cost) goldPouch(S.gold, -o.cost, 300); S.gold-=o.cost; if(o.dropDagger) S.eq.off=null; S.eq[e.slot]={type:o.type,tier:o.tier};
-      S.trade={type:o.type, tier:o.tier, price:e.price[o.tier], trades}; render(); tradePanel(); break; }
+      S.trade={type:o.type, tier:o.tier, price:e.price[o.tier], trades, atk0, def0, atk1:weaponPts(), def1:defense()}; render(); tradePanel(); break; }
     case 'tradeOk': S.trade=null; shopPanel(); break;
     case 'buyBook': { const b=BK[t.dataset.id]; if(!b||S.books.includes(b.id)||S.level<b.lvl||S.gold<b.price||(b.need&&!S.books.includes(b.need))) return;
       goldPouch(S.gold, -b.price, 300); S.gold-=b.price; S.books.push(b.id); S.fresh=b.school==='cleric'?'h':b.id; trumpetCall(); render(); learnPanel(b); break; }
