@@ -2,7 +2,7 @@
  "name": "Axes & Aces",
  "short_name": "Axes & Aces",
  "description": "Fight monsters with poker hands.",
- "start_url": "./",
+ "start_url": "./play.html",
  "scope": "./",
  "display": "fullscreen",
  "orientation": "any",
