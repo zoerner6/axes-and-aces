@@ -1316,6 +1316,44 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @media (min-width:900px){ .ach-pop{left:max(16px,env(safe-area-inset-left,0px));top:calc(56px + env(safe-area-inset-top,0px));transform:none;max-width:380px;animation:achInL .5s cubic-bezier(.2,1.5,.4,1)} .ach-pop.out{transform:translateX(-30px)} }
 @media (max-width:899px){ .ach-pop{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px))} }
 @keyframes achInL{0%{opacity:0;transform:translateX(-120%)}100%{opacity:1;transform:none}}
+
+/* level up: a big, readable celebration */
+.lu-scene{position:relative;height:clamp(170px,30vh,260px);display:grid;place-items:center;overflow:hidden;border:3px solid #000;border-radius:10px;box-shadow:5px 5px 0 #000;background:radial-gradient(circle at 50% 62%,#7a5214,#140e0a 70%);width:100%}
+.lu-hero{position:relative;height:88%;width:auto;max-width:none;align-self:end;animation:lvlGrow 1.2s cubic-bezier(.2,1.4,.4,1) both;filter:drop-shadow(0 0 18px rgba(255,210,90,.7)) drop-shadow(4px 4px 0 #000)}
+.lu-title{position:absolute;top:12px;left:14px;font-family:var(--f-title);font-size:clamp(2rem,6vw,3rem);line-height:1;background:linear-gradient(#ffd35c,#d89a14);color:#16100d;border:3px solid #000;border-radius:6px;padding:2px 16px 5px;box-shadow:4px 4px 0 #000;transform:rotate(-4deg);animation:tagSlam .5s .1s cubic-bezier(.2,1.6,.4,1) both}
+.lu-medal{position:absolute;right:16px;bottom:14px;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;align-content:center;background:radial-gradient(circle at 35% 30%,#ffe9a0,#f2b632 55%,#9b7a10);border:4px solid #000;box-shadow:4px 4px 0 #000,0 0 26px rgba(255,210,90,.8)}
+.lu-medal small{font-family:var(--f-num);font-weight:700;font-size:.9rem;letter-spacing:.14em;color:#fff;text-shadow:1px 1px 0 #000;margin-bottom:-4px}
+.lu-medal b{font-family:var(--f-title);font-weight:400;font-size:3.2rem;line-height:1;color:#fff;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #000}
+.lu-medal.flip{animation:medFlip .5s ease}
+@keyframes medFlip{0%{transform:rotateY(0)}50%{transform:rotateY(90deg) scale(1.2)}100%{transform:rotateY(0) scale(1)}}
+.lu-rows{display:flex;flex-direction:column;gap:8px;width:100%}
+.lu-row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:8px 14px;opacity:0;transform:translateX(-30px)}
+.lu-row.on{opacity:1;transform:none;transition:all .4s cubic-bezier(.2,1.5,.4,1)}
+.lu-row .lu-ic .ico{width:40px;height:40px}.lu-row .lu-ic{font-size:2rem;display:grid;place-items:center}
+.lu-lbl{font-family:var(--f-title);font-size:1.45rem;line-height:1.1}
+.lu-val{display:flex;align-items:center;gap:10px;font-family:var(--f-num);font-weight:700;font-size:1.6rem;white-space:nowrap}
+.lu-val s{color:#8a7a66;text-decoration-thickness:3px}.lu-val i{font-style:normal;color:#8e1a14}
+.lu-val b{font-family:var(--f-title);font-weight:400;font-size:2.2rem;color:#c8241f;-webkit-text-stroke:1px #000;paint-order:stroke fill}
+.lu-val b.hp{color:#2f8f3a;font-size:1.8rem}
+.lu-val.gold{color:#9b6a00;font-size:1.8rem}
+.lu-bar{position:relative;display:block;width:clamp(120px,22vw,220px);height:26px;border:3px solid #000;border-radius:999px;background:#2a1a12;overflow:hidden}
+.lu-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2f8f3a,#7be38a);transition:width .9s cubic-bezier(.3,0,.3,1)}
+.lu-bar.xp i{background:linear-gradient(90deg,#1f8f86,#7fe3d8)}
+.lu-bar em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:.95rem;color:#fff;text-shadow:1px 1px 0 #000;line-height:1}
+.lu-btns{opacity:0;transform:translateY(10px);transition:all .4s}.lu-btns.on{opacity:1;transform:none}
+@media (max-width:520px){ .lu-row{grid-template-columns:34px 1fr auto;gap:8px;padding:6px 10px} .lu-lbl{font-size:1.1rem} .lu-val{font-size:1.2rem} .lu-val b{font-size:1.7rem} .lu-medal{width:74px;height:74px} .lu-medal b{font-size:2.4rem} .lu-bar{width:96px} }
+
+.lu-hero{position:absolute!important;left:50%;bottom:4%;height:86%!important;width:auto;transform:translateX(-50%) scale(.72);transform-origin:50% 100%;animation:none!important;filter:drop-shadow(4px 4px 0 #000) brightness(.85)}
+.lu-hero.grow{animation:heroGrow 1.1s cubic-bezier(.2,1.5,.4,1) forwards!important}
+@keyframes heroGrow{0%{transform:translateX(-50%) scale(.72);filter:drop-shadow(4px 4px 0 #000) brightness(.85)}25%{filter:drop-shadow(0 0 0 #fff) brightness(3) saturate(0)}55%{transform:translateX(-50%) scale(1.12)}100%{transform:translateX(-50%) scale(1.02);filter:drop-shadow(0 0 22px rgba(255,210,90,.9)) drop-shadow(4px 4px 0 #000) brightness(1.08)}}
+.lu-aura{position:absolute;left:50%;bottom:0;width:60%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 70%,rgba(255,220,120,.75),rgba(255,170,40,.25) 45%,transparent 70%);opacity:0}
+.lu-aura.on{animation:auraPulse 2s ease-in-out .3s infinite}
+@keyframes auraPulse{0%,100%{opacity:.55;transform:translateX(-50%) scale(.95)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
+.lu-ring{position:absolute;left:50%;top:55%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:6px solid #ffd35c;opacity:0}
+.lu-ring.on{animation:ringOut .9s ease-out}
+@keyframes ringOut{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(14)}}
+.lu-val .was{font-size:.9rem;color:#7a6650;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+@media (max-width:899px){ .gp{top:calc(4px + env(safe-area-inset-top,0px));transform:scale(.82);transform-origin:top right} }
 </style>
 
 <div id="app">
@@ -2594,24 +2632,31 @@ function giftText(g){
 }
 function levelPanel(){
   S.phase='level'; trumpetCall(); setTimeout(()=>{ if(S.phase==='level') narrate(`Level up! You are now level ${S.level}. Every attack hits harder.`); },600);
-  const r=S.lvlReport||{ups:1,gifts:[]};
-  openPanel(`<div class="lvl-scene"><span class="lvl-rays"></span>
+  const r=S.lvlReport||{ups:1,gifts:[]}, old=S.level-r.ups, oldMax=S.maxHp-100*r.ups, lo=cumNeed(S.level-1), hi=cumNeed(S.level);
+  const giftRow=g=> g.t==='gold' ? `<div class="lu-row gift" data-gold="${g.n}"><span class="lu-ic">${I('bag')}</span><span class="lu-lbl">Bonus: a coin pouch</span><span class="lu-val gold">+${fmt(g.n)} gold</span></div>`
+    : g.t==='spell' ? `<div class="lu-row gift" data-spell="${g.id}"><span class="lu-ic">${SP[g.id].icon}</span><span class="lu-lbl">Bonus: a free potion</span><span class="lu-val">${SP[g.id].name}</span></div>`
+    : `<div class="lu-row gift"><span class="lu-ic">${I('level')}</span><span class="lu-lbl">Bonus: practice pays off</span><span class="lu-val">Every ${HANDS[g.id].name} +${HANDS[g.id].ut}</span></div>`;
+  openPanel(`<div class="lu-scene"><span class="lvl-rays"></span>
       <span class="lvl-sparks">${Array.from({length:14},(_,k)=>`<i style="left:${6+k*6.6}%;animation-delay:${(k*.37)%2.4}s"></i>`).join('')}</span>
-      <img class="lvl-hero" src="art/hero_t${Math.max(0,...['armor','helm','shield'].map(k=>S.eq[k]?S.eq[k].tier:0))}.webp" alt="Your soldier">
-      <span class="lvl-title">Level up!</span><span class="lvl-num">LV ${S.level}</span></div>
-    <div class="vic lvl-vic">
-    <div class="vic-sub">You reached level ${S.level}!</div>
-    <div class="rewards">
-      <div class="rw lv" style="--d:.9s"><span class="ri">${I('attack')}</span><b>×${S.level}</b><small>Every attack</small><em>Was ×${S.level-r.ups}</em></div>
-      <div class="rw hp" style="--d:1.05s"><span class="ri">${I('heart')}</span><b>+${100*r.ups}</b><small>Max health</small><em>Now ${S.maxHp}</em></div>
-      <div class="rw xp" style="--d:1.2s"><span class="ri">${I('xp')}</span><b>${cumNeed(S.level)}</b><small>Next level</small><em>You have ${S.xp}</em></div>
+      <span class="lu-aura" id="luAura"></span><span class="lu-ring" id="luRing"></span><img class="lu-hero" id="luHero" src="art/hero_t${heroTier()}.webp" alt="Your soldier">
+      <span class="lu-title">Level up!</span>
+      <span class="lu-medal" id="luMedal"><small>LV</small><b id="luLv">${old}</b></span></div>
+    <div class="lu-rows">
+      <div class="lu-row" id="luAtk"><span class="lu-ic">${I('attack')}</span><span class="lu-lbl">Every attack</span><span class="lu-val"><small class="was">was ×${old}</small><b>×${S.level}</b></span></div>
+      <div class="lu-row" id="luHp"><span class="lu-ic">${I('heart')}</span><span class="lu-lbl">Max health</span><span class="lu-val"><span class="lu-bar"><i id="luHpFill" style="width:${oldMax/S.maxHp*100}%"></i><em id="luHpTxt">${fmt(oldMax)}</em></span><b class="hp">+${100*r.ups}</b></span></div>
+      ${r.gifts.map(giftRow).join('')}
+      <div class="lu-row xp" id="luXp"><span class="lu-ic">${I('xp')}</span><span class="lu-lbl">Next level</span><span class="lu-val"><span class="lu-bar xp"><i style="width:${Math.max(0,Math.min(100,(S.xp-lo)/(hi-lo)*100))}%"></i><em>${fmt(S.xp)} / ${fmt(hi)} EXP</em></span></span></div>
     </div>
-    ${r.gifts.map(g=>`<div class="loot"><span class="loot-tag">Bonus!</span><span class="loot-txt"><span>${giftText(g)}</span></span></div>`).join('')}
-    <div class="vic-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
-    </div>
-    ${tip('level','Every monster gives you <b>experience</b> (the ⭐ under your equipment). Each new level makes <b>every</b> attack hit harder and raises your max health. Sometimes you find a bonus too. Health doesn\'t refill on its own: rest at the inn or drink a potion.')}
-    <div class="row" style="width:100%;opacity:0;animation:rwIn .4s ease 1.4s forwards"><button class="btn big brag-fb" data-act="brag" data-kind="level">Brag</button><button class="btn big vic-btn" data-act="lvlOk" style="flex:2">Visit the merchant</button></div>`);
+    <div class="row lu-btns" style="width:100%"><button class="btn big brag-fb" data-act="brag" data-kind="level">Brag</button><button class="btn big vic-btn" data-act="lvlOk" style="flex:2">Visit the merchant</button></div>`);
   $('panel').classList.add('cine');
+  const at=(ms,fn)=>setTimeout(()=>{ if(S.phase==='level') fn(); }, reduced()?Math.min(ms,200):ms);
+  at(700,()=>{ $('luHero').classList.add('grow'); $('luAura').classList.add('on'); $('luRing').classList.add('on'); const m=$('luMedal'); m.classList.add('flip'); setTimeout(()=>{ $('luLv').textContent=S.level; },220); confetti(); shake(1); bigBoom(2); });
+  at(1400,()=>{ $('luAtk').classList.add('on'); thud(); });
+  at(2100,()=>{ $('luHp').classList.add('on'); const f=$('luHpFill'), t=$('luHpTxt'); requestAnimationFrame(()=>{ f.style.width='100%'; });
+    const t0=performance.now(); const tick=now=>{ const q=Math.min(1,(now-t0)/900); t.textContent=fmt(Math.round(oldMax+(S.maxHp-oldMax)*q)); if(q<1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); soothe(); });
+  document.querySelectorAll('.lu-row.gift').forEach((el,k)=>at(2900+k*800,()=>{ el.classList.add('on'); const g=+el.dataset.gold; if(g) goldPouch(S.gold-g, g); else if(el.dataset.spell){ const sp=SP[el.dataset.spell]; itemSplash(sp.icon, sp.name, 0, '+1', coins); } else trumpetCall(); }));
+  at(2900+r.gifts.length*800,()=>{ $('luXp').classList.add('on'); });
+  at(3400+r.gifts.length*800,()=>{ document.querySelector('.lu-btns').classList.add('on'); });
 }
 function eqOffer(type){
   const e=EQUIP[type], cur=S.eq[e.slot];
