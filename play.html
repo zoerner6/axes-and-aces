@@ -1524,6 +1524,17 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 .panel.dealp .vic-btn{margin-top:4px}
 @media (max-width:700px){ .panel.dealp .cine-scene.deal{width:100%!important} .panel.dealp .bubble-say{width:58%} }
 @media (min-width:900px){ .panel.cine{max-width:min(1040px,94vw)!important} }
+
+/* hero slots on a phone: compact rows so names and buttons fit */
+@media (max-width:600px){
+  .slot-card{grid-template-columns:44px 1fr auto!important;gap:10px!important;padding:8px 10px!important}
+  .slot-hero{width:44px!important;height:58px!important}
+  .slot-n{width:42px!important;height:42px!important;font-size:1.3rem!important}
+  .slot-body b{font-size:1.3rem!important}
+  .slot-body small{font-size:.8rem!important;line-height:1.25!important}
+  .slot-card .btn{min-height:0!important;padding:8px 12px!important;font-size:.9rem!important;white-space:nowrap!important;width:auto!important}
+  .slot-card.empty .slot-body small{display:none}
+}
 </style>
 
 <div id="app">
@@ -3271,7 +3282,7 @@ const anySlots = () => [1,2,3].some(n=>slotData(n)&&slotData(n).v);
 function slotsPanel(){
   S.phase='slots';
   const cards=[1,2,3].map(n=>{ const d=slotData(n);
-    if(!d||!d.v) return `<div class="slot-card empty"><span class="slot-n">${n}</span><div class="slot-body"><b>Empty slot</b><small>Start a new hero here</small></div><button class="btn" data-act="slotNew" data-slot="${n}">New hero</button></div>`;
+    if(!d||!d.v) return `<div class="slot-card empty"><span class="slot-n">${n}</span><div class="slot-body"><b>Empty</b><small>Start a new hero here</small></div><button class="btn" data-act="slotNew" data-slot="${n}">New hero</button></div>`;
     const L=d.v.S; loadWorld(L.world||0); upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name; loadWorld(S.world||0);
     const when=new Date(d.v.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
     return `<div class="slot-card"><img class="slot-hero" src="art/hero_t${Math.max(0,...['armor','helm','shield'].map(k=>L.eq&&L.eq[k]?L.eq[k].tier:0))}.webp" alt=""><div class="slot-body"><b>${((L.world||0)>0||L.knighted?'Sir ':'')+d.name}</b>
