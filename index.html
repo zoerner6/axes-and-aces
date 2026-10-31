@@ -1412,6 +1412,17 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 .loot-txt .pw{font-size:1.2rem;padding:3px 12px}
 .loot-txt small{font-size:1.05rem;color:#3a2a1c;max-width:44ch}
 @media (max-width:520px){ .loot-txt{font-size:1.1rem} .loot-txt b{font-size:1.3rem} .loot-txt small{font-size:.98rem} }
+
+/* story captions: big, calm, readable */
+.cine-cap{padding:14px 20px!important}
+.panel .cine-cap p{display:block!important;font-family:var(--f-body);font-weight:500!important;font-size:clamp(1.15rem,3.4vw,1.4rem)!important;line-height:1.55!important;color:#16100d;max-width:58ch;margin:0 auto!important;text-wrap:pretty}
+.cine-cap .ghost{display:none}
+.cine-cap .sen{opacity:0;animation:senIn .45s ease forwards}
+@keyframes senIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:none}}
+.bubble-say{font-size:clamp(1rem,2.8vw,1.2rem)!important;line-height:1.35;padding:10px 14px!important;font-weight:700}
+.bubble-say .sen{animation-duration:.3s}
+@media (max-width:480px){ .bubble-say{font-size:.95rem!important} .panel .cine-cap p{font-size:1.08rem!important} }
+@media (prefers-reduced-motion:reduce){ .cine-cap .sen{animation:none;opacity:1} }
 </style>
 
 <div id="app">
@@ -1873,10 +1884,11 @@ function narrate(text, id, onTime){
 }
 function typeCaption(text, secs, delay=0){ text=nm(text);
   const el=$('capTxt'); if(!el) return; clearInterval(typeTimer); clearTimeout(typeDelay);
-  el.textContent=''; el.dataset.full=text; let n=0; const step=Math.max(12, secs*1000/Math.max(1,text.length));
-  typeDelay=setTimeout(()=>{ typeTimer=setInterval(()=>{ n++; el.textContent=text.slice(0,n); if(n>=text.length) clearInterval(typeTimer); }, step); }, delay);
+  /* no letter-by-letter typing: each sentence fades in quickly, so the whole thing is readable in about a second */
+  el.dataset.full=text; const parts=text.match(/[^.!?…]+[.!?…]+["”']?\s*|[^.!?…]+$/g)||[text];
+  el.innerHTML=parts.map((p,i)=>`<span class="sen" style="animation-delay:${Math.min(delay,400)/1000+i*.18}s">${p.replace(/</g,'&lt;')}</span>`).join('');
 }
-function finishCaption(){ const el=$('capTxt'); if(!el) return; clearInterval(typeTimer); clearTimeout(typeDelay); el.textContent=el.dataset.full||''; }
+function finishCaption(){ const el=$('capTxt'); if(!el) return; clearInterval(typeTimer); clearTimeout(typeDelay); el.querySelectorAll('.sen').forEach(x=>x.style.animation='none'); }
 const sceneImg = id => `art/sc_${id}.webp`;
 function cineHTML(id, title, text, extra=''){
   const kb=['kb1','kb2','kb3'][id.length%3];
@@ -2620,10 +2632,10 @@ function fightIntro(){
   if(!S.enc){ S.enc = d.boss ? 'boss' : (S.coach===0&&S.idx===0) ? 'path' : ['ambush','spot','path'][rnd(3)]; }
   const where=PLACES[curArea()]; dread(!!d.boss);
   const t = {
-    ambush:{title:'Ambush!', text:`${where}, a ${d.name} leaps out at you! <b>It strikes first.</b>`},
-    spot:{title:'You spot it first!', text:`${where}, you see a ${d.name} before it sees you. You catch it off guard: <b>it is too startled to fight back on its first turn.</b>`},
-    path:{title:'Something blocks your path', text:`${where}, a ${d.name} steps out and blocks your way.`},
-    boss:{title:`The ${d.name}!`, text:`The ground shakes. The ${d.name} rises before you, and this one guards the way ${(S.world||0)===0?'to Anna':'forward'}. <b>Boss rule: ${d.rule}.</b>`}
+    ambush:{title:'Ambush!', text:`A ${d.name} leaps out! <b>It strikes first.</b>`},
+    spot:{title:'You spot it first!', text:`You spot a ${d.name} first. <b>It's too startled to strike on turn one.</b>`},
+    path:{title:'Something blocks your path', text:`A ${d.name} blocks your way.`},
+    boss:{title:`The ${d.name}!`, text:`The ground shakes. The ${d.name} guards the way ${(S.world||0)===0?'to Anna':'forward'}. <b>Boss rule: ${d.rule}.</b>`}
   }[S.enc];
   render();
   const pick=a=>a[rnd(a.length)];
