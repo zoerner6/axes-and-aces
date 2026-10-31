@@ -59,10 +59,13 @@ a{color:inherit}
 @media (max-width:900px){ .top nav{display:none} .top .btn{margin-left:auto} .brand b{font-size:1.35rem} }
 
 /* ---------- hero ---------- */
-.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;border-bottom:4px solid #000}
+.hero{position:relative;height:100svh;min-height:520px;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;border-bottom:4px solid #000}
 .hero-media{position:absolute;inset:0;z-index:-2;background:#000 url(art/bg_castle.webp) center/cover}
 /* two buffers: the next boss loads behind at full opacity, the old one fades off on top, so the background never shows */
-.hero-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity .7s linear}
+.hero-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:1;transition:opacity .7s linear}
+/* on a landscape screen the whole clip fits, so show all of it; a portrait
+   phone would be left with a thin strip, so there it fills instead */
+@media (min-aspect-ratio:1/1){ .hero-media video{object-fit:contain} }
 .hero-media video.back{z-index:0}
 .hero-media video.front{z-index:1}
 .hero-media video.out{opacity:0}
@@ -70,7 +73,25 @@ a{color:inherit}
   linear-gradient(90deg,rgba(10,7,5,.92) 0%,rgba(10,7,5,.72) 38%,rgba(10,7,5,.1) 70%),
   linear-gradient(0deg,var(--soot) 0%,rgba(20,16,13,0) 34%),
   linear-gradient(180deg,rgba(10,7,5,.7) 0%,rgba(10,7,5,0) 22%)}
-.hero .wrap{padding-block:140px 90px}
+.hero .wrap{padding-block:clamp(96px,14vh,140px) clamp(46px,9vh,90px)}
+@media (max-height:900px){
+  .logo{font-size:clamp(3.4rem,8.4vw,7rem)}
+  .tagline{font-size:clamp(1.4rem,2.7vw,2.1rem)}
+  .lede{font-size:1.06rem;margin-bottom:1.1em}
+  .free{margin-top:14px}
+}
+@media (max-height:760px){
+  .logo{font-size:clamp(3rem,7.2vw,5.6rem)}
+  .tagline{font-size:clamp(1.25rem,2.4vw,1.8rem);margin:.25em 0 .35em}
+  .lede{font-size:1rem;max-width:30em;margin-bottom:.9em}
+  .free{display:none}
+  .hero .wrap{padding-block:88px 40px}
+}
+@media (max-height:620px){
+  .logo{font-size:clamp(2.6rem,6vw,4.4rem)}
+  .lede{display:none}
+  .hero .wrap{padding-block:76px 32px}
+}
 .eyebrow{display:inline-block;font-family:var(--f-num);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:.92rem;color:var(--teal)}
 .logo{margin:.1em 0 .05em;font-family:var(--f-title);font-weight:400;line-height:.86;font-size:clamp(4.2rem,11vw,9.6rem);color:var(--gold2);
   -webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000,0 0 60px rgba(242,182,50,.35);letter-spacing:.005em}
@@ -174,7 +195,13 @@ h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-hei
 .vid .lbl b{font-family:var(--f-title);font-weight:400;font-size:1.45rem;color:#fff;text-shadow:2px 2px 0 #000;line-height:1}
 .vid .lbl small{font-family:var(--f-num);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.72rem;color:#1a0f05;background:var(--purple);border:2px solid #000;padding:2px 8px;border-radius:6px;white-space:nowrap}
 .vid .lbl small.w{background:var(--gold)}
-.vid.wide{grid-column:span 2;grid-row:span 2;aspect-ratio:auto}
+.vid.wide{grid-column:span 2;grid-row:span 2;aspect-ratio:auto;max-height:76svh}
+/* ---- no picture or clip is ever taller than one screen ---- */
+.vid,.world,.feat .pic{max-height:74svh}
+.arena{max-height:78svh}
+.phone{max-height:82svh;height:auto}
+.comic .panel,.comic .panel img{max-height:72svh}
+.comic .panel img{object-fit:cover}
 @media (max-width:900px){ .vids{grid-template-columns:1fr 1fr} .vid.wide{grid-column:span 2;grid-row:auto;aspect-ratio:16/9} }
 @media (max-width:520px){ .vids{grid-template-columns:1fr} .vid.wide{grid-column:auto} }
 .roster{display:flex;gap:6px;margin-top:40px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
