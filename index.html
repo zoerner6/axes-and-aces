@@ -1290,6 +1290,19 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
   #app>.stage .stage-top{bottom:calc(100vh - var(--handtop,75vh) + 120px)!important}
   #app>.handwrap .hand-tag{z-index:4}
 }
+
+.gp{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(56px + env(safe-area-inset-top,0px));z-index:125;pointer-events:none;display:flex;align-items:center;gap:12px;background:linear-gradient(#3b2a0c,#1d1406);border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000,0 0 24px rgba(255,200,60,.6);padding:8px 18px 8px 10px;animation:gpIn .4s cubic-bezier(.2,1.6,.4,1) both}
+.gp-coin{width:62px;height:62px;filter:drop-shadow(3px 3px 0 #000)}
+.gp.tick .gp-coin{animation:coinBump .25s}
+.gp-txt small{display:block;font-family:var(--f-num);font-weight:700;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#e8c37a}
+.gp-txt b{display:block;font-family:var(--f-title);font-weight:400;font-size:2.6rem;line-height:1;color:#ffd35c;text-shadow:3px 3px 0 #000;min-width:2.2ch}
+.gp-d{font-family:var(--f-num);font-weight:700;font-size:1.8rem;color:#ff6b5e;text-shadow:2px 2px 0 #000;opacity:0;transform:scale(.4)}
+.gp.done .gp-d{animation:gainIn .4s cubic-bezier(.2,1.7,.4,1) forwards}
+.gp.done .gp-txt small::after{content:" now"}
+.gp.out{opacity:0;transform:translateY(-20px);transition:all .45s}
+@keyframes gpIn{0%{opacity:0;transform:translateY(-30px) scale(.8)}100%{opacity:1;transform:none}}
+.gp-fly{position:fixed;width:38px;height:38px;margin:-19px 0 0 -19px;z-index:126;pointer-events:none;filter:drop-shadow(2px 2px 0 #000);animation:gpFly .75s cubic-bezier(.3,0,.7,1) forwards}
+@keyframes gpFly{0%{transform:translate(0,0) scale(1)}100%{transform:translate(var(--dx),55vh) rotate(260deg) scale(.6);opacity:0}}
 </style>
 
 <div id="app">
@@ -2743,11 +2756,11 @@ function makeFind(){
                 '"Behind the cracked cellar wall there\'s a tunnel. It leads to the Dark Forest."',
                 '"They\'re taking her to Castle Grimstone. Follow the smoke above the trees."',
                 '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][areaOf()];
-    const people=[['hermit','An old hermit'],['villager','A frightened villager'],['minstrel','A traveling minstrel'],['knight','A wandering knight']], [scene,title]=people[rnd(people.length)];
+    const people=[['hermit','An old hermit','he','his'],['villager','A frightened villager','she','her'],['minstrel','A traveling minstrel','he','his'],['knight','A wandering knight','he','his']], [scene,title,pr,pos]=people[rnd(people.length)];
     let gift, giftGold=0, giftItem=null, sipHeal=0;
-    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b>'; giftItem=[I('potion'),'Healing Potion']; } else { sipHeal=Math.min(S.maxHp-S.hp,100); gift=`a sip from their flask (<b>+${sipHeal} health</b>)`; } }
+    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b>'; giftItem=[I('potion'),'Healing Potion']; } else if(S.hp<S.maxHp){ sipHeal=S.maxHp-S.hp; gift=`a long drink from ${pos} flask. You feel completely refreshed (<b>+${sipHeal} health</b>)`; } else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; } }
     else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; }
-    f={gold:giftGold,give:giftItem,sip:sipHeal,scene,icon:'',title,text:`${clue}<br><br>Before you go, they give you ${gift}.`};
+    f={gold:giftGold,give:giftItem,sip:sipHeal,scene,icon:'',title,text:`${clue}<br><br>Before you go, ${pr} gives you ${gift}.`};
   } else if(r<.85){
     const dmg=Math.max(10, 60-Math.floor(defense()/2)), b=S.hp; S.hp=Math.max(1,S.hp-dmg);
     const pl=placeKind(), arm=defense()?' Your armor took some of the hit.':' Better armor would help.';
@@ -2858,7 +2871,7 @@ document.addEventListener('click', e=>{
       S.gold+=Math.floor(GR[id].price/2); S.gear.splice(infoSel.i,1); infoSel=null; blip(700,.1); render(); if(S.phase==='shop') shopPanel(); break; }
     case 'sellG': { const id=S.gear[+t.dataset.i]; if(!id) return; S.gold+=Math.floor(GR[id].price/2); S.gear.splice(+t.dataset.i,1); blip(700,.1); render(); shopPanel(); toast(`Sold ${GR[id].name}`); break; }
     case 'sellS': { const id=S.spells[+t.dataset.i]; if(!id) return; S.gold+=Math.floor(SP[id].price/2); S.spells.splice(+t.dataset.i,1); blip(700,.1); render(); shopPanel(); toast(`Sold ${SP[id].name}`); break; }
-    case 'rest': { if(S.gold<innCost()||S.hp>=S.maxHp) return; S.gold-=innCost(); const b=S.hp; S.hp=Math.min(S.maxHp,S.hp+innHeal()); soothe(); render(); shopPanel(); itemSplash(I('heart'), 'A good night\'s rest', 0, `+${S.hp-b}`, ()=>{}); break; }
+    case 'rest': { if(S.gold<innCost()||S.hp>=S.maxHp) return; goldPouch(S.gold, -innCost()); S.gold-=innCost(); const b=S.hp; S.hp=Math.min(S.maxHp,S.hp+innHeal()); soothe(); render(); shopPanel(); itemSplash(I('heart'), 'A good night\'s rest', 0, `+${S.hp-b}`, ()=>{}); break; }
     case 'coachNext': coachNext(); break;
     case 'skipTutorial': S.coach=-1; S.tips={shop:1,level:1,boss:1}; store.set('tutorialDone',true); render(); break;
     case 'replayTutorial': newRun(true); render(); storyPanel(); break;
@@ -2869,15 +2882,15 @@ document.addEventListener('click', e=>{
     case 'buyEq': { const o=eqOffer(t.dataset.id); if(o.block) return; const e=EQUIP[o.type];
       const trades=[]; if(o.cur && !(o.cur.type===o.type&&o.cur.tier===o.tier)) trades.push({name:eqName(o.cur.type,o.cur.tier), pay:Math.floor(EQUIP[o.cur.type].price[o.cur.tier]/2)});
       if(o.dropDagger && S.eq.off) trades.push({name:eqName(S.eq.off.type,S.eq.off.tier), pay:o.dropDagger});
-      S.gold-=o.cost; if(o.dropDagger) S.eq.off=null; S.eq[e.slot]={type:o.type,tier:o.tier};
+      if(o.cost) goldPouch(S.gold, -o.cost, 300); S.gold-=o.cost; if(o.dropDagger) S.eq.off=null; S.eq[e.slot]={type:o.type,tier:o.tier};
       S.trade={type:o.type, tier:o.tier, price:e.price[o.tier], trades}; render(); tradePanel(); break; }
     case 'tradeOk': S.trade=null; shopPanel(); break;
     case 'buyBook': { const b=BK[t.dataset.id]; if(!b||S.books.includes(b.id)||S.level<b.lvl||S.gold<b.price||(b.need&&!S.books.includes(b.need))) return;
-      S.gold-=b.price; S.books.push(b.id); S.fresh=b.school==='cleric'?'h':b.id; trumpetCall(); render(); learnPanel(b); break; }
+      goldPouch(S.gold, -b.price, 300); S.gold-=b.price; S.books.push(b.id); S.fresh=b.school==='cleric'?'h':b.id; trumpetCall(); render(); learnPanel(b); break; }
     case 'sellOk': shopPanel(); break;
     case 'learnOk': S.learn=null; shopPanel(); break;
     case 'buyPot': { const p=SP[t.dataset.id]; if(!p||S.spells.length>=3||S.gold<p.price) return;
-      S.gold-=p.price; S.spells.push(p.id); coins(); render(); shopPanel(); itemSplash(p.icon, p.name, 0, '+1', coins); break; }
+      goldPouch(S.gold, -p.price); S.gold-=p.price; S.spells.push(p.id); coins(); render(); shopPanel(); itemSplash(p.icon, p.name, 0, '+1', coins); break; }
     case 'leaveShop': pathPanel(); break;
     case 'quest': S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); break;
     case 'hunt': { const a=+t.dataset.a; if(a!==areaOf()) return;
@@ -2985,7 +2998,9 @@ function songWant(){
   if(!musicOn || !S) return null;
   const fightish = S.phase==='play'||S.phase==='intro';
   let boss=false; try{ boss = fightish && !S.huntFoe && foeDef() && foeDef().boss; }catch(e){}
-  return boss ? 'boss' : 'w'+(((S.world||0)%10)+1);
+  if(boss) return 'boss';
+  if(fightish) return 'fight'+(1+((S.idx||0)%2));
+  return 'w'+(((S.world||0)%10)+1);
 }
 function songStart(id){
   if(!musBus){ musBus=ac.createGain(); musBus.gain.value=.55; musBus.connect(ac.destination); }
@@ -3196,6 +3211,22 @@ async function cloudLoad(){
 
 
 
+
+/* ---- paying: your gold pouch shows what you had, coins leave it, and your new total ---- */
+function goldPouch(before, delta, delay=0){
+  setTimeout(()=>{
+    document.querySelectorAll('.gp').forEach(x=>x.remove());
+    const after=before+delta, n=Math.min(10,Math.max(1,Math.abs(delta))), e=document.createElement('div'); e.className='gp';
+    e.innerHTML=`<img class="gp-coin" src="art/i_coin.webp" alt=""><div class="gp-txt"><small>Your gold</small><b>${fmt(before)}</b></div><span class="gp-d">${delta<0?'−':'+'}${fmt(Math.abs(delta))}</span>`;
+    document.body.appendChild(e); const b=e.querySelector('b'), r=e.querySelector('.gp-coin').getBoundingClientRect();
+    for(let k=0;k<n;k++) setTimeout(()=>{ const c=document.createElement('img'); c.src='art/i_coin.webp'; c.className='gp-fly'+(delta>0?' in':'');
+      c.style.left=(r.left+r.width/2)+'px'; c.style.top=(r.top+r.height/2)+'px'; c.style.setProperty('--dx',(Math.random()*160-80)+'px'); document.body.appendChild(c); setTimeout(()=>c.remove(),800);
+      b.textContent=fmt(Math.round(before+delta*(k+1)/n)); e.classList.remove('tick'); void e.offsetWidth; e.classList.add('tick');
+      if(soundOn&&ac) blip(1700-k*70,.06,'triangle',.05); }, 500+k*130);
+    setTimeout(()=>{ e.classList.add('done'); b.textContent=fmt(after); }, 600+n*130);
+    setTimeout(()=>e.classList.add('out'), 2300+n*130); setTimeout(()=>e.remove(), 2800+n*130);
+  }, delay);
+}
 /* ---- victory rewards: coins drop into your pouch, then experience pours into the bar ---- */
 const vicGold = w => (w.gold||0) + (w.bonus||0);
 function vicOldLv(w){ const old=S.xp-(w.xp||0); let L=1; while(old>=cumNeed(L)) L++; return L; }
