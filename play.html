@@ -3072,7 +3072,7 @@ function shopPanel(){
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     <div class="shop-go"><button class="innbtn" data-act="rest" ${S.gold<innCost()||S.hp>=S.maxHp?'disabled':''}>
       <span class="inn-ic">${I('inn')}<i>✚</i></span>
-      <span class="inn-txt"><b>Rest at the inn</b><small>${S.hp>=S.maxHp?'You\'re at full health':S.gold<innCost()?'You need '+coin(innCost()):'Heal '+innHeal()+' HP for '+coin(innCost())}</small></span>
+      <span class="inn-txt"><b>Rest at the inn</b><small>${S.hp>=S.maxHp?'You\'re at full health':S.gold<innCost()?'You need '+coin(innCost()):'Heal '+innHeal()+' HP — half your health — for '+coin(innCost())}</small></span>
       <span class="inn-price">${coin(innCost())}</span>
     </button>
     <button class="btn big onward" data-act="leaveShop">Continue adventure</button></div>
@@ -3121,9 +3121,10 @@ function gearMoment(t){
 }
 /* learning a spell is an event: a scene, then how to use it */
 /* the inn costs more as you level up: 2 gold at level 1, +1 per level */
-const innCost = () => 1 + S.level;
+const INN_HEAL = .5;
+const innCost = () => 3 + S.level;
 /* and heals more: 100 HP at level 1, +40 per level */
-const innHeal = () => 60 + 40*S.level;
+const innHeal = () => Math.round(S.maxHp*INN_HEAL);
 function learnPanel(b){
   S.phase='learn'; S.learn=b.id;
   const cleric=b.school==='cleric', rounds=healRounds(), heal=Math.round(S.maxHp*.3);
