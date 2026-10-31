@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 45
     env:
       HAS_KEY: ${{ secrets.APPSTORE_P8 != '' && 'yes' || '' }}
