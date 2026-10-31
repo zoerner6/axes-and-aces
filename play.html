@@ -1762,7 +1762,7 @@ let QUEST_STEPS = [
 let PLACES = ['In the shadows of the tavern','In the damp dark of the cellar','Between the twisted trees','In the castle\'s cold halls'];
 MONSTERS.bandit.lvl=3; MONSTERS.ghoul.lvl=5; MONSTERS.troll.lvl=7; MONSTERS.dragon.lvl=10;
 /* monsters you meet: random from each area's pool, stats from their level (with a little randomness) */
-let AREA_LV = [[1,3],[5,7],[8,10],[11,13]];
+let AREA_LV = [[1,3],[3,5],[5,7],[7,9]];
 let POOLS = [
   [{name:'Sneaky Goblin',icon:'👺',hp:1,atk:1,pat:[1,1.3,1]}, {name:'Giant Rat',icon:'🐀',hp:1.2,atk:.8,pat:[1,1,2.2]}, {name:'Tavern Bat',icon:'🦇',hp:.8,atk:1.1,pat:[1,1]},
    {name:'Wild Boar',icon:'🐗',hp:1.4,atk:1,pat:[.8,1.8]}, {name:'Little Imp',icon:'👿',hp:.9,atk:1.2,pat:[1,'H',1.2]}],
@@ -1847,25 +1847,36 @@ function playFoeAttack(){
   const k=ART[foeDef().name]; return Math.round(((HIT_AT[k]||1.5)-0.1)*1000);
 }
 /* monster health (raised 25%, then eased back 10% twice) */
-const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,9)*Math.pow(L/10,1.7));
+const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.15,L-1) : 130*Math.pow(1.15,9)*Math.pow(L/10,1.35));
 /* every monster wears armor: it soaks this much from each of your hits (never more than half the hit) */
-/* how hard everything hits. 1 was too soft: you won nearly every fight with
-   health to spare and never needed a potion. */
-const FOE_PUNCH = 1.5;
-/* monsters live long enough to use that punch */
-const FOE_TOUGH = 1.35;
+/* ---------- a monster's gear ----------
+   A monster carries the Attack and Defense a hero of its own level would
+   carry, so the two sides read in the same units. Its kind shifts that: a
+   heavy monster wears more, a quick one wears less. Past level 10 the gear
+   creeps rather than running away. */
+const FOE_PUNCH = 1.35;   /* how hard they swing */
+const FOE_TOUGH = 1.35;   /* how much health they carry */
+const GEAR_ATK = [0,0,8,16,28,48,48,75,75,110,110];
+const GEAR_DEF = [0,0,40,70,120,120,190,190,280,280,280];
+const gearAt = (tbl, L) => L<=10 ? tbl[Math.max(1,L|0)] : Math.round(tbl[10]*(1+(L-10)*0.06));
+/* a monster never carries more than half again the best gear in the game,
+   however heavy its kind or deep the world */
+const foeAtkScore = (L, k=1) => Math.min(Math.round(GEAR_ATK[10]*1.5), Math.round(gearAt(GEAR_ATK, L)*k));
+const foeDefScore = (L, k=1) => Math.min(Math.round(GEAR_DEF[10]*1.5), Math.round(gearAt(GEAR_DEF, L)*k));
 /* nothing fights with no defence at all */
 const FLOOR_DEF = 5;
-const foeArmorFor = (L, boss) => Math.max(FLOOR_DEF, Math.round((5 + 6.5*(Math.max(1,L)-1)) * (boss?1.5:1) / 5) * 5);
-const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss)) : 0;
+const foeArmorFor = (L, boss, k) => Math.max(FLOOR_DEF, foeDefScore(L, (k||1)*(boss?1.25:1)));
+const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss, d.gear)) : 0;
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d)/100)));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
   /* the pub is where you start with no gear: its monsters are softer */
   const pub=(a===0&&!(S&&S.world));
-  const hp=Math.round(monsterHP(L)*FOE_TOUGH*t.hp*r()*(pub?.8:1)/5)*5, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(pub?.8:1);
+  const gk=t.hp;                                   /* a heavier kind wears heavier gear */
+  const hp=Math.round(monsterHP(L)*FOE_TOUGH*t.hp*r()*(pub?.8:1)/5)*5;
+  const atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(1+foeAtkScore(L,gk)/100)*(pub?.8:1);
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
-  return {def:pub?FLOOR_DEF:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
+  return {gear:gk, def:pub?FLOOR_DEF:foeArmorFor(L,false,gk), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
 let AREAS = [
   {name:'The Gilded Ace', icon:'<img class="ico" src="art/i_area_tavern.webp" alt="">', foes:['goblin','rat','bandit']},
@@ -1907,16 +1918,15 @@ const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir '+baseName(
 const nm = t => { if(typeof t!=='string') return t; t=t.replace(/\b([Tt])he The /g,'$1he '); const n=baseName(); return n==='Edward' ? t : t.replace(/\bEdward\b/g, n); };
 function ruleOf(r){ return {rule:`${SUITS[r.off].s} ${SUITS[r.off].n}s do no damage`, off:c=>c.suit===r.off}; }
 function genBoss(def, L){
-  const hp=Math.round(monsterHP(L)*3/10)*10, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH;
+  const hp=Math.round(monsterHP(L)*3/10)*10, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(1+foeAtkScore(L,1.25)/100);
   const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*v)*10)});
-  return Object.assign({def:foeArmorFor(L,true), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
+  return Object.assign({gear:1.25, def:foeArmorFor(L,true,1.25), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
 }
 function loadWorld(w){
   w=w||0; const b=w%10, off=w*8;
   if(w===0){ AREAS=W1.areas; POOLS=W1.pools.map((p,i)=>withCousins(p,i,POOL_WANT[i]||6)); AREA_LV=W1.lv; QUEST_STEPS=W1.steps; PLACES=W1.places; STORIES=W1.stories; WPFX=''; BGF=a=>'bg_'+W1.bg[a]; return; }
-  /* later worlds have no gentle opening area, so every area runs ahead */
-  AREA_LV=[[3,5],[6,8],[9,11],[12,14]].map(([x,y])=>[x+off,y+off]);
-  const bossLv=[5,8,11,14].map(x=>x+off);
+  AREA_LV=[[2,4],[4,6],[6,8],[8,10]].map(([x,y])=>[x+off,y+off]);
+  const bossLv=[4,6,8,10].map(x=>x+off);
   if(b===0){
     POOLS=W1.pools.map((p,i)=>withCousins(p,i,POOL_WANT[i]||6));
     QUEST_STEPS=W1.steps; PLACES=W1.places; WPFX=''; BGF=a=>'bg_'+W1.bg[a];
@@ -2003,7 +2013,7 @@ const weaponPts = () => (S.eq.main?EQUIP[S.eq.main.type].atk[S.eq.main.tier]:0) 
      +100 Attack  = you hit twice as hard
      +100 Defense = you take half as much
    Each level is a flat percentage step on top, not a raw multiple of your level. */
-const LVL_STEP = 1.32;
+const LVL_STEP = 1.12;
 const atkMult = () => 1 + weaponPts()/100;
 /* the scores as the player feels them: +14 Attack is +14% damage,
    +190 Defense is 66% less damage taken */
@@ -2012,7 +2022,7 @@ const defPct = () => Math.round((1 - 1/(1+defense()/100))*100);
 /* what one of the monster's hits would actually cost you right now */
 const takeFrom = (n, big) => Math.max(1, Math.round(n / (1 + defense()/(big?200:100))));
 const defDiv = () => 1 + defense()/100;
-const lvlMult = () => Math.pow(LVL_STEP, Math.max(0,(S.level||1)-1) + (S.flatM||0));
+const lvlMult = () => Math.pow(LVL_STEP, Math.max(1,(S.level||1)) + (S.flatM||0));
 /* no weapon at all means you are swinging your fists */
 const FISTS = .7;
 const barehanded = () => !S.eq.main && !S.eq.off;
@@ -2226,7 +2236,9 @@ function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map
   /* both numbers say what this monster does to you, the same way your own
      card reads, instead of a raw stat you have to do maths against */
   const armCut=Math.round((1 - 1/(1+def/100))*100);
-  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>${fmt(takeFrom(atk))}</b><small>Damage to you, per hit</small></span><span class="fs def">${I('shield')}<b>${armCut}%</b><small>Of your damage blocked</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
+  /* the monster's gear read in the same units as yours */
+  const fa=foeAtkScore(d.lvl||1, d.gear||1), fd=foeArmor(d);
+  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b><small>Attack · hits you for ~${fmt(takeFrom(atk))}</small></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b><small>Defense · blocks ${armCut}%</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
@@ -3490,7 +3502,11 @@ document.addEventListener('click', e=>{
     case 'slotNew': namePanel(+t.dataset.slot); break;
     case 'slotStart': { const n=+t.dataset.slot, name=((($('heroIn')||{}).value)||'').trim().replace(/[<>"]/g,'').slice(0,16)||'Edward';
       setSlot(n); ['save','saved','checkpoint'].forEach(k=>{ try{ localStorage.removeItem(SKn(k,n)); }catch(e){} }); try{ localStorage.setItem(SKn('name',n), JSON.stringify(name)); }catch(e){}
-      canSave=true; newRun(true); S.heroName=name; render(); storyPanel(); saveGame(); break; }
+      canSave=true; newRun(true); S.heroName=name; render(); saveGame();
+      if(store.get('aa_secured',false)) storyPanel(); else safetyPanel();
+      break; }
+    case 'secured': { store.set('aa_secured',true); cloudSave(true); closePanel(); storyPanel(); break; }
+    case 'backupFile': downloadBackup(); break;
     case 'slotPlay': { const n=+t.dataset.slot; setSlot(n); const sv=loadSave(n)||loadSaved(n); canSave=true; if(sv){ closePanel(); start({S:JSON.parse(JSON.stringify(sv.S))}); } break; }
     case 'slotDel': { if(t.dataset.sure){ const n=+t.dataset.slot; ['save','saved','checkpoint','name'].forEach(k=>{ try{ localStorage.removeItem(SKn(k,n)); }catch(e){} }); slotsPanel(); } else { t.dataset.sure='1'; t.textContent='Tap again to delete'; t.classList.add('sure'); } break; }
     case 'togSfx': soundOn=!soundOn; store.set('sound',soundOn); audio(); render(); if(soundOn) blip(660,.08); break;
@@ -3777,6 +3793,30 @@ async function postScore(board, score, btn){
 /* cloud save: a private code you can type on any device */
 function cloudCode(){ let c=store.get('aa_cloud',''); if(!c){ const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; c=Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>a[x%a.length]).join(''); store.set('aa_cloud',c); } return c; }
 const prettyCode = c=>c.match(/.{1,4}/g).join('-');
+/* hand the player a copy of their hero they can keep */
+function downloadBackup(){
+  try{
+    const blob=new Blob([JSON.stringify({code:cloudCode(), slot:SLOT, save:{S, at:Date.now()}},null,1)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='axes-and-aces-'+(baseName()||'hero').toLowerCase().replace(/[^a-z0-9]/g,'')+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    store.set('aa_secured',true); toast('Backup saved to your downloads');
+  }catch(e){ toast('Could not save the file'); }
+}
+/* shown once, before a new hero's first step: no more lost heroes */
+function safetyPanel(){
+  S.phase='safety';
+  openPanel(`<div class="eyebrow">Before you set off</div><h2>Keep ${nm(heroName())} safe</h2>
+    <p>Your hero lives in this browser. A <b>private window</b>, clearing your browsing data, or a new phone wipes it. This code brings the hero back anywhere.</p>
+    <div class="cloud-code">${prettyCode(cloudCode())}</div>
+    <div class="row"><button class="btn big" data-act="cloudCopy">Copy the code</button>
+    <button class="btn big ghost" data-act="backupFile">Save a file instead</button></div>
+    <p class="menu-note">Your hero is backed up to the cloud on its own as you play. The code is how you get it back.</p>
+    <button class="btn big vic-btn" data-act="secured">I've kept it — start the adventure</button>`);
+  $('panel').classList.add('cine');
+}
 function cloudPanel(){
   const c=cloudCode();
   openPanel(`<div class="eyebrow">Play on any device</div><h2>Cloud save</h2>
