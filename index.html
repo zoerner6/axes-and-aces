@@ -3415,10 +3415,10 @@ async function bragCard(o){
 function bragInfo(kind, id){
   const w=S?(S.world||0):0, who=(typeof heroName==='function')?heroName():'Edward';
   if(kind==='ach'){ const a=ACH.find(x=>x.id===id)||ACH[0]; return {key:'ach_'+a.id, eyebrow:'Achievement unlocked', title:a.name, sub:a.desc+' in Axes & Aces.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
-  if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:slug?'boss_'+slug:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
   if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?'I saved Anna and was knighted Sir Edward!':`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'A dark comic card adventure. Fight monsters with poker hands.', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
-  if(kind==='death'){ const k=S.killer||{}; return {key:'fallen', eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down.`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
-  if(kind==='level'){ return {key:'level', eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${S.level} damage`, sub:'Every attack now hits harder.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='death'){ const k=S.killer||{}; return {key:'fallen_t'+heroTier(), eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down.`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
+  if(kind==='level'){ return {key:'level_t'+heroTier(), eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${S.level} damage`, sub:'Every attack now hits harder.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
   if(kind==='daily'){ const r=S.dailyResult||{}; return {key:'daily', eyebrow:`Daily Challenge · ${r.date||''}`, title:r.wins>=5?'I beat today\'s Daily Challenge!':`I won ${r.wins||0} of 5 daily fights`, big:`${fmt(r.score||0)} points`, sub:'Same monsters, same cards for everyone today. Beat my score.', fig:r.fig||`art/hero_t${heroTier()}.webp`, bg:r.bg||'art/bg_castle.webp'}; }
   return {key:'game', eyebrow:'Dark comic card adventure', title:'Axes & Aces', sub:'Fight monsters with poker hands.', fig:'art/hero_t3.webp'};
 }
@@ -3446,7 +3446,7 @@ async function bragPanel(kind, id){
 }
 function bragQuery(){ if(!bragNow) return '';
   if(bragNow.key==='daily'&&S.dailyResult) return `?c=daily&d=${S.dailyResult.date}&s=${S.dailyResult.score}`;
-  if(bragNow.key==='fallen'||bragNow.key==='level'||bragNow.key==='boss') return `?c=lvl&s=${S.level}&w=${(S.world||0)+1}`;
+  if(/^(fallen|level)/.test(bragNow.key)||bragNow.key==='boss'||bragNow.key.startsWith('boss_')) return `?c=lvl&s=${S.level}&w=${(S.world||0)+1}`;
   return ''; }
 const bragUrl = ()=>SITE+'b/'+(bragNow?bragNow.key:'game')+'.html'+bragQuery();
 const bragText = ()=>bragNow ? `${bragNow.title} ${bragNow.big?'('+bragNow.big+') ':''}Play Axes & Aces free:` : 'Play Axes & Aces free:';
