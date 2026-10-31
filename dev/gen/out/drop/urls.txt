@@ -1,8 +1,0 @@
-w5_start_1 https://tempfile.aiquickdraw.com/seedance/1793475321459-2inu6z1tckm.mp4
-w6_a1_0 https://tempfile.aiquickdraw.com/seedance/1793475286940-y1n7zbzmyfc.mp4
-w6_a2_0 https://tempfile.aiquickdraw.com/seedance/1793475270037-01mpva0jynv1.mp4
-w6_a3_0 https://tempfile.aiquickdraw.com/seedance/1793475286130-g964e8h65j4.mp4
-w6_end_0 https://tempfile.aiquickdraw.com/seedance/1793475311496-un23t57bdd.mp4
-w6_end_1 https://tempfile.aiquickdraw.com/seedance/1793475305959-2yvzmhszvzx.mp4
-w6_start_0 https://tempfile.aiquickdraw.com/seedance/1793475301511-9eefowx76ja.mp4
-w6_start_1 https://tempfile.aiquickdraw.com/seedance/1793475288040-9r10szqyzqo.mp4

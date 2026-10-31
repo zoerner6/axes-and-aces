@@ -2755,7 +2755,7 @@ function storyPanel(){
   runCine(id, pg.title, plain);
 }
 /* scenes that have a short animated version; the clip plays over the still art */
-const SCENE_VIDS = new Set(['sc_a1_0','sc_a2_0','sc_a3_0','sc_end_0','sc_end_1','sc_end_2','sc_learn_cleric','sc_start_2']);
+const SCENE_VIDS = new Set(['sc_a1_0','sc_a2_0','sc_a3_0','sc_end_0','sc_end_1','sc_end_2','sc_end_3','sc_learn_cleric','sc_learn_wizard','sc_merchant','sc_start_0','sc_start_1','sc_start_2','sc_w10_a1_0','sc_w10_a2_0','sc_w10_a3_0','sc_w10_end_0','sc_w10_end_1','sc_w10_end_2','sc_w10_start_0','sc_w10_start_1','sc_w2_a1_0','sc_w2_a2_0','sc_w2_a3_0','sc_w2_end_0','sc_w2_end_1','sc_w2_start_0','sc_w2_start_1','sc_w3_a1_0','sc_w3_a2_0','sc_w3_a3_0','sc_w3_end_0','sc_w3_end_1','sc_w3_start_0','sc_w3_start_1','sc_w4_a1_0','sc_w4_a2_0','sc_w4_a3_0','sc_w4_end_0','sc_w4_end_1','sc_w4_start_0','sc_w4_start_1','sc_w5_a1_0','sc_w5_a2_0','sc_w5_a3_0','sc_w5_end_0','sc_w5_end_1','sc_w5_start_0','sc_w5_start_1','sc_w6_a1_0','sc_w6_a2_0','sc_w6_a3_0','sc_w6_end_0','sc_w6_end_1','sc_w6_start_0','sc_w6_start_1','sc_w7_a1_0','sc_w7_a2_0','sc_w7_a3_0','sc_w7_end_0','sc_w7_end_1','sc_w7_start_0','sc_w7_start_1','sc_w8_a1_0','sc_w8_a2_0','sc_w8_a3_0','sc_w8_end_0','sc_w8_end_1','sc_w8_start_0','sc_w8_start_1','sc_w9_a1_0','sc_w9_a2_0','sc_w9_a3_0','sc_w9_end_0','sc_w9_end_1','sc_w9_start_0','sc_w9_start_1']);
 function attachSceneVid(id, onEnd){
   if(!SCENE_VIDS.has('sc_'+id) || reduced()) return false;
   const sc=document.querySelector('#panel .cine-scene'), im=sc&&sc.querySelector('img');
@@ -2886,7 +2886,7 @@ function levelPanel(){
       <span class="lu-title">Level up!</span>
       <span class="lu-medal" id="luMedal"><small>LV</small><b id="luLv">${old}</b></span></div>
     <div class="lu-rows">
-      <div class="lu-row" id="luAtk"><span class="lu-ic">${I('attack')}</span><span class="lu-lbl">Every attack</span><span class="lu-val"><small class="was">was ×${old}</small><b>×${S.level}</b></span></div>
+      <div class="lu-row" id="luAtk"><span class="lu-ic">${I('attack')}</span><span class="lu-lbl">Every attack</span><span class="lu-val"><small class="was">was ×${(Math.pow(LVL_STEP,old-1)).toFixed(2)}</small><b>×${lvlMult().toFixed(2)}</b></span></div>
       <div class="lu-row" id="luHp"><span class="lu-ic">${I('heart')}</span><span class="lu-lbl">Max health</span><span class="lu-val"><span class="lu-bar"><i id="luHpFill" style="width:${oldMax/S.maxHp*100}%"></i><em id="luHpTxt">${fmt(oldMax)}</em></span><b class="hp">+${100*r.ups}</b></span></div>
       ${r.gifts.map(giftRow).join('')}
       <div class="lu-row xp" id="luXp"><span class="lu-ic">${I('xp')}</span><span class="lu-lbl">Next level</span><span class="lu-val"><span class="lu-bar xp"><i style="width:${Math.max(0,Math.min(100,(S.xp-lo)/(hi-lo)*100))}%"></i><em>${fmt(S.xp)} / ${fmt(hi)} EXP</em></span></span></div>
@@ -3482,7 +3482,7 @@ function bragInfo(kind, id){
   if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:slug?'boss_'+slug:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
   if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?'I saved Anna and was knighted Sir Edward!':`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'A dark comic card adventure. Fight monsters with poker hands.', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
   if(kind==='death'){ const k=S.killer||{}; return {key:'fallen_t'+heroTier(), eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down.`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
-  if(kind==='level'){ return {key:'level_t'+heroTier(), eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${S.level} damage`, sub:'Every attack now hits harder.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='level'){ return {key:'level_t'+heroTier(), eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${lvlMult().toFixed(2)} damage`, sub:'Every attack now hits harder.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
   if(kind==='daily'){ const r=S.dailyResult||{}; return {key:'daily', eyebrow:`Daily Challenge · ${r.date||''}`, title:r.wins>=5?'I beat today\'s Daily Challenge!':`I won ${r.wins||0} of 5 daily fights`, big:`${fmt(r.score||0)} points`, sub:'Same monsters, same cards for everyone today. Beat my score.', fig:r.fig||`art/hero_t${heroTier()}.webp`, bg:r.bg||'art/bg_castle.webp'}; }
   return {key:'game', eyebrow:'Dark comic card adventure', title:'Axes & Aces', sub:'Fight monsters with poker hands.', fig:'art/hero_t3.webp'};
 }
