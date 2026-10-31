@@ -611,7 +611,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .vbar i{background:linear-gradient(0deg,#4e0c0a,#8e1a14)}
 #myHp,.hpbar span{color:#efe3cc;text-shadow:1px 1px 0 #000;font-weight:500}
 /* animated story scenes */
-.panel.cine{max-width:760px;gap:10px}
+.panel.cine{max-width:820px;gap:10px}
 .cine-scene{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:3px solid #000;box-shadow:5px 5px 0 #000;background:#000;flex:0 0 auto;animation:cineIn .7s ease both}
 .cine-scene.short{aspect-ratio:21/9}
 @keyframes cineIn{from{opacity:0;filter:brightness(.3)}}
@@ -624,8 +624,8 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .cine-title{position:absolute;z-index:2;top:10px;left:10px;font-family:var(--f-title);font-size:clamp(1.1rem,3.6vw,1.6rem);background:var(--gold);color:#000;border:3px solid #000;padding:1px 12px;transform:rotate(-2deg);box-shadow:3px 3px 0 #000;animation:capIn .5s .35s both;max-width:calc(100% - 40px)}
 @keyframes capIn{from{opacity:0;transform:rotate(-8deg) scale(.6)}}
 .cine-voice{position:absolute;z-index:2;right:10px;bottom:10px;border:2px solid #000;border-radius:999px;background:#f3e6c8;color:#000;font-weight:800;padding:5px 12px;box-shadow:2px 2px 0 #000}
-.cine-cap{background:#f3e6c8;border:3px solid #000;border-radius:6px;box-shadow:4px 4px 0 #000;padding:10px 14px;cursor:pointer}
-.panel .cine-cap p{margin:0;display:grid;font-size:clamp(1rem,2.6vw,1.15rem);line-height:1.45;color:#16100d;font-weight:600}
+.cine-cap{background:#f3e6c8;border:3px solid #000;border-radius:6px;box-shadow:4px 4px 0 #000;padding:14px 20px;cursor:pointer}
+.panel .cine-cap p{margin:0;display:grid;font-size:clamp(1.15rem,3vw,1.45rem);line-height:1.6;color:#140f0c;font-weight:600;letter-spacing:.004em}
 .cine-cap p>span{grid-area:1/1}
 .cine-cap .ghost{visibility:hidden}
 .cine-foot{display:flex;align-items:center;gap:12px}
@@ -1404,13 +1404,13 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 
 /* story captions: big, calm, readable */
 .cine-cap{padding:14px 20px!important}
-.panel .cine-cap p{display:block!important;font-family:var(--f-body);font-weight:500!important;font-size:clamp(1.15rem,3.4vw,1.4rem)!important;line-height:1.55!important;color:#16100d;max-width:58ch;margin:0 auto!important;text-wrap:pretty}
+.panel .cine-cap p{display:block!important;font-family:var(--f-body);font-weight:500!important;font-size:clamp(1.3rem,3.9vw,1.65rem)!important;line-height:1.62!important;color:#140f0c;max-width:60ch;margin:0 auto!important;text-wrap:pretty}
 .cine-cap .ghost{display:none}
 .cine-cap .sen{opacity:0;animation:senIn .45s ease forwards}
 @keyframes senIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:none}}
 .bubble-say{font-size:clamp(1rem,2.8vw,1.2rem)!important;line-height:1.35;padding:10px 14px!important;font-weight:700}
 .bubble-say .sen{animation-duration:.3s}
-@media (max-width:480px){ .bubble-say{font-size:.95rem!important} .panel .cine-cap p{font-size:1.08rem!important} }
+@media (max-width:480px){ .bubble-say{font-size:.95rem!important} .panel .cine-cap p{font-size:1.2rem!important} }
 @media (prefers-reduced-motion:reduce){ .cine-cap .sen{animation:none;opacity:1} }
 
 /* mid-size desktop windows: monster big on the left, your side on the right */
@@ -1467,6 +1467,8 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
   .purse,.xpbox{padding:8px 12px}
 }
 @media (max-height:700px){ .vic-foe{display:none} .vic-sub{font-size:.95rem} }
+@media (max-height:860px){ .panel .cine-cap p{font-size:clamp(1.35rem,3.1vh,1.55rem)!important;line-height:1.55!important} .cine-cap{padding:13px 18px!important} }
+@media (max-height:700px){ .panel .cine-cap p{font-size:clamp(1.22rem,2.9vh,1.4rem)!important;line-height:1.48!important} .cine-cap{padding:11px 16px!important} }
 
 /* shop: tabs and compact cards so it all fits on one screen */
 .shop-tabs{display:flex;gap:6px;width:100%}
@@ -1493,7 +1495,7 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @media (max-height:700px) and (min-width:700px){
   .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:clamp(120px,24vh,200px)!important}
   .panel.cine .cine-scene{width:min(100%,calc(56vh * 16 / 9))!important}
-  .panel .cine-cap p{font-size:1.05rem!important;line-height:1.4!important}
+  .panel .cine-cap p{font-size:1.3rem!important;line-height:1.46!important}
   .learn-how ol{font-size:.84rem}
   .panel.wide .shop .item p{display:none}
 }
@@ -1692,8 +1694,10 @@ function playFoeAttack(){
 /* monster health (raised 25%, then eased back 10% twice) */
 const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,9)*Math.pow(L/10,1.7));
 /* every monster wears armor: it soaks this much from each of your hits (never more than half the hit) */
-const foeArmorFor = (L, boss) => Math.round((5 + 6.5*(Math.max(1,L)-1)) * (boss?1.5:1) / 5) * 5;
-const foeArmor = d => d ? (d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss)) : 0;
+/* nothing fights with no defence at all */
+const FLOOR_DEF = 5;
+const foeArmorFor = (L, boss) => Math.max(FLOOR_DEF, Math.round((5 + 6.5*(Math.max(1,L)-1)) * (boss?1.5:1) / 5) * 5);
+const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss)) : 0;
 const armored = (dmg, d) => Math.max(Math.ceil(dmg/2), dmg - foeArmor(d));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
@@ -1701,7 +1705,7 @@ function genMonster(a, L, fixed){
   const pub=(a===0&&!(S&&S.world));
   const hp=Math.round(monsterHP(L)*t.hp*r()*(pub?.8:1)/5)*5, atk=(4+2.6*(L-1))*1.25*(pub?.8:1);
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
-  return {def:pub?0:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
+  return {def:pub?FLOOR_DEF:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
 let AREAS = [
   {name:'The Gilded Ace', icon:'<img class="ico" src="art/i_area_tavern.webp" alt="">', foes:['goblin','rat','bandit']},
@@ -1828,6 +1832,10 @@ const eqName = (type,tier) => `${MAT[EQUIP[type].mat][tier]} ${EQUIP[type].name}
 const eqDesc = (type,tier) => { const e=EQUIP[type]; return e.atk ? `+${e.atk[tier]} Attack${e.hands===2?' · two hands':''}` : `+${e.def[tier]} Defense`; };
 const twoHanded = () => !!(S.eq.main && EQUIP[S.eq.main.type].hands===2);
 const weaponPts = () => (S.eq.main?EQUIP[S.eq.main.type].atk[S.eq.main.tier]:0) + (S.eq.off&&!twoHanded()?EQUIP[S.eq.off.type].atk[S.eq.off.tier]:0);
+/* no weapon at all means you are swinging your fists: half damage until you buy one */
+const FISTS = .7;
+const barehanded = () => !S.eq.main && !S.eq.off;
+const fistMult = () => barehanded() ? FISTS : 1;
 const defense = () => ['shield','helm','armor'].reduce((a,k)=>a+(S.eq[k]?EQUIP[S.eq[k].type].def[S.eq[k].tier]:0),0);
 const tierCap = () => (S.world||0)>0 ? 5 : Math.min(5, areaOf()+2);
 /* spellbooks: unlocked by level, bought once, cast once per fight */
@@ -2215,7 +2223,7 @@ function renderPreview(){
   if(!(f && sel.length && S.phase==='play')){ tag.hidden=true; fitButtons(); return; }
   const played=f.hand.filter(id=>sel.includes(id)).map(cardById), pv=previewHit(played), d=foeDef();
   const need5 = d.must5 && played.length!==5;
-  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces bonus ×2</em>`:''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
+  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces bonus ×2</em>`:''}${barehanded()?' <em>Fists −30%</em>':''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
   tag.classList.toggle('big', ['full','four','sflush','flush','straight'].includes(pv.type));
   tag.hidden=false; fitButtons();
 }
@@ -2229,6 +2237,7 @@ function previewHit(played, raw){
   for(const c of played){ if(isOff(c)) continue; if(c.rank===14) P+=aceBonus(); if(ids.includes(c.id)) S.gear.forEach(g=>{ if(GR[g].card) add(GR[g].card(c,ctx)); }); }
   S.gear.forEach(g=>{ if(GR[g].hand) add(GR[g].hand(ctx)); });
   if(S.rage) M*=2;
+  M*=fistMult();
   P+=acesExtra(ev);
   const share=hitShare(ev);
   const dd=Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)); return {aces:acesIn(ev), type:ev.type, dmg:raw?dd:armored(dd, foeDef()), share};
@@ -2390,6 +2399,7 @@ async function attack(){
   }
   S.gear.forEach((g,i)=>{ if(GR[g].hand) add(GR[g].hand(ctx),i); });
   if(S.rage){ S.rage=false; M*=2; }
+  M*=fistMult();
   const aceN=acesIn(ev), aceX=acesExtra(ev); P+=aceX;
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   render();
@@ -2716,8 +2726,8 @@ function storyPanel(){
     <div class="cine-foot">${pages.length>1?`<div class="dots">${pages.map((_,i)=>`<i class="${i===S.story.page?'on':''}"></i>`).join('')}</div>`:'<span></span>'}
     ${last&&S.story.key==='end'?'<button class="btn big brag-fb" data-act="brag" data-kind="quest">Brag</button>':''}<button class="btn big" data-act="storyNext">${btn}</button></div>${last&&S.story.key==='start'&&(S.world||0)>0?saveBox():''}`);
   $('panel').classList.add('cine');
-  if(SCENE_VIDS.has(id) && !reduced()){ const sc=document.querySelector('#panel .cine-scene'), im=sc&&sc.querySelector('img'); if(sc){ const v=document.createElement('video');
-    v.className='scene-vid'; v.src=`vid/${id}.mp4`; v.muted=true; v.playsInline=true; v.preload='auto'; v.poster=im?im.src:'';
+  if(SCENE_VIDS.has('sc_'+id) && !reduced()){ const sc=document.querySelector('#panel .cine-scene'), im=sc&&sc.querySelector('img'); if(sc){ const v=document.createElement('video');
+    v.className='scene-vid'; v.src=`vid/sc_${id}.mp4`; v.muted=true; v.playsInline=true; v.preload='auto'; v.poster=im?im.src:'';
     v.addEventListener('playing',()=>sc.classList.add('vid-on')); v.addEventListener('ended',()=>{ sc.classList.add('vid-done'); coins(); });
     sc.insertBefore(v, im?im.nextSibling:sc.firstChild); setTimeout(()=>{ const q=v.play(); if(q&&q.catch) q.catch(()=>{}); }, 300); setTimeout(()=>{ swoosh(); setTimeout(swoosh,250); },1200); } }
   runCine(id, pg.title, plain);
@@ -3095,6 +3105,7 @@ function guidePanel(){
   openPanel(`<div class="eyebrow">Hand guide</div><h2>Your attacks, strongest first</h2>
     <p>Damage = <b>Points × your Level</b> (plus gear bonuses). Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
     <p><b>Aces</b> (gold cards) always add <b>+10 points</b>, even as extra cards (and your level multiplies it).</p>
+    <p><b>No weapon?</b> Bare fists do <b>30% less damage</b>. Buy any weapon from the merchant to hit full strength.</p>
     <div class="guide">${rows}</div><button class="btn big" data-act="close">Back to the fight</button>`);
 }
 function helpPanel(){
@@ -3105,6 +3116,7 @@ function helpPanel(){
       <li><span class="hn">3</span><div><b>Tap Attack!</b> Then the monster hits back. Its next move shows under its name. Then you get a whole new hand.</div></li>
       <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) always add ${aceBonus()} points right now, even as extra cards. When Aces are part of your hand (a pair of Aces or better, or a straight), each one counts <b>double</b>: the <b>Aces bonus</b>! Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
       <li><span class="hn">${I('heart')}</span><div><b>Health doesn't refill by itself.</b> Rest at the inn, drink a potion, or tap <b>Rest</b> in a fight (the monster gets a free hit). Too tough? <b>Run</b> and train first.</div></li>
+      <li><span class="hn">${I('sword')}</span><div><b>Get a weapon.</b> With empty hands you're punching, and every hit does <b>30% less damage</b>. The merchant's cheapest sword fixes that.</div></li>
       <li><span class="hn">${I('level')}</span><div><b>Level up</b> to multiply every hit. Buy weapons and armor from the merchant, and learn spells from level 3.</div></li>
       <li><span class="hn">${I('map')}</span><div><b>Rescue Anna,</b> get knighted, then take on 9 more quests and the Endless Abyss.</div></li>
     </ol>
