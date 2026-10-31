@@ -1500,17 +1500,30 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @media (max-height:900px) and (min-width:700px){
   .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:clamp(150px,30vh,280px)!important}
   .learn-how{padding:8px 12px!important}.learn-how ol{font-size:.9rem;line-height:1.35;margin:0}
-  .panel.cine .cine-scene{width:min(100%,calc(30vh * 16 / 9))!important}
+  .panel.cine .cine-scene{width:min(100%,calc(58vh * 16 / 9))!important}
 }
 @media (max-height:700px) and (min-width:700px){
   .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:clamp(120px,24vh,200px)!important}
-  .panel.cine .cine-scene{width:min(100%,calc(24vh * 16 / 9))!important}
+  .panel.cine .cine-scene{width:min(100%,calc(56vh * 16 / 9))!important}
   .panel .cine-cap p{font-size:1.05rem!important;line-height:1.4!important}
   .learn-how ol{font-size:.84rem}
   .panel.wide .shop .item p{display:none}
 }
 @media (max-height:1000px) and (min-width:700px){ .learn-how{padding:6px 12px!important} .learn-how ol{margin:0} }
 @media (max-height:620px) and (min-width:700px){ .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:110px!important} .panel.wide .sold-list .lg{padding-bottom:2px} .panel.wide .shop-go{gap:6px} }
+
+/* the deal: big merchant scene, small receipt strip under it */
+.panel.dealp .cine-scene.deal{max-height:none!important;height:auto!important;aspect-ratio:16/9!important;align-self:center}
+.panel.dealp .bubble-say{top:auto!important;bottom:7%;left:3%;width:46%}
+.panel.dealp .deal-sum{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 12px}
+.panel.dealp .deal-sum .tl{padding:6px 12px;font-size:1rem}
+.panel.dealp .deal-sum .tl.item{flex-direction:row!important;text-align:left!important;gap:10px;padding:6px 14px 6px 8px;width:auto!important;flex:0 1 auto}
+.panel.dealp .deal-sum .tl.item .big-ic .ico{width:40px!important;height:40px!important}
+.panel.dealp .deal-sum .tl.item b{font-size:1.1rem!important;margin:0}
+.panel.dealp .deal-sum .tl.item .pw{font-size:.9rem!important;padding:0 8px}
+.panel.dealp .vic-btn{margin-top:4px}
+@media (max-width:700px){ .panel.dealp .cine-scene.deal{width:100%!important} .panel.dealp .bubble-say{width:58%} }
+@media (min-width:900px){ .panel.cine{max-width:min(1040px,94vw)!important} }
 </style>
 
 <div id="app">
@@ -2903,7 +2916,7 @@ function tradePanel(){
       ${rows.join('')}
     </div>
     <button class="btn big vic-btn" data-act="tradeOk" style="opacity:0;animation:rwIn .4s ease ${tSum+.5}s forwards">Back to the shop</button>`);
-  $('panel').classList.add('cine');
+  $('panel').classList.add('cine','dealp');
   const say=(k)=>{ if(S.phase!=='trade'||!$('capTxt')) return; const b=$('dealSay'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); typeCaption(talk[k], talk[k].length/30); narrate(talk[k]); };
   say(0); setTimeout(()=>{ if(S.phase==='trade') coins(); },1600);
   t.trades.forEach((x,k)=>setTimeout(()=>{ say(k+1); if(S.phase==='trade') coins(); },st[k+1]*1000));
