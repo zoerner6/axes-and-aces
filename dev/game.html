@@ -2062,7 +2062,7 @@ const gearHas = k => S.gear.reduce((a,id)=>a+(GR[id][k]||0),0);
 const TUTOR_HAND = [cid(14,0),cid(14,1),cid(9,3),cid(9,2),cid(4,0),cid(6,1),cid(2,3)];
 function startFight(){
   const id=curFoeId(), d=MONSTERS[id]; S.foePick=null;
-  S.fight = {id, hp:d.hp, max:d.hp, block:0, turn:0, frozen:false, hp0:S.hp, atks:0,
+  S.fight = {id, hp:d.hp, max:d.hp, block:0, turn:0, frozen:false, hp0:S.hp, hurt:false, atks:0,
              draw:shuffle(DECK.map(c=>c.id)), disc:[], hand:[], discards:1+S.discBonus+gearHas('disc')};
   S.block = gearHas('turn'); S.rage=false; S.cast={};
   if(S.coach===0 && S.idx===0){ S.fight.draw=S.fight.draw.filter(x=>!TUTOR_HAND.includes(x)&&x!==cid(14,2)); S.fight.draw.push(cid(14,2)); S.fight.hand=TUTOR_HAND.slice(); }
@@ -2471,7 +2471,7 @@ async function foeTurn(){
     const hitMs=playFoeAttack(); if(!hitMs){ anim($('foeIcon'),'lunge'); swoosh(); }
     await wait(hitMs||300); if(hitMs) swoosh(); claws();
     const atks0=d.moves.filter(m=>m.k==='atk').map(m=>m.n), isBig=atks0.length>1 && mv.n>=Math.min(...atks0)*1.5;
-    const arm=Math.min(defense(), Math.floor(mv.n*(isBig?.25:.5))), n2=mv.n-arm, absorbed=Math.min(S.block,n2), dmg=n2-absorbed; S.hp-=dmg;
+    const arm=Math.min(defense(), Math.floor(mv.n*(isBig?.25:.5))), n2=mv.n-arm, absorbed=Math.min(S.block,n2), dmg=n2-absorbed; S.hp-=dmg; if(dmg>0) f.hurt=true;
     const saved=arm+absorbed, atks=d.moves.filter(m=>m.k==='atk').map(m=>m.n), big=atks.length>1 && mv.n>=Math.min(...atks)*1.5;
     S.killer={name:d.name, dmg, raw:mv.n, saved, big, area:curArea()};
     if(big){ foeBanner('Critical blow!', `−${dmg} HP`, 'crit'); claws(); setTimeout(claws,120); }
@@ -2616,7 +2616,7 @@ async function victory(){
   const gifts=[]; let ups=0;
   while(S.xp>=cumNeed(S.level)){ S.level++; S.pendingLv++; ups++; S.maxHp+=100; S.hp+=100; const g=levelGift(); if(g) gifts.push(g); }
   if(ups){ S.lvlReport={ups, gifts}; }
-  const fl=S.fight||{}, flawless=fl.hp0!=null&&S.hp>=fl.hp0, clutch=!flawless&&S.hp<S.maxHp*.15;
+  const fl=S.fight||{}, flawless=!fl.hurt&&S.hp>0, clutch=!flawless&&S.hp<S.maxHp*.15;
   let bonus=0; if(flawless){ bonus=gold; S.gold+=bonus; }
   if(d.boss){ const L=life(), k='boss_'+d.name, at=fl.atks||0, rec=(L.fast||{})[k]; if(at && (!rec||at<rec)){ lifeAdd(X=>{ X.fast=X.fast||{}; X.fast[k]=at; }); if(rec) setTimeout(()=>ribbon('Fastest boss kill!', at+' attacks'),1400); } }
   S.winMood={flawless, clutch, bonus};
@@ -3400,7 +3400,7 @@ function achOnWin(d){
   const f=S.fight||{};
   lifeAdd(L=>{ L.wins++; if(d.boss) L.bosses++; L.gold+=d.gold||0; L.level=Math.max(L.level,S.level); });
   unlock('first_win'); if((f.atks||0)===1) unlock('one_shot');
-  if(f.hp0!=null && S.hp>=f.hp0) unlock('flawless');
+  if(!f.hurt) unlock('flawless');
   if(S.hp < S.maxHp*.1) unlock('comeback');
   if(d.boss){ unlock('boss1'); if(life().bosses>=10) unlock('bosses10'); }
   if(S.level>=10) unlock('lvl10'); if(S.level>=25) unlock('lvl25');
