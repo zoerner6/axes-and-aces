@@ -23,6 +23,9 @@ jobs:
   build:
     runs-on: macos-14
     timeout-minutes: 45
+    env:
+      HAS_KEY: ${{ secrets.APPSTORE_P8 != '' && 'yes' || '' }}
+      WANT_UPLOAD: ${{ inputs.upload && 'yes' || '' }}
     defaults:
       run:
         working-directory: dev/android-app
@@ -45,7 +48,7 @@ jobs:
         working-directory: dev/android-app/ios/App
 
       - name: Check it compiles
-        if: ${{ !inputs.upload || secrets.APPSTORE_P8 == '' }}
+        if: env.WANT_UPLOAD != 'yes' || env.HAS_KEY != 'yes'
         run: |
           xcodebuild -workspace ios/App/App.xcworkspace -scheme App \
             -configuration Release -sdk iphoneos \
@@ -53,7 +56,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO build
 
       - name: Sign in to App Store Connect
-        if: ${{ inputs.upload && secrets.APPSTORE_P8 != '' }}
+        if: env.WANT_UPLOAD == 'yes' && env.HAS_KEY == 'yes'
         env:
           P8: ${{ secrets.APPSTORE_P8 }}
           KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
@@ -62,7 +65,7 @@ jobs:
           printf '%s' "$P8" > ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
 
       - name: Build and sign
-        if: ${{ inputs.upload && secrets.APPSTORE_P8 != '' }}
+        if: env.WANT_UPLOAD == 'yes' && env.HAS_KEY == 'yes'
         env:
           KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
           ISSUER: ${{ secrets.APPSTORE_ISSUER_ID }}
