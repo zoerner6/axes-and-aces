@@ -1,0 +1,5 @@
+file 'dev/gen/out/clips/10_dragon.mp4'
+file 'dev/gen/out/clips/11_balrog.mp4'
+file 'dev/gen/out/clips/12_kraken.mp4'
+file 'dev/gen/out/clips/13_lich.mp4'
+file 'dev/gen/out/clips/14_demonking.mp4'

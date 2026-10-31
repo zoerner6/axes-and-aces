@@ -1,0 +1,7 @@
+file '00_open.mp4'
+file '10_dragon.mp4'
+file '11_balrog.mp4'
+file '12_kraken.mp4'
+file '13_lich.mp4'
+file '14_demonking.mp4'
+file '99_end.mp4'

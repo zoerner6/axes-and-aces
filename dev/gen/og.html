@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>share card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Germania+One&family=Alegreya+Sans:wght@400;500;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1200px;height:630px;overflow:hidden;background:#0a0705}
+  /* Facebook's phone composer crops a link picture to a square, so everything
+     that matters lives inside the middle 630px and the sides are scenery. */
+  .card{position:relative;width:1200px;height:630px;overflow:hidden;
+    font-family:'Alegreya Sans',system-ui,sans-serif;color:#f3e6c8}
+  .bg{position:absolute;inset:0;background:url('../../art/bg_castle.webp') center/cover}
+  .drg{position:absolute;right:-40px;bottom:-30px;height:112%;filter:drop-shadow(0 0 40px rgba(0,0,0,.9))}
+  .drg2{position:absolute;left:-70px;bottom:-40px;height:98%;transform:scaleX(-1);opacity:.55;filter:drop-shadow(0 0 40px rgba(0,0,0,.9))}
+  .shade{position:absolute;inset:0;background:
+    radial-gradient(ellipse 52% 86% at 50% 50%, rgba(10,7,5,.93) 0%, rgba(10,7,5,.86) 46%, rgba(10,7,5,.35) 72%, transparent 88%),
+    linear-gradient(180deg, rgba(10,7,5,.78), transparent 26%, transparent 64%, rgba(10,7,5,.88))}
+  .mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:636px;text-align:center}
+  .eyebrow{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+    font-size:21px;color:#7fe3d4;text-shadow:0 2px 6px #000}
+  .logo{font-family:'Germania One',cursive;font-weight:400;line-height:.84;font-size:116px;color:#ffd35c;
+    -webkit-text-stroke:7px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000;margin:6px 0 2px;letter-spacing:.01em}
+  .logo .amp{color:#f3e6c8;font-size:.6em;display:inline-block;transform:translateY(-.1em) rotate(-6deg);margin:0 .06em}
+  .tag{font-family:'Germania One',cursive;font-size:41px;line-height:1.1;color:#fff;
+    -webkit-text-stroke:4px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #000;margin-top:4px}
+  .cards{display:flex;justify-content:center;gap:9px;margin:20px 0 16px}
+  .pc{width:62px;aspect-ratio:5/7;border:3px solid #000;border-radius:8px;position:relative;
+    background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:4px 4px 0 #000;color:#14100e;
+    font-family:'Oswald',sans-serif;font-weight:700}
+  .pc.gold{background:linear-gradient(160deg,#ffe9a0,#f2b632 55%,#d99a1c)}
+  .pc.red{color:#c8161d}
+  .pc i{position:absolute;top:4px;left:6px;font-style:normal;font-size:20px;line-height:1;text-align:center}
+  .pc i small{display:block;font-size:15px}
+  .pc em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:30px}
+  .pc:nth-child(1){transform:rotate(-7deg) translateY(5px)}
+  .pc:nth-child(2){transform:rotate(-3deg)}
+  .pc:nth-child(4){transform:rotate(3deg)}
+  .pc:nth-child(5){transform:rotate(7deg) translateY(5px)}
+  .url{font-family:'Germania One',cursive;font-size:38px;color:#ffd35c;
+    -webkit-text-stroke:4px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000}
+  .free{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    font-size:17px;color:#f3e6c8;text-shadow:0 2px 6px #000;margin-bottom:3px}
+</style></head>
+<body>
+<div class="card">
+  <div class="bg"></div>
+  <img class="drg2" src="../../art/balrog.webp" alt="">
+  <img class="drg" src="../../art/dragon.webp" alt="">
+  <div class="shade"></div>
+  <div class="mid">
+    <div class="eyebrow">A dark comic card adventure</div>
+    <div class="logo">Axes<span class="amp">&amp;</span>Aces</div>
+    <div class="tag">Fight monsters with poker hands.</div>
+    <div class="cards">
+      <div class="pc"><i>10<small>&spades;</small></i><em>&spades;</em></div>
+      <div class="pc red"><i>J<small>&hearts;</small></i><em>&hearts;</em></div>
+      <div class="pc"><i>Q<small>&spades;</small></i><em>&spades;</em></div>
+      <div class="pc red"><i>K<small>&diams;</small></i><em>&diams;</em></div>
+      <div class="pc gold"><i>A<small>&spades;</small></i><em>&spades;</em></div>
+    </div>
+    <div class="free">Free to play &middot; no download</div>
+    <div class="url">AxesAndAces.com</div>
+  </div>
+</div>
+</body></html>

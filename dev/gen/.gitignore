@@ -1,2 +1,4 @@
 out/drop/
 out/*.json
+dev/gen/out/
+dev/gen/fonts/
