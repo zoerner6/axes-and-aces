@@ -79,7 +79,7 @@ No data is used for advertising, analytics, or sold.
 
 RELEASE
 -------
-Bundle: axes-and-aces-1.0.aab (version 1.0, versionCode 1), signed with the upload key
+Bundle: axes-and-aces-1.0.aab (version 1.0, versionCode 2, minimum Android 7.0 / API 24), signed with the upload key
 Package name: io.github.zoerner6.axesandaces
 Release name: 1.0
 Release notes: First release. Fight monsters with poker hands!
