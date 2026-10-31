@@ -1609,7 +1609,7 @@ function setSlot(n){ SLOT=n; try{ localStorage.setItem('aa_slot', JSON.stringify
 const baseName = () => (S&&S.heroName) || (()=>{ try{ return JSON.parse(localStorage.getItem(SK('name'))||'null'); }catch(e){ return null; } })() || 'Edward';
 const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir '+baseName() : baseName();
 /* the story is written for Edward: show the player's chosen name instead */
-const nm = t => { const n=baseName(); return n==='Edward'||typeof t!=='string' ? t : t.replace(/\bEdward\b/g, n); };
+const nm = t => { if(typeof t!=='string') return t; t=t.replace(/\b([Tt])he The /g,'$1he '); const n=baseName(); return n==='Edward' ? t : t.replace(/\bEdward\b/g, n); };
 function ruleOf(r){ return r.must5 ? {rule:'You must play exactly 5 cards', must5:true} : {rule:`${SUITS[r.off].s} ${SUITS[r.off].n}s do no damage`, off:c=>c.suit===r.off}; }
 function genBoss(def, L){
   const hp=Math.round(monsterHP(L)*2.3/10)*10, atk=(4+2.6*(L-1))*1.25;
@@ -2179,7 +2179,7 @@ function boom(el, n){ if(!el) return; const r=el.getBoundingClientRect(), x=(r.l
 function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 2300); }
 function shake(t=1){ if(reduced()) return; const a=$('app'); a.classList.remove('shake','shake2','shake3'); void a.offsetWidth; a.classList.add(t>=4?'shake3':t>=2?'shake2':'shake'); }
 function bigBoom(t){ if(!soundOn||!ac) return; blip(55,.5+t*.1,'sine',.18); blip(42,.7,'sawtooth',.06,.03); if(t>=3) blip(30,.9,'sine',.14,.06); }
-function foeBanner(t, small, cls){ const b=$('banner'); b.innerHTML=`${t}<small>${small}</small>`; b.className='banner '+cls; void b.offsetWidth; b.classList.add('show','slow'); }
+function foeBanner(t, small, cls){ t=nm(t); const b=$('banner'); b.innerHTML=`${t}<small>${small}</small>`; b.className='banner '+cls; void b.offsetWidth; b.classList.add('show','slow'); }
 function banner(t, small){ $('banner').className='banner'; const b=$('banner'); b.innerHTML = small ? `${t}<small>${small}</small>` : t; anim(b,'show'); }
 /* fruit-ninja style slashes: more slashes for better hands */
 const HIT_WORDS = {high:['Poke!',1], pair:['Nice hit!',1], two:['Double strike!',2], trio:['Smash!',2], straight:['Combo!',3],
@@ -2330,12 +2330,12 @@ async function foeTurn(){
     const saved=arm+absorbed, atks=d.moves.filter(m=>m.k==='atk').map(m=>m.n), big=atks.length>1 && mv.n>=Math.min(...atks)*1.5;
     S.killer={name:d.name, dmg, raw:mv.n, saved, big, area:curArea()};
     if(big){ foeBanner('Critical blow!', `−${dmg} HP`, 'crit'); claws(); setTimeout(claws,120); }
-    say(`⚔️ The ${d.name} swings for ${mv.n}` + (saved ? `. Your armor and blocks stop ${saved}, so you lose ${dmg}` : '') + '!');
+    say(`The ${d.name} swings for ${mv.n}` + (saved ? `. Your armor and blocks stop ${saved}, so you lose ${dmg}` : '') + '!');
     if(absorbed) pop($('myBlock'),`${absorbed} blocked`,'b');
     if(dmg>0){ setMyBars(); boom($('myBar').parentElement, dmg); anim($('heroBox'),'flash'); thud(); if(dmg>=8) shake(); }
     else blip(900,.1,'square',.04);
-  } else if(mv.k==='blk'){ f.block+=mv.n; anim($('foeIcon'),'shieldglow'); foeBanner(`🛡️ ${d.name} raises a shield!`,`It will block ${mv.n} of your next hit`,'shield'); say(`🛡️ The ${d.name} raises a shield. It will block the first ${mv.n} damage of your next attack.`); blip(500,.15,'square',.04); }
-  else { const b=f.hp; f.hp=Math.min(f.max,f.hp+mv.n); anim($('foeIcon'),'healglow'); foeBanner(`💚 ${d.name} heals itself!`,`+${f.hp-b} health`,'heal'); say(`💚 The ${d.name} heals itself for ${f.hp-b} health!`); blip(700,.2,'sine',.05); }
+  } else if(mv.k==='blk'){ f.block+=mv.n; anim($('foeIcon'),'shieldglow'); foeBanner(`${d.name} raises a shield!`,`It will block ${mv.n} of your next hit`,'shield'); say(`🛡️ The ${d.name} raises a shield. It will block the first ${mv.n} damage of your next attack.`); blip(500,.15,'square',.04); }
+  else { const b=f.hp; f.hp=Math.min(f.max,f.hp+mv.n); anim($('foeIcon'),'healglow'); foeBanner(`${d.name} heals itself!`,`+${f.hp-b} health`,'heal'); say(` The ${d.name} heals itself for ${f.hp-b} health!`); blip(700,.2,'sine',.05); }
   f.turn++;
   S.block = gearHas('turn');
   setFoeBars(); setMyBars();

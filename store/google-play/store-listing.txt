@@ -1,0 +1,90 @@
+AXES & ACES: GOOGLE PLAY STORE LISTING
+======================================
+
+APP NAME
+Axes & Aces
+
+SHORT DESCRIPTION (max 80 characters)
+Fight monsters with poker hands. Rescue Anna and conquer 10 dark comic quests.
+
+FULL DESCRIPTION
+Axes & Aces is a dark comic card adventure where your poker hands are your weapons.
+
+You are a young soldier at the Gilded Ace tavern. When Anna is taken, you set out to bring her home. Every fight is a hand of cards: discard what you don't need, build the best poker hand you can, and strike. A pair is a jab. A full house is a hammer blow. Aces hit hardest of all.
+
+- 10 quests across frozen peaks, burning sands, sunken coasts, haunted abbeys and more, then an endless mode
+- 168 hand-drawn monsters that move, snarl and attack
+- Bosses with special rules that change how you play
+- Weapons, armor, potions, wizard spells and cleric healing
+- Level up, get knighted by the King, and name your own hero
+- 3 save slots, 25 achievements and a Daily Challenge with the same cards for everyone
+- Optional leaderboards and cloud saves
+
+No ads. No in-app purchases.
+
+APP CATEGORY
+Game > Card
+
+TAGS (pick up to 5)
+Card, Role Playing, Adventure, Single player, Stylized
+
+CONTACT DETAILS
+Website: https://axesandaces.com
+Email: support@axesandaces.com
+
+PRIVACY POLICY URL
+https://axesandaces.com/privacy.html
+
+
+APP CONTENT (POLICY) ANSWERS
+----------------------------
+Privacy policy: https://axesandaces.com/privacy.html
+Ads: No, the app does not contain ads
+App access: All functionality is available without special access (no login)
+Content rating questionnaire:
+  - Category: Game
+  - Violence: Fantasy/cartoon violence against non-human creatures. No blood, no gore.
+  - Sexuality, language, drugs: None
+  - Gambling: The game uses poker hands only as a card-game mechanic. No real money, no betting, no wagering, no prizes. Answer "No" to simulated gambling of real money.
+  - User interaction: Yes, users can share a public name on a leaderboard (no chat, no messaging)
+  - Shares location: No
+  - Digital purchases: No
+Target audience: 13 and older (do not select under-13 age groups)
+News app: No
+COVID-19 app: No
+Government app: No
+Financial features: None
+Health features: None
+
+DATA SAFETY ANSWERS
+-------------------
+Does your app collect or share any of the required user data types? Yes (collects; does not share)
+
+Data collected:
+  1. Personal info > Name
+     - What it is: the display name a player chooses to post on the leaderboard (can be any nickname)
+     - Collected: Yes. Shared with third parties: No
+     - Optional: Yes (only if the player taps "Post my score")
+     - Purpose: App functionality
+  2. App activity > Other user-generated content / In-app actions
+     - What it is: leaderboard scores and the cloud save (game progress, linked to a random save code)
+     - Collected: Yes. Shared: No
+     - Optional: Yes (only if the player posts a score or taps "Save to cloud")
+     - Purpose: App functionality
+
+Is all user data encrypted in transit? Yes (HTTPS)
+Can users request that their data be deleted? Yes: email support@axesandaces.com (see privacy policy)
+No data is used for advertising, analytics, or sold.
+
+
+RELEASE
+-------
+Bundle: axes-and-aces-1.0.aab (version 1.0, versionCode 1), signed with the upload key
+Package name: io.github.zoerner6.axesandaces
+Release name: 1.0
+Release notes: First release. Fight monsters with poker hands!
+Use Play App Signing (let Google manage the app signing key).
+
+KEEP SAFE (never upload or share)
+axes-and-aces-upload.jks and upload-key-password.txt are the app's upload key.
+Every future update must be signed with them.
