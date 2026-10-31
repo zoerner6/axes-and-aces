@@ -1354,6 +1354,20 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @keyframes ringOut{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(14)}}
 .lu-val .was{font-size:.9rem;color:#7a6650;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 @media (max-width:899px){ .gp{top:calc(4px + env(safe-area-inset-top,0px));transform:scale(.82);transform-origin:top right} }
+
+/* save slots */
+.slots{display:flex;flex-direction:column;gap:8px;width:100%}
+.slot-card{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:8px 12px}
+.slot-card.empty{background:#120d0b;color:var(--parch);border-style:dashed}
+.slot-hero{width:54px;height:64px;object-fit:contain;object-position:bottom}
+.slot-n{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;border:3px solid #3a2a1a;font-family:var(--f-title);font-size:1.6rem;color:var(--parch-dim)}
+.slot-body{display:flex;flex-direction:column;gap:1px;min-width:0}
+.slot-body b{font-family:var(--f-title);font-weight:400;font-size:1.5rem;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot-body small{font-size:.88rem;opacity:.85}
+.slot-btns{display:flex;flex-direction:column;align-items:stretch;gap:4px}
+.slot-card .btn{background:linear-gradient(#ffd35c,#d89a14)!important;color:#16100d!important;border:3px solid #000!important;box-shadow:3px 3px 0 #000;font-family:var(--f-num);font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 18px}
+.slot-del{background:none;border:0;color:#8e1a14;font-weight:700;font-size:.8rem;text-decoration:underline;cursor:pointer;padding:2px}
+.slot-del.sure{color:#fff;background:#8e1a14;border-radius:6px;text-decoration:none;padding:4px 6px}
 </style>
 
 <div id="app">
@@ -1524,7 +1538,7 @@ function playFoeAttack(){
 const monsterHP = L => 1.0125*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,9)*Math.pow(L/10,1.7));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
-  const hp=Math.round(monsterHP(L)*t.hp*r()/5)*5, atk=4+2.6*(L-1);
+  const hp=Math.round(monsterHP(L)*t.hp*r()/5)*5, atk=(4+2.6*(L-1))*1.25;
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
   return {name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
@@ -1558,10 +1572,17 @@ const W1 = {areas:AREAS, pools:POOLS, lv:AREA_LV, steps:QUEST_STEPS, places:PLAC
 let WPFX='', BGF = a => 'bg_'+W1.bg[a];
 const worldCount = 10;
 const worldName = w => { w=w||0; const b=w%10; const n = b===0 ? 'The Rescue of Anna' : WORLDS[b-1].name; return w>=10 ? `Endless · Depth ${w-9}: ${n}` : n; };
-const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir Edward' : 'Edward';
+/* ---- three save slots, each with its own hero name ---- */
+let SLOT = (()=>{ try{ return +JSON.parse(localStorage.getItem('aa_slot')||'1')||1; }catch(e){ return 1; } })();
+const SK = k => `aa_${k}_${SLOT}`, SKn = (k,n) => `aa_${k}_${n}`;
+function setSlot(n){ SLOT=n; try{ localStorage.setItem('aa_slot', JSON.stringify(n)); }catch(e){} }
+const baseName = () => (S&&S.heroName) || (()=>{ try{ return JSON.parse(localStorage.getItem(SK('name'))||'null'); }catch(e){ return null; } })() || 'Edward';
+const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir '+baseName() : baseName();
+/* the story is written for Edward: show the player's chosen name instead */
+const nm = t => { const n=baseName(); return n==='Edward'||typeof t!=='string' ? t : t.replace(/\bEdward\b/g, n); };
 function ruleOf(r){ return r.must5 ? {rule:'You must play exactly 5 cards', must5:true} : {rule:`${SUITS[r.off].s} ${SUITS[r.off].n}s do no damage`, off:c=>c.suit===r.off}; }
 function genBoss(def, L){
-  const hp=Math.round(monsterHP(L)*2.3/10)*10, atk=4+2.6*(L-1);
+  const hp=Math.round(monsterHP(L)*2.3/10)*10, atk=(4+2.6*(L-1))*1.25;
   const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*v)*10)});
   return Object.assign({name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
 }
@@ -1593,7 +1614,7 @@ function worldComplete(){
   S.world=(S.world||0)+1; S.knighted=true; loadWorld(S.world); achOnQuest();
   S.idx=0; S.layout=2; S.huntFoe=null; S.foePick=null; S.enc=null; S.redo=false; S.oldGear=[];
   S.phase='story'; S.story={key:'start',page:0};
-  try{ localStorage.setItem('aa_checkpoint', JSON.stringify(S)); }catch(e){}
+  try{ localStorage.setItem(SK('checkpoint'), JSON.stringify(S)); }catch(e){}
   saveGame(); storyPanel();
 }
 
@@ -1806,7 +1827,7 @@ function narrate(text, id, onTime){
   try{ const u=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'')), v=pickVoice(); if(v) u.voice=v; u.rate=.94; u.pitch=.82;
     u.onend=()=>{ if(vo===u){ vo=null; duck(false); } }; vo=u; duck(true); speechSynthesis.speak(u); onTime&&onTime(text.length/13.5); return true; }catch(e){ return false; }
 }
-function typeCaption(text, secs, delay=0){
+function typeCaption(text, secs, delay=0){ text=nm(text);
   const el=$('capTxt'); if(!el) return; clearInterval(typeTimer); clearTimeout(typeDelay);
   el.textContent=''; el.dataset.full=text; let n=0; const step=Math.max(12, secs*1000/Math.max(1,text.length));
   typeDelay=setTimeout(()=>{ typeTimer=setInterval(()=>{ n++; el.textContent=text.slice(0,n); if(n>=text.length) clearInterval(typeTimer); }, step); }, delay);
@@ -2274,7 +2295,8 @@ async function foeTurn(){
   else if(mv.k==='atk'){
     const hitMs=playFoeAttack(); if(!hitMs){ anim($('foeIcon'),'lunge'); swoosh(); }
     await wait(hitMs||300); if(hitMs) swoosh(); claws();
-    const arm=Math.min(defense(), Math.max(0,mv.n-1)), n2=mv.n-arm, absorbed=Math.min(S.block,n2), dmg=n2-absorbed; S.hp-=dmg;
+    const atks0=d.moves.filter(m=>m.k==='atk').map(m=>m.n), isBig=atks0.length>1 && mv.n>=Math.min(...atks0)*1.5;
+    const arm=Math.min(defense(), Math.floor(mv.n*(isBig?.25:.5))), n2=mv.n-arm, absorbed=Math.min(S.block,n2), dmg=n2-absorbed; S.hp-=dmg;
     const saved=arm+absorbed, atks=d.moves.filter(m=>m.k==='atk').map(m=>m.n), big=atks.length>1 && mv.n>=Math.min(...atks)*1.5;
     S.killer={name:d.name, dmg, raw:mv.n, saved, big, area:curArea()};
     if(big){ foeBanner('Critical blow!', `−${dmg} HP`, 'crit'); claws(); setTimeout(claws,120); }
@@ -2380,7 +2402,7 @@ function rollDrop(){
   if(S.coach>=0 && S.idx===0) return null;
   const r=Math.random(), g=gearDrops();
   if(r<1/6 && g.length){ const it=g[rnd(g.length)], old=S.eq[it.slot]; if(old){ (S.oldGear=S.oldGear||[]).push({type:old.type,tier:old.tier}); } S.eq[it.slot]={type:it.type,tier:it.tier}; return {kind:'gear', type:it.type, tier:it.tier, old:old?eqName(old.type,old.tier):null}; }
-  if(r<1/6+1/3){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } return {kind:'drink', heal:Math.min(S.maxHp-S.hp,150), pending:true}; }
+  if(r<1/6+1/6){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } return {kind:'drink', heal:Math.min(S.maxHp-S.hp,150), pending:true}; }
   return null;
 }
 function dropHTML(w){
@@ -2509,7 +2531,7 @@ function soldierPanel(){
 }
 
 /* ---------- screens ---------- */
-function openPanel(html){ stopVoice(); clearInterval(typeTimer); clearTimeout(typeDelay); cineNow=null; $('bubble').hidden=true; $('panel').classList.remove('wide','parch','cine'); $('panel').innerHTML=html; $('overlay').hidden=false; $('panel').scrollTop=0; }
+function openPanel(html){ stopVoice(); clearInterval(typeTimer); clearTimeout(typeDelay); cineNow=null; $('bubble').hidden=true; $('panel').classList.remove('wide','parch','cine'); $('panel').innerHTML=(S&&S.phase==='slots')?html:nm(html); $('overlay').hidden=false; $('panel').scrollTop=0; }
 function closePanel(){ stopVoice(); $('overlay').hidden=true; placeBubble(); }
 const tip = (key, html) => { if(S.tips[key]) return ''; S.tips[key]=1; return `<div class="tipbox">${html}</div>`; };
 
@@ -2551,7 +2573,7 @@ function fightIntro(){
   const BOSS_SAY={'Bandit Chief':'The girl is ours, hero. Walk away while you still can.','Cellar Ghoul':'Turn back... or join the dead down here.',
     'Troll King':'Little hero come to TROLL forest? Troll SMASH little hero!','Grimstone Dragon':'So, the little card player comes at last. Show me your best hand.'};
   const say = S.enc==='spot' ? {who:'you', text:'Shh... it hasn\'t seen me yet.'}
-    : S.enc==='boss' ? {who:'foe', text:BOSS_SAY[d.name]||pick([`So, Sir Edward... your quest ends here!`,'You will go no further, knight!','Turn back, or fall like the others!'])}
+    : S.enc==='boss' ? {who:'foe', text:BOSS_SAY[d.name]||pick([`So, ${heroName()}... your quest ends here!`,'You will go no further, knight!','Turn back, or fall like the others!'])}
     : S.enc==='ambush' ? {who:'foe', text:pick(['RAAAGH! Gotcha!','Fresh meat! Hah!','Surprise, hero!'])}
     : {who:'foe', text:pick(['You shall not pass this way.','Turn back, little hero.','Grrr... this path is mine.'])};
   const plain=t.text.replace(/<[^>]+>/g,'');
@@ -2618,8 +2640,8 @@ function perkInfo(o){
   return p;
 }
 function levelGift(){
-  if(Math.random()<.5) return null;
-  const opts=[{t:'gold',n:4+rnd(5)},{t:'train',id:HAND_ORDER[1+rnd(6)]}];
+  if(Math.random()<.65) return null;
+  const opts=[{t:'gold',n:2+rnd(3)},{t:'train',id:HAND_ORDER[1+rnd(6)]}];
   if(S.spells.length<3) opts.push({t:'spell',id:SPELLS[rnd(SPELLS.length)].id});
   const g=opts[rnd(opts.length)];
   if(g.t==='gold') S.gold+=g.n; else if(g.t==='spell') S.spells.push(g.id); else S.levels[g.id]=lvl(g.id)+1;
@@ -2795,7 +2817,7 @@ function nextFight(){
   if(S.redo){ S.redo=false; S.shop=null; S.huntFoe=null; S.foePick=null; S.enc=null; fightIntro(); return; }
   S.shop=null; S.idx++;
   if(AREA_START.includes(S.idx)){ S.phase='story'; S.story={key:'a'+AREA_START.indexOf(S.idx),page:0}; storyPanel(); }
-  else if(Math.random()<.35){ makeFind(); findPanel(); }
+  else if(Math.random()<.22){ makeFind(); findPanel(); }
   else fightIntro();
 }
 /* ---------- things you find along the road (about 1 trip in 3) ---------- */
@@ -2816,7 +2838,7 @@ function makeFind(){
                 '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][areaOf()];
     const people=[['hermit','An old hermit','he','his'],['villager','A frightened villager','she','her'],['minstrel','A traveling minstrel','he','his'],['knight','A wandering knight','he','his']], [scene,title,pr,pos]=people[rnd(people.length)];
     let gift, giftGold=0, giftItem=null, sipHeal=0;
-    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b>'; giftItem=[I('potion'),'Healing Potion']; } else if(S.hp<S.maxHp){ sipHeal=S.maxHp-S.hp; gift=`a long drink from ${pos} flask. You feel completely refreshed (<b>+${sipHeal} health</b>)`; } else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; } }
+    if(Math.random()<.5){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b>'; giftItem=[I('potion'),'Healing Potion']; } else if(S.hp<S.maxHp){ sipHeal=S.maxHp-S.hp; gift=`a long drink from ${pos} flask. You feel completely refreshed (<b>+${sipHeal} health</b>)`; } else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; } }
     else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; }
     f={gold:giftGold,give:giftItem,sip:sipHeal,scene,icon:'',title,text:`${clue}<br><br>Before you go, ${pr} gives you ${gift}.`};
   } else if(r<.85){
@@ -2958,7 +2980,7 @@ document.addEventListener('click', e=>{
       if(Math.random()<.5){ S.hp=Math.min(S.maxHp,S.hp+120); f.text=`Delicious! You feel warm all over and heal <b>${S.hp-b} health</b>.`; soothe(); }
       else { S.hp=Math.max(1,S.hp-50); f.text=f.scene==='drink'?`Blech! The room spins and you lose <b>${b-S.hp} health</b>. Somewhere, the stranger laughs.`:`Yuck! Your stomach twists and you lose <b>${b-S.hp} health</b>.`; thud(); }
       render(); findPanel(); break; }
-    case 'retryWorld': { try{ const c=JSON.parse(localStorage.getItem('aa_checkpoint')||'null'); if(c){ S=c; upgradeIdx(S); loadWorld(S.world||0); canSave=true; render(); resumePhase(); break; } }catch(e){} newRun(false); render(); fightIntro(); break; }
+    case 'retryWorld': { try{ const c=JSON.parse(localStorage.getItem(SK('checkpoint'))||'null'); if(c){ S=c; upgradeIdx(S); loadWorld(S.world||0); canSave=true; render(); resumePhase(); break; } }catch(e){} newRun(false); render(); fightIntro(); break; }
     case 'newRun': newRun(false); render(); fightIntro(); break;
     case 'guide': if(!busy) guidePanel(); break;
     case 'help': if(!busy) helpPanel(); break;
@@ -2984,12 +3006,12 @@ document.addEventListener('click', e=>{
     case 'cloudSave': cloudSave(false); break;
     case 'cloudLoad': cloudLoad(); break;
     case 'cloudCopy': { const c=prettyCode(cloudCode()); (navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>toast('Code copied')).catch(()=>toast(c)); break; }
-    case 'chGo': { const sv=loadSave(); if(S.chAfter==='title'&&sv) titlePanel(sv); else storyPanel(); break; }
+    case 'chGo': { if(S.chAfter==='title') slotsPanel(); else namePanel(1); break; }
     case 'menu': if(!busy) menuPanel(); break;
     case 'menuSave': { saveGame(true); t.textContent='Saved ✓'; t.disabled=true; const v=loadSaved(), n=document.querySelector('.menu-note'); if(v&&n) n.textContent='Last saved: '+savedInfo(v); break; }
-    case 'menuQuit': { saveGame(true); const sv=loadSave(); if(sv){ canSave=false; titlePanel(sv); } else closePanel(); break; }
+    case 'menuQuit': { saveGame(true); canSave=false; slotsPanel(); break; }
     case 'menuNew': $('menuConfirm').hidden=false; t.hidden=true; break;
-    case 'menuNewYes': canSave=true; clearSave(); newRun(!store.get('tutorialDone',false)); render(); storyPanel(); break;
+    case 'menuNewYes': { const keep=baseName(); clearSave(); try{ localStorage.removeItem(SK('saved')); localStorage.removeItem(SK('checkpoint')); }catch(e){} canSave=false; namePanel(SLOT, keep); break; }
     case 'sound': audio(); $('sndMenu').hidden=!$('sndMenu').hidden; break;
     case 'togMusic': musicOn=!musicOn; store.set('music',musicOn); audio(); render(); break;
     case 'togVoice': voiceOn=!voiceOn; store.set('voice2',voiceOn); if(!voiceOn) stopVoice(); render(); break;
@@ -2999,7 +3021,14 @@ document.addEventListener('click', e=>{
     case 'saveHere': saveGame(true); t.textContent='Saved ✓'; t.disabled=true; break;
     case 'loadSaved': { const v=loadSaved(); if(v){ canSave=true; closePanel(); start({S:JSON.parse(JSON.stringify(v.S))}); } break; }
     case 'continue': { const sv=loadSave(); canSave=true; if(sv){ closePanel(); start({S:sv.S}); } break; }
-    case 'newGame': canSave=true; clearSave(); newRun(!store.get('tutorialDone',false)); render(); storyPanel(); break;
+    case 'newGame': slotsPanel(); break;
+    case 'slots': slotsPanel(); break;
+    case 'slotNew': namePanel(+t.dataset.slot); break;
+    case 'slotStart': { const n=+t.dataset.slot, name=((($('heroIn')||{}).value)||'').trim().replace(/[<>"]/g,'').slice(0,16)||'Edward';
+      setSlot(n); ['save','saved','checkpoint'].forEach(k=>{ try{ localStorage.removeItem(SKn(k,n)); }catch(e){} }); try{ localStorage.setItem(SKn('name',n), JSON.stringify(name)); }catch(e){}
+      canSave=true; newRun(!store.get('tutorialDone',false)); S.heroName=name; render(); storyPanel(); saveGame(); break; }
+    case 'slotPlay': { const n=+t.dataset.slot; setSlot(n); const sv=loadSave(n)||loadSaved(n); canSave=true; if(sv){ closePanel(); start({S:JSON.parse(JSON.stringify(sv.S))}); } break; }
+    case 'slotDel': { if(t.dataset.sure){ const n=+t.dataset.slot; ['save','saved','checkpoint','name'].forEach(k=>{ try{ localStorage.removeItem(SKn(k,n)); }catch(e){} }); slotsPanel(); } else { t.dataset.sure='1'; t.textContent='Tap again to delete'; t.classList.add('sure'); } break; }
     case 'togSfx': soundOn=!soundOn; store.set('sound',soundOn); audio(); render(); if(soundOn) blip(660,.08); break;
     case 'speed': fast=!fast; store.set('fast',fast); render(); break;
   }
@@ -3010,16 +3039,16 @@ document.addEventListener('keydown', e=>{ if($('overlay').hidden && e.key==='Ent
 let canSave=true;
 function saveGame(manual){
   if(!canSave || !S || S.phase==='over' || S.phase==='win') return;
-  try{ const v=JSON.stringify({S, at:Date.now()}); localStorage.setItem('aa_save', v); if(manual){ localStorage.setItem('aa_saved', v); toast('Game saved'); if(store.get('aa_cloud','')) cloudSave(true); } }
+  try{ const v=JSON.stringify({S, at:Date.now()}); localStorage.setItem(SK('save'), v); if(manual){ localStorage.setItem(SK('saved'), v); toast('Game saved'); if(store.get('aa_cloud','')) cloudSave(true); } }
   catch(e){ if(manual) toast('Could not save in this browser'); }
 }
-function loadSaved(){ try{ const v=JSON.parse(localStorage.getItem('aa_saved')||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
+function loadSaved(n=SLOT){ try{ const v=JSON.parse(localStorage.getItem(SKn('saved',n))||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
 function savedInfo(v){ const L=v.S; loadWorld(L.world||0); upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name; loadWorld(S.world||0);
   return `Level ${L.level} · ${where} · ${new Date(v.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`; }
 /* a reminder box with a save button, shown before heading somewhere new */
 function saveBox(){ return `<div class="save-box"><span><b>Save your game!</b><small>If you fall, you can pick up again from here.</small></span><button class="btn" data-act="saveHere">Save</button></div>`; }
-function clearSave(){ try{ localStorage.removeItem('aa_save'); }catch(e){} }
-function loadSave(){ try{ const v=JSON.parse(localStorage.getItem('aa_save')||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
+function clearSave(){ try{ localStorage.removeItem(SK('save')); }catch(e){} }
+function loadSave(n=SLOT){ try{ const v=JSON.parse(localStorage.getItem(SKn('save',n))||'null'); return v&&v.S&&v.S.v===2 ? v : null; }catch(e){ return null; } }
 /* the game menu: save, save and quit to the title screen, keep playing, or start over */
 function menuPanel(){
   const sv=loadSaved();
@@ -3038,7 +3067,36 @@ function menuPanel(){
     </div>
     <p class="menu-note">${sv?`Last saved: ${savedInfo(sv)}`:'You have not saved yet.'}</p>`);
 }
-function titlePanel(sv){
+function migrateSaves(){ try{ const a=localStorage.getItem('aa_save'), b=localStorage.getItem('aa_saved'), c=localStorage.getItem('aa_checkpoint');
+  if((a||b) && !localStorage.getItem('aa_save_1') && !localStorage.getItem('aa_saved_1')){ if(a) localStorage.setItem('aa_save_1',a); if(b) localStorage.setItem('aa_saved_1',b); if(c) localStorage.setItem('aa_checkpoint_1',c); localStorage.setItem('aa_name_1',JSON.stringify('Edward')); }
+  ['aa_save','aa_saved','aa_checkpoint'].forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+function slotData(n){ const v=loadSave(n)||loadSaved(n); let name=null; try{ name=JSON.parse(localStorage.getItem(SKn('name',n))||'null'); }catch(e){}
+  return v ? {v, name:(v.S.heroName||name||'Edward')} : (name?{v:null,name}:null); }
+const anySlots = () => [1,2,3].some(n=>slotData(n)&&slotData(n).v);
+function slotsPanel(){
+  S.phase='slots';
+  const cards=[1,2,3].map(n=>{ const d=slotData(n);
+    if(!d||!d.v) return `<div class="slot-card empty"><span class="slot-n">${n}</span><div class="slot-body"><b>Empty slot</b><small>Start a new hero here</small></div><button class="btn" data-act="slotNew" data-slot="${n}">New hero</button></div>`;
+    const L=d.v.S; loadWorld(L.world||0); upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name; loadWorld(S.world||0);
+    const when=new Date(d.v.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    return `<div class="slot-card"><img class="slot-hero" src="art/hero_t${Math.max(0,...['armor','helm','shield'].map(k=>L.eq&&L.eq[k]?L.eq[k].tier:0))}.webp" alt=""><div class="slot-body"><b>${((L.world||0)>0||L.knighted?'Sir ':'')+d.name}</b>
+      <small>Level ${L.level} · ${worldName(L.world)}</small><small>${where} · saved ${when}</small></div>
+      <div class="slot-btns"><button class="btn" data-act="slotPlay" data-slot="${n}">Play</button><button class="slot-del" data-act="slotDel" data-slot="${n}" aria-label="Delete this hero">Delete</button></div></div>`; }).join('');
+  openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
+    <h2>Choose your hero</h2><div class="slots">${cards}</div>
+    <button class="btn big ghost daily" data-act="daily">Daily Challenge</button>`);
+  $('panel').classList.add('cine');
+}
+function namePanel(n, current){
+  openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">A new hero</span></div>
+    <h2>What's your name, hero?</h2>
+    <div class="name-row"><label for="heroIn">Hero name</label><input id="heroIn" maxlength="16" value="${(current||'Edward').replace(/"/g,'')}" autocomplete="off"></div>
+    <p class="menu-note">Your hero will be knighted "Sir ${(current||'Edward').replace(/</g,'')}" later in the story.</p>
+    <button class="btn big" data-act="slotStart" data-slot="${n}">Start the adventure</button>
+    ${anySlots()?'<button class="btn big ghost" data-act="slots">Back</button>':''}`);
+  $('panel').classList.add('cine'); const i=$('heroIn'); if(i){ i.focus(); i.select(); i.addEventListener('input',()=>{ const p=document.querySelector('#panel .menu-note'); if(p) p.textContent=`Your hero will be knighted "Sir ${i.value.trim()||'Edward'}" later in the story.`; }); i.addEventListener('keydown',e=>{ if(e.key==='Enter') document.querySelector('[data-act=slotStart]').click(); }); }
+}
+function titlePanel(sv){ return slotsPanel();
   loadWorld(sv.S.world||0); const L=sv.S; upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name, when=new Date(sv.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
     <h2>Welcome back, ${L.world>0||L.knighted?'Sir Edward':'Edward'}</h2>
@@ -3263,7 +3321,7 @@ async function cloudLoad(){
   const raw=(($('cloudIn')||{}).value||'').toUpperCase().replace(/[^A-Z0-9]/g,''), m=$('cloudMsg');
   if(raw.length<12){ if(m) m.textContent='Type the 16-letter code.'; return; }
   try{ const j=await api('load-game?code='+raw); const sv=j.data; if(!sv||!sv.S) throw new Error('No save found for that code');
-    store.set('aa_cloud',raw); try{ localStorage.setItem('aa_save', JSON.stringify(sv)); }catch(e){}
+    store.set('aa_cloud',raw); try{ localStorage.setItem(SK('save'), JSON.stringify(sv)); }catch(e){}
     canSave=true; closePanel(); start({S:sv.S}); toast('Loaded your cloud save'); }
   catch(e){ if(m) m.textContent=e.message; }
 }
@@ -3415,11 +3473,10 @@ function challengePanel(ch, after){
 }
 function start(data){
   if(data&&data.S&&data.S.v===2){ S=data.S; upgradeIdx(S); loadWorld(S.world||0); if(S.maxHp<200){ S.maxHp*=10; S.hp*=10; } if(S.genFoe) MONSTERS.gen=S.genFoe; S.books=(S.books||[]).map(b=>b==='heal'?'cleric1':b).filter(b=>BK[b]); S.handSize=Math.min(7,S.handSize); sel=data.sel||[]; busy=false; render(); if(S.phase==='play'&&S.fight){ closePanel(); if(S.fight.hp<=0){ busy=true; victory(); } else { drawUp(); render(); } } else resumePhase(); return; }
-  const sv=loadSave(), ch=readChallenge();
-  if(sv){ canSave=false; newRun(false); render(); if(ch){ challengePanel(ch,'title'); return; } titlePanel(sv); return; }
+  migrateSaves(); const ch=readChallenge();
+  if(anySlots()){ canSave=false; newRun(false); render(); if(ch){ challengePanel(ch,'title'); return; } slotsPanel(); return; }
   const first=!store.get('tutorialDone',false);
-  if(ch){ newRun(first); render(); challengePanel(ch,'story'); return; }
-  newRun(first); render(); storyPanel();
+  canSave=false; newRun(first); render(); if(ch){ challengePanel(ch,'name'); return; } namePanel(1);
 }
 setInterval(()=>{ if(busy && Date.now()-busySince>15000){ busy=false;
   if(S.phase==='play'&&S.fight&&S.fight.hp<=0) victory(); else { if(S.fight&&S.phase==='play') drawUp(); render(); } } }, 2000);
