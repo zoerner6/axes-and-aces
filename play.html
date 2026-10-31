@@ -1512,6 +1512,12 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
   .panel.wide .shop .item p{display:none}
 }
 @media (max-height:1000px) and (min-width:700px){ .learn-how{padding:6px 12px!important} .learn-how ol{margin:0} }
+/* the learn panel never scrolls: the scene shrinks to whatever height is left */
+.panel.cine.learnp{overflow:hidden}
+.panel.cine.learnp .cine-scene{flex:0 1 auto;min-height:0;max-height:min(42vh,calc(100vh - 430px))}
+.panel.cine.learnp .cine-scene>img,.panel.cine.learnp .cine-scene>video.scene-vid{object-fit:cover}
+@media (max-height:760px){ .panel.cine.learnp .cine-scene{max-height:calc(100vh - 400px)} .panel.cine.learnp .cine-cap p{font-size:1.1rem!important;line-height:1.4!important} .panel.cine.learnp .cine-cap{padding:9px 14px!important} }
+@media (max-height:640px){ .panel.cine.learnp .cine-scene{max-height:calc(100vh - 360px)} }
 @media (max-height:620px) and (min-width:700px){ .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:110px!important} .panel.wide .sold-list .lg{padding-bottom:2px} .panel.wide .shop-go{gap:6px} }
 
 /* the deal: big merchant scene, small receipt strip under it */
@@ -2738,14 +2744,23 @@ function storyPanel(){
     <div class="cine-foot">${pages.length>1?`<div class="dots">${pages.map((_,i)=>`<i class="${i===S.story.page?'on':''}"></i>`).join('')}</div>`:'<span></span>'}
     ${last&&S.story.key==='end'?'<button class="btn big brag-fb" data-act="brag" data-kind="quest">Brag</button>':''}<button class="btn big" data-act="storyNext">${btn}</button></div>${last&&S.story.key==='start'&&(S.world||0)>0?saveBox():''}`);
   $('panel').classList.add('cine');
-  if(SCENE_VIDS.has('sc_'+id) && !reduced()){ const sc=document.querySelector('#panel .cine-scene'), im=sc&&sc.querySelector('img'); if(sc){ const v=document.createElement('video');
-    v.className='scene-vid'; v.src=`vid/sc_${id}.mp4`; v.muted=true; v.playsInline=true; v.preload='auto'; v.poster=im?im.src:'';
-    v.addEventListener('playing',()=>sc.classList.add('vid-on')); v.addEventListener('ended',()=>{ sc.classList.add('vid-done'); coins(); });
-    sc.insertBefore(v, im?im.nextSibling:sc.firstChild); setTimeout(()=>{ const q=v.play(); if(q&&q.catch) q.catch(()=>{}); }, 300); setTimeout(()=>{ swoosh(); setTimeout(swoosh,250); },1200); } }
+  if(attachSceneVid(id, coins)) setTimeout(()=>{ swoosh(); setTimeout(swoosh,250); },1200);
   runCine(id, pg.title, plain);
 }
-/* story scenes that have a short animated version */
-const SCENE_VIDS = new Set(['sc_start_2']);
+/* scenes that have a short animated version; the clip plays over the still art */
+const SCENE_VIDS = new Set(['sc_start_2','sc_learn_cleric']);
+function attachSceneVid(id, onEnd){
+  if(!SCENE_VIDS.has('sc_'+id) || reduced()) return false;
+  const sc=document.querySelector('#panel .cine-scene'), im=sc&&sc.querySelector('img');
+  if(!sc) return false;
+  const v=document.createElement('video');
+  v.className='scene-vid'; v.src=`vid/sc_${id}.mp4`; v.muted=true; v.playsInline=true; v.preload='auto'; v.poster=im?im.src:'';
+  v.addEventListener('playing',()=>sc.classList.add('vid-on'));
+  v.addEventListener('ended',()=>{ sc.classList.add('vid-done'); if(onEnd) onEnd(); });
+  sc.insertBefore(v, im?im.nextSibling:sc.firstChild);
+  setTimeout(()=>{ const q=v.play(); if(q&&q.catch) q.catch(()=>{}); }, 300);
+  return true;
+}
 function storyNext(){
   const pages=STORIES[S.story.key];
   if(S.story.page<pages.length-1){ S.story.page++; storyPanel(); return; }
@@ -2973,22 +2988,21 @@ function learnPanel(b){
     ? `Sister Maren lays her hands on your shoulders. Warm green light pours through you, and your wounds close. "Call on this light when the fight turns against you."`
     : `The old tome cracks open and the pages blaze. Words of power burn into your mind. ${b.name} is yours now.`;
   const how = cleric ? `
-      <li><b>Where:</b> in a fight, look for the <b>Cleric</b> pouch, next to your Potions. Your healing shows there as a glowing green heart.</li>
-      <li><b>How:</b> tap the green heart, then tap <b>Heal</b>. It does not use up your attack.</li>
-      <li><b>How much:</b> every heal gives back <b>30% of your max health</b>. Right now that is <b>${heal} HP</b>, and it grows as your max health grows.</li>
-      <li><b>How often:</b> you get <b>${rounds} heal${rounds>1?'s':''} every fight</b> (one for each Cleric Training). They refill when the next fight starts.</li>`
+      <li>Tap the green heart in your <b>Cleric</b> pouch, then <b>Heal</b>.</li>
+      <li>Heals <b>${heal} HP</b> and doesn't use your attack.</li>
+      <li><b>${rounds} heal${rounds>1?'s':''} a fight</b>, refilled every fight.</li>`
     : `
-      <li><b>Where:</b> in a fight, look for the <b>Wizard</b> pouch, between your Potions and Cleric pouches.</li>
-      <li><b>How:</b> tap the glowing spell, then tap <b>Cast it</b>.</li>
-      <li><b>What it does:</b> ${b.desc}.${b.id==='fire'?' A 400 HP monster takes 40.':b.id==='bolt'?' A 400 HP monster takes 100.':''}</li>
-      <li><b>How often:</b> once every fight. It comes back when the next fight starts.</li>`;
+      <li>Tap the spell in your <b>Wizard</b> pouch, then <b>Cast it</b>.</li>
+      <li>${b.desc}.</li>
+      <li><b>Once a fight</b>, back again every fight.</li>`;
   const pouch = cleric
     ? `<div class="pouch demo"><b>Cleric</b><div class="rings">${[0,1,2].map(i=>i<rounds?`<span class="slot book heal ${i===rounds-1?'fresh':''}">${I('cleric')}</span>`:`<span class="slot empty locked">${I('lock')}</span>`).join('')}</div></div>`
     : `<div class="pouch demo"><b>Wizard</b><div class="rings">${[0,1,2].map(i=>{ const id=wizSpells()[i]; return id?`<span class="slot book ${id===b.id?'fresh':''}">${BK[id].icon}</span>`:`<span class="slot empty locked">${I('lock')}</span>`; }).join('')}</div></div>`;
   openPanel(`${cineHTML('learn_'+(cleric?'cleric':'wizard'), `You learned ${b.name}!`, story)}
     <div class="learn-how"><div class="learn-demo">${pouch}<span class="learn-arrow">Look here in every fight</span></div><ol>${how}</ol></div>
     <button class="btn big vic-btn" data-act="learnOk">Got it</button>`);
-  $('panel').classList.add('cine'); runCine('learn_'+(cleric?'cleric':'wizard'), `You learned ${b.name}`, story);
+  $('panel').classList.add('cine','learnp'); attachSceneVid('learn_'+(cleric?'cleric':'wizard'));
+  runCine('learn_'+(cleric?'cleric':'wizard'), `You learned ${b.name}`, story);
 }
 /* the merchant buys the gear you replaced on the road */
 function sellPanel(){
