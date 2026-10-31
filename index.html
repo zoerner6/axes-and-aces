@@ -1462,6 +1462,55 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @keyframes warnPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
 @media (prefers-reduced-motion:reduce){ .hpbar.danger,.low-warn{animation:none} }
 @media (min-width:900px) and (max-width:1259px) and (min-aspect-ratio:5/4){ .low-warn{bottom:auto;top:calc(100% + 4px)} }
+
+/* victory on shorter screens: everything fits on one screen, loot sits beside its picture */
+@media (max-height:900px){
+  .vic .loot{flex-direction:row;text-align:left;gap:14px;padding:10px 14px}
+  .vic .loot-ic .ico{width:64px;height:64px}
+  .vic .loot-txt{align-items:flex-start;gap:3px;font-size:1.1rem}
+  .vic .loot-txt b{font-size:1.3rem}
+  .vic .loot-txt small{font-size:.95rem}
+  .vic-foe .vf.deadpic img{height:clamp(56px,13vh,110px)!important}
+  .vic-title{font-size:clamp(2rem,6.5vh,3rem)!important}
+  .vic-tag b{font-size:clamp(1.3rem,4vh,1.9rem)}
+  .vic{gap:6px!important}
+  .purse-coin{width:56px;height:56px}.purse-txt b{font-size:2.2rem}
+  .xp-gain{font-size:2rem}
+  .purse,.xpbox{padding:8px 12px}
+}
+@media (max-height:700px){ .vic-foe{display:none} .vic-sub{font-size:.95rem} }
+
+/* shop: tabs and compact cards so it all fits on one screen */
+.shop-tabs{display:flex;gap:6px;width:100%}
+.stab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#120d0b;color:var(--parch-dim);border:2px solid #000;border-radius:8px 8px 0 0;padding:7px 8px;font-family:var(--f-num);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.82rem;cursor:pointer}
+.stab .ico{width:22px;height:22px}
+.stab.on{background:linear-gradient(#5a3c0c,#2a1b06);color:#ffd35c;box-shadow:inset 0 -3px 0 #ffd35c}
+@media (min-width:700px){
+  .panel.wide .shop{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}
+  .panel.wide .shop .item{display:grid!important;grid-template-columns:62px 1fr;grid-template-rows:auto auto auto auto;column-gap:10px;row-gap:2px;align-items:center;text-align:left;padding:8px 10px!important;min-height:0}
+  .panel.wide .shop .item .tag{grid-column:1/-1;justify-self:start;margin:0}
+  .panel.wide .shop .item .ic{grid-row:2/5;grid-column:1;width:62px;height:62px;display:grid;place-items:center}
+  .panel.wide .shop .item .ic .ico{width:58px;height:58px}
+  .panel.wide .shop .item b{grid-column:2;font-size:1.05rem;margin:0}
+  .panel.wide .shop .item p{grid-column:2;margin:0;font-size:.8rem;line-height:1.25}
+  .panel.wide .shop .item .buy{grid-column:1/-1;margin-top:6px;padding:7px 8px;font-size:.92rem}
+  .panel.wide .shop .item .pw{font-size:.9rem;padding:1px 8px}
+}
+/* the merchant's soldier card and learn screen stay inside a short screen */
+@media (max-height:900px) and (min-width:700px){
+  .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:clamp(150px,30vh,280px)!important}
+  .learn-how{padding:8px 12px!important}.learn-how ol{font-size:.9rem;line-height:1.35;margin:0}
+  .panel.cine .cine-scene{width:min(100%,calc(30vh * 16 / 9))!important}
+}
+@media (max-height:700px) and (min-width:700px){
+  .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:clamp(120px,24vh,200px)!important}
+  .panel.cine .cine-scene{width:min(100%,calc(24vh * 16 / 9))!important}
+  .panel .cine-cap p{font-size:1.05rem!important;line-height:1.4!important}
+  .learn-how ol{font-size:.84rem}
+  .panel.wide .shop .item p{display:none}
+}
+@media (max-height:1000px) and (min-width:700px){ .learn-how{padding:6px 12px!important} .learn-how ol{margin:0} }
+@media (max-height:620px) and (min-width:700px){ .panel.wide .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg{height:110px!important} .panel.wide .sold-list .lg{padding-bottom:2px} .panel.wide .shop-go{gap:6px} }
 </style>
 
 <div id="app">
@@ -1571,7 +1620,7 @@ const MONSTERS = {
   dragon:  {name:'Grimstone Dragon', icon:'🐉', hp:5200, xp:0,  gold:0,  boss:true, rule:'You must play exactly 5 cards', must5:true, moves:[A(20),A(20),A(42)]}
 };
 /* difficulty: tougher monsters */
-Object.values(MONSTERS).forEach(m=>{ m.gold=Math.ceil(m.gold*0.35); m.hp=Math.round(m.hp*1.35*1.0125/10)*10; m.moves=m.moves.map(v=>({k:v.k, n:Math.ceil(v.n*(v.k==='atk'?12.5:1.35))})); });
+Object.values(MONSTERS).forEach(m=>{ m.gold=Math.ceil(m.gold*0.35); m.hp=Math.round(m.hp*1.35*1.27/10)*10; m.moves=m.moves.map(v=>({k:v.k, n:Math.ceil(v.n*(v.k==='atk'?12.5:1.35))})); });
 let QUEST_STEPS = [
   {go:'Face the goblin in the tavern', why:'Stop the attack'},
   {go:'Search the Gilded Ace', why:'Look for where they took Anna'},
@@ -1629,12 +1678,16 @@ function playFoeAttack(){
   const k=ART[foeDef().name]; return Math.round(((HIT_AT[k]||1.5)-0.1)*1000);
 }
 /* monster health (raised 25%, then eased back 10% twice) */
-const monsterHP = L => 1.0125*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,9)*Math.pow(L/10,1.7));
+const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,9)*Math.pow(L/10,1.7));
+/* every monster wears armor: it soaks this much from each of your hits (never more than half the hit) */
+const foeArmorFor = (L, boss) => Math.round((10 + 9*(Math.max(1,L)-1)) * (boss?1.6:1) / 5) * 5;
+const foeArmor = d => d ? (d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss)) : 0;
+const armored = (dmg, d) => Math.max(Math.ceil(dmg/2), dmg - foeArmor(d));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
   const hp=Math.round(monsterHP(L)*t.hp*r()/5)*5, atk=(4+2.6*(L-1))*1.25;
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
-  return {name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
+  return {def:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
 let AREAS = [
   {name:'The Gilded Ace', icon:'<img class="ico" src="art/i_area_tavern.webp" alt="">', foes:['goblin','rat','bandit']},
@@ -1678,7 +1731,7 @@ function ruleOf(r){ return r.must5 ? {rule:'You must play exactly 5 cards', must
 function genBoss(def, L){
   const hp=Math.round(monsterHP(L)*2.3/10)*10, atk=(4+2.6*(L-1))*1.25;
   const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*v)*10)});
-  return Object.assign({name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
+  return Object.assign({def:foeArmorFor(L,true), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
 }
 function loadWorld(w){
   w=w||0; const b=w%10, off=w*8;
@@ -1965,7 +2018,7 @@ const cumNeed = L => { let t=0; for(let i=1;i<=L;i++) t+=xpNeed(i); return t; };
 function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-S.level;
   return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
 /* a monster's fighting stats: its strongest hit and its biggest shield */
-function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map(m=>m.n)), def=Math.max(0,...d.moves.filter(m=>m.k==='blk').map(m=>m.n)), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
+function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map(m=>m.n)), def=foeArmor(d), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
   return `<div class="fstats"><span class="fs atk">${I('attack')}<b>${fmt(atk)}</b><small>Attack</small></span><span class="fs def">${I('shield')}<b>${fmt(def)}</b><small>Defense</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals</small></span>`:''}</div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
@@ -2040,11 +2093,12 @@ function evaluate(cards){
   return {type:'high',cards:[[...cards].sort((a,b)=>b.rank-a.rank)[0]]};
 }
 const lvl = t => S.levels[t]||1;
-/* Aces grow with you: +10 points per level */
-const aceBonus = () => 10*Math.max(1,S.level||1);
+/* Aces: +10 points each */
+/* Aces add a flat +10 points; your level multiplier already makes them grow */
+const aceBonus = () => 10;
 /* Aces bonus: Aces that are part of the hand itself (a pair of Aces or better, or a straight) count triple */
 const acesIn = ev => ev.type==='high' ? 0 : ev.cards.filter(c=>c.rank===14&&!isOff(c)).length;
-const acesExtra = ev => acesIn(ev)*aceBonus()*2;
+const acesExtra = ev => acesIn(ev)*aceBonus();
 const hitShare = ev => ev.cards.filter(c=>!isOff(c)).length / ev.cards.length;
 const heartsFlush = ev => (ev.type==='flush'||ev.type==='sflush') && ev.cards.every(c=>c.suit===1&&!isOff(c));
 const handBase = t => { const h=HANDS[t], L=lvl(t)-1; return {p:h.t+L*h.ut+S.flatP, m:S.level+S.flatM}; };
@@ -2059,7 +2113,8 @@ function quickScore(cards){
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   const live=cards.filter(c=>!isOff(c)), share=hitShare(ev);
   const floor=(share<1&&live.length&&live.length<cards.length)?quickScore(live).total:0;
-  return {ev, p, m:b.m, total:Math.max(Math.floor(p*b.m*share),floor), heal, blk, gold};
+  let foe=null; try{ foe=S.fight?foeDef():null; }catch(e){}
+  return {ev, p, m:b.m, total:foe?armored(Math.max(Math.floor(p*b.m*share),floor),foe):Math.max(Math.floor(p*b.m*share),floor), heal, blk, gold};
 }
 function bestHand(){
   const cards=S.fight.hand.map(cardById), d=foeDef(), n=cards.length; let best=null;
@@ -2146,7 +2201,7 @@ function renderPreview(){
   if(!(f && sel.length && S.phase==='play')){ tag.hidden=true; fitButtons(); return; }
   const played=f.hand.filter(id=>sel.includes(id)).map(cardById), pv=previewHit(played), d=foeDef();
   const need5 = d.must5 && played.length!==5;
-  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces bonus ×${pv.aces}</em>`:''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
+  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces bonus ×2</em>`:''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
   tag.classList.toggle('big', ['full','four','sflush','flush','straight'].includes(pv.type));
   tag.hidden=false; fitButtons();
 }
@@ -2162,7 +2217,7 @@ function previewHit(played, raw){
   if(S.rage) M*=2;
   P+=acesExtra(ev);
   const share=hitShare(ev);
-  return {aces:acesIn(ev), type:ev.type, dmg:Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)), share};
+  const dd=Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)); return {aces:acesIn(ev), type:ev.type, dmg:raw?dd:armored(dd, foeDef()), share};
 }
 /* buttons keep their full name: shrink the text until it fits */
 function fitButtons(){
@@ -2326,7 +2381,7 @@ async function attack(){
   render();
   if(weaponPts()) anim($('gearBtn'),'wiggle');
   const [word, nSlash] = HIT_WORDS[ev.type];
-  const share=hitShare(ev), dmg=Math.max(Math.floor(P*M*share), liveFloor(played)); S.lastHit=dmg;
+  const share=hitShare(ev), dmg=armored(Math.max(Math.floor(P*M*share), liveFloor(played)), foeDef()); S.lastHit=dmg;
   /* the health bar drops with every slash as it lands */
   const lands=Math.max(0, dmg-Math.min(f.block,dmg)), hp0=f.hp;
   if(aceN){ await acesEvent(aceN, Math.floor(aceX*M)); }
@@ -2828,9 +2883,8 @@ function shopPanel(){
     </button>
     <button class="btn big onward" data-act="leaveShop">Continue adventure</button></div>
     ${tip('shop','<b>Weapons</b> add damage to every attack. <b>Shield, helmet and armor</b> block part of every monster hit. Each one upgrades from Wooden or Leather up to Titanium, and better metals show up in later areas. Reach <b>level 3</b> to buy your first spellbook. Save up!')}
-    <div class="kit-label"><span>${I('sword')} Blacksmith</span></div><div class="shop">${smith}</div>
-    <div class="kit-label"><span>${I('fire')} Spellbooks</span></div><div class="shop">${books}</div>
-    <div class="kit-label"><span>${I('potion')} Potions</span></div><div class="shop">${pots}</div>
+    <div class="shop-tabs">${[['smith','sword','Blacksmith'],['books','fire','Spellbooks'],['pots','potion','Potions']].map(([k,ic,l])=>`<button class="stab ${(S.shopTab||'smith')===k?'on':''}" data-act="shopTab" data-tab="${k}">${I(ic)} ${l}</button>`).join('')}</div>
+    <div class="shop shop-${S.shopTab||'smith'}">${{smith,books,pots}[S.shopTab||'smith']}</div>
     </div></div>`); $('panel').classList.add('wide');
 }
 function tradePanel(){
@@ -3026,7 +3080,7 @@ function guidePanel(){
     return `<div class="g-row"><b>${HANDS[t].name}</b><span class="sc">${b.p} × ${b.m}${HAND_GOLD[t]?` · +${coin(HAND_GOLD[t])}`:''}</span><div class="ex">${HANDS[t].ex.map(mini).join('')}</div><small>${HANDS[t].tip}</small></div>`;}).join('');
   openPanel(`<div class="eyebrow">Hand guide</div><h2>Your attacks, strongest first</h2>
     <p>Damage = <b>Points × your Level</b> (plus gear bonuses). Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
-    <p><b>Aces</b> (gold cards) always add <b>10 points per level</b> (+${aceBonus()} right now), even as extra cards.</p>
+    <p><b>Aces</b> (gold cards) always add <b>+10 points</b>, even as extra cards (and your level multiplies it).</p>
     <div class="guide">${rows}</div><button class="btn big" data-act="close">Back to the fight</button>`);
 }
 function helpPanel(){
@@ -3035,7 +3089,7 @@ function helpPanel(){
       <li><span class="hn">1</span><div><b>Discard first.</b> Every turn you get 1 discard. Swap up to 5 cards that don't help, to fish for a better hand. The monster doesn't attack when you discard.</div></li>
       <li><span class="hn">2</span><div><b>Pick your best poker hand</b> (up to 5 cards). The damage shows above your cards before you attack. Stuck? Tap <b>Hint</b>.</div></li>
       <li><span class="hn">3</span><div><b>Tap Attack!</b> Then the monster hits back. Its next move shows under its name. Then you get a whole new hand.</div></li>
-      <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) always add ${aceBonus()} points right now, even as extra cards. When Aces are part of your hand (a pair of Aces or better, or a straight), each one counts <b>triple</b>: the <b>Aces bonus</b>! Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
+      <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) always add ${aceBonus()} points right now, even as extra cards. When Aces are part of your hand (a pair of Aces or better, or a straight), each one counts <b>double</b>: the <b>Aces bonus</b>! Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
       <li><span class="hn">${I('heart')}</span><div><b>Health doesn't refill by itself.</b> Rest at the inn, drink a potion, or tap <b>Rest</b> in a fight (the monster gets a free hit). Too tough? <b>Run</b> and train first.</div></li>
       <li><span class="hn">${I('level')}</span><div><b>Level up</b> to multiply every hit. Buy weapons and armor from the merchant, and learn spells from level 3.</div></li>
       <li><span class="hn">${I('map')}</span><div><b>Rescue Anna,</b> get knighted, then take on 9 more quests and the Endless Abyss.</div></li>
@@ -3097,6 +3151,7 @@ document.addEventListener('click', e=>{
     case 'buyPot': { const p=SP[t.dataset.id]; if(!p||S.spells.length>=3||S.gold<p.price) return;
       goldPouch(S.gold, -p.price); S.gold-=p.price; S.spells.push(p.id); coins(); render(); shopPanel(); itemSplash(p.icon, p.name, 0, '+1', coins); break; }
     case 'leaveShop': pathPanel(); break;
+    case 'shopTab': S.shopTab=t.dataset.tab; shopPanel(); break;
     case 'quest': S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); break;
     case 'hunt': { const a=+t.dataset.a; if(a!==areaOf()) return;
       S.huntFoe='gen'; S.huntArea=a; S.shop=null; S.enc=null; S.foePick=null; fightIntro(); break; }
