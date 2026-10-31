@@ -1,0 +1,298 @@
+{
+ "start_0": {
+  "title": "The Gilded Ace",
+  "text": "You are Edward, a young soldier on the long road home. Rain hammers the windows as you sit by the fire with a warm mug. Anna, the barkeep's daughter, sets down a bowl of stew and smiles. \"You look like you've come a long way.\""
+ },
+ "start_1": {
+  "title": "CRASH!",
+  "text": "The door bursts open. Goblins and bandits pour in! Before anyone can move, two bandits grab Anna and drag her, kicking and screaming, down the cellar stairs. A snarling goblin blocks your way."
+ },
+ "start_2": {
+  "title": "Cards of Power!",
+  "text": "\"They took my Anna!\" Old Bram tosses you a glowing deck of cards. \"Cards of Power! Make a poker hand and it turns into an attack. The better the hand, the harder you hit. Please, Edward... bring my daughter home!\""
+ },
+ "a1_0": {
+  "title": "Into the Cellar",
+  "text": "The Bandit Chief laughs as he falls. \"Too late, hero. The girl is already on her way to the master.\" On the cellar stairs you find Anna's red ribbon. You grab a torch and head down into the dark."
+ },
+ "a2_0": {
+  "title": "The Dark Forest",
+  "text": "Behind a cracked cellar wall, a secret tunnel leads out into the Dark Forest. Anna's scarf hangs on a branch. Fresh footprints lead deeper into the trees, where wolves are howling."
+ },
+ "a3_0": {
+  "title": "Castle Grimstone",
+  "text": "At the edge of the forest stands Castle Grimstone. From the tallest tower, you hear Anna calling for help. Then a huge shadow crosses the moon. The master is a dragon."
+ },
+ "end_0": {
+  "title": "The dragon falls!",
+  "text": "With one last mighty hand, the Grimstone Dragon crashes to the ground. Its monsters scatter into the hills."
+ },
+ "end_1": {
+  "title": "Anna is free",
+  "text": "You race up the tower stairs and break the lock. Anna throws her arms around you. \"I knew someone would come,\" she whispers."
+ },
+ "end_2": {
+  "title": "Hero of the Gilded Ace",
+  "text": "Back at the Gilded Ace, Old Bram hugs his daughter and won't let go. Then he pours you a drink on the house. \"To the hero who brought my Anna home!\" The whole pub cheers."
+ },
+ "end_3": {
+  "title": "Arise, Sir Edward",
+  "text": "Word reaches the King. In the great hall he lays his sword on your shoulder. \"Kneel, Edward. For saving Anna and Castle Grimstone... rise, Sir Edward, Knight of the Realm!\" But the kingdom has more trouble, and the King needs his newest knight."
+ },
+ "w2_start_0": {
+  "title": "A summons from the King",
+  "text": "A royal rider gallops into the Gilded Ace. \"Sir Edward! The Frost Giant has stolen the King's Frost Crown. Without it, winter will never end.\""
+ },
+ "w2_start_1": {
+  "title": "Into the snow",
+  "text": "Anna presses a warm cloak into your hands. \"Come back to us, Sir Edward.\" You ride north, where the mountains are white and the wind howls like wolves."
+ },
+ "w2_end_0": {
+  "title": "The crown returns",
+  "text": "The Frost Giant crashes down like a falling mountain. You lift the Frost Crown from the snow, and the clouds begin to part."
+ },
+ "w2_end_1": {
+  "title": "Spring comes",
+  "text": "The King places the crown on his head and warm wind sweeps the land. \"Rest well, Sir Edward. I fear we will need you again soon.\""
+ },
+ "w2_a1_0": {
+  "title": "The Ice Caves",
+  "text": "The Yeti Chieftain falls in the snow. Huge footprints lead into a cave that glitters like a thousand blue diamonds."
+ },
+ "w2_a2_0": {
+  "title": "The Frozen Lake",
+  "text": "Beyond the caves lies a frozen lake. On the far shore, the Frost Giant's hall smokes with blue fire."
+ },
+ "w2_a3_0": {
+  "title": "The Giant's Hall",
+  "text": "The Frost Wyrm sinks beneath the ice. The doors of the Giant's hall stand open, and from inside comes a laugh like an avalanche."
+ },
+ "w3_start_0": {
+  "title": "A cry for help",
+  "text": "A caravan carrying the kingdom's medicine has vanished in the Burning Sands. The last message says only: \"The dead walk at night.\""
+ },
+ "w3_start_1": {
+  "title": "The endless desert",
+  "text": "You cross the dunes under a blazing sun. Far away, half buried in sand, stands an ancient pyramid."
+ },
+ "w3_end_0": {
+  "title": "The caravan is free",
+  "text": "The Scorched King falls and the flames go out. You break the merchants' chains, and they weep with joy."
+ },
+ "w3_end_1": {
+  "title": "Medicine for the kingdom",
+  "text": "The caravan rolls home with its medicine. Children cheer as Sir Edward rides beside the wagons."
+ },
+ "w3_a1_0": {
+  "title": "The Oasis Ruins",
+  "text": "From inside the Sand Wyrm's coils you pull a torn caravan flag. Its trail leads to an old oasis in ruins."
+ },
+ "w3_a2_0": {
+  "title": "The Pyramid",
+  "text": "The Djinn vanishes in smoke and leaves behind a golden key. It fits the great door of the pyramid."
+ },
+ "w3_a3_0": {
+  "title": "The Sun Temple",
+  "text": "The Pharaoh crumbles to dust. Through a hidden passage you climb toward the Sun Temple, where the merchants are chained."
+ },
+ "w4_start_0": {
+  "title": "Ships are vanishing",
+  "text": "Every ship that sails past the Sunken Coast disappears. Fishermen whisper about a giant bell ringing under the waves."
+ },
+ "w4_start_1": {
+  "title": "To the coast",
+  "text": "You sail out on a fishing boat. Fog rolls in, and somewhere below the water, a bell begins to toll."
+ },
+ "w4_end_0": {
+  "title": "The bell falls silent",
+  "text": "The Kraken lets go and sinks into the deep. You cut the bell's chain, and the sea goes calm and still."
+ },
+ "w4_end_1": {
+  "title": "Safe waters",
+  "text": "Ships sail the coast again. The fishermen name their best boat the Sir Edward."
+ },
+ "w4_a1_0": {
+  "title": "The Shipwreck",
+  "text": "Captain Blacktide's map shows a wreck below the cove. You drink a sea-witch's potion, take a deep breath and dive."
+ },
+ "w4_a2_0": {
+  "title": "The Coral Depths",
+  "text": "Past the ghost ship, the sea floor opens into a forest of glowing coral. The bell's toll shakes the water."
+ },
+ "w4_a3_0": {
+  "title": "The Drowned Temple",
+  "text": "The Sea Serpent sinks into the dark. Ahead lies a temple, and inside it a giant bronze bell wrapped in tentacles."
+ },
+ "w5_start_0": {
+  "title": "A sickness spreads",
+  "text": "A green fog drifts out of the Plague Marsh, and everyone it touches falls ill. An old healer begs for help: \"Someone is brewing the curse.\""
+ },
+ "w5_start_1": {
+  "title": "Into the fog",
+  "text": "You wrap a cloth over your face and wade into the marsh. The trees are dead and the water bubbles."
+ },
+ "w5_end_0": {
+  "title": "The cauldron breaks",
+  "text": "The Bog Hag shrieks and melts into the mud. You kick over her cauldron, and the green fog drains away."
+ },
+ "w5_end_1": {
+  "title": "The healing",
+  "text": "The sick wake up healthy. The old healer bows. \"The whole kingdom owes you its life, Sir Edward.\""
+ },
+ "w5_a1_0": {
+  "title": "The Plague Village",
+  "text": "The Croc sinks into the muck. Beyond the reeds, an empty village sits on stilts, its lanterns still burning."
+ },
+ "w5_a2_0": {
+  "title": "The Witch's Bog",
+  "text": "In the Plague Beast's den you find empty potion jars, all marked with the same witch's sign. It points to the bog."
+ },
+ "w5_a3_0": {
+  "title": "The Hag's Lair",
+  "text": "The Bog Troll falls with a splash. Inside a giant rotting tree, a green cauldron bubbles, and a cackle echoes."
+ },
+ "w6_start_0": {
+  "title": "The forge goes cold",
+  "text": "The dwarves of the Iron Mines have sent no iron for months. A wounded dwarf crawls into the castle: \"The golems woke up... they took the Great Forge!\""
+ },
+ "w6_start_1": {
+  "title": "Into the mountain",
+  "text": "You light a lantern and step into the mine. Deep below, something heavy goes thump... thump... thump."
+ },
+ "w6_end_0": {
+  "title": "The forge burns again",
+  "text": "The Iron Golem crashes down. The dwarves break free and light the Great Forge with a mighty cheer."
+ },
+ "w6_end_1": {
+  "title": "A gift of steel",
+  "text": "The dwarf king hands you a shield marked with your name. \"No finer knight ever walked our halls, Sir Edward.\""
+ },
+ "w6_a1_0": {
+  "title": "The Crystal Cavern",
+  "text": "The Foreman drops a map scratched on leather. It shows a cavern full of crystals where the dwarves were taken."
+ },
+ "w6_a2_0": {
+  "title": "The Lava Tunnels",
+  "text": "Beyond the Drake's nest, the air turns hot. Rivers of lava light the way down to the Great Forge."
+ },
+ "w6_a3_0": {
+  "title": "The Great Forge",
+  "text": "The Lava Golem crumbles. Through the doors you see the dwarves chained to the anvils, and a giant made of iron."
+ },
+ "w7_start_0": {
+  "title": "The bells stop",
+  "text": "The bells of the Holy Abbey have gone silent, and the monks have not been seen in weeks. At night, candles flicker in every window."
+ },
+ "w7_start_1": {
+  "title": "The abbey gates",
+  "text": "The gates creak open on their own. A cold voice whispers your name: \"Edwaaard...\""
+ },
+ "w7_end_0": {
+  "title": "The bells ring",
+  "text": "The Lich shatters into dust. You pull the great rope, and the bells ring out across the land for the first time in weeks."
+ },
+ "w7_end_1": {
+  "title": "Peace returns",
+  "text": "The monks return, whole again. They carve your name in the abbey wall: Sir Edward, the Bell-Ringer."
+ },
+ "w7_a1_0": {
+  "title": "The Cloister",
+  "text": "The Headless Knight falls apart. A key on a black ribbon opens the abbey door, and the cold voice laughs inside."
+ },
+ "w7_a2_0": {
+  "title": "The Catacombs",
+  "text": "The Abbot sobs as the curse leaves him. \"The Lich... he hides below, in the bones.\""
+ },
+ "w7_a3_0": {
+  "title": "The Bell Tower",
+  "text": "The Bone Dragon collapses into a pile of bones. Far above, in the tower, a green light pulses where the bells should ring."
+ },
+ "w8_start_0": {
+  "title": "The forest turns dark",
+  "text": "The peaceful elves of the Wilds have stopped trading. Travelers come back covered in thorns, whispering about a queen with a heart of briars."
+ },
+ "w8_start_1": {
+  "title": "The silver forest",
+  "text": "The trees of the Wilds shine like silver, but black thorns are choking them. Elven eyes watch you from the branches."
+ },
+ "w8_end_0": {
+  "title": "The heart is free",
+  "text": "The thorns crumble from the Queen's crown. She opens her eyes, and they are kind again. \"What have I done?\""
+ },
+ "w8_end_1": {
+  "title": "Friends of the forest",
+  "text": "The silver trees bloom. The Elf Queen gives you a leaf of pure silver. \"The elves will always stand with Sir Edward.\""
+ },
+ "w8_a1_0": {
+  "title": "The Moonlit Glade",
+  "text": "The Briar Bear falls and the thorns pull back. A small elf girl peeks out from behind a tree. \"Please... help our queen.\""
+ },
+ "w8_a2_0": {
+  "title": "The Elven City",
+  "text": "The Dark Unicorn's horn cracks, and its red glow fades. The elf girl leads you to a city in the trees, wrapped in thorns."
+ },
+ "w8_a3_0": {
+  "title": "The Heart Tree",
+  "text": "The Thorn General kneels, freed from the spell. \"The queen took the Heart of the Forest. Save her... from herself.\""
+ },
+ "w9_start_0": {
+  "title": "A storm that never ends",
+  "text": "Lightning strikes the kingdom every night, and a fortress has appeared floating in the clouds. The King's wizard says: \"The Storm Titan has awoken.\""
+ },
+ "w9_start_1": {
+  "title": "Up to the clouds",
+  "text": "The wizard's spell lifts you on a staircase of wind. Up and up you climb, into the storm."
+ },
+ "w9_end_0": {
+  "title": "The storm breaks",
+  "text": "The Titan roars and fades into a harmless cloud. Sunlight pours over the fortress for the first time in a hundred years."
+ },
+ "w9_end_1": {
+  "title": "A dark warning",
+  "text": "In the empty throne you find a black letter: \"You cannot stop me forever. Come to the Abyss, Sir Edward.\" It is signed with a burning crown."
+ },
+ "w9_a1_0": {
+  "title": "The Sky Gardens",
+  "text": "The Griffon King bows his golden head and lets you ride on his back to the floating gardens."
+ },
+ "w9_a2_0": {
+  "title": "The Fortress Walls",
+  "text": "The Storm Drake falls into the clouds. Before you rise the huge walls of the Sky Fortress, crackling with lightning."
+ },
+ "w9_a3_0": {
+  "title": "The Storm Throne",
+  "text": "The Storm Giant topples off the walls. At the very top, on a throne of lightning, the Titan opens his eyes."
+ },
+ "w10_start_0": {
+  "title": "The final quest",
+  "text": "The letter burns away in your hands. Every monster you ever fought was sent by one master: the Demon King, who waits in the Abyss."
+ },
+ "w10_start_1": {
+  "title": "The gates of the Abyss",
+  "text": "Anna, Old Bram, the King and all your friends see you off. You step through the burning gates into darkness."
+ },
+ "w10_end_0": {
+  "title": "The Demon King falls",
+  "text": "With one last mighty hand, the Demon King crashes from his throne. His burning crown rolls to your feet and goes dark."
+ },
+ "w10_end_1": {
+  "title": "Legend of Sir Edward",
+  "text": "The whole kingdom celebrates for a week. Anna, Old Bram and the King raise their cups: \"To Sir Edward, the greatest hero who ever lived!\""
+ },
+ "w10_end_2": {
+  "title": "But the darkness stirs...",
+  "text": "Deep in the Abyss, the shadows gather again. New monsters rise, stronger than ever. The Endless Quest begins."
+ },
+ "w10_a1_0": {
+  "title": "The Chained Halls",
+  "text": "Cerberus whimpers and runs off. Below, you hear the rattle of chains and the cries of the Demon King's prisoners."
+ },
+ "w10_a2_0": {
+  "title": "The Lake of Fire",
+  "text": "With the Warden's keys you free the prisoners. They point across a lake of fire to a castle of black glass."
+ },
+ "w10_a3_0": {
+  "title": "The Demon Throne",
+  "text": "The Flame Fiend sinks into the lake. The doors of the black castle open, and a voice like thunder says: \"At last, Sir Edward.\""
+ }
+}
