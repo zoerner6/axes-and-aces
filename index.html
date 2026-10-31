@@ -1194,6 +1194,42 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 .lvb.even .lvb-shield{--c:#e8c33a;--c2:#9b7a10}
 .lvb-word{font-family:var(--f-title);font-size:1.15rem;background:#000;color:var(--c);padding:2px 10px;border-radius:6px;box-shadow:2px 2px 0 rgba(0,0,0,.6);text-shadow:none;letter-spacing:.05em}
 @media (min-width:1000px) and (min-aspect-ratio:5/4){ #app .lvb.lvb-sm .lvb-shield{width:50px;height:50px;font-size:1.7rem;padding:0} }
+
+/* brand pass: no text on text, tips as comic panels, how-to as numbered steps */
+.enc-say,.enc-say.you{top:16%!important;bottom:auto!important;left:auto!important;right:3%!important;width:44%!important}
+@media (max-width:420px){ .enc-say,.enc-say.you{top:24%!important;width:56%!important} }
+#bubble{display:grid;grid-template-columns:64px 1fr;grid-template-areas:"pic who" "pic txt" "bb bb";column-gap:12px;background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;padding:12px 14px}
+#bubble .bram{grid-area:pic;width:64px;height:64px;object-fit:cover;object-position:top;border-radius:50%;border:3px solid #000;background:#3a2414;box-shadow:2px 2px 0 #000;align-self:start}
+#bubble .who{grid-area:who;display:flex;align-items:baseline;gap:8px;margin-bottom:2px;text-transform:none;letter-spacing:0;color:inherit}
+#bubble .who b{font-family:var(--f-title);font-weight:400;font-size:1.25rem;color:#8e1a14}
+#bubble .who span{font-family:var(--f-num);font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#7a6650}
+#bubble .btxt{grid-area:txt;line-height:1.4}
+#bubble .bb{grid-area:bb;margin-top:10px}
+#bubble .bb button:not(.skip){background:linear-gradient(#ffd35c,#d89a14);color:#16100d;border:3px solid #000;border-radius:8px;box-shadow:3px 3px 0 #000;font-family:var(--f-num);font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px}
+#bubble .bb button.skip{color:#7a6650;font-weight:700}
+.howto.steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;width:100%}
+.howto.steps li{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start;background:#120d0b;border:2px solid #000;border-radius:10px;padding:10px 12px;line-height:1.4}
+.howto.steps .hn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffe9a0,#f2b632 55%,#9b7a10);border:3px solid #000;box-shadow:2px 2px 0 #000;font-family:var(--f-title);font-size:1.4rem;color:#fff;-webkit-text-stroke:1px #000;paint-order:stroke fill}
+.howto.steps .hn .ico{width:26px;height:26px}
+.howto.steps b{color:var(--gold)}
+.chip .ico,#intent .ico,#foeBlock .ico,#myBlock .ico,.info .ico{width:18px;height:18px;vertical-align:-3px}
+/* story and merchant scenes on short desktop screens: shrink the whole picture instead of cropping heads */
+@media (max-height:860px) and (min-aspect-ratio:5/4){
+  .panel.cine .cine-scene{height:auto!important;aspect-ratio:16/9!important;max-height:none!important;width:min(100%,calc(36vh * 16 / 9));align-self:center}
+  .panel.cine .cine-scene.death{aspect-ratio:16/10!important}
+}
+.cine-scene>img:first-child{object-position:center 30%}
+
+.aces-ev{position:fixed;inset:0;z-index:112;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(circle,rgba(80,50,0,.5),rgba(0,0,0,.7));animation:epicIn 1.65s ease forwards}
+.aces-ev.out{opacity:0;transition:opacity .35s}
+.aces-fan{position:relative;height:150px;width:300px;margin-bottom:6px}
+.ace-card{position:absolute;left:50%;top:0;width:96px;height:136px;margin-left:-48px;border-radius:10px;border:3px solid #000;box-shadow:4px 4px 0 #000,0 0 26px rgba(255,210,90,.9);background:linear-gradient(#fff3c4,#f2b632);display:grid;place-items:center;font-family:var(--f-title);font-size:3.4rem;line-height:1;color:#16100d;
+  transform:translateX(calc(var(--i)*58px)) rotate(calc(var(--i)*12deg));transform-origin:50% 120%;animation:aceIn .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:calc((var(--i) + 2)*60ms)}
+.ace-card i{font-style:normal;font-size:1.6rem;margin-top:-18px}
+@keyframes aceIn{0%{transform:translateY(-120vh) rotate(0)}100%{transform:translateX(calc(var(--i)*58px)) rotate(calc(var(--i)*12deg))}}
+.aces-ev b{position:relative;font-family:var(--f-title);font-weight:400;font-size:clamp(2.8rem,11vw,6rem);line-height:1;color:#ffd35c;text-shadow:5px 5px 0 #000,-2px -2px 0 #000,0 0 36px rgba(255,200,60,.9);transform:rotate(-4deg);animation:epicSlam .5s .2s cubic-bezier(.2,1.6,.4,1) both}
+.aces-ev small{position:relative;margin-top:10px;font-family:var(--f-num);font-weight:700;font-size:clamp(1.2rem,4vw,2rem);color:#fff;text-shadow:2px 2px 0 #000;letter-spacing:.06em}
+.hand-tag .aces-tag{color:#ffd35c;font-style:normal;font-weight:800}
 </style>
 
 <div id="app">
@@ -1763,6 +1799,9 @@ function evaluate(cards){
 const lvl = t => S.levels[t]||1;
 /* Aces grow with you: +10 points per level */
 const aceBonus = () => 10*Math.max(1,S.level||1);
+/* Aces bonus: Aces that are part of the hand itself (a pair of Aces or better, or a straight) count triple */
+const acesIn = ev => ev.type==='high' ? 0 : ev.cards.filter(c=>c.rank===14&&!isOff(c)).length;
+const acesExtra = ev => acesIn(ev)*aceBonus()*2;
 const hitShare = ev => ev.cards.filter(c=>!isOff(c)).length / ev.cards.length;
 const heartsFlush = ev => (ev.type==='flush'||ev.type==='sflush') && ev.cards.every(c=>c.suit===1&&!isOff(c));
 const handBase = t => { const h=HANDS[t], L=lvl(t)-1; return {p:h.t+L*h.ut+S.flatP, m:S.level+S.flatM}; };
@@ -1773,6 +1812,7 @@ function quickScore(cards){
   p+=atkPts();
   ev.cards.forEach(c=>{ if(isOff(c)) return; if(c.rank===14) p+=aceBonus(); });
   cards.filter(c=>!ev.cards.includes(c)&&!isOff(c)).forEach(c=>{ if(c.rank===14) p+=aceBonus(); });
+  p+=acesExtra(ev);
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   const live=cards.filter(c=>!isOff(c)), share=hitShare(ev);
   const floor=(share<1&&live.length&&live.length<cards.length)?quickScore(live).total:0;
@@ -1802,9 +1842,9 @@ function cardHTML(c, extra=''){
 const mini = ([r,s]) => `<span class="mini ${SUITS[s].red?'red':''}">${RL(r)}${SUITS[s].s}</span>`;
 function intentText(mv){
   if(!mv) return '';
-  if(S.fight&&S.fight.stunned) return '😵 Startled: skips its first move';
-  if(S.fight&&S.fight.frozen) return '❄️ Frozen: skips its next move';
-  return mv.k==='atk' ? `⚔️ Next: attacks for ${mv.n}` : mv.k==='blk' ? `🛡️ Next: raises a shield of ${mv.n}` : `💚 Next: will heal itself for ${mv.n}`;
+  if(S.fight&&S.fight.stunned) return `${I('skull')} Startled: skips its first move`;
+  if(S.fight&&S.fight.frozen) return `${I('frost')} Frozen: skips its next move`;
+  return mv.k==='atk' ? `${I('attack')} Next: attacks for ${mv.n}` : mv.k==='blk' ? `${I('shield')} Next: raises a shield of ${mv.n}` : `${I('heart')} Next: will heal itself for ${mv.n}`;
 }
 function render(){
   const f=S.fight, d=foeDef();
@@ -1815,13 +1855,13 @@ function render(){
   const hp = f?f.hp:d.hp, max=f?f.max:d.hp;
   $('foeBar').style.height = Math.max(0,hp/max*100)+'%'; $('foeBar').style.setProperty('--pct', Math.max(0,hp/max*100)+'%'); $('foeHp').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeHpBar').textContent = `${fmt(Math.max(0,hp))} / ${fmt(max)}`; $('foeBar').parentElement.classList.toggle('empty', !!f && hp<=0);
   const mv = d.moves[(f?f.turn:0)%d.moves.length];
-  $('intent').textContent = intentText(mv); $('intent').className = 'chip intent'+(mv.k==='atk'&&!(f&&f.frozen)?'':' calm');
-  $('foeBlock').hidden = !(f&&f.block>0); if(f) $('foeBlock').textContent = `🛡️ ${f.block}`;
+  $('intent').innerHTML = intentText(mv); $('intent').className = 'chip intent'+(mv.k==='atk'&&!(f&&f.frozen)?'':' calm');
+  $('foeBlock').hidden = !(f&&f.block>0); if(f) $('foeBlock').innerHTML = `${I('shield')} ${f.block}`;
   $('lvlLabel').textContent = '';
   hpLabel();
   { const lo=cumNeed(S.level-1), hi=cumNeed(S.level); $('xpBar').style.width=Math.max(0,Math.min(100,(S.xp-lo)/(hi-lo)*100))+'%'; $('xpNum').textContent=`EXP ${S.xp} / ${hi}`; }
   $('lvlNum').textContent = S.level; $('goldNum2').textContent = S.gold;
-  $('myBlock').hidden = !(S.block>0); $('myBlock').textContent = `🛡️ ${S.block}`;
+  $('myBlock').hidden = !(S.block>0); $('myBlock').innerHTML = `${I('shield')} ${S.block}`;
   $('goldNum').innerHTML = coin(S.gold);
   $('discBtn').textContent = 'Discard';
   if(f){
@@ -1852,7 +1892,7 @@ function renderKit(){
   } else if(infoSel&&infoSel.k==='b'&&S.books.includes(infoSel.i)){ const d=BK[infoSel.i];
     info.innerHTML=`<span><b>${d.icon} ${d.name}:</b> ${d.desc}. Once per fight.</span>`+(S.cast[d.id]?' <b>Already used this fight.</b>':canUse?`<button class="mini-btn use" data-act="cast">Cast it</button>`:'');
   } else if(infoSel&&infoSel.k==='h'&&healRounds()){ const left=healRounds()-(S.cast.heals||0);
-    info.innerHTML=`<span><b>💚 Healing round:</b> heal 30% of your max health. ${left} left this fight.</span>`+(left>0&&canUse?`<button class="mini-btn use" data-act="cast">Heal</button>`:'');
+    info.innerHTML=`<span><b>${I('cleric')} Healing round:</b> heal 30% of your max health. ${left} left this fight.</span>`+(left>0&&canUse?`<button class="mini-btn use" data-act="cast">Heal</button>`:'');
   } else info.textContent = '';
 }
 function renderPreview(){
@@ -1863,7 +1903,7 @@ function renderPreview(){
   if(!(f && sel.length && S.phase==='play')){ tag.hidden=true; fitButtons(); return; }
   const played=f.hand.filter(id=>sel.includes(id)).map(cardById), pv=previewHit(played), d=foeDef();
   const need5 = d.must5 && played.length!==5;
-  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.share<1?' <em>some cards do no damage</em>':''}`;
+  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces bonus ×${pv.aces}</em>`:''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
   tag.classList.toggle('big', ['full','four','sflush','flush','straight'].includes(pv.type));
   tag.hidden=false; fitButtons();
 }
@@ -1877,8 +1917,9 @@ function previewHit(played, raw){
   for(const c of played){ if(isOff(c)) continue; if(c.rank===14) P+=aceBonus(); if(ids.includes(c.id)) S.gear.forEach(g=>{ if(GR[g].card) add(GR[g].card(c,ctx)); }); }
   S.gear.forEach(g=>{ if(GR[g].hand) add(GR[g].hand(ctx)); });
   if(S.rage) M*=2;
+  P+=acesExtra(ev);
   const share=hitShare(ev);
-  return {type:ev.type, dmg:Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)), share};
+  return {aces:acesIn(ev), type:ev.type, dmg:Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)), share};
 }
 /* buttons keep their full name: shrink the text until it fits */
 function fitButtons(){
@@ -1904,7 +1945,7 @@ function renderButtons(){
 const KINGS=[cid(14,0),cid(14,1)], JUNK=[cid(4,0),cid(6,1),cid(2,3)], FULL=[cid(14,0),cid(14,1),cid(14,2),cid(9,3),cid(9,2)];
 const ALL=['play','discard','hint','spell'];
 const STEPS = [
-  {target:'#monsterBox', html:'A goblin! 👺 The red bar is its <b>health</b>. Knock it down to 0 to win the fight.', btn:'Got it', lock:ALL},
+  {target:'#monsterBox', html:'A goblin! The red bar is its <b>health</b>. Knock it down to 0 to win the fight.', btn:'Got it', lock:ALL},
   {target:'#monsterBox', html:'Careful: after each of your attacks, the goblin <b>hits back</b>.', btn:'Got it', lock:ALL},
   {target:'#heroBox', html:'This is <b>you</b>. The green bar is your health. If it hits 0, you lose. You also have your level and your gold here.', btn:'Got it', lock:ALL},
   {target:'#hand', html:'Your attacks come from <b>poker hands</b>. You have two Aces and two 9s. Before you attack, use your <b>discard</b>: you get <b>1 every turn</b>. Tap the 3 cards that don\'t match anything: the <b>4, 6 and 2</b>.', glow:JUNK, lock:ALL,
@@ -1928,7 +1969,7 @@ function placeBubble(){
   const t=document.querySelector(st.target); if(!t){ bub.hidden=true; return; }
   if(st.target!=='#hand') t.classList.add('coach-glow');
   const html = typeof st.html==='function' ? st.html() : st.html;
-  bub.innerHTML = `<div class="who">Old Bram · tip ${S.coach+1} of ${STEPS.length}</div><div>${html}</div>`+
+  bub.innerHTML = `<img class="bram" src="art/p_bram.webp" alt="Old Bram"><div class="who"><b>Old Bram</b><span>Tip ${S.coach+1} of ${STEPS.length}</span></div><div class="btxt">${html}</div>`+
     `<div class="bb"><button class="skip" data-act="skipTutorial">Skip tips</button>${st.btn?`<button data-act="coachNext">${st.btn}</button>`:''}</div><span class="arrow"></span>`;
   bub.hidden=false;
   const vw=document.documentElement.clientWidth, bw=Math.min(vw>1000?440:330, vw-24);
@@ -1979,10 +2020,12 @@ async function slashes(n, onSlash){
   }
 }
 function anim(el, cls){ if(el && el.id==='foeIcon' && $('monsterBox').classList.contains('hasvid')) el=$('foeVidWrap'); el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
-function confetti(bits=['⚔️','✨','🪙','🍺','⭐']){
-  if(reduced()) return;
+/* celebration burst: the game's own gold coins and card suits, never emoji */
+function confetti(){
+  if(reduced()) return; const bits=['coin','coin','coin','♠','♥','♦','♣'];
   for(let i=0;i<36;i++){
-    const s=document.createElement('div'); s.className='confetti'; s.textContent=bits[rnd(bits.length)];
+    const s=document.createElement('div'); s.className='confetti'; const b=bits[rnd(bits.length)];
+    if(b==='coin') s.innerHTML=`<img src="art/i_coin.webp" alt="" style="width:28px;height:28px">`; else { s.textContent=b+'\uFE0E'; s.style.color=(b==='♥'||b==='♦')?'#e2342a':'#ffd35c'; s.style.webkitTextStroke='1px #000'; }
     s.style.left=Math.random()*100+'vw'; s.style.setProperty('--dx',(Math.random()*120-60)+'px'); s.style.setProperty('--rot',(Math.random()*720-360)+'deg');
     s.style.animationDuration=(1.4+Math.random()*1.4)+'s'; s.style.animationDelay=(Math.random()*.4)+'s';
     $('fx').appendChild(s); setTimeout(()=>s.remove(), 3400);
@@ -1996,8 +2039,8 @@ function hpLabel(){ const pc=Math.max(0,S.hp/S.maxHp*100); $('myBar').style.widt
 function markHandTop(){ const h=$('hand'); if(h) document.documentElement.style.setProperty('--handtop', Math.round(h.getBoundingClientRect().top)+'px'); }
 addEventListener('resize', ()=>markHandTop());
 function showFoeHp(hp){ const f=S.fight, pc=Math.max(0,hp/f.max*100)+'%', t=`${fmt(Math.max(0,Math.round(hp)))} / ${fmt(f.max)}`; $('foeBar').style.height=pc; $('foeBar').style.setProperty('--pct',pc); $('foeBar').parentElement.classList.toggle('empty', hp<=0); $('foeHp').textContent=t; $('foeHpBar').textContent=t; }
-function setFoeBars(){ const f=S.fight; showFoeHp(f.hp); $('foeBlock').hidden=!(f.block>0); $('foeBlock').textContent=`🛡️ ${f.block}`; }
-function setMyBars(){ hpLabel(); $('myBlock').hidden=!(S.block>0); $('myBlock').textContent=`🛡️ ${S.block}`; $('goldNum').innerHTML=coin(S.gold); $('goldNum2').textContent=S.gold; }
+function setFoeBars(){ const f=S.fight; showFoeHp(f.hp); $('foeBlock').hidden=!(f.block>0); $('foeBlock').innerHTML=`${I('shield')} ${f.block}`; }
+function setMyBars(){ hpLabel(); $('myBlock').hidden=!(S.block>0); $('myBlock').innerHTML=`${I('shield')} ${S.block}`; $('goldNum').innerHTML=coin(S.gold); $('goldNum2').textContent=S.gold; }
 
 function claws(){
   if(reduced()) return;
@@ -2034,6 +2077,7 @@ async function attack(){
   }
   S.gear.forEach((g,i)=>{ if(GR[g].hand) add(GR[g].hand(ctx),i); });
   if(S.rage){ S.rage=false; M*=2; }
+  const aceN=acesIn(ev), aceX=acesExtra(ev); P+=aceX;
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   render();
   if(weaponPts()) anim($('gearBtn'),'wiggle');
@@ -2041,6 +2085,7 @@ async function attack(){
   const share=hitShare(ev), dmg=Math.max(Math.floor(P*M*share), liveFloor(played)); S.lastHit=dmg;
   /* the health bar drops with every slash as it lands */
   const lands=Math.max(0, dmg-Math.min(f.block,dmg)), hp0=f.hp;
+  if(aceN){ await acesEvent(aceN, Math.floor(aceX*M)); }
   await wait(120); await slashes(nSlash, k=>showFoeHp(hp0-lands*k/nSlash));
   if(share<1) toast(share===0 ? `No damage! The ${foeDef().name} shrugs off those cards.` : `Cards marked ✖ did no damage, so you hit for less.`);
   if(dmg>S.stats.best){ S.stats.best=dmg; S.stats.bestName=HANDS[ev.type].name; }
@@ -2082,7 +2127,7 @@ async function breath(){
   const f=S.fight; if(busy||!f||$('breathBtn').disabled) return;
   busy=true; busySince=Date.now(); sel=[]; infoSel=null; $('bubble').hidden=true; render();
   const h=Math.round(S.maxHp*.2); healMe(h, $('heroBox')); setMyBars(); soothe();
-  say(`😮‍💨 You catch your breath and recover ${h} health. The ${foeDef().name} gets a free turn!`);
+  say(`You catch your breath and recover ${h} health. The ${foeDef().name} gets a free turn!`);
   await wait(900);
   f.block=0; setFoeBars();
   await foeTurn();
@@ -2097,8 +2142,8 @@ function say(t){ return; const e=$('foeSay'); e.textContent=t; e.hidden=false; a
 async function foeTurn(){
   const f=S.fight, d=foeDef(), mv=d.moves[f.turn%d.moves.length];
   await wait(250);
-  if(f.stunned){ f.stunned=false; foeBanner('😵 Startled!','It can\'t move this turn','calm'); blip(700,.15,'sine',.05); }
-  else if(f.frozen){ f.frozen=false; foeBanner('❄️ Frozen!','It can\'t move this turn','shield'); say(`❄️ The ${d.name} is frozen and can't move this turn!`); blip(1200,.2,'sine',.05); }
+  if(f.stunned){ f.stunned=false; foeBanner('Startled!','It can\'t move this turn','calm'); blip(700,.15,'sine',.05); }
+  else if(f.frozen){ f.frozen=false; foeBanner('Frozen!','It can\'t move this turn','shield'); say(`The ${d.name} is frozen and can't move this turn!`); blip(1200,.2,'sine',.05); }
   else if(mv.k==='atk'){
     const hitMs=playFoeAttack(); if(!hitMs){ anim($('foeIcon'),'lunge'); swoosh(); }
     await wait(hitMs||300); if(hitMs) swoosh(); claws();
@@ -2455,9 +2500,9 @@ function levelGift(){
   return g;
 }
 function giftText(g){
-  if(g.t==='gold') return `💰 You found a coin pouch: <b>+${coin(g.n)}</b>`;
+  if(g.t==='gold') return `${I('bag')} You found a coin pouch: <b>+${coin(g.n)}</b>`;
   if(g.t==='spell') return `${SP[g.id].icon} A <b>${SP[g.id].name}</b> appeared in your bag!`;
-  return `📖 All that fighting paid off: every <b>${HANDS[g.id].name}</b> now hits for +${HANDS[g.id].ut} more points`;
+  return `${I('level')} All that fighting paid off: every <b>${HANDS[g.id].name}</b> now hits for +${HANDS[g.id].ut} more points`;
 }
 function levelPanel(){
   S.phase='level'; trumpetCall(); setTimeout(()=>{ if(S.phase==='level') narrate(`Level up! You are now level ${S.level}. Every attack hits harder.`); },600);
@@ -2638,7 +2683,7 @@ function makeFind(){
                 '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][areaOf()];
     const people=[['hermit','An old hermit'],['villager','A frightened villager'],['minstrel','A traveling minstrel'],['knight','A wandering knight']], [scene,title]=people[rnd(people.length)];
     let gift, giftGold=0, giftItem=null, sipHeal=0;
-    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b> 🧪'; giftItem=[I('potion'),'Healing Potion']; } else { sipHeal=Math.min(S.maxHp-S.hp,100); gift=`a sip from their flask (<b>+${sipHeal} health</b>)`; } }
+    if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b>'; giftItem=[I('potion'),'Healing Potion']; } else { sipHeal=Math.min(S.maxHp-S.hp,100); gift=`a sip from their flask (<b>+${sipHeal} health</b>)`; } }
     else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; }
     f={gold:giftGold,give:giftItem,sip:sipHeal,scene,icon:'',title,text:`${clue}<br><br>Before you go, they give you ${gift}.`};
   } else if(r<.85){
@@ -2687,8 +2732,8 @@ function gameOverPanel(){
   timpaniRoll(.2,.5); brass(98,.8,1.6,.05); brass(92.5,.8,1.6,.04);
 }
 function winPanel(){
-  S.phase='win'; clearSave(); store.set('bestIdx',12); confetti(['🐉','🍻','⭐','🪙','⚔️']); fanfare();
-  openPanel(`<div class="eyebrow">You won</div><div class="big-icon">🏆</div>
+  S.phase='win'; clearSave(); store.set('bestIdx',12); confetti(); fanfare();
+  openPanel(`<div class="eyebrow">You won</div><div class="big-icon"><img class="ico" src="art/hero_t5.webp" alt="" style="width:auto;height:120px"></div>
     <h2>Hero of the Gilded Ace!</h2><p>You beat all ${AREAS.length*3} monsters and brought Anna home safe.</p>
     ${summary()}<button class="btn big" data-act="newRun">Play again</button>`);
 }
@@ -2702,17 +2747,14 @@ function guidePanel(){
 }
 function helpPanel(){
   openPanel(`<div class="eyebrow">How to play</div><h2>Axes &amp; Aces</h2>
-    <ol class="howto">
-      <li>Pick up to <b>5 cards</b> to make a poker hand, then tap <b>Attack!</b> Better hands hit harder.</li>
-      <li>Damage = <b>Points × your Level</b>. You can see it before you attack. Level up to hit harder!</li>
-      <li>After you attack, the monster <b>hits back</b>. Check what it plans to do next.</li>
-      <li><b>Aces</b> (gold cards) always add <b>10 points per level</b> (+${aceBonus()} right now), even as extra cards.</li>
-      <li><b>Discard</b> swaps up to 5 cards for free (1 discard per turn). The monster doesn't attack.</li>
-      <li>After every attack you get a <b>whole new hand</b> of cards.</li>
-      <li>Health doesn't come back on its own. <b>Rest at the inn</b>, use a <b>Healing Potion</b>, or tap <b>Rest</b> in a fight (you heal, but the monster gets a free hit). Too tough? Tap <b>Run</b> to flee back to the last area and fight something easier.</li>
-      <li>Win fights to <b>level up</b>. Buy better <b>weapons and armor</b> from the merchant. Weapons add damage, armor blocks hits.</li>
-      <li>Reach <b>level 3</b> to buy your first <b>spellbook</b>. Learned spells can be cast once per fight.</li>
-      <li>Beat all 4 areas and the dragon to save the town.</li>
+    <ol class="howto steps">
+      <li><span class="hn">1</span><div><b>Discard first.</b> Every turn you get 1 discard. Swap up to 5 cards that don't help, to fish for a better hand. The monster doesn't attack when you discard.</div></li>
+      <li><span class="hn">2</span><div><b>Pick your best poker hand</b> (up to 5 cards). The damage shows above your cards before you attack. Stuck? Tap <b>Hint</b>.</div></li>
+      <li><span class="hn">3</span><div><b>Tap Attack!</b> Then the monster hits back. Its next move shows under its name. Then you get a whole new hand.</div></li>
+      <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) always add ${aceBonus()} points right now, even as extra cards. When Aces are part of your hand (a pair of Aces or better, or a straight), each one counts <b>triple</b>: the <b>Aces bonus</b>! Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
+      <li><span class="hn">${I('heart')}</span><div><b>Health doesn't refill by itself.</b> Rest at the inn, drink a potion, or tap <b>Rest</b> in a fight (the monster gets a free hit). Too tough? <b>Run</b> and train first.</div></li>
+      <li><span class="hn">${I('level')}</span><div><b>Level up</b> to multiply every hit. Buy weapons and armor from the merchant, and learn spells from level 3.</div></li>
+      <li><span class="hn">${I('map')}</span><div><b>Rescue Anna,</b> get knighted, then take on 9 more quests and the Endless Abyss.</div></li>
     </ol>
     <p><button class="link" data-act="replayTutorial">Start over with Old Bram's tips</button></p>
     <button class="btn big" data-act="close">Back</button>`);
@@ -3101,10 +3143,17 @@ function ribbon(t, v){
   const e=document.createElement('div'); e.className='ribbon-rec'; e.innerHTML=`<small>${t}</small><b>${v}</b>`;
   document.body.appendChild(e); blip(1320,.12,'triangle',.05); blip(1760,.18,'triangle',.05,.1); setTimeout(()=>e.classList.add('out'),2600); setTimeout(()=>e.remove(),3100);
 }
+/* ---- Aces bonus moment: golden Aces fan out and slam in before the hit lands ---- */
+function acesEvent(n, pts){ return new Promise(done=>{
+  const e=document.createElement('div'); e.className='aces-ev';
+  e.innerHTML=`<span class="epic-rays"></span><div class="aces-fan">${Array.from({length:n},(_,i)=>`<span class="ace-card" style="--i:${i-(n-1)/2}">A<i>${['♠','♥','♦','♣'][i%4]}\uFE0E</i></span>`).join('')}</div><b>ACES BONUS!</b><small>+${fmt(pts)} damage</small>`;
+  document.body.appendChild(e); trumpetCall(); coins(); if(!reduced()) confetti();
+  setTimeout(()=>{ e.classList.add('out'); }, reduced()?400:1300); setTimeout(()=>{ e.remove(); done(); }, reduced()?600:1650);
+}); }
 /* ---- once-in-a-while hands get a huge, screenshot-worthy moment ---- */
 function epicMoment(t, sub){
   const e=document.createElement('div'); e.className='epic'; e.innerHTML=`<span class="epic-rays"></span><b>${t}</b><small>${sub}</small>`;
-  document.body.appendChild(e); confetti(['✨','🪙','⭐','♠','♥','♦','♣']); trumpetCall(); shake(); setTimeout(()=>e.remove(),2600);
+  document.body.appendChild(e); confetti(); trumpetCall(); shake(); setTimeout(()=>e.remove(),2600);
 }
 /* ---- daily challenge: same monsters and same card shuffles for everyone today ---- */
 const realRandom=Math.random;
