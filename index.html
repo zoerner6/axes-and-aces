@@ -1693,14 +1693,16 @@ function playFoeAttack(){
 /* monster health (raised 25%, then eased back 10% twice) */
 const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,9)*Math.pow(L/10,1.7));
 /* every monster wears armor: it soaks this much from each of your hits (never more than half the hit) */
-const foeArmorFor = (L, boss) => Math.round((10 + 9*(Math.max(1,L)-1)) * (boss?1.6:1) / 5) * 5;
+const foeArmorFor = (L, boss) => Math.round((5 + 6.5*(Math.max(1,L)-1)) * (boss?1.5:1) / 5) * 5;
 const foeArmor = d => d ? (d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss)) : 0;
 const armored = (dmg, d) => Math.max(Math.ceil(dmg/2), dmg - foeArmor(d));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
-  const hp=Math.round(monsterHP(L)*t.hp*r()/5)*5, atk=(4+2.6*(L-1))*1.25;
+  /* the pub is where you start with no gear: its monsters are softer */
+  const pub=(a===0&&!(S&&S.world));
+  const hp=Math.round(monsterHP(L)*t.hp*r()*(pub?.8:1)/5)*5, atk=(4+2.6*(L-1))*1.25*(pub?.8:1);
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
-  return {def:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
+  return {def:pub?0:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
 let AREAS = [
   {name:'The Gilded Ace', icon:'<img class="ico" src="art/i_area_tavern.webp" alt="">', foes:['goblin','rat','bandit']},
