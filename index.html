@@ -1398,6 +1398,20 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 @keyframes geSwingBody{40%{transform:translateX(18px) rotate(4deg)}}
 @keyframes geSlash{0%{opacity:1;transform:rotate(-28deg) scaleX(0)}50%{opacity:1;transform:rotate(-28deg) scaleX(1)}100%{opacity:0;transform:rotate(-28deg) scaleX(1.1) translateY(8px)}}
 @media (max-width:520px){ .ge-stat{gap:8px;padding:6px 12px} .ge-to{font-size:2.6rem} .ge-lbl{font-size:1.2rem} .ge-ic .ico{width:34px;height:34px} }
+
+.cine-scene>video.scene-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:1;opacity:0;transition:opacity .25s}
+.cine-scene.vid-on>video.scene-vid{opacity:1}
+.cine-scene.vid-done{box-shadow:5px 5px 0 #000,0 0 30px rgba(255,200,60,.7)}
+
+/* loot box: big, readable, centered */
+.loot{flex-direction:column;align-items:center;text-align:center;gap:6px;padding:14px 16px 12px}
+.loot-ic .ico{width:72px;height:72px}
+.loot-txt{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:1.25rem;line-height:1.35}
+.loot-txt>span:first-child{font-size:1.3rem}
+.loot-txt b{font-family:var(--f-title);font-weight:400;font-size:1.5rem;color:#8e1a14}
+.loot-txt .pw{font-size:1.2rem;padding:3px 12px}
+.loot-txt small{font-size:1.05rem;color:#3a2a1c;max-width:44ch}
+@media (max-width:520px){ .loot-txt{font-size:1.1rem} .loot-txt b{font-size:1.3rem} .loot-txt small{font-size:.98rem} }
 </style>
 
 <div id="app">
@@ -1582,7 +1596,7 @@ let STORIES = {
   start:[
     {icon:'🍺', title:'The Gilded Ace', text:'You are Edward, a young soldier on the long road home. Rain hammers the windows as you sit by the fire with a warm mug. Anna, the barkeep\'s daughter, sets down a bowl of stew and smiles. "You look like you\'ve come a long way."'},
     {icon:'💥', title:'CRASH!', text:'The door bursts open. Goblins and bandits pour in! Before anyone can move, two bandits grab Anna and drag her, kicking and screaming, down the cellar stairs. A snarling goblin blocks your way.'},
-    {icon:'🧔', title:'Old Bram, the barkeep', text:'"They took my Anna!" Old Bram tosses you a glowing deck of cards. "Cards of Power! Make a poker hand and it turns into an attack. The better the hand, the harder you hit. Please, Edward... bring my daughter home!"'}
+    {icon:'🧔', title:'Cards of Power!', text:'"They took my Anna!" Old Bram tosses you a glowing deck of cards. "Cards of Power! Make a poker hand and it turns into an attack. The better the hand, the harder you hit. Please, Edward... bring my daughter home!"'}
   ],
   a1:[{icon:'🎀', title:'Into the Cellar', text:'The Bandit Chief laughs as he falls. "Too late, hero. The girl is already on her way to the master." On the cellar stairs you find Anna\'s red ribbon. You grab a torch and head down into the dark.'}],
   a2:[{icon:'🌲', title:'The Dark Forest', text:'Behind a cracked cellar wall, a secret tunnel leads out into the Dark Forest. Anna\'s scarf hangs on a branch. Fresh footprints lead deeper into the trees, where wolves are howling.'}],
@@ -2435,10 +2449,17 @@ function rollDrop(){
   if(r<1/6+1/6){ if(S.spells.length<3){ S.spells.push('potion'); return {kind:'potion'}; } return {kind:'drink', heal:Math.min(S.maxHp-S.hp,150), pending:true}; }
   return null;
 }
+/* how Edward takes a new piece of gear, in words that fit the item */
+function equipLine(type){ const sl=EQUIP[type].slot;
+  return sl==='main' ? (EQUIP[type].hands===2?'You heft it onto your back. It\'s your weapon now.':'You slide it into your belt. It\'s your weapon now.')
+    : sl==='off' ? 'You tuck it into your boot for a second strike.'
+    : sl==='shield' ? 'You sling it onto your arm.'
+    : sl==='helm' ? 'You pull it on over your head.'
+    : 'You buckle it on.'; }
 function dropHTML(w){
   const x=w.drop; if(!x) return '';
   let ic, line;
-  if(x.kind==='gear'){ const e=EQUIP[x.type]; ic=eqIcon(x.type,x.tier); line=`<span>The ${w.name} dropped a <b>${eqName(x.type,x.tier)}</b>!</span> <span class="pw ${e.atk?'a':'d'}">+${e.atk?e.atk[x.tier]:e.def[x.tier]} ${e.atk?'Attack':'Defense'}</span><small>${x.old?`You put it on. The merchant will buy your old ${x.old}.`:'You put it on.'}</small>`; }
+  if(x.kind==='gear'){ const e=EQUIP[x.type]; ic=eqIcon(x.type,x.tier); line=`<span>The ${w.name} dropped a <b>${eqName(x.type,x.tier)}</b>!</span> <span class="pw ${e.atk?'a':'d'}">+${e.atk?e.atk[x.tier]:e.def[x.tier]} ${e.atk?'Attack':'Defense'}</span><small>${equipLine(x.type)}${x.old?` The merchant will buy your old ${x.old}.`:''}</small>`; }
   else if(x.kind==='potion'){ ic=I('potion'); line=`<span>The ${w.name} dropped a <b>Healing Potion</b>!</span><small>It's in your Potions pouch.</small>`; }
   else { ic=I('potion'); line=`<span>The ${w.name} dropped a <b>Healing Potion</b>. Your bag was full, so you drank it.</span><small>+${x.heal} health</small>`; }
   return `<div class="loot"><span class="loot-tag">Loot!</span><span class="loot-ic">${ic}</span><span class="loot-txt">${line}</span></div>`;
@@ -2574,8 +2595,14 @@ function storyPanel(){
     <div class="cine-foot">${pages.length>1?`<div class="dots">${pages.map((_,i)=>`<i class="${i===S.story.page?'on':''}"></i>`).join('')}</div>`:'<span></span>'}
     ${last&&S.story.key==='end'?'<button class="btn big brag-fb" data-act="brag" data-kind="quest">Brag</button>':''}<button class="btn big" data-act="storyNext">${btn}</button></div>${last&&S.story.key==='start'&&(S.world||0)>0?saveBox():''}`);
   $('panel').classList.add('cine');
+  if(SCENE_VIDS.has(id) && !reduced()){ const sc=document.querySelector('#panel .cine-scene'), im=sc&&sc.querySelector('img'); if(sc){ const v=document.createElement('video');
+    v.className='scene-vid'; v.src=`vid/${id}.mp4`; v.muted=true; v.playsInline=true; v.preload='auto'; v.poster=im?im.src:'';
+    v.addEventListener('playing',()=>sc.classList.add('vid-on')); v.addEventListener('ended',()=>{ sc.classList.add('vid-done'); coins(); });
+    sc.insertBefore(v, im?im.nextSibling:sc.firstChild); setTimeout(()=>{ const q=v.play(); if(q&&q.catch) q.catch(()=>{}); }, 300); setTimeout(()=>{ swoosh(); setTimeout(swoosh,250); },1200); } }
   runCine(id, pg.title, plain);
 }
+/* story scenes that have a short animated version */
+const SCENE_VIDS = new Set(['sc_start_2']);
 function storyNext(){
   const pages=STORIES[S.story.key];
   if(S.story.page<pages.length-1){ S.story.page++; storyPanel(); return; }
@@ -2874,7 +2901,7 @@ function makeFind(){
   } else if(r<.4){
     const open=SLOTS.map(x=>x[0]).filter(k=>!S.eq[k] && !(k==='off'&&twoHanded()));
     if(open.length){ const k=open[rnd(open.length)], type={main:'sword',off:'dagger',shield:'shield',helm:'helm',armor:'armor'}[k];
-      S.eq[k]={type,tier:1}; f={give:[eqIcon(type,1),eqName(type,1)],scene:'fallen',icon:I('skull'),title:'A fallen adventurer',text:`Someone didn't make it. They left behind a <b>${eqName(type,1)}</b> ${EQUIP[type].icon}. You put it on.`}; }
+      S.eq[k]={type,tier:1}; f={give:[eqIcon(type,1),eqName(type,1)],scene:'fallen',icon:I('skull'),title:'A fallen adventurer',text:`Someone didn't make it. They left behind a <b>${eqName(type,1)}</b>. ${equipLine(type)}`}; }
     else { S.gold+=3; f={gold:3,scene:'fallen',icon:I('skull'),title:'A fallen adventurer',text:'Their old gear is worse than yours, so you sell it to the next traveler for <b>3 gold coins</b>.'}; }
   } else if(r<.72){
     const clue=(S.world||0)>0 ? worldClue() : ['"The bandits dragged her down into the cellar. Watch out for their chief."',
@@ -3072,7 +3099,7 @@ document.addEventListener('click', e=>{
     case 'slotNew': namePanel(+t.dataset.slot); break;
     case 'slotStart': { const n=+t.dataset.slot, name=((($('heroIn')||{}).value)||'').trim().replace(/[<>"]/g,'').slice(0,16)||'Edward';
       setSlot(n); ['save','saved','checkpoint'].forEach(k=>{ try{ localStorage.removeItem(SKn(k,n)); }catch(e){} }); try{ localStorage.setItem(SKn('name',n), JSON.stringify(name)); }catch(e){}
-      canSave=true; newRun(!store.get('tutorialDone',false)); S.heroName=name; render(); storyPanel(); saveGame(); break; }
+      canSave=true; newRun(true); S.heroName=name; render(); storyPanel(); saveGame(); break; }
     case 'slotPlay': { const n=+t.dataset.slot; setSlot(n); const sv=loadSave(n)||loadSaved(n); canSave=true; if(sv){ closePanel(); start({S:JSON.parse(JSON.stringify(sv.S))}); } break; }
     case 'slotDel': { if(t.dataset.sure){ const n=+t.dataset.slot; ['save','saved','checkpoint','name'].forEach(k=>{ try{ localStorage.removeItem(SKn(k,n)); }catch(e){} }); slotsPanel(); } else { t.dataset.sure='1'; t.textContent='Tap again to delete'; t.classList.add('sure'); } break; }
     case 'togSfx': soundOn=!soundOn; store.set('sound',soundOn); audio(); render(); if(soundOn) blip(660,.08); break;
