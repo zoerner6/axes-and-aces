@@ -2,7 +2,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14100d"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Axes & Aces">
-<meta name="description" content="Axes & Aces: fight monsters with poker hands.">
+<meta name="description" content="Axes & Aces: a free dark comic card adventure. Fight monsters with poker hands.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Axes &amp; Aces: fight monsters with poker hands">
+<meta property="og:description" content="Save Anna, become Sir Edward, conquer 10 quests and the Endless Abyss. Free in your browser.">
+<meta property="og:image" content="https://zoerner6.github.io/axes-and-aces/b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://zoerner6.github.io/axes-and-aces/"><meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
 <style>html,body{height:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}body{margin:0;font:14px system-ui,sans-serif;background:#14100d}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
@@ -1100,6 +1104,29 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .enc-say,.enc-say.you{bottom:auto;top:12%}
 @media (max-width:420px){ .enc-say,.enc-say.you{top:14%;bottom:auto} }
 @media (min-width:1000px) and (min-aspect-ratio:5/4){ #app .lvb.sm .lvb-shield{width:46px;height:54px;font-size:1.45rem;padding-bottom:7px} }
+
+/* achievements, brag cards, daily challenge */
+.ach-pop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:120;display:flex;align-items:center;gap:12px;background:#f3e6c8;color:#16100d;border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000,0 0 30px rgba(242,182,50,.6);padding:10px 12px;max-width:min(92vw,520px);animation:achIn .5s cubic-bezier(.2,1.5,.4,1)}
+.ach-pop.out{opacity:0;transform:translate(-50%,-30px);transition:all .5s}
+.ach-pop .ach-ic .ico{width:46px;height:46px}
+.ach-pop small{display:block;font-family:var(--f-num);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#8e1a14}
+.ach-pop b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.35rem}
+.ach-pop em{font-style:normal;font-size:.9rem}
+.ach-pop button,.ach button{flex:0 0 auto;background:#1877f2;color:#fff;border:2px solid #000;border-radius:8px;font-weight:800;padding:6px 12px;box-shadow:2px 2px 0 #000;cursor:pointer}
+@keyframes achIn{0%{opacity:0;transform:translate(-50%,-40px) scale(.8)}100%{opacity:1;transform:translate(-50%,0)}}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;width:100%}
+.ach{display:flex;align-items:center;gap:10px;background:#120d0b;border:2px solid #000;border-radius:10px;padding:8px;opacity:.55}
+.ach.got{opacity:1;background:linear-gradient(#2c1f10,#160f09);box-shadow:inset 0 0 0 1px rgba(242,182,50,.45)}
+.ach .ach-ic .ico{width:34px;height:34px}.ach>span:nth-child(2){flex:1;min-width:0}
+.ach b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.05rem;color:var(--gold)}.ach small{display:block;color:var(--parch-dim);font-size:.82rem;line-height:1.25}
+.stats-lines{width:100%}
+.brag-img{width:100%;aspect-ratio:1200/630;background:#000;border:3px solid #000;border-radius:8px;box-shadow:4px 4px 0 #000;display:grid;place-items:center;overflow:hidden;color:var(--parch-dim)}
+.brag-img img{width:100%;height:100%;object-fit:cover;display:block}
+.brag-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.btn.brag-fb{background:#1877f2!important;color:#fff!important}
+.cine-scene>img.find-fig{inset:auto;top:auto;right:auto;position:absolute;left:50%;bottom:4%;height:84%;width:auto;max-width:70%;object-fit:contain;transform:translateX(-50%);z-index:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.75));animation:figIn .7s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes figIn{0%{opacity:0;transform:translate(-50%,30px) scale(.9)}100%{opacity:1;transform:translate(-50%,0)}}
+.menu-list .btn.daily{background:linear-gradient(#5a3c0c,#2a1b06)!important;color:#ffd35c!important}
 </style>
 
 <div id="app">
@@ -1336,7 +1363,7 @@ function loadWorld(w){
   }
 }
 function worldComplete(){
-  S.world=(S.world||0)+1; S.knighted=true; loadWorld(S.world);
+  S.world=(S.world||0)+1; S.knighted=true; loadWorld(S.world); achOnQuest();
   S.idx=0; S.layout=2; S.huntFoe=null; S.foePick=null; S.enc=null; S.redo=false; S.oldGear=[];
   S.phase='story'; S.story={key:'start',page:0};
   try{ localStorage.setItem('aa_checkpoint', JSON.stringify(S)); }catch(e){}
@@ -1465,6 +1492,9 @@ function musicTick(){
 function stopMusic(){ clearInterval(musicTimer); musicTimer=null; musicArea=-1; if(musicGain){ const g=musicGain; g.gain.setTargetAtTime(0,ac.currentTime,.3); setTimeout(()=>{ try{g.disconnect()}catch(e){} },1500); musicGain=null; } }
 function updateMusic(){
   if(!ac) return;
+  const sw=songWant();
+  if(sw && !SONG_BAD.has(sw)){ if(musicArea>=0) stopMusic(); if(!song||song.id!==sw) songSwap(sw); return; }
+  if(song){ songStop(song); song=null; }
   const want = musicOn ? Math.max(0,Math.min(TRACKS.length-1,curArea())) : -1;
   if(want===musicArea) return;
   stopMusic(); if(want<0) return;
@@ -1535,8 +1565,8 @@ function soothe(){ brass(392,0,.5,.03); brass(493.88,.12,.6,.025); }
 /* ---------- narrator + animated scenes ---------- */
 const VO = [];  /* recorded narration files (art/vo_<key>_<page>.mp3); others use the browser's voice */
 let vo=null, typeTimer=0, typeDelay=0, cineNow=null;
-function duck(on){ if(musicGain&&ac) musicGain.gain.setTargetAtTime(on?.22:.9, ac.currentTime, .3); }
-function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); return vs.find(v=>/en-GB/i.test(v.lang)&&/(daniel|george|arthur|ryan|male)/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)); }catch(e){ return null; } }
+function duck(on){ if(musicGain&&ac) musicGain.gain.setTargetAtTime(on?.22:.9, ac.currentTime, .3); if(musBus&&ac) musBus.gain.setTargetAtTime(on?.15:.55, ac.currentTime, .3); }
+function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); return vs.find(v=>/^en/i.test(v.lang)&&/(natural|neural|online)/i.test(v.name)&&/(ryan|thomas|guy|davis|andrew|brian|christopher|eric|male)/i.test(v.name)) || vs.find(v=>/^en/i.test(v.lang)&&/(natural|neural|online)/i.test(v.name)) || vs.find(v=>/Google UK English Male/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)&&/(daniel|george|arthur|ryan|male)/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)); }catch(e){ return null; } }
 function stopVoice(){ if(vo&&vo.pause) vo.pause(); try{ speechSynthesis.cancel(); }catch(e){} vo=null; duck(false); }
 /* speaks text; calls onTime(seconds) with how long it should take so captions can keep pace */
 function narrate(text, id, onTime){
@@ -1571,7 +1601,9 @@ function runCine(id, title, text){
 /* ---------- state ---------- */
 let S, busy=false, sel=[], infoSel=null, busySince=0;
 const rnd = n => Math.floor(Math.random()*n);
-const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]} return a; };
+/* in the daily challenge every shuffle comes from today's seed, so everyone gets the same cards */
+const shuffle = a => { const R = (typeof S!=='undefined'&&S&&S.daily) ? seeded(S.daily.seed + S.daily.n*1000 + (S.daily.shuf=(S.daily.shuf||0)+1)) : Math.random;
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; };
 const DECK = []; for(let s=0;s<4;s++) for(let r=2;r<=14;r++) DECK.push({id:cid(r,s),rank:r,suit:s});
 const cardById = id => DECK[id];
 
@@ -1609,7 +1641,7 @@ const gearHas = k => S.gear.reduce((a,id)=>a+(GR[id][k]||0),0);
 const TUTOR_HAND = [cid(14,0),cid(14,1),cid(9,3),cid(9,2),cid(4,0),cid(6,1),cid(2,3)];
 function startFight(){
   const id=curFoeId(), d=MONSTERS[id]; S.foePick=null;
-  S.fight = {id, hp:d.hp, max:d.hp, block:0, turn:0, frozen:false,
+  S.fight = {id, hp:d.hp, max:d.hp, block:0, turn:0, frozen:false, hp0:S.hp, atks:0,
              draw:shuffle(DECK.map(c=>c.id)), disc:[], hand:[], discards:1+S.discBonus+gearHas('disc')};
   S.block = gearHas('turn'); S.rage=false; S.cast={};
   if(S.coach===0 && S.idx===0){ S.fight.draw=S.fight.draw.filter(x=>!TUTOR_HAND.includes(x)&&x!==cid(14,2)); S.fight.draw.push(cid(14,2)); S.fight.hand=TUTOR_HAND.slice(); }
@@ -1944,6 +1976,7 @@ async function attack(){
   await wait(120); await slashes(nSlash, k=>showFoeHp(hp0-lands*k/nSlash));
   if(share<1) toast(share===0 ? `No damage! The ${foeDef().name} shrugs off those cards.` : `Cards marked ✖ did no damage, so you hit for less.`);
   if(dmg>S.stats.best){ S.stats.best=dmg; S.stats.bestName=HANDS[ev.type].name; }
+  achOnHand(ev, played, dmg); if(S.daily) S.daily.atks++;
   hitFoe(dmg);
   banner(word, HANDS[ev.type].name);
   const hg=HAND_GOLD[ev.type]||0;
@@ -2133,6 +2166,11 @@ async function victory(){
   const gifts=[]; let ups=0;
   while(S.xp>=cumNeed(S.level)){ S.level++; S.pendingLv++; ups++; S.maxHp+=100; S.hp+=100; const g=levelGift(); if(g) gifts.push(g); }
   if(ups){ S.lvlReport={ups, gifts}; }
+  achOnWin(d);
+  if(S.daily){ S.daily.wins++; S.pendingLv=0; S.lvlReport=null; S.phase='dailyWin';
+    openPanel(`<div class="vic"><div class="vic-title">Victory!</div><div class="vic-sub">Daily fight ${S.daily.n+1} of 5 won · ${S.daily.atks} attacks so far</div>
+      <div class="vic-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
+      <button class="btn big vic-btn" data-act="dailyNext">${S.daily.n+1>=5?'See my score':'Next fight'}</button></div>`); return; }
   if(!S.huntFoe && S.idx===LAST_IDX && d.boss){ S.pendingLv=0; S.lvlReport=null; S.phase='story'; S.story={key:'end',page:0}; storyPanel(); return; }
   const drop=rollDrop();
   if(drop) setTimeout(()=>{ if(S.phase==='victory') (drop.kind==='gear'?anvil():coins()); },900);
@@ -2141,7 +2179,9 @@ async function victory(){
   victoryPanel();
 }
 async function defeat(){
-  await wait(400); busy=false; S.phase='over'; clearSave();
+  await wait(400); busy=false;
+  if(S.daily){ dailyDone(); return; }
+  lifeAdd(L=>{L.deaths++;}); S.phase='over'; clearSave();
   const best=Math.max(store.get('bestIdx',0), S.idx); store.set('bestIdx',best);
   gameOverPanel();
 }
@@ -2173,7 +2213,7 @@ async function cast(){
   if(infoSel.k==='s'){
     const i=infoSel.i, id=S.spells[i]; if(!id) return;
     S.spells.splice(i,1); infoSel=null;
-    if(id==='potion'){ healMe(150); soothe(); }
+    if(id==='potion'){ healMe(150); soothe(); lifeAdd(L=>{L.potions++;}); if(life().potions>=10) unlock('potions10'); }
     else if(id==='ironskin'){ blockMe(200); blip(500,.15,'square',.05); }
     else if(id==='rage'){ S.rage=true; pop($('heroBox'),'Next attack ×2!','m'); blip(300,.2,'sawtooth',.06); }
     render(); return;
@@ -2230,7 +2270,7 @@ function storyPanel(){
   const embers = S.story.key==='start'||(S.story.key==='end'&&S.story.page===2) ? `<span class="embers">${Array.from({length:10},(_,k)=>`<i style="left:${8+k*9}%;animation-delay:${(k*.7)%4}s;animation-duration:${4+k%3}s"></i>`).join('')}</span>` : '';
   openPanel(`${cineHTML(id, pg.title, plain, embers)}
     <div class="cine-foot">${pages.length>1?`<div class="dots">${pages.map((_,i)=>`<i class="${i===S.story.page?'on':''}"></i>`).join('')}</div>`:'<span></span>'}
-    <button class="btn big" data-act="storyNext">${btn}</button></div>${last&&S.story.key==='start'&&(S.world||0)>0?saveBox():''}`);
+    ${last&&S.story.key==='end'?'<button class="btn big brag-fb" data-act="brag" data-kind="quest">Brag</button>':''}<button class="btn big" data-act="storyNext">${btn}</button></div>${last&&S.story.key==='start'&&(S.world||0)>0?saveBox():''}`);
   $('panel').classList.add('cine');
   runCine(id, pg.title, plain);
 }
@@ -2245,7 +2285,7 @@ function fightIntro(){
   if(!S.foePick){
     const ar=curArea(), [lo,hi]=AREA_LV[ar];
     if(!S.huntFoe && MONSTERS[foeId()] && MONSTERS[foeId()].boss) S.foePick=foeId();
-    else { S.genFoe=genMonster(ar, S.huntFoe ? lo+rnd(hi-lo+1) : lo+Math.round(posIn()*(hi-lo)/(AREA_LEN[ar]-1)), (!S.huntFoe&&S.idx===0&&!(S.world||0))?'Sneaky Goblin':null); MONSTERS.gen=S.genFoe; S.foePick='gen'; }
+    else { if(S.daily) Math.random=seeded(S.daily.seed*7+S.daily.n); S.genFoe=genMonster(ar, S.huntFoe ? lo+rnd(hi-lo+1) : lo+Math.round(posIn()*(hi-lo)/(AREA_LEN[ar]-1)), (!S.huntFoe&&S.idx===0&&!(S.world||0))?'Sneaky Goblin':null); MONSTERS.gen=S.genFoe; S.foePick='gen'; Math.random=realRandom; }
   }
   const id=curFoeId(), d=MONSTERS[id], a=AREAS[curArea()];
   if(!S.enc){ S.enc = d.boss ? 'boss' : (S.coach===0&&S.idx===0) ? 'path' : ['ambush','spot','path'][rnd(3)]; }
@@ -2297,6 +2337,7 @@ function victoryPanel(){
     </div>
     ${dropHTML(w)}
     <div class="vic-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
+    ${w.boss?'<button class="btn big brag-fb" data-act="brag" data-kind="boss">Brag about this win</button>':''}
     <button class="btn big vic-btn" data-act="afterVictory">${S.pendingLv?'Level up!':'Visit the merchant'}</button>
   </div>`);
   if(w.drop&&w.drop.kind==='drink'&&w.drop.pending) drinkEvent(w.drop.heal, '.vic-hp .hpbar', 900, ()=>{ w.drop.pending=false; });
@@ -2354,7 +2395,7 @@ function levelPanel(){
     <div class="vic-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     </div>
     ${tip('level','Every monster gives you <b>experience</b> (the ⭐ under your equipment). Each new level makes <b>every</b> attack hit harder and raises your max health. Sometimes you find a bonus too. Health doesn\'t refill on its own: rest at the inn or drink a potion.')}
-    <button class="btn big vic-btn" data-act="lvlOk" style="opacity:0;animation:rwIn .4s ease 1.4s forwards">Visit the merchant</button>`);
+    <div class="row" style="width:100%;opacity:0;animation:rwIn .4s ease 1.4s forwards"><button class="btn big brag-fb" data-act="brag" data-kind="level">Brag</button><button class="btn big vic-btn" data-act="lvlOk" style="flex:2">Visit the merchant</button></div>`);
   $('panel').classList.add('cine');
 }
 function eqOffer(type){
@@ -2509,11 +2550,11 @@ function makeFind(){
       S.eq[k]={type,tier:1}; f={give:[eqIcon(type,1),eqName(type,1)],scene:'fallen',icon:I('skull'),title:'A fallen adventurer',text:`Someone didn't make it. They left behind a <b>${eqName(type,1)}</b> ${EQUIP[type].icon}. You put it on.`}; }
     else { S.gold+=3; f={gold:3,scene:'fallen',icon:I('skull'),title:'A fallen adventurer',text:'Their old gear is worse than yours, so you sell it to the next traveler for <b>3 gold coins</b>.'}; }
   } else if(r<.72){
-    const clue=['"The bandits dragged her down into the cellar. Watch out for their chief."',
+    const clue=(S.world||0)>0 ? worldClue() : ['"The bandits dragged her down into the cellar. Watch out for their chief."',
                 '"Behind the cracked cellar wall there\'s a tunnel. It leads to the Dark Forest."',
                 '"They\'re taking her to Castle Grimstone. Follow the smoke above the trees."',
                 '"She\'s locked in the tallest tower. The master is a dragon. Save your best hand for it."'][areaOf()];
-    const people=[['hermit','An old hermit'],['farmer','A kind farmer'],['minstrel','A traveling minstrel'],['knight','A wandering knight']], [scene,title]=people[rnd(people.length)];
+    const people=[['hermit','An old hermit'],['villager','A frightened villager'],['minstrel','A traveling minstrel'],['knight','A wandering knight']], [scene,title]=people[rnd(people.length)];
     let gift, giftGold=0, giftItem=null, sipHeal=0;
     if(Math.random()<.8){ if(S.spells.length<3){ S.spells.push('potion'); gift='a <b>Healing Potion</b> 🧪'; giftItem=[I('potion'),'Healing Potion']; } else { sipHeal=Math.min(S.maxHp-S.hp,100); gift=`a sip from their flask (<b>+${sipHeal} health</b>)`; } }
     else { const g=3+rnd(3); S.gold+=g; giftGold=g; gift=`<b>${g} gold coins</b> to help you on your way`; }
@@ -2528,7 +2569,8 @@ function makeFind(){
 }
 function findPanel(){
   S.phase='find'; const f=S.find, plain=f.text.replace(/<br>/g,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
-  openPanel(`${cineHTML('find_'+(f.scene||'chest'), f.title, plain)}
+  const fk=FIND_FIG[f.scene||'chest']||'p_chest', fhtml=cineHTML('find_'+(f.scene||'chest'), f.title, plain, `<img class="find-fig" src="art/${fk}.webp" alt="">`).replace(`src="${sceneImg('find_'+(f.scene||'chest'))}"`, `src="art/${BGF(curArea())}.webp"`);
+  openPanel(`${fhtml}
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     ${f.choice ? `<div class="row" style="width:100%"><button class="btn big vic-btn" data-act="eat">Eat it</button><button class="btn big vic-btn" data-act="findOk">Leave it</button></div>`
                : `<button class="btn big vic-btn" data-act="findOk">Keep going</button>`}`);
@@ -2558,7 +2600,7 @@ function gameOverPanel(){
       <span class="death-title">You have fallen</span></div>
     <div class="death-why"><b>${k.big?'Critical blow!':'Defeated'}</b><p>${why}</p><small>${advice}</small></div>
     <p>Old Bram drags you back to the pub and patches you up. "Shake it off. Anna's still out there, and you're her only hope."</p>
-    ${summary()}${sv?`<button class="btn big" data-act="loadSaved">Open saved game<small class="sv-sub">${savedInfo(sv)}</small></button>`:(S.world||0)>0?`<button class="btn big" data-act="retryWorld">Retry ${worldName(S.world)}</button>`:''}<button class="btn big ${sv||(S.world||0)>0?'newgame':''}" data-act="newRun">Start over</button>`);
+    <button class="btn big brag-fb" data-act="brag" data-kind="death">Share my score</button>${summary()}${sv?`<button class="btn big" data-act="loadSaved">Open saved game<small class="sv-sub">${savedInfo(sv)}</small></button>`:(S.world||0)>0?`<button class="btn big" data-act="retryWorld">Retry ${worldName(S.world)}</button>`:''}<button class="btn big ${sv||(S.world||0)>0?'newgame':''}" data-act="newRun">Start over</button>`);
   $('panel').classList.add('cine');
   timpaniRoll(.2,.5); brass(98,.8,1.6,.05); brass(92.5,.8,1.6,.04);
 }
@@ -2660,6 +2702,20 @@ document.addEventListener('click', e=>{
     case 'help': if(!busy) helpPanel(); break;
     case 'soldier': if(!busy) soldierPanel(); break;
     case 'close': closePanel(); resumePhase(); break;
+    case 'brag': { const ov=!$('overlay').hidden; S.bragPrev = ov ? {html:$('panel').innerHTML, cls:$('panel').className} : null; bragPanel(t.dataset.kind, t.dataset.id); break; }
+    case 'bragClose': { const pv=S.bragPrev; S.bragPrev=null; if(pv){ $('panel').innerHTML=pv.html; $('panel').className=pv.cls; } else closePanel(); break; }
+    case 'bragFb': { const u='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(bragUrl())+'&quote='+encodeURIComponent(bragText()); const a=document.createElement('a'); a.href=u; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); break; }
+    case 'bragShare': { bragBlob().then(b=>{ const file=b&&new File([b],'axes-and-aces.jpg',{type:'image/jpeg'});
+        if(file && navigator.canShare && navigator.canShare({files:[file]})) navigator.share({files:[file], text:bragText()+' '+bragUrl()}).catch(()=>{});
+        else if(navigator.share) navigator.share({title:'Axes & Aces', text:bragText(), url:bragUrl()}).catch(()=>{});
+        else toast('Use "Save picture", then post it with the link'); }); break; }
+    case 'bragSave': { bragBlob().then(b=>{ if(!b) return; const u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download='axes-and-aces-brag.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('Picture saved'); }); break; }
+    case 'bragCopy': { const txt=bragText()+' '+bragUrl(); (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Link copied')).catch(()=>toast(bragUrl())); break; }
+    case 'ach': achPanel(); break;
+    case 'daily': startDaily(); break;
+    case 'dailyGo': closePanel(); fightIntro(); break;
+    case 'dailyNext': dailyNextFight(); break;
+    case 'dailyQuit': dailyQuit(); break;
     case 'menu': if(!busy) menuPanel(); break;
     case 'menuSave': { saveGame(true); t.textContent='Saved ✓'; t.disabled=true; const v=loadSaved(), n=document.querySelector('.menu-note'); if(v&&n) n.textContent='Last saved: '+savedInfo(v); break; }
     case 'menuQuit': { saveGame(true); const sv=loadSave(); if(sv){ canSave=false; titlePanel(sv); } else closePanel(); break; }
@@ -2701,6 +2757,8 @@ function menuPanel(){
   openPanel(`<div class="eyebrow">Paused</div><h2>Menu</h2>
     <div class="menu-list">
       <button class="btn big" data-act="close">Continue playing</button>
+      <button class="btn big ghost daily" data-act="daily">Daily Challenge</button>
+      <button class="btn big ghost" data-act="ach">Achievements and stats</button>
       <button class="btn big ghost" data-act="menuSave">Save game</button>
       <button class="btn big ghost" data-act="menuQuit">Save and quit</button>
       <button class="btn big ghost danger" data-act="menuNew">Start over</button>
@@ -2715,8 +2773,213 @@ function titlePanel(sv){
     <h2>Welcome back, ${L.world>0||L.knighted?'Sir Edward':'Edward'}</h2>
     <div class="lines"><div><span>Quest</span><b>${worldName(L.world)}</b></div><div><span>Level</span><b>${L.level}</b></div><div><span>Where</span><b>${where}</b></div><div><span>Health</span><b>${L.hp} / ${L.maxHp}</b></div><div><span>Gold</span><b>${coin(L.gold)}</b></div><div><span>Saved</span><b>${when}</b></div></div>
     <button class="btn big" data-act="continue">Continue</button>
+    <button class="btn big ghost daily" data-act="daily">Daily Challenge</button>
     <button class="btn big newgame" data-act="newGame">New game</button>`);
   $('panel').classList.add('cine');
+}
+
+/* ================= recorded music: a song per world, a boss song, smooth crossfades ================= */
+const SONG_BAD = new Set();
+let musBus=null, song=null;
+function songWant(){
+  if(!musicOn || !S) return null;
+  const fightish = S.phase==='play'||S.phase==='intro';
+  let boss=false; try{ boss = fightish && !S.huntFoe && foeDef() && foeDef().boss; }catch(e){}
+  return boss ? 'boss' : 'w'+(((S.world||0)%10)+1);
+}
+function songStart(id){
+  if(!musBus){ musBus=ac.createGain(); musBus.gain.value=.55; musBus.connect(ac.destination); }
+  const a=new Audio(`music/${id}.mp3`); a.preload='auto';
+  let node; try{ node=ac.createMediaElementSource(a); }catch(e){ SONG_BAD.add(id); return null; }
+  const g=ac.createGain(); g.gain.value=0; node.connect(g); g.connect(musBus);
+  const me={id,a,g,next:false};
+  a.addEventListener('error',()=>{ SONG_BAD.add(id); if(song===me){ song=null; updateMusic(); } });
+  a.addEventListener('timeupdate',()=>{ if(song===me && !me.next && a.duration && a.currentTime>a.duration-4){ me.next=true; songSwap(id); } });
+  a.play().then(()=>{ g.gain.setTargetAtTime(1,ac.currentTime,.7); }).catch(()=>{});
+  return me;
+}
+function songStop(me){ if(!me) return; try{ me.g.gain.setTargetAtTime(0,ac.currentTime,.6); }catch(e){} setTimeout(()=>{ try{ me.a.pause(); me.g.disconnect(); }catch(e){} },3500); }
+function songSwap(id){ const old=song; song=songStart(id); songStop(old); }
+
+/* ================= travelers and finds appear where Edward actually is ================= */
+function worldClue(){ const a=areaOf(), b=MONSTERS['boss_'+a], st=QUEST_STEPS[Math.min(QUEST_STEPS.length-1,a*3)];
+  const go=st?st.go.toLowerCase():'keep going';
+  const lines=[`"${b?b.name:'Something terrible'} waits up ahead. My advice? ${go}, and stay sharp."`, `"I barely escaped ${b?b.name:'it'}. If you're brave enough, ${go}."`, `"You're after ${b?b.name:'the beast'}? Then ${go}. And don't look back."`];
+  return lines[rnd(lines.length)]; }
+const FIND_FIG = {chest:'p_chest', fallen:'p_fallen', trap:'p_trap', mushroom:'p_mushroom', hermit:'p_hermit', villager:'p_villager', farmer:'p_villager', minstrel:'p_minstrel', knight:'p_knight'};
+
+/* ================= achievements, lifetime stats, brag cards, daily challenge ================= */
+const SITE='https://zoerner6.github.io/axes-and-aces/';
+const ACH=[
+ {id:'first_win', name:'First Blood', desc:'Win your first fight', icon:'sword'},
+ {id:'one_shot', name:'One and Done', desc:'Defeat a monster with a single attack', icon:'attack'},
+ {id:'flawless', name:'Untouched', desc:'Win a fight without losing any health', icon:'shield'},
+ {id:'comeback', name:'By a Thread', desc:'Win a fight with less than 10% health left', icon:'heart'},
+ {id:'straight', name:'Straight Shooter', desc:'Attack with a Straight', icon:'attack'},
+ {id:'flush', name:'Flush of Power', desc:'Attack with a Flush', icon:'attack'},
+ {id:'full', name:'Full House Party', desc:'Attack with a Full House', icon:'attack'},
+ {id:'four', name:'Four Horsemen', desc:'Attack with Four of a Kind', icon:'attack'},
+ {id:'sflush', name:'Straight Flush!', desc:'Attack with a Straight Flush', icon:'attack'},
+ {id:'royal', name:'Royal Flush', desc:'Attack with 10, J, Q, K, A of one suit', icon:'level'},
+ {id:'hit1k', name:'Heavy Hitter', desc:'Deal 1,000 damage in one attack', icon:'axe'},
+ {id:'hit10k', name:'Giant Slayer', desc:'Deal 10,000 damage in one attack', icon:'axe'},
+ {id:'hit100k', name:'Earthshaker', desc:'Deal 100,000 damage in one attack', icon:'axe'},
+ {id:'boss1', name:'Boss Breaker', desc:'Defeat your first boss', icon:'skull'},
+ {id:'bosses10', name:'Boss Hunter', desc:'Defeat 10 bosses', icon:'skull'},
+ {id:'rescue', name:'Sir Edward', desc:'Rescue Anna and be knighted by the King', icon:'level'},
+ {id:'quests5', name:'Halfway Hero', desc:'Complete 5 quests', icon:'map'},
+ {id:'quests10', name:'Legend of the Realm', desc:'Complete all 10 quests', icon:'map'},
+ {id:'endless3', name:'Into the Endless', desc:'Reach Endless Depth 3', icon:'map'},
+ {id:'lvl10', name:'Veteran', desc:'Reach level 10', icon:'xp'},
+ {id:'lvl25', name:'Champion', desc:'Reach level 25', icon:'xp'},
+ {id:'rich', name:'Pockets Full', desc:'Hold 100 gold at once', icon:'coin'},
+ {id:'potions10', name:'Potion Fan', desc:'Drink 10 potions', icon:'potion'},
+ {id:'daily', name:'Daily Duelist', desc:'Finish a Daily Challenge', icon:'chest'},
+ {id:'daily5', name:'Daily Champion', desc:'Win all 5 fights of a Daily Challenge', icon:'chest'}
+];
+const life = ()=>Object.assign({wins:0,bosses:0,hands:0,best:0,bestName:'',gold:0,potions:0,quests:0,deaths:0,level:1,dailyBest:0}, store.get('aa_life',{}));
+function lifeAdd(fn){ const L=life(); fn(L); store.set('aa_life',L); }
+const achHave = ()=>store.get('aa_ach',{});
+function unlock(id){
+  if(S&&S.daily&&!['daily','daily5','straight','flush','full','four','sflush','royal','hit1k','hit10k','hit100k','one_shot','flawless','comeback'].includes(id)) return;
+  const have=achHave(); if(have[id]) return; have[id]=Date.now(); store.set('aa_ach',have);
+  const a=ACH.find(x=>x.id===id); if(!a) return;
+  const e=document.createElement('div'); e.className='ach-pop';
+  e.innerHTML=`<span class="ach-ic">${I(a.icon)}</span><span><small>Achievement unlocked!</small><b>${a.name}</b><em>${a.desc}</em></span><button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`;
+  document.body.appendChild(e); trumpetCall(); setTimeout(()=>e.classList.add('out'),5200); setTimeout(()=>e.remove(),5800);
+}
+function achOnHand(ev, played, dmg){
+  lifeAdd(L=>{ L.hands++; if(dmg>L.best){ L.best=dmg; L.bestName=HANDS[ev.type].name; } });
+  if(['straight','flush','full','four','sflush'].includes(ev.type)) unlock(ev.type);
+  if(ev.type==='sflush' && ev.cards.some(c=>c.rank===14) && ev.cards.some(c=>c.rank===13)) unlock('royal');
+  if(dmg>=1000) unlock('hit1k'); if(dmg>=10000) unlock('hit10k'); if(dmg>=100000) unlock('hit100k');
+  if(S.fight) S.fight.atks=(S.fight.atks||0)+1;
+}
+function achOnWin(d){
+  const f=S.fight||{};
+  lifeAdd(L=>{ L.wins++; if(d.boss) L.bosses++; L.gold+=d.gold||0; L.level=Math.max(L.level,S.level); });
+  unlock('first_win'); if((f.atks||0)===1) unlock('one_shot');
+  if(f.hp0!=null && S.hp>=f.hp0) unlock('flawless');
+  if(S.hp < S.maxHp*.1) unlock('comeback');
+  if(d.boss){ unlock('boss1'); if(life().bosses>=10) unlock('bosses10'); }
+  if(S.level>=10) unlock('lvl10'); if(S.level>=25) unlock('lvl25');
+  if(S.gold>=100) unlock('rich');
+}
+function achOnQuest(){
+  lifeAdd(L=>{ L.quests=Math.max(L.quests,S.world||0); });
+  if((S.world||0)>=1) unlock('rescue'); if(S.world>=5) unlock('quests5'); if(S.world>=10) unlock('quests10'); if(S.world>=12) unlock('endless3');
+}
+
+/* ---- brag cards: a 1200x630 picture made for Facebook, linking back to the game ---- */
+const imgLoad = src => new Promise(r=>{ const i=new Image(); i.onload=()=>r(i); i.onerror=()=>r(null); i.src=src; });
+function wrapText(ctx, t, x, y, w, lh){ const words=t.split(' '); let line='', yy=y; for(const wd of words){ const tt=line?line+' '+wd:wd; if(ctx.measureText(tt).width>w && line){ ctx.fillText(line,x,yy); line=wd; yy+=lh; } else line=tt; } if(line) ctx.fillText(line,x,yy); return yy; }
+async function bragCard(o){
+  try{ await document.fonts.load('80px "Germania One"'); await document.fonts.load('700 40px Oswald'); }catch(e){}
+  const c=document.createElement('canvas'); c.width=1200; c.height=630; const x=c.getContext('2d');
+  const bg=await imgLoad(o.bg||'art/bg_tavern.webp');
+  if(bg){ const sc=Math.max(1200/bg.width,630/bg.height); x.drawImage(bg,(1200-bg.width*sc)/2,(630-bg.height*sc)/2,bg.width*sc,bg.height*sc); } else { x.fillStyle='#2a1608'; x.fillRect(0,0,1200,630); }
+  let gr=x.createLinearGradient(0,0,1200,0); gr.addColorStop(0,'rgba(10,5,3,.94)'); gr.addColorStop(.55,'rgba(10,5,3,.78)'); gr.addColorStop(1,'rgba(10,5,3,.15)'); x.fillStyle=gr; x.fillRect(0,0,1200,630);
+  const fig=o.fig?await imgLoad(o.fig):null;
+  if(fig){ const k=Math.min(500/fig.width, 520/fig.height), w=fig.width*k, h=fig.height*k; x.save(); x.shadowColor='rgba(0,0,0,.85)'; x.shadowBlur=30; x.drawImage(fig, 1180-w, 610-h, w, h); x.restore(); }
+  x.fillStyle='#000'; x.fillRect(0,0,1200,12); x.fillRect(0,618,1200,12);
+  x.textBaseline='alphabetic';
+  x.font='44px "Germania One", Georgia, serif'; x.fillStyle='#f2b632'; x.fillText('Axes & Aces', 56, 92);
+  x.font='700 22px Oswald, Arial'; x.fillStyle='#e8d9bb'; x.fillText((o.eyebrow||'').toUpperCase(), 58, 132);
+  x.font='74px "Germania One", Georgia, serif'; x.lineWidth=10; x.strokeStyle='#000'; x.fillStyle='#fff3d0'; x.lineJoin='round';
+  const lines=[]; { const words=o.title.split(' '); let l=''; for(const w of words){ const t=l?l+' '+w:w; if(x.measureText(t).width>640&&l){ lines.push(l); l=w; } else l=t; } lines.push(l); }
+  let y=212; for(const l of lines.slice(0,2)){ x.strokeText(l,56,y); x.fillText(l,56,y); y+=80; }
+  if(o.big){ x.font='700 84px Oswald, Arial'; x.fillStyle=o.bigColor||'#f2b632'; x.strokeText(o.big,56,y+22); x.fillText(o.big,56,y+22); y+=86; }
+  x.font='500 28px "Alegreya Sans", Arial'; x.fillStyle='#e8d9bb'; x.lineWidth=5; const subs=[]; { const words=(o.sub||'').split(' '); let l=''; for(const w of words){ const t=l?l+' '+w:w; if(x.measureText(t).width>620&&l){ subs.push(l); l=w; } else l=t; } if(l) subs.push(l); }
+  subs.slice(0, Math.max(1, Math.floor((505-(y+10))/34)+1)).forEach((l,i)=>{ x.strokeText(l,58,y+10+i*34); x.fillText(l,58,y+10+i*34); });
+  x.fillStyle='#f2b632'; x.fillRect(56,532,560,58); x.strokeStyle='#000'; x.lineWidth=4; x.strokeRect(56,532,560,58);
+  x.font='700 28px Oswald, Arial'; x.fillStyle='#16100d'; x.fillText('PLAY FREE  ▸  zoerner6.github.io/axes-and-aces', 74, 571);
+  return c;
+}
+function bragInfo(kind, id){
+  const w=S?(S.world||0):0, who=(typeof heroName==='function')?heroName():'Edward';
+  if(kind==='ach'){ const a=ACH.find(x=>x.id===id)||ACH[0]; return {key:'ach_'+a.id, eyebrow:'Achievement unlocked', title:a.name, sub:a.desc+'. Think you can do it too?', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}. Your turn.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?'I saved Anna and was knighted Sir Edward!':`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'Fight monsters with poker hands. Can you finish the quest?', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
+  if(kind==='death'){ const k=S.killer||{}; return {key:'fallen', eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down. Beat my score!`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
+  if(kind==='level'){ return {key:'level', eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${S.level} damage`, sub:'Every attack hits harder. How far can you go?', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='daily'){ const r=S.dailyResult||{}; return {key:'daily', eyebrow:`Daily Challenge · ${r.date||''}`, title:r.wins>=5?'I beat today\'s Daily Challenge!':`I won ${r.wins||0} of 5 daily fights`, big:`${fmt(r.score||0)} points`, sub:'Same monsters and same cards for everyone today. Can you beat my score?', fig:r.fig||`art/hero_t${heroTier()}.webp`, bg:r.bg||'art/bg_castle.webp'}; }
+  return {key:'game', eyebrow:'Dark comic card adventure', title:'Axes & Aces', sub:'Fight monsters with poker hands.', fig:'art/hero_t3.webp'};
+}
+const heroTier = ()=>Math.max(0,...['armor','helm','shield'].map(k=>S.eq&&S.eq[k]?S.eq[k].tier:0));
+let bragCanvas=null, bragNow=null;
+async function bragPanel(kind, id){
+  const info=bragInfo(kind,id); bragNow=info; const prev=S.phase;
+  openPanel(`<div class="eyebrow">Share it</div><h2>Brag about it</h2><div class="brag-img" id="bragImg"><span>Making your picture...</span></div>
+    <div class="brag-btns">
+      <button class="btn big brag-fb" data-act="bragFb">Share on Facebook</button>
+      <button class="btn big ghost" data-act="bragShare">Share picture</button>
+      <button class="btn big ghost" data-act="bragSave">Save picture</button>
+      <button class="btn big ghost" data-act="bragCopy">Copy link</button>
+    </div>
+    <p class="menu-note">Tip: on Facebook, post the saved picture with the link so friends can tap it and play.</p>
+    <button class="btn big" data-act="bragClose">Done</button>`);
+  S.bragBack=prev;
+  bragCanvas=await bragCard(info);
+  const im=$('bragImg'); if(im){ im.innerHTML=''; const u=bragCanvas.toDataURL('image/jpeg',.9); const i=new Image(); i.src=u; i.alt=info.title; im.appendChild(i); }
+}
+const bragUrl = ()=>SITE+'b/'+(bragNow?bragNow.key:'game')+'.html';
+const bragText = ()=>bragNow ? `${bragNow.title} ${bragNow.big?'('+bragNow.big+') ':''}Play Axes & Aces free:` : 'Play Axes & Aces free:';
+function bragBlob(){ return new Promise(r=>bragCanvas ? bragCanvas.toBlob(b=>r(b),'image/jpeg',.9) : r(null)); }
+
+/* ---- daily challenge: same monsters and same card shuffles for everyone today ---- */
+const realRandom=Math.random;
+function seeded(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const todayKey = ()=>{ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const DAILY_STEPS=[1,5,10,16,8];
+function startDaily(){
+  stopVoice(); const key=todayKey(), seed=+key.replace(/-/g,'');
+  canSave=false; newRun(false);
+  const w=seed%10; S.world=w; loadWorld(w); S.knighted=w>0;
+  const lo=AREA_LV[1][0]; S.level=Math.max(3,lo); S.maxHp=400+100*(S.level-1); S.hp=S.maxHp; S.xp=cumNeed(S.level-1);
+  const t=Math.min(5,1+Math.floor(S.level/5)); S.eq={main:{type:'sword',tier:t},off:null,shield:{type:'shield',tier:t},helm:{type:'helm',tier:t},armor:{type:'armor',tier:t}};
+  S.spells=['potion','potion','rage']; S.coach=-1; S.tips={shop:1,level:1,boss:1,path:1};
+  S.daily={key, seed, n:0, wins:0, atks:0, shuf:0}; S.idx=DAILY_STEPS[0]; S.genFoe=null; S.foePick=null; S.enc=null;
+  render(); dailyIntro();
+}
+function dailyIntro(){
+  S.phase='dailyIntro';
+  openPanel(`<div class="cine-scene"><img src="art/${BGF(1)}.webp" alt=""><span class="cine-title">Daily Challenge</span></div>
+    <h2>${todayKey()}</h2>
+    <p>Five fights in <b>${worldName(S.world)}</b>. Everyone gets the same monsters and the same cards today. Win as many as you can, as fast as you can.</p>
+    <div class="lines"><div><span>Your level</span><b>${S.level}</b></div><div><span>Best today</span><b>${fmt(store.get('aa_daily_'+todayKey(),0))} points</b></div></div>
+    <button class="btn big" data-act="dailyGo">Start</button><button class="btn big ghost" data-act="dailyQuit">Back</button>`);
+  $('panel').classList.add('cine');
+}
+function dailyNextFight(){ S.daily.n++; if(S.daily.n>=DAILY_STEPS.length){ dailyDone(); return; } S.idx=DAILY_STEPS[S.daily.n]; S.genFoe=null; S.foePick=null; S.enc=null; S.fight=null; fightIntro(); }
+function dailyDone(){
+  const D=S.daily, score=D.wins*1000 + Math.max(0,S.hp) + Math.max(0,30-D.atks)*50;
+  const best=Math.max(store.get('aa_daily_'+D.key,0),score); store.set('aa_daily_'+D.key,best);
+  lifeAdd(L=>{ L.dailyBest=Math.max(L.dailyBest,score); });
+  S.dailyResult={date:D.key, wins:D.wins, score, bg:`art/${BGF(1)}.webp`, fig:`art/hero_t${heroTier()}.webp`};
+  unlock('daily'); if(D.wins>=5) unlock('daily5');
+  S.phase='dailyDone';
+  openPanel(`<div class="vic"><div class="vic-title">${D.wins>=5?'Champion!':'Challenge over'}</div>
+    <div class="vic-sub">Daily Challenge · ${D.key}</div>
+    <div class="rewards"><div class="rw gd" style="--d:.1s"><span class="ri">${I('chest')}</span><b>${D.wins}/5</b><small>Fights won</small></div>
+      <div class="rw xp" style="--d:.2s"><span class="ri">${I('attack')}</span><b>${D.atks}</b><small>Attacks used</small></div>
+      <div class="rw lv" style="--d:.3s"><span class="ri">${I('level')}</span><b>${fmt(score)}</b><small>Points</small><em>Best today ${fmt(best)}</em></div></div>
+    <button class="btn big brag-fb" data-act="brag" data-kind="daily">Brag about it</button>
+    <button class="btn big vic-btn" data-act="dailyQuit">Back to my adventure</button></div>`);
+}
+function dailyQuit(){
+  Math.random=realRandom; canSave=true; closePanel();
+  const sv=loadSave(); if(sv){ start({S:sv.S}); } else { newRun(false); render(); storyPanel(); }
+}
+
+/* ---- achievements and stats screen ---- */
+function achPanel(){
+  const have=achHave(), L=life(), n=ACH.filter(a=>have[a.id]).length;
+  openPanel(`<div class="eyebrow">Your legend</div><h2>Achievements ${n} / ${ACH.length}</h2>
+    <div class="lines stats-lines"><div><span>Fights won</span><b>${fmt(L.wins)}</b></div><div><span>Bosses defeated</span><b>${fmt(L.bosses)}</b></div>
+      <div><span>Biggest hit</span><b>${fmt(L.best)}${L.bestName?' ('+L.bestName+')':''}</b></div><div><span>Hands played</span><b>${fmt(L.hands)}</b></div>
+      <div><span>Highest level</span><b>${L.level}</b></div><div><span>Quests completed</span><b>${L.quests}</b></div><div><span>Best daily score</span><b>${fmt(L.dailyBest)}</b></div></div>
+    <div class="ach-grid">${ACH.map(a=>`<div class="ach ${have[a.id]?'got':''}"><span class="ach-ic">${have[a.id]?I(a.icon):I('lock')}</span><span><b>${a.name}</b><small>${a.desc}</small></span>${have[a.id]?`<button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`:''}</div>`).join('')}</div>
+    <button class="btn big" data-act="close">Back</button>`);
 }
 /* ---------- start ---------- */
 function start(data){
