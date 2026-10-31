@@ -1770,6 +1770,8 @@ const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.45,L-1) : 130*Math.pow(1.45,
 /* how hard everything hits. 1 was too soft: you won nearly every fight with
    health to spare and never needed a potion. */
 const FOE_PUNCH = 1.5;
+/* monsters live long enough to use that punch */
+const FOE_TOUGH = 1.35;
 /* nothing fights with no defence at all */
 const FLOOR_DEF = 5;
 const foeArmorFor = (L, boss) => Math.max(FLOOR_DEF, Math.round((5 + 6.5*(Math.max(1,L)-1)) * (boss?1.5:1) / 5) * 5);
@@ -1779,7 +1781,7 @@ function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
   /* the pub is where you start with no gear: its monsters are softer */
   const pub=(a===0&&!(S&&S.world));
-  const hp=Math.round(monsterHP(L)*t.hp*r()*(pub?.8:1)/5)*5, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(pub?.8:1);
+  const hp=Math.round(monsterHP(L)*FOE_TOUGH*t.hp*r()*(pub?.8:1)/5)*5, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(pub?.8:1);
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
   return {def:pub?FLOOR_DEF:foeArmorFor(L), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
@@ -1823,7 +1825,7 @@ const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir '+baseName(
 const nm = t => { if(typeof t!=='string') return t; t=t.replace(/\b([Tt])he The /g,'$1he '); const n=baseName(); return n==='Edward' ? t : t.replace(/\bEdward\b/g, n); };
 function ruleOf(r){ return {rule:`${SUITS[r.off].s} ${SUITS[r.off].n}s do no damage`, off:c=>c.suit===r.off}; }
 function genBoss(def, L){
-  const hp=Math.round(monsterHP(L)*2.3/10)*10, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH;
+  const hp=Math.round(monsterHP(L)*3/10)*10, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH;
   const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*v)*10)});
   return Object.assign({def:foeArmorFor(L,true), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
 }
@@ -2289,7 +2291,7 @@ function render(){
 }
 function renderKit(){
   const on=(k,i)=>infoSel&&infoSel.k===k&&infoSel.i===i?'on':'';
-  $('atkNum').textContent='+'+weaponPts(); $('defNum').textContent='+'+defense(); $('miniSold').innerHTML=soldierSVG();
+  $('atkNum').textContent='+'+atkPct()+'%'; $('defNum').textContent='−'+defPct()+'%'; $('miniSold').innerHTML=soldierSVG();
   let s=''; for(let i=0;i<3;i++){ const id=S.spells[i];
     s += id ? `<button class="slot spell ${on('s',i)}" data-act="slot" data-k="s" data-i="${i}" aria-label="${SP[id].name}">${SP[id].icon}</button>` : `<div class="slot empty"></div>`; }
   $('spells').innerHTML=s;
@@ -3311,7 +3313,7 @@ document.addEventListener('click', e=>{
       S.gold+=Math.floor(GR[id].price/2); S.gear.splice(infoSel.i,1); infoSel=null; blip(700,.1); render(); if(S.phase==='shop') shopPanel(); break; }
     case 'sellG': { const id=S.gear[+t.dataset.i]; if(!id) return; S.gold+=Math.floor(GR[id].price/2); S.gear.splice(+t.dataset.i,1); blip(700,.1); render(); shopPanel(); toast(`Sold ${GR[id].name}`); break; }
     case 'sellS': { const id=S.spells[+t.dataset.i]; if(!id) return; S.gold+=Math.floor(SP[id].price/2); S.spells.splice(+t.dataset.i,1); blip(700,.1); render(); shopPanel(); toast(`Sold ${SP[id].name}`); break; }
-    case 'rest': { if(S.gold<innCost()||S.hp>=S.maxHp) return; goldPouch(S.gold, -innCost()); S.gold-=innCost(); const b=S.hp; S.hp=Math.min(S.maxHp,S.hp+innHeal()); soothe(); render(); shopPanel(); itemSplash(I('heart'), 'A good night\'s rest', 0, `+${S.hp-b}`, ()=>{}); break; }
+    case 'rest': { if(S.gold<innCost()||S.hp>=S.maxHp) return; goldPouch(S.gold, -innCost()); S.gold-=innCost(); const b=S.hp; S.hp=Math.min(S.maxHp,S.hp+innHeal()); soothe(); setTimeout(soothe,260); render(); shopPanel(); healEvent(S.hp-b,'Rested +'+fmt(S.hp-b)); itemSplash(I('heart'), 'A good night\'s rest', 0, `+${S.hp-b}`, ()=>{}); break; }
     case 'coachNext': coachNext(); break;
     case 'skipTutorial': S.coach=-1; S.tips={shop:1,level:1,boss:1}; store.set('tutorialDone',true); render(); break;
     case 'replayTutorial': newRun(true); render(); storyPanel(); break;
