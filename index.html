@@ -3405,19 +3405,21 @@ async function bragCard(o){
   let y=212; for(const l of lines.slice(0,2)){ x.strokeText(l,56,y); x.fillText(l,56,y); y+=80; }
   if(o.big){ x.font='700 84px Oswald, Arial'; x.fillStyle=o.bigColor||'#f2b632'; x.strokeText(o.big,56,y+22); x.fillText(o.big,56,y+22); y+=86; }
   x.font='500 28px "Alegreya Sans", Arial'; x.fillStyle='#e8d9bb'; x.lineWidth=5; const subs=[]; { const words=(o.sub||'').split(' '); let l=''; for(const w of words){ const t=l?l+' '+w:w; if(x.measureText(t).width>620&&l){ subs.push(l); l=w; } else l=t; } if(l) subs.push(l); }
-  subs.slice(0, Math.max(1, Math.floor((505-(y+10))/34)+1)).forEach((l,i)=>{ x.strokeText(l,58,y+10+i*34); x.fillText(l,58,y+10+i*34); });
-  x.fillStyle='#f2b632'; x.fillRect(56,532,560,58); x.strokeStyle='#000'; x.lineWidth=4; x.strokeRect(56,532,560,58);
-  x.font='700 28px Oswald, Arial'; x.fillStyle='#16100d'; x.fillText('PLAY FREE  ▸  AxesAndAces.com', 74, 571);
+  subs.slice(0, Math.max(1, Math.floor((480-(y+10))/34)+1)).forEach((l,i)=>{ x.strokeText(l,58,y+10+i*34); x.fillText(l,58,y+10+i*34); });
+  /* call to action in the game's comic lettering, no box */
+  x.lineJoin='round'; x.strokeStyle='#000';
+  x.font='34px "Germania One", Georgia, serif'; x.lineWidth=7; x.fillStyle='#ffd35c'; x.strokeText('Play free at',58,540); x.fillText('Play free at',58,540);
+  x.font='64px "Germania One", Georgia, serif'; x.lineWidth=10; x.fillStyle='#ffffff'; x.strokeText('AxesAndAces.com',56,600); x.fillText('AxesAndAces.com',56,600);
   return c;
 }
 function bragInfo(kind, id){
   const w=S?(S.world||0):0, who=(typeof heroName==='function')?heroName():'Edward';
-  if(kind==='ach'){ const a=ACH.find(x=>x.id===id)||ACH[0]; return {key:'ach_'+a.id, eyebrow:'Achievement unlocked', title:a.name, sub:a.desc+'. Think you can do it too?', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
-  if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}. Your turn.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
-  if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?'I saved Anna and was knighted Sir Edward!':`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'Fight monsters with poker hands. Can you finish the quest?', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
-  if(kind==='death'){ const k=S.killer||{}; return {key:'fallen', eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down. Beat my score!`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
-  if(kind==='level'){ return {key:'level', eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${S.level} damage`, sub:'Every attack hits harder. How far can you go?', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
-  if(kind==='daily'){ const r=S.dailyResult||{}; return {key:'daily', eyebrow:`Daily Challenge · ${r.date||''}`, title:r.wins>=5?'I beat today\'s Daily Challenge!':`I won ${r.wins||0} of 5 daily fights`, big:`${fmt(r.score||0)} points`, sub:'Same monsters and same cards for everyone today. Can you beat my score?', fig:r.fig||`art/hero_t${heroTier()}.webp`, bg:r.bg||'art/bg_castle.webp'}; }
+  if(kind==='ach'){ const a=ACH.find(x=>x.id===id)||ACH[0]; return {key:'ach_'+a.id, eyebrow:'Achievement unlocked', title:a.name, sub:a.desc+' in Axes & Aces.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?'I saved Anna and was knighted Sir Edward!':`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'A dark comic card adventure. Fight monsters with poker hands.', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
+  if(kind==='death'){ const k=S.killer||{}; return {key:'fallen', eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down.`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
+  if(kind==='level'){ return {key:'level', eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${S.level} damage`, sub:'Every attack now hits harder.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
+  if(kind==='daily'){ const r=S.dailyResult||{}; return {key:'daily', eyebrow:`Daily Challenge · ${r.date||''}`, title:r.wins>=5?'I beat today\'s Daily Challenge!':`I won ${r.wins||0} of 5 daily fights`, big:`${fmt(r.score||0)} points`, sub:'Same monsters, same cards for everyone today. Beat my score.', fig:r.fig||`art/hero_t${heroTier()}.webp`, bg:r.bg||'art/bg_castle.webp'}; }
   return {key:'game', eyebrow:'Dark comic card adventure', title:'Axes & Aces', sub:'Fight monsters with poker hands.', fig:'art/hero_t3.webp'};
 }
 const heroTier = ()=>Math.max(0,...['armor','helm','shield'].map(k=>S.eq&&S.eq[k]?S.eq[k].tier:0));
@@ -3646,7 +3648,7 @@ function challengePanel(ch, after){
   if(daily) store.set('aa_beat',{d:ch.d,s:ch.s});
   openPanel(`<div class="cine-scene"><img src="art/sc_merchant.webp" alt=""><span class="cine-title">You've been challenged!</span></div>
     <h2>${daily?`Beat ${fmt(ch.s)} points`:ch.c==='daily'?'A friend took on the Daily Challenge':`A friend reached level ${ch.s}`}</h2>
-    <p>${daily?'A friend scored this in today\'s Daily Challenge. Same monsters, same cards. Can you beat it?':ch.c==='daily'?'That challenge has ended, but today\'s is waiting. Can you top your friend?':`They made it to level ${ch.s} in Quest ${ch.w}. Think you can go further?`}</p>
+    <p>${daily?'A friend scored this in today\'s Daily Challenge. Same monsters, same cards. Your turn to try.':ch.c==='daily'?'That challenge has ended, but today\'s is waiting. Give it a go.':`They made it to level ${ch.s} in Quest ${ch.w}. Think you can go further?`}</p>
     ${ch.c==='daily'?'<button class="btn big daily-btn" data-act="daily">Take the Daily Challenge</button>':''}
     <button class="btn big ${ch.c==='daily'?'ghost':''}" data-act="chGo">${ch.c==='daily'?'Play the adventure instead':'Start my adventure'}</button>`);
   $('panel').classList.add('cine'); S.chAfter=after;
