@@ -312,8 +312,8 @@ footer .links{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--f-num);lett
 .arena .flash.on{animation:fl .35s}
 @keyframes fl{0%{opacity:.8}100%{opacity:0}}
 .handwrap{position:relative;margin-top:54px}
-.hand{display:flex;justify-content:center;gap:clamp(5px,1.2vw,14px);flex-wrap:nowrap}
-.pc{position:relative;width:clamp(36px,9.6vw,104px);aspect-ratio:5/7;border:3px solid #000;border-radius:10px;background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:4px 4px 0 #000;color:#111;font-family:var(--f-num);font-weight:700;cursor:pointer;
+.hand{display:flex;justify-content:center;gap:clamp(3px,.5vw,6px);flex-wrap:nowrap}
+.pc{position:relative;width:clamp(34px,8vw,92px);aspect-ratio:5/7;border:3px solid #000;border-radius:10px;background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:4px 4px 0 #000;color:#111;font-family:var(--f-num);font-weight:700;cursor:pointer;
   transition:transform .18s,box-shadow .18s;padding:0;user-select:none}
 .pc .r{position:absolute;top:5px;left:7px;font-size:clamp(.85rem,2vw,1.45rem);line-height:1;text-align:center}
 .pc .r small{display:block;font-size:.85em}
@@ -769,13 +769,13 @@ var SU=['♠','♥','♦','♣'], RK=['2','3','4','5','6','7','8','9','10','J','
 var HAND=document.getElementById('hand'), live=document.getElementById('live'), bDis=document.getElementById('bDis'), bAtk=document.getElementById('bAtk');
 var tip=document.getElementById('tip'), arena=document.getElementById('arena'), dv=document.getElementById('drgV'), hTag=document.getElementById('handTag');
 var deck, cards, sel, discards, HP, done, tipStep=0, started=false;
-var ACE=40;
+var ACE=12;            /* per cent, same as the game */
 var BIG=['Straight','Flush','Full house','Four of a kind','Straight flush','Royal flush'];
 var DMG={'High card':40,'Pair':90,'Two pair':160,'Three of a kind':240,'Straight':330,'Flush':400,'Full house':520,'Four of a kind':700,'Straight flush':880,'Royal flush':1000};
 function shuffle(){ deck=[]; for(var s=0;s<4;s++) for(var r=0;r<13;r++) deck.push({r:r,s:s}); for(var i=deck.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=deck[i]; deck[i]=deck[j]; deck[j]=t; } }
 function cardEl(c,i,anim){ var b=document.createElement('button'), ace=c.r===12, cnr='<span class="r">'+RK[c.r]+'<small>'+SU[c.s]+'</small></span>';
   b.className='pc'+(c.s===1||c.s===2?' red':'')+(ace?' ace':'')+(anim?' deal':''); b.style.animationDelay=(anim?i*70:0)+'ms';
-  b.innerHTML=cnr+'<span class="m">'+SU[c.s]+'</span>'+cnr.replace('class="r"','class="r br"')+(ace?'<span class="ace10">+'+ACE+'</span>':'');
+  b.innerHTML=cnr+'<span class="m">'+SU[c.s]+'</span>'+cnr.replace('class="r"','class="r br"')+(ace?'<span class="ace10">+'+ACE+'%</span>':'');
   b.setAttribute('aria-label',RK[c.r]+' of '+['spades','hearts','diamonds','clubs'][c.s]);
   b.onclick=function(){ if(done) return; var k=sel.indexOf(i); if(k>=0) sel.splice(k,1); else { if(sel.length>=5){ say('Five cards at most'); return; } sel.push(i); } b.classList.toggle('sel'); update(); }; return b; }
 function draw(anim){ HAND.innerHTML=''; cards.forEach(function(c,i){ HAND.appendChild(cardEl(c,i,anim===true||(anim&&anim.indexOf(i)>=0))); }); }
@@ -806,8 +806,8 @@ function update(){
   bDis.textContent='Discard ('+discards+' left)';
   if(!sel.length){ hTag.hidden=true; say(cue()); return; }
   var cs=picked(), e=evalHand(cs), aces=cs.filter(function(c){ return c.r===12; }).length;
-  var bonus=e.n==='High card'?0:aces*ACE, dmg=DMG[e.n]+bonus;
-  hTag.innerHTML=e.n+'! <b>+'+dmg+'</b>'+(bonus?' <em>Ace bonus</em>':'');
+  var bonus=e.n==='High card'?0:Math.round(DMG[e.n]*aces*ACE/100), dmg=DMG[e.n]+bonus;
+  hTag.innerHTML=e.n+'! <b>+'+dmg+'</b>'+(bonus?' <em>Aces +'+(aces*ACE)+'%</em>':'');
   hTag.classList.toggle('big', BIG.indexOf(e.n)>=0);
   hTag.hidden=false;
   say(e.n+' for '+dmg+' damage', true);
@@ -830,7 +830,7 @@ function showTip(n){
 document.getElementById('tipX').onclick=function(){ tip.classList.remove('on'); };
 addEventListener('resize',function(){ if(tip.classList.contains('on')) showTip(tipStep); });
 function deal(){
-  shuffle(); cards=deck.splice(0,8); sel=[]; discards=1; HP=1000; done=false; setHP(); draw(true);
+  shuffle(); cards=deck.splice(0,7); sel=[]; discards=1; HP=1000; done=false; setHP(); draw(true);
   document.getElementById('result').classList.remove('on'); hTag.hidden=true; update(); setTimeout(function(){ showTip(1); }, 650);
 }
 bDis.onclick=function(){
@@ -840,7 +840,7 @@ bDis.onclick=function(){
 };
 bAtk.onclick=function(){
   if(!sel.length||done) return; done=true; tip.classList.remove('on'); hTag.hidden=true;
-  var cs=picked(), e=evalHand(cs), aces=cs.filter(function(c){ return c.r===12; }).length, bonus=e.n==='High card'?0:aces*ACE, dmg=DMG[e.n]+bonus;
+  var cs=picked(), e=evalHand(cs), aces=cs.filter(function(c){ return c.r===12; }).length, bonus=e.n==='High card'?0:Math.round(DMG[e.n]*aces*ACE/100), dmg=DMG[e.n]+bonus;
   var sorted=sel.slice().sort(function(a,b){return a-b;}); e.use.forEach(function(u){ HAND.children[sorted[u]].classList.add('score'); });
   bDis.disabled=bAtk.disabled=true;
   setTimeout(function(){
