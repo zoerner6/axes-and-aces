@@ -1451,6 +1451,17 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
   #app .lvb.lvb-sm .lvb-shield{width:46px!important;height:46px!important;font-size:1.6rem!important}
   #app>.handwrap .hand-tag{left:auto;right:0;top:-52px;transform:translateY(-100%)}
 }
+
+/* low health warning */
+.hpbar.danger{animation:hpBlink .9s ease-in-out infinite}
+.hpbar.danger i{background:linear-gradient(90deg,#d89a14,#ffd35c)!important}
+@keyframes hpBlink{0%,100%{box-shadow:0 0 0 2px #000}50%{box-shadow:0 0 0 2px #ffd35c,0 0 18px rgba(255,211,92,.95);filter:brightness(1.35)}}
+.me{position:relative}
+.low-warn{position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);z-index:6;white-space:nowrap;pointer-events:none;
+  font-family:var(--f-title);font-size:clamp(1rem,3.4vw,1.25rem);color:#16100d;background:linear-gradient(#ffd35c,#d89a14);border:3px solid #000;border-radius:8px;box-shadow:3px 3px 0 #000;padding:2px 12px;animation:warnPulse 1.8s ease-in-out infinite}
+@keyframes warnPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
+@media (prefers-reduced-motion:reduce){ .hpbar.danger,.low-warn{animation:none} }
+@media (min-width:900px) and (max-width:1259px) and (min-aspect-ratio:5/4){ .low-warn{bottom:auto;top:calc(100% + 4px)} }
 </style>
 
 <div id="app">
@@ -1485,7 +1496,7 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
 
   <section class="me" id="heroBox">
     <span id="lvlLabel" hidden></span><span class="chip gold" id="goldNum" hidden></span>
-    <div class="hpbar mehp" id="myHpBar"><i id="myBar"></i><span id="myHp">HP 400 / 400</span></div>
+    <div class="low-warn" id="lowWarn" hidden>Heal yourself, or prepare to run!</div><div class="hpbar mehp" id="myHpBar"><i id="myBar"></i><span id="myHp">HP 400 / 400</span></div>
     <span class="chip blk" id="myBlock" hidden></span>
   </section>
 
@@ -2266,7 +2277,7 @@ function confetti(){
 function healMe(n, el){ if(n<=0) return; const before=S.hp; S.hp=Math.min(S.maxHp,S.hp+n); pop(el||$('heroBox'),`+${S.hp-before} health`,'h'); }
 function blockMe(n, el){ if(n<=0) return; S.block+=n; pop(el||$('heroBox'),`+${n} block`,'b'); }
 function goldMe(n, el){ if(n<=0) return; S.gold+=n; pop(el||$('heroBox'),`+${n} gold`,'g'); }
-function hpLabel(){ const pc=Math.max(0,S.hp/S.maxHp*100); $('myBar').style.width=pc+'%'; $('myHp').textContent=`HP ${Math.max(0,S.hp)} / ${S.maxHp}`; $('myHpBar').classList.toggle('lo',pc<50); }
+function hpLabel(){ const pc=Math.max(0,S.hp/S.maxHp*100); $('myBar').style.width=pc+'%'; $('myHp').textContent=`HP ${Math.max(0,S.hp)} / ${S.maxHp}`; $('myHpBar').classList.toggle('lo',pc<50); const danger=pc>0&&pc<25&&S.phase==='play'; $('myHpBar').classList.toggle('danger',danger); $('lowWarn').hidden=!danger; }
 /* full-screen layout: remember where the cards start so the monster's health bar can sit just above them */
 function markHandTop(){ const h=$('hand'), w=document.querySelector('.handwrap'); if(!h) return; const st=document.documentElement.style, r=h.getBoundingClientRect(), q=(w||h).getBoundingClientRect();
   st.setProperty('--handtop', Math.round(r.top)+'px'); st.setProperty('--handl', Math.round(q.left)+'px'); st.setProperty('--handw', Math.round(q.width)+'px'); }
