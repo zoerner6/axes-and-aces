@@ -27,7 +27,7 @@ function drawHand(d){
 }
 const TYPES=[0.8,0.9,0.9,1,1,1.1,1.2,1.2,1.3,1.4,1.5];
 const monHP=(L,m)=>1.27*130*Math.pow(1.45,L-1)*m*TYPES[(Math.random()*TYPES.length)|0];
-const foeHit=(L,m)=>Math.round((4+2.6*(L-1))*1.25)*10*1.5*m;
+const foeHit=(L,m)=>Math.round((4+2.6*(L-1))*1.25)*10*1.5*m;  /* FOE_PUNCH 1.5 */
 const foeArm=L=>Math.max(5,Math.round((5+6.5*(L-1))/5)*5);
 const myHP=L=>400+100*(L-1);
 const ATK=[0,0,8,16,28,48,48,75,75,110,110], DEF=[0,0,40,70,120,120,190,190,280,280,280];
@@ -54,5 +54,20 @@ function run(hpM,atkM,label){
       (tt/N).toFixed(1).padStart(6),(h/N*100).toFixed(0).padStart(11)+'%');
   }
 }
-run(1,1,'NOW (live)');
-for(const h of [1.2,1.35,1.5]) run(h,1,'monster HP x'+h);
+
+
+var CASES=[[2,3,'LV2 vs LV3'],[4,6,'LV4 vs LV6'],[6,7,'LV6 vs LV7 (toad)'],[6,6,'LV6 vs LV6'],[8,9,'LV8 vs LV9']];
+function runCases(hpM,label){
+  console.log('');
+  console.log('--- '+label+' (x'+hpM+' on top of the 1.35 already live) ---');
+  console.log('matchup               win%  turns  health left');
+  for(var i=0;i<CASES.length;i++){
+    var p=CASES[i][0],m=CASES[i][1],nm=CASES[i][2];
+    var w=0,t=0,h=0,N=800;
+    for(var j=0;j<N;j++){var r=fight(p,m,1.35*hpM,1); if(r.won)w++; t+=r.t; h+=r.h;}
+    console.log(nm.padEnd(21),(w/N*100).toFixed(0).padStart(4)+'%',(t/N).toFixed(1).padStart(6),(h/N*100).toFixed(0).padStart(11)+'%');
+  }
+}
+runCases(1,'as published now');
+runCases(1.6,'x1.6 more');
+runCases(2.2,'x2.2 more');

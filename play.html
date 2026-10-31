@@ -1737,7 +1737,7 @@ let QUEST_STEPS = [
 let PLACES = ['In the shadows of the tavern','In the damp dark of the cellar','Between the twisted trees','In the castle\'s cold halls'];
 MONSTERS.bandit.lvl=3; MONSTERS.ghoul.lvl=5; MONSTERS.troll.lvl=7; MONSTERS.dragon.lvl=10;
 /* monsters you meet: random from each area's pool, stats from their level (with a little randomness) */
-let AREA_LV = [[1,3],[3,5],[5,7],[7,9]];
+let AREA_LV = [[1,3],[5,7],[8,10],[11,13]];
 let POOLS = [
   [{name:'Sneaky Goblin',icon:'👺',hp:1,atk:1,pat:[1,1.3,1]}, {name:'Giant Rat',icon:'🐀',hp:1.2,atk:.8,pat:[1,1,2.2]}, {name:'Tavern Bat',icon:'🦇',hp:.8,atk:1.1,pat:[1,1]},
    {name:'Wild Boar',icon:'🐗',hp:1.4,atk:1,pat:[.8,1.8]}, {name:'Little Imp',icon:'👿',hp:.9,atk:1.2,pat:[1,'H',1.2]}],
@@ -1844,8 +1844,9 @@ function genBoss(def, L){
 function loadWorld(w){
   w=w||0; const b=w%10, off=w*8;
   if(w===0){ AREAS=W1.areas; POOLS=W1.pools; AREA_LV=W1.lv; QUEST_STEPS=W1.steps; PLACES=W1.places; STORIES=W1.stories; WPFX=''; BGF=a=>'bg_'+W1.bg[a]; return; }
-  AREA_LV=[[1,3],[3,5],[5,7],[7,9]].map(([x,y])=>[x+off,y+off]);
-  const bossLv=[3,5,7,10].map(x=>x+off);
+  /* later worlds have no gentle opening area, so every area runs ahead */
+  AREA_LV=[[3,5],[6,8],[9,11],[12,14]].map(([x,y])=>[x+off,y+off]);
+  const bossLv=[5,8,11,14].map(x=>x+off);
   if(b===0){
     POOLS=W1.pools; QUEST_STEPS=W1.steps; PLACES=W1.places; WPFX=''; BGF=a=>'bg_'+W1.bg[a];
     AREAS=W1.areas.map((a,i)=>({name:a.name, icon:a.icon, foes:['gen','gen','boss_'+i]}));
@@ -2150,7 +2151,11 @@ function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-
   return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
 /* a monster's fighting stats: its strongest hit and its biggest shield */
 function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map(m=>m.n)), def=foeArmor(d), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
-  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>${fmt(atk)}</b><small>Hits you for ${fmt(takeFrom(atk))}</small></span><span class="fs def">${I('shield')}<b>${fmt(def)}</b><small>Armor</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals</small></span>`:''}</div>`; }
+  /* both numbers say what this monster does to you, the same way your own
+     card reads, instead of a raw stat you have to do maths against */
+  const armCut=Math.round((1 - 1/(1+def/100))*100);
+  const bite=Math.round(takeFrom(atk)/Math.max(1,S.maxHp)*100);
+  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>${bite}%</b><small>Of your health, per hit</small></span><span class="fs def">${I('shield')}<b>${armCut}%</b><small>Of your damage blocked</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
@@ -2303,7 +2308,7 @@ function render(){
 }
 function renderKit(){
   const on=(k,i)=>infoSel&&infoSel.k===k&&infoSel.i===i?'on':'';
-  $('atkNum').textContent='+'+atkPct()+'%'; $('defNum').textContent='−'+defPct()+'%'; $('miniSold').innerHTML=soldierSVG();
+  $('atkNum').textContent='+'+atkPct()+'%'; $('defNum').textContent='+'+defPct()+'%'; $('miniSold').innerHTML=soldierSVG();
   let s=''; for(let i=0;i<3;i++){ const id=S.spells[i];
     s += id ? `<button class="slot spell ${on('s',i)}" data-act="slot" data-k="s" data-i="${i}" aria-label="${SP[id].name}">${SP[id].icon}</button>` : `<div class="slot empty"></div>`; }
   $('spells').innerHTML=s;
@@ -2858,12 +2863,12 @@ function soldierCard(){
     return `<div class="lg"><span>${eqIcon(it.type,it.tier)}</span><b>${eqName(it.type,it.tier)}</b><em class="${e.atk?'a':'d'}">+${e.atk?e.atk[it.tier]:e.def[it.tier]}</em>${pips(it.tier)}</div>`; }).join('');
   return `<div class="sheetcard">
     <div class="sheetB"><div class="sh-fig">${soldierSVG()}<span class="sh-lv">${I('level')} Level ${S.level}</span></div><div class="ledger">${rows}</div></div>
-    <div class="totB"><span class="a">${I('attack')} Attack +${atkPct()}% damage</span><span class="d">${I('shield')} Defense −${defPct()}% taken</span></div>
+    <div class="totB"><span class="a">${I('attack')} Attack +${atkPct()}% damage</span><span class="d">${I('shield')} Defense +${defPct()}% protection</span></div>
   </div>`;
 }
 function soldierPanel(){
   openPanel(`<h2>${heroName()}</h2>${soldierCard()}
-    <p style="font-size:.9rem">Your <b>Attack</b> score is how much harder you hit: +${atkPct()}% damage. Your <b>Defense</b> cuts every monster hit by ${defPct()}%. Buy better gear from the traveling merchant.</p>
+    <p style="font-size:.9rem">Your <b>Attack</b> score is how much harder you hit: +${atkPct()}% damage. Your <b>Defense</b> is +${defPct()}% protection, so that much of every monster hit never lands. Buy better gear from the traveling merchant.</p>
     <button class="btn big vic-btn" data-act="close">Back</button>`); $('panel').classList.add('parch');
 }
 
