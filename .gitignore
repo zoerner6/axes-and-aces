@@ -1,3 +1,7 @@
 node_modules/
 .pub/
 .netlify/
+dev/android-app/android/keystore.properties
+*.jks
+upload-key-password.txt
+dev/android-app/node_modules/

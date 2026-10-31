@@ -1,0 +1,119 @@
+/* ===== Dark comic pass: ink outlines, hard shadows, crimson / gold / teal, real icons ===== */
+:root{--wood:#14100d;--wood-2:#211813;--wood-3:#2f231b;--line:#000;--gold:#f2b632;--hp:#c8241f;--heal:#3fa04f;--block:#2f7fa3;--mult:#e0622f;--pts:#f2b632;
+  --parch:#f3e6c8;--parch-dim:#b9a483;--f-num:'Oswald','Arial Narrow',system-ui,sans-serif;--ink:#0b0908;--steel:#2f6f8f;--teal:#2bb3a6}
+body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.3px),radial-gradient(ellipse at 50% 0%,rgba(200,36,31,.14),transparent 60%);background-size:6px 6px,auto}
+.ico{display:inline-block;width:1.3em;height:1.3em;object-fit:contain;vertical-align:-.3em;filter:drop-shadow(0 1px 0 rgba(0,0,0,.45))}
+.coinv{display:inline-flex;align-items:center;gap:2px;font-family:var(--f-num);font-weight:700;white-space:nowrap;vertical-align:middle}
+.coinv .ico{width:1.35em;height:1.35em;vertical-align:0}
+.tool{background:#1b1410;border:2px solid #000;box-shadow:2px 2px 0 #000}
+.sndmenu{border:3px solid #000;box-shadow:4px 4px 0 #000}
+/* stage: the whole monster always fits; it can lunge out of the frame */
+.stage{box-shadow:5px 5px 0 #000;overflow:visible;z-index:2;min-height:150px}
+.foe-icon{position:relative}
+.foe-icon img{position:absolute;inset:4px 0 2px;margin:auto;width:100%;height:calc(100% - 6px);max-width:none;object-fit:contain}
+.foe-icon.lunge{animation:lunge2 .62s cubic-bezier(.3,0,.3,1)}
+@keyframes lunge2{0%{transform:none}25%{transform:scale(.9) translateY(-8px)}55%{transform:scale(1.5) translateY(36px) rotate(-5deg);filter:drop-shadow(0 0 18px rgba(255,40,20,.75))}100%{transform:none}}
+.claw{position:fixed;width:260px;height:12px;margin:-6px 0 0 -130px;z-index:64;pointer-events:none;transform:rotate(-58deg) scaleX(0);background:linear-gradient(90deg,transparent,#ff4a3a 20%,#fff 50%,#ff4a3a 80%,transparent);border-radius:999px;box-shadow:0 0 12px #ff2a1a;animation:claw .55s ease-out forwards}
+@keyframes claw{0%{transform:rotate(-58deg) scaleX(0);opacity:1}40%{transform:rotate(-58deg) scaleX(1);opacity:1}100%{transform:rotate(-58deg) scaleX(1.05) translateY(6px);opacity:0}}
+.redflash{position:fixed;inset:0;z-index:59;pointer-events:none;background:radial-gradient(ellipse at 50% 60%,rgba(200,20,10,0),rgba(200,20,10,.45));animation:rf .45s ease-out forwards}
+@keyframes rf{to{opacity:0}}
+/* your health: one slim bar */
+.me{display:flex;align-items:center;gap:8px;padding:5px 7px;border:3px solid #000;border-radius:12px;box-shadow:4px 4px 0 #000;background:#1b1410}
+.me .hpbar{flex:1;height:22px;border:2px solid #000;background:#3a1512}
+.hpbar.mehp i{background:linear-gradient(#5cc067,#2f7d39)}
+#myHp{justify-items:start;padding:0 9px;font-family:var(--f-num);font-weight:600;font-size:.86rem;letter-spacing:.05em}
+.hpbar.lo #myHp{justify-items:end}
+.chip{font-family:var(--f-num);font-weight:600;border:2px solid #000}
+.chip.blk{background:#1d3a4a}
+/* satchel in ink */
+.satchel{background:#1b1410;border:3px solid #000;box-shadow:4px 4px 0 #000;--brass:#f2b632;--stitch:#f2b632}
+.ribbon{background:#0f0b09;border:2px solid #000;border-radius:8px}
+.ribbon .lv{font-family:var(--f-num);font-weight:700;color:var(--gold);text-transform:uppercase;font-size:1rem;letter-spacing:.04em}
+.ribbon .lv .ico,.ribbon .gold .ico{width:22px;height:22px}
+.ribbon .xp{border:2px solid #000;background:#1d2a29}
+.ribbon .xp i{background:linear-gradient(#45d6c8,#1f8f86)}
+.ribbon .xp span{font-family:var(--f-num);font-size:.74rem;letter-spacing:.06em}
+.oval{border:3px solid #000;box-shadow:0 0 0 3px var(--gold),3px 3px 0 3px #000;background:radial-gradient(ellipse at 50% 35%,#f6e2b0,#b88a4a)}
+.ad>span{display:inline-flex;align-items:center;gap:2px;border:2px solid #000;font-family:var(--f-num);font-weight:700;padding:0 6px 0 3px;border-radius:5px}
+.ad .a{background:var(--hp);color:#fff}.ad .d{background:var(--steel);color:#fff}
+.ad .ico{width:16px;height:16px}
+.pouch{background:#2a1c15;border:2px solid #000;border-radius:10px;box-shadow:2px 2px 0 #000}
+.pouch>b{background:#000;color:var(--gold);padding:1px 6px;border-radius:3px;font-family:var(--f-num);letter-spacing:.08em;font-size:.62rem;transform:rotate(-2deg);white-space:nowrap}
+.pouch .slot,.pouch .slot.spell,.pouch .slot.book,.pouch .slot.heal{border:3px solid var(--gold);box-shadow:0 0 0 2px #000,inset 0 2px 4px rgba(0,0,0,.6)}
+.pouch .slot.empty{border-color:#4a3a2e}
+.pouch .slot .ico{width:26px;height:26px;vertical-align:0}
+.pouch .slot.locked .ico{width:16px;height:16px;opacity:.8}
+@media (max-width:340px){ .pouch>b{font-size:.5rem;padding:1px 3px;letter-spacing:.02em} .pouch .slot,.pouch .slot.spell,.pouch .slot.book,.pouch .slot.heal{width:30px;height:30px} .pouch .slot .ico{width:20px;height:20px} .ribbon .lv{font-size:.85rem} }
+.card{--w:clamp(30px, calc((100% - 36px) / var(--n, 8)), 82px)}
+/* buttons */
+.btn.big,.vic-btn{background:var(--gold);color:#000;border:3px solid #000!important;box-shadow:4px 4px 0 #000;font-family:var(--f-title)!important;font-weight:400;font-size:1.3rem!important;border-radius:12px!important}
+.btn.atk{border:3px solid #000;box-shadow:3px 3px 0 #000;background:var(--hp)}
+.btn.disc,.btn.ghost{background:#1b1410;border:2px solid #000;box-shadow:2px 2px 0 #000;color:var(--parch)}
+/* panels */
+.panel{background-color:#1b1410;background-image:radial-gradient(rgba(255,255,255,.03) 1px,transparent 1.3px);background-size:6px 6px;border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:14px}
+.panel h2{color:var(--gold);text-shadow:2px 2px 0 #000}
+.panel.parch{background-color:#1b1410;border:3px solid #000}
+.panel.parch .btn.big{background:var(--gold);color:#000;border:3px solid #000!important;box-shadow:4px 4px 0 #000}
+.sheetcard{border:3px solid #000;box-shadow:4px 4px 0 #000;background:#f3e6c8}
+.lg>span .ico{width:22px;height:22px}
+.totB span{display:inline-flex;gap:4px;align-items:center;font-family:var(--f-num);border:2px solid #000}
+.totB .a{background:var(--hp);color:#fff}.totB .d{background:var(--steel);color:#fff}
+.totB .ico{width:18px;height:18px}
+.tipbox,#bubble{border:3px solid #000;box-shadow:4px 4px 0 #000}
+.toast{border:2px solid #000}
+/* victory */
+.rw{border:3px solid #000;box-shadow:4px 4px 0 #000;border-radius:10px;color:#000}
+.rw .ri .ico{width:42px;height:42px}
+.rw b{font-family:var(--f-num);font-size:1.75rem}
+.rw small{font-family:var(--f-num);letter-spacing:.1em;font-weight:600}
+.rw em{background:#000;color:#fff;border:0;border-radius:4px;font-family:var(--f-num);font-weight:500;letter-spacing:.03em}
+.rw.xp{background:var(--teal)}.rw.gd{background:var(--gold)}.rw.lv{background:var(--hp);color:#fff}
+.vic-hp .hpbar{border:3px solid #000;box-shadow:3px 3px 0 #000}
+.lootlbl{font-family:var(--f-num)} .lootlbl.xp{color:#5fe3d6}
+.vic-foe .ico{width:104px;height:104px}
+.dropcoin{background:url(art/i_coin.webp) center/contain no-repeat;border:0;box-shadow:none;width:30px;height:30px;margin:-15px 0 0 -15px}
+.foecard{border:3px solid #000;box-shadow:5px 5px 0 #000}
+.fc-stats span{border:2px solid #000;background:rgba(0,0,0,.45);display:inline-flex;align-items:center;gap:3px}
+.fc-stats .ico{width:17px;height:17px}
+.fc-stats em{font-family:var(--f-num)}
+/* shop */
+.item,.item.spell{background:#f3e6c8;border:3px solid #000;box-shadow:3px 3px 0 #000;border-radius:8px}
+.item .ic .ico{width:44px;height:44px}
+.item .tag{color:#7d1512}
+.buy{background:#000;color:var(--gold);font-family:var(--f-num);letter-spacing:.04em;display:inline-flex;justify-content:center;align-items:center;gap:3px}
+.pw{border:2px solid #000;font-family:var(--f-num)} .pw.a{background:var(--hp);color:#fff}.pw.d{background:var(--steel);color:#fff}
+.innbtn{border:3px solid #000;box-shadow:4px 4px 0 #000;background:#f3e6c8}
+.inn-ic{border:3px solid #000}.inn-ic .ico{width:38px;height:38px}
+.kit-label .ico{width:18px;height:18px}
+.pathbtn{border:3px solid #000;box-shadow:4px 4px 0 #000}.pathbtn.hunt{background:linear-gradient(#227a71,#14514b)}
+.bag .ico{width:28px;height:28px}
+.tl.say{border:3px solid #000;box-shadow:3px 3px 0 #000;background:#f3e6c8}
+.tl.item{border:3px solid #000;box-shadow:3px 3px 0 #000}
+.tl.item .big-ic .ico{width:52px;height:52px}
+.tl.you .neg{color:#ff6b5e}.tl.you .pos{color:#7be38a}
+.pop.b{background:var(--steel);color:#fff}
+.g-row{border:2px solid #000}
+.slot .ico{width:1.2em;height:1.2em}
+/* animated story scenes */
+.panel.cine{max-width:760px;gap:10px}
+.cine-scene{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:3px solid #000;box-shadow:5px 5px 0 #000;background:#000;flex:0 0 auto;animation:cineIn .7s ease both}
+.cine-scene.short{aspect-ratio:21/9}
+@keyframes cineIn{from{opacity:0;filter:brightness(.3)}}
+.cine-scene>img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;animation:kb1 18s ease-out forwards}
+.kb2>img{animation-name:kb2}.kb3>img{animation-name:kb3}
+@keyframes kb1{from{transform:scale(1.02)}to{transform:scale(1.16) translate(-2%,-1.5%)}}
+@keyframes kb2{from{transform:scale(1.16) translate(2%,1%)}to{transform:scale(1.03)}}
+@keyframes kb3{from{transform:scale(1.1) translate(-3%,0)}to{transform:scale(1.12) translate(3%,-1%)}}
+.cine-scene::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(0,0,0,.55));pointer-events:none}
+.cine-title{position:absolute;z-index:2;top:10px;left:10px;font-family:var(--f-title);font-size:clamp(1.1rem,3.6vw,1.6rem);background:var(--gold);color:#000;border:3px solid #000;padding:1px 12px;transform:rotate(-2deg);box-shadow:3px 3px 0 #000;animation:capIn .5s .35s both;max-width:calc(100% - 40px)}
+@keyframes capIn{from{opacity:0;transform:rotate(-8deg) scale(.6)}}
+.cine-voice{position:absolute;z-index:2;right:10px;bottom:10px;border:2px solid #000;border-radius:999px;background:#f3e6c8;color:#000;font-weight:800;padding:5px 12px;box-shadow:2px 2px 0 #000}
+.cine-cap{background:#f3e6c8;border:3px solid #000;border-radius:6px;box-shadow:4px 4px 0 #000;padding:10px 14px;cursor:pointer}
+.panel .cine-cap p{margin:0;display:grid;font-size:clamp(1rem,2.6vw,1.15rem);line-height:1.45;color:#16100d;font-weight:600}
+.cine-cap p>span{grid-area:1/1}
+.cine-cap .ghost{visibility:hidden}
+.cine-foot{display:flex;align-items:center;gap:12px}
+.cine-foot .btn.big{flex:1}
+.embers{position:absolute;inset:0;z-index:1;pointer-events:none}
+.embers i{position:absolute;bottom:-6px;width:4px;height:4px;border-radius:50%;background:#ffb347;box-shadow:0 0 6px 2px rgba(255,140,40,.8);animation:ember 5s linear infinite}
+@keyframes ember{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(18px,-260px);opacity:0}}

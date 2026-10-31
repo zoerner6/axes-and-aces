@@ -1,0 +1,812 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<script>
+/* challenge links, Continue links and the installed app go straight into the game */
+(function(){ try{ var q=location.search, inApp=!!window.Capacitor||/; wv\)/.test(navigator.userAgent)||matchMedia('(display-mode: standalone),(display-mode: fullscreen)').matches||navigator.standalone;
+  if(inApp||/[?&](c|slot)=/.test(q)) location.replace('play.html'+q); }catch(e){} })();
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Axes &amp; Aces: Fight monsters with poker hands</title>
+<meta name="description" content="Axes & Aces is a free dark comic card adventure. Fight 168 monsters with poker hands, rescue Anna, become Sir Edward and conquer 10 quests. Play free in your browser.">
+<meta name="theme-color" content="#14100d">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Axes &amp; Aces: fight monsters with poker hands">
+<meta property="og:description" content="A free dark comic card adventure. Save Anna, become Sir Edward, conquer 10 quests and the Endless Abyss.">
+<meta property="og:image" content="https://axesandaces.com/b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://axesandaces.com/"><meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Germania+One&family=Alegreya+Sans:wght@400;500;700;800&family=Oswald:wght@500;600;700&display=swap">
+<link rel="preload" as="image" href="art/bg_castle.webp">
+<style>
+:root{
+  --soot:#14100d; --leather:#1b1410; --ink:#000; --gold:#f2b632; --gold2:#ffd35c; --parch:#f3e6c8; --pink:#16100d;
+  --red:#c8241f; --green:#3fae4a; --teal:#7fe3d8; --purple:#a63de0; --dim:#c9b48f;
+  --f-title:'Germania One',Georgia,serif; --f-num:'Oswald','Arial Narrow',sans-serif; --f-body:'Alegreya Sans',system-ui,sans-serif;
+  --gut:max(16px,env(safe-area-inset-left,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--soot)}
+body{margin:0;background:var(--soot);color:var(--parch);font-family:var(--f-body);font-size:18px;line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img,video{display:block;max-width:100%}
+a{color:inherit}
+.wrap{width:min(1240px,100% - 2*var(--gut));margin-inline:auto}
+/* halftone + grain used across the page */
+.dots::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(0,0,0,.55) 1.1px,transparent 1.4px);background-size:6px 6px;mix-blend-mode:multiply;opacity:.45}
+
+/* ---------- buttons ---------- */
+.btn{--bg:var(--gold);display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 30px;border:3px solid #000;border-radius:10px;background:linear-gradient(180deg,var(--gold2),var(--gold) 55%,#d9931a);color:#1a0f05;
+  font-family:var(--f-num);font-weight:700;font-size:1.15rem;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;box-shadow:5px 5px 0 #000;transition:transform .12s,box-shadow .12s;white-space:nowrap}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000}
+.btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 #000}
+.btn.big{min-height:68px;font-size:1.35rem;padding:0 40px}
+.btn.dark{background:linear-gradient(180deg,#3a2a1d,#1e150f);color:var(--gold2)}
+.btn svg{width:22px;height:22px}
+
+/* ---------- top bar ---------- */
+.top{position:fixed;inset:0 0 auto;z-index:50;transition:background .3s,box-shadow .3s}
+.top.solid{background:rgba(20,16,13,.94);box-shadow:0 3px 0 #000;backdrop-filter:blur(6px)}
+.top .wrap{display:flex;align-items:center;gap:22px;height:74px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img{width:44px;height:44px;border-radius:10px;border:2px solid #000;box-shadow:3px 3px 0 #000}
+.brand b{font-family:var(--f-title);font-weight:400;font-size:1.65rem;color:var(--gold2);-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;letter-spacing:.01em}
+.top nav{display:flex;gap:26px;margin-left:auto}
+.top nav a{font-family:var(--f-num);font-weight:600;font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--parch);opacity:.85}
+.top nav a:hover{opacity:1;color:var(--gold2)}
+.top .btn{min-height:46px;padding:0 20px;font-size:.95rem;box-shadow:3px 3px 0 #000}
+@media (max-width:900px){ .top nav{display:none} .top .btn{margin-left:auto} .brand b{font-size:1.35rem} }
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;border-bottom:4px solid #000}
+.hero-media{position:absolute;inset:0;z-index:-2;background:#000 url(art/bg_castle.webp) center/cover}
+.hero-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
+.hero-media video.fade{opacity:0}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(90deg,rgba(10,7,5,.92) 0%,rgba(10,7,5,.72) 38%,rgba(10,7,5,.1) 70%),
+  linear-gradient(0deg,var(--soot) 0%,rgba(20,16,13,0) 34%),
+  linear-gradient(180deg,rgba(10,7,5,.7) 0%,rgba(10,7,5,0) 22%)}
+.hero .wrap{padding-block:140px 90px}
+.eyebrow{display:inline-block;font-family:var(--f-num);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:.92rem;color:var(--teal)}
+.logo{margin:.1em 0 .05em;font-family:var(--f-title);font-weight:400;line-height:.86;font-size:clamp(4.2rem,11vw,9.6rem);color:var(--gold2);
+  -webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000,0 0 60px rgba(242,182,50,.35);letter-spacing:.005em}
+.logo span{display:block}
+.logo .amp{color:var(--parch);font-size:.62em;display:inline-block;transform:translateY(-.08em) rotate(-6deg);margin:0 .06em}
+.tagline{font-family:var(--f-title);font-weight:400;font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.15;margin:.35em 0 .5em;color:#fff;text-shadow:3px 3px 0 #000}
+.lede{max-width:34em;font-size:1.2rem;color:var(--parch);text-shadow:0 2px 8px #000;margin:0 0 1.6em}
+.cta{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.free{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--f-num);font-weight:500;letter-spacing:.12em;text-transform:uppercase;font-size:.85rem;color:var(--dim)}
+.free span::before{content:"";display:inline-block;width:8px;height:8px;background:var(--gold);border:1.5px solid #000;transform:rotate(45deg);margin-right:9px;vertical-align:1px}
+.scroll-cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:28px;height:44px;border:3px solid var(--parch);border-radius:16px;opacity:.6}
+.scroll-cue::after{content:"";position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--parch);animation:cue 1.6s infinite}
+@keyframes cue{0%{transform:translateY(0);opacity:1}80%{transform:translateY(14px);opacity:0}100%{opacity:0}}
+@media (max-width:700px){
+  .hero{align-items:flex-end}
+  .hero::before{background:linear-gradient(0deg,var(--soot) 8%,rgba(10,7,5,.82) 52%,rgba(10,7,5,.15) 85%),linear-gradient(180deg,rgba(10,7,5,.7),rgba(10,7,5,0) 20%)}
+  .hero .wrap{padding-block:46vh 60px}
+  .scroll-cue{display:none}
+  .btn.big{width:100%}
+}
+
+/* ---------- continue cards ---------- */
+.saves{display:none;margin-top:26px;gap:12px;flex-wrap:wrap}
+.saves.on{display:flex}
+.save{display:flex;align-items:center;gap:12px;padding:8px 18px 8px 8px;background:rgba(27,20,16,.88);border:3px solid #000;border-radius:12px;box-shadow:4px 4px 0 #000;text-decoration:none;transition:transform .12s}
+.save:hover{transform:translate(-2px,-2px)}
+.save img{width:46px;height:62px;object-fit:contain;object-position:bottom;background:radial-gradient(circle at 50% 60%,#3a2a1d,#14100d);border:2px solid #000;border-radius:8px}
+.save b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.25rem;color:var(--gold2);line-height:1.1}
+.save small{font-family:var(--f-num);letter-spacing:.1em;text-transform:uppercase;font-size:.75rem;color:var(--dim)}
+.saves-h{width:100%;font-family:var(--f-num);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:.8rem;color:var(--dim)}
+
+/* ---------- sections ---------- */
+section{position:relative}
+.band{padding-block:clamp(80px,11vw,150px);border-bottom:4px solid #000;overflow:hidden;isolation:isolate}
+.bgimg{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center}
+.bgimg+.shade{position:absolute;inset:0;z-index:-1}
+.kicker{font-family:var(--f-num);font-weight:600;letter-spacing:.24em;text-transform:uppercase;font-size:.9rem;color:var(--teal);margin:0 0 .6em}
+h2{margin:0 0 .4em;font-family:var(--f-title);font-weight:400;font-size:clamp(2.6rem,6vw,4.8rem);line-height:.98;color:var(--gold2);-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000;text-wrap:balance}
+h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-height:1.05;color:#fff;text-shadow:2px 2px 0 #000}
+.intro{max-width:38em;font-size:1.2rem;color:var(--parch);margin:0}
+.center{text-align:center}.center .intro{margin-inline:auto}
+
+/* reveal on scroll */
+.rv{opacity:0;transform:translateY(34px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){ .rv{opacity:1;transform:none;transition:none} html{scroll-behavior:auto} .scroll-cue::after{animation:none} }
+
+/* ---------- story: comic page ---------- */
+.story{background:var(--leather)}
+.story .bgimg{background-image:url(art/bg_tavern.webp);opacity:.18;filter:blur(2px)}
+.comic{display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto;gap:18px;margin-top:48px}
+.panel{position:relative;margin:0;border:4px solid #000;border-radius:10px;overflow:hidden;box-shadow:7px 7px 0 #000;background:#000}
+.panel img,.panel video{width:100%;height:100%;object-fit:cover;aspect-ratio:16/9}
+.panel figcaption{position:absolute;left:14px;bottom:14px;right:14px;display:flex}
+.panel figcaption span{background:var(--parch);color:var(--pink);border:3px solid #000;border-radius:8px;box-shadow:3px 3px 0 #000;padding:8px 14px;font-weight:700;font-size:1.02rem;line-height:1.35;max-width:30em}
+.panel .tag{position:absolute;top:14px;left:14px;background:var(--gold);color:#16100d;border:3px solid #000;box-shadow:3px 3px 0 #000;font-family:var(--f-title);font-size:1.3rem;padding:2px 12px;transform:rotate(-3deg);border-radius:4px}
+.comic .p1{grid-row:span 2}
+.comic .p1 img{aspect-ratio:auto;height:100%}
+@media (max-width:820px){ .comic{grid-template-columns:1fr} .comic .p1{grid-row:auto} .comic .p1 img{aspect-ratio:16/9;height:auto} }
+
+/* ---------- how it plays ---------- */
+.how .bgimg{background-image:url(art/bg_cellar.webp)}
+.how .shade{background:linear-gradient(90deg,rgba(14,10,8,.96) 0%,rgba(14,10,8,.86) 50%,rgba(14,10,8,.55) 100%)}
+.how-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(30px,5vw,80px);align-items:center}
+@media (max-width:900px){ .how-grid{grid-template-columns:1fr} }
+.steps{list-style:none;margin:34px 0 0;padding:0;display:grid;gap:16px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:58px 1fr;gap:16px;align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold2),#c9850f);border:3px solid #000;box-shadow:3px 3px 0 #000;
+  font-family:var(--f-title);font-size:1.8rem;color:#16100d}
+.steps b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.5rem;color:#fff;line-height:1.1;margin-top:4px}
+.steps p{margin:.2em 0 0;color:var(--dim)}
+.table{position:relative}
+.fan{position:relative;height:clamp(250px,30vw,360px);margin-bottom:26px}
+.card{position:absolute;left:50%;bottom:0;width:clamp(110px,13vw,150px);aspect-ratio:5/7;margin-left:calc(clamp(110px,13vw,150px)/-2);border-radius:12px;border:3px solid #000;
+  background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:5px 5px 0 #000;transform-origin:50% 120%;color:#111;font-family:var(--f-num);font-weight:700;transition:transform .5s cubic-bezier(.2,1.4,.4,1)}
+.card i{position:absolute;top:8px;left:11px;font-style:normal;font-size:1.6rem;line-height:1;text-align:center}
+.card i small{display:block;font-size:1.25rem}
+.card em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:clamp(3rem,5vw,4.2rem)}
+.card.r{color:var(--red)}
+.fan.go .card{transform:rotate(var(--r)) translateY(var(--y))}
+.fan .glow{position:absolute;left:50%;bottom:20%;width:70%;height:60%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(255,211,92,.55),transparent 65%);filter:blur(10px)}
+.ladder{background:rgba(20,16,13,.88);border:3px solid #000;border-radius:12px;box-shadow:6px 6px 0 #000;padding:18px 20px}
+.ladder h4{margin:0 0 10px;font-family:var(--f-num);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:.85rem;color:var(--dim)}
+.rung{display:grid;grid-template-columns:9.5em 1fr;gap:12px;align-items:center;margin:7px 0;font-family:var(--f-num);font-weight:500;font-size:.98rem;letter-spacing:.04em}
+.rung .bar{height:14px;border:2px solid #000;border-radius:8px;background:#2a1f17;overflow:hidden}
+.rung .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.ladder.go .bar i{width:var(--w)}
+.rung.top{color:var(--gold2)}
+.ace{margin-top:14px;padding-top:12px;border-top:2px dashed rgba(243,230,200,.2);font-size:1rem;color:var(--parch)}
+.ace b{font-family:var(--f-title);font-weight:400;color:var(--gold2);font-size:1.2rem}
+
+/* ---------- monsters ---------- */
+.mon{background:#0d0a08}
+.mon .bgimg{background-image:url(art/bg_w10_0.webp);opacity:.22}
+.mon .shade{background:radial-gradient(ellipse at 50% 0%,rgba(13,10,8,.2),#0d0a08 75%)}
+.big-num{font-family:var(--f-title);font-size:clamp(5rem,14vw,11rem);line-height:.8;color:var(--red);-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000;display:block}
+.vids{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
+.vid{position:relative;border:4px solid #000;border-radius:10px;overflow:hidden;box-shadow:6px 6px 0 #000;background:#000 center/cover;aspect-ratio:16/9;cursor:pointer}
+.vid video{width:100%;height:100%;object-fit:cover}
+.vid .lbl{position:absolute;left:0;right:0;bottom:0;padding:30px 14px 10px;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);display:flex;justify-content:space-between;align-items:end;gap:10px}
+.vid .lbl b{font-family:var(--f-title);font-weight:400;font-size:1.45rem;color:#fff;text-shadow:2px 2px 0 #000;line-height:1}
+.vid .lbl small{font-family:var(--f-num);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.72rem;color:#1a0f05;background:var(--purple);border:2px solid #000;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.vid .lbl small.w{background:var(--gold)}
+.vid.wide{grid-column:span 2;grid-row:span 2;aspect-ratio:auto}
+@media (max-width:900px){ .vids{grid-template-columns:1fr 1fr} .vid.wide{grid-column:span 2;grid-row:auto;aspect-ratio:16/9} }
+@media (max-width:520px){ .vids{grid-template-columns:1fr} .vid.wide{grid-column:auto} }
+.roster{display:flex;gap:6px;margin-top:40px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.roster-track{display:flex;gap:10px;animation:march 70s linear infinite;flex:none}
+.roster img{height:130px;width:auto;filter:drop-shadow(3px 3px 0 #000)}
+@keyframes march{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){ .roster-track{animation:none} }
+
+/* ---------- worlds ---------- */
+.worlds{background:var(--leather)}
+.wgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:46px}
+@media (max-width:1000px){ .wgrid{grid-template-columns:repeat(2,1fr)} }
+.world{position:relative;aspect-ratio:3/4;border:4px solid #000;border-radius:10px;overflow:hidden;box-shadow:5px 5px 0 #000;background:#000 center/cover;isolation:isolate;transition:transform .25s}
+.world:hover{transform:translateY(-6px) rotate(-1deg)}
+.world::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.2) 55%,rgba(0,0,0,.35) 100%)}
+.world img{position:absolute;z-index:1;left:50%;bottom:24%;width:84%;transform:translateX(-50%);filter:drop-shadow(4px 4px 0 #000);transition:transform .3s}
+.world:hover img{transform:translateX(-50%) scale(1.06)}
+.world .n{position:absolute;z-index:2;top:10px;left:10px;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold2),#c9850f);border:3px solid #000;font-family:var(--f-title);font-size:1.3rem;color:#16100d;box-shadow:2px 2px 0 #000}
+.world .t{position:absolute;z-index:2;left:12px;right:12px;bottom:12px}
+.world .t b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.3rem;line-height:1.05;color:#fff;text-shadow:2px 2px 0 #000}
+.world .t small{display:block;margin-top:3px;font-family:var(--f-num);font-weight:500;letter-spacing:.1em;text-transform:uppercase;font-size:.72rem;color:var(--gold2)}
+.abyss{margin-top:26px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;text-align:center;font-family:var(--f-title);font-size:1.6rem;color:var(--purple);text-shadow:2px 2px 0 #000}
+.abyss span{color:var(--parch);font-family:var(--f-body);font-size:1.1rem;text-shadow:none}
+
+/* ---------- rise: hero growth ---------- */
+.rise .bgimg{background-image:url(art/sc_end_3.webp);background-position:center 30%}
+.rise .shade{background:linear-gradient(0deg,var(--soot) 0%,rgba(20,16,13,.88) 40%,rgba(20,16,13,.75) 100%)}
+.line{display:flex;align-items:flex-end;justify-content:center;gap:clamp(4px,1.5vw,22px);margin-top:46px;height:clamp(240px,36vw,440px);position:relative}
+.line::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:#000;border-radius:3px}
+.line figure{margin:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.line img{height:var(--h);width:auto;filter:drop-shadow(4px 4px 0 #000);transform:translateY(30px);opacity:0;transition:transform .7s cubic-bezier(.2,1.3,.4,1),opacity .5s}
+.line.go img{transform:none;opacity:1}
+.line figcaption{font-family:var(--f-num);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:var(--dim);margin-top:14px;white-space:nowrap}
+
+/* ---------- features ---------- */
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:50px}
+@media (max-width:900px){ .feats{grid-template-columns:1fr 1fr} }
+@media (max-width:560px){ .feats{grid-template-columns:1fr} }
+.feat{background:var(--leather);border:4px solid #000;border-radius:12px;box-shadow:6px 6px 0 #000;overflow:hidden;display:flex;flex-direction:column}
+.feat .pic{aspect-ratio:16/10;background:#000 center/cover;border-bottom:4px solid #000;position:relative}
+.feat .body{padding:18px 20px 22px}
+.feat p{margin:.45em 0 0;color:var(--dim);font-size:1.05rem}
+
+/* ---------- get the app ---------- */
+.app .bgimg{background-image:url(art/sc_w10_a3_0.webp)}
+.app .shade{background:linear-gradient(90deg,rgba(14,10,8,.95) 0%,rgba(14,10,8,.8) 55%,rgba(14,10,8,.35) 100%)}
+.app-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+@media (max-width:900px){ .app-grid{grid-template-columns:1fr} }
+.stores{display:flex;flex-wrap:wrap;gap:16px;margin-top:30px}
+.store{position:relative;display:flex;align-items:center;gap:14px;min-width:240px;padding:12px 22px 12px 16px;background:#0b0907;border:3px solid #000;outline:2px solid rgba(243,230,200,.25);outline-offset:-6px;border-radius:12px;box-shadow:5px 5px 0 #000;color:#fff;text-decoration:none;cursor:default}
+.store svg{width:34px;height:34px;flex:none}
+.store small{display:block;font-family:var(--f-num);font-weight:500;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:var(--dim)}
+.store b{display:block;font-family:var(--f-num);font-weight:700;font-size:1.45rem;letter-spacing:.02em;line-height:1.1}
+.store .soon{position:absolute;top:-14px;right:-10px;background:var(--red);color:#fff;border:3px solid #000;border-radius:6px;box-shadow:2px 2px 0 #000;font-family:var(--f-num);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;padding:2px 9px;transform:rotate(5deg)}
+.phone{justify-self:center;width:min(300px,70vw);aspect-ratio:9/19;border:5px solid #000;border-radius:38px;background:#000;box-shadow:10px 10px 0 #000,0 0 0 10px #2a1f17 inset;padding:10px;transform:rotate(4deg)}
+.phone div{width:100%;height:100%;border-radius:28px;background:#14100d url(img/phone-fight.jpg) center top/cover;border:2px solid #2a1f17}
+
+/* ---------- final call + footer ---------- */
+.final{padding-block:clamp(90px,12vw,160px)}
+.final .bgimg{background-image:url(art/sc_start_1.webp)}
+.final .shade{background:radial-gradient(ellipse at 50% 50%,rgba(14,10,8,.72),rgba(14,10,8,.96) 75%)}
+.final h2{font-size:clamp(3rem,8vw,6.4rem)}
+footer{background:#0b0907;padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));font-size:.95rem;color:var(--dim)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 30px;align-items:center;justify-content:space-between}
+footer a{color:var(--dim);text-decoration:none} footer a:hover{color:var(--gold2)}
+footer .links{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--f-num);letter-spacing:.12em;text-transform:uppercase;font-size:.8rem}
+
+/* ---------- always-running ambience ---------- */
+.embers{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.embers i{position:absolute;bottom:-20px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#fff6c9,#ffb52e 45%,rgba(255,90,20,0) 70%);opacity:0;animation:ember var(--d) linear var(--dl) infinite}
+@keyframes ember{0%{transform:translate(0,0);opacity:0}10%{opacity:.95}70%{opacity:.7}100%{transform:translate(var(--x),-105vh);opacity:0}}
+.btn{position:relative;overflow:hidden}
+.btn:not(.dark)::after{content:"";position:absolute;top:-20%;bottom:-20%;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-20deg);animation:shine 3.6s ease-in-out infinite}
+@keyframes shine{0%,62%{left:-60%}100%{left:130%}}
+.fan.go .card{animation:bob 4s ease-in-out infinite;animation-delay:calc(var(--i) * -.6s)}
+@keyframes bob{0%,100%{transform:rotate(var(--r)) translateY(var(--y))}50%{transform:rotate(var(--r)) translateY(calc(var(--y) - 12px))}}
+.fan .glow{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.6;transform:translateX(-50%) scale(.95)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
+.big-num{animation:throb 2.4s ease-in-out infinite;display:inline-block}
+@keyframes throb{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.05) rotate(1deg)}}
+.store .soon{animation:wig 2.8s ease-in-out infinite}
+@keyframes wig{0%,80%,100%{transform:rotate(5deg)}85%{transform:rotate(-4deg) scale(1.1)}90%{transform:rotate(8deg) scale(1.1)}}
+.phone{animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){ .embers,.btn::after{display:none} .fan.go .card,.fan .glow,.big-num,.store .soon,.phone{animation:none} }
+
+/* ---------- try a hand ---------- */
+.try{background:#0b0907}
+.try .bgimg{background-image:url(art/bg_castle.webp);opacity:.25}
+.arena{position:relative;margin-top:40px;border:4px solid #000;border-radius:14px;box-shadow:8px 8px 0 #000;overflow:hidden;background:#000;aspect-ratio:16/8}
+.arena video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.arena::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent 40%);pointer-events:none}
+.foe{position:absolute;z-index:2;left:16px;right:16px;bottom:14px}
+.foe .nm{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.foe .nm b{font-family:var(--f-title);font-weight:400;font-size:1.6rem;color:#fff;text-shadow:2px 2px 0 #000}
+.foe .nm span{font-family:var(--f-num);font-weight:700;font-size:.8rem;letter-spacing:.12em;background:var(--purple);color:#fff;border:2px solid #000;border-radius:6px;padding:1px 8px}
+.hp{position:relative;height:22px;border:3px solid #000;border-radius:12px;background:#2a0b09;overflow:hidden;box-shadow:3px 3px 0 #000}
+.hp i{position:absolute;inset:0;right:auto;width:100%;background:linear-gradient(180deg,#ff5a4d,var(--red));transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hp em{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-family:var(--f-num);font-weight:700;font-size:.85rem;color:#fff;text-shadow:1px 1px 0 #000;letter-spacing:.08em}
+.pow{position:absolute;z-index:4;left:50%;top:38%;transform:translate(-50%,-50%) scale(0);text-align:center;pointer-events:none}
+.pow b{display:block;font-family:var(--f-title);font-weight:400;font-size:clamp(2.2rem,6vw,4.6rem);color:var(--gold2);-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:5px 5px 0 #000;line-height:1;white-space:nowrap}
+.pow span{display:inline-block;margin-top:6px;font-family:var(--f-num);font-weight:700;font-size:clamp(1.6rem,4vw,2.8rem);color:#fff;background:var(--red);border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:0 16px}
+.pow.on{animation:powIn 1.9s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes powIn{0%{transform:translate(-50%,-50%) scale(0) rotate(-12deg)}18%{transform:translate(-50%,-50%) scale(1.15) rotate(3deg)}28%,80%{transform:translate(-50%,-50%) scale(1) rotate(-2deg);opacity:1}100%{transform:translate(-50%,-60%) scale(1);opacity:0}}
+.arena.shake{animation:shk .45s}
+@keyframes shk{0%,100%{transform:none}20%{transform:translate(-10px,4px)}40%{transform:translate(9px,-5px)}60%{transform:translate(-6px,3px)}80%{transform:translate(4px,-2px)}}
+.arena .flash{position:absolute;inset:0;z-index:3;background:#fff;opacity:0;pointer-events:none}
+.arena .flash.on{animation:fl .35s}
+@keyframes fl{0%{opacity:.8}100%{opacity:0}}
+.hand{display:flex;justify-content:center;gap:clamp(5px,1.2vw,14px);margin-top:26px;flex-wrap:nowrap}
+.pc{position:relative;width:clamp(36px,9.6vw,104px);aspect-ratio:5/7;border:3px solid #000;border-radius:10px;background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:4px 4px 0 #000;color:#111;font-family:var(--f-num);font-weight:700;cursor:pointer;
+  transition:transform .18s,box-shadow .18s;padding:0;user-select:none}
+.pc .r{position:absolute;top:5px;left:7px;font-size:clamp(.85rem,2vw,1.45rem);line-height:1;text-align:center}
+.pc .r small{display:block;font-size:.85em}
+.pc .m{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(1.4rem,4vw,2.8rem)}
+.pc.red{color:var(--red)}
+.pc.sel{transform:translateY(-18px);box-shadow:4px 4px 0 #000,0 0 0 3px var(--gold2),0 0 24px rgba(255,211,92,.8)}
+.pc.deal{animation:deal .45s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes deal{0%{transform:translateY(-60px) rotate(-14deg);opacity:0}100%{transform:none;opacity:1}}
+.pc.gone{transform:translateY(40px) rotate(10deg);opacity:0;transition:.3s}
+.pc.score{box-shadow:4px 4px 0 #000,0 0 0 3px var(--green),0 0 26px rgba(123,227,138,.9)}
+.ctrl{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:22px}
+.ctrl .btn[disabled]{opacity:.4;pointer-events:none}
+.live{margin-top:14px;min-height:1.6em;text-align:center;font-family:var(--f-num);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2)}
+.tip{position:absolute;z-index:6;max-width:270px;background:var(--parch);color:var(--pink);border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;padding:12px 16px 14px;font-size:1rem;line-height:1.35;font-weight:600;
+  opacity:0;transform:scale(.6);transition:opacity .25s,transform .35s cubic-bezier(.2,1.6,.4,1);pointer-events:none}
+.tip.on{opacity:1;transform:none}
+.tip .x{pointer-events:auto}
+.tip b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.3rem;color:#16100d;margin-bottom:2px}
+.tip .x{display:inline-block;margin-top:8px;font-family:var(--f-num);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;color:#7a4b06;cursor:pointer;background:none;border:0;padding:0}
+.tip::after{content:"";position:absolute;left:var(--ax,50%);bottom:-15px;border:9px solid transparent;border-top:12px solid #000;transform:translateX(-50%)}
+.tip.up::after{bottom:auto;top:-15px;border-top-color:transparent;border-bottom:12px solid #000}
+.trywrap{position:relative}
+.result{display:none;margin:22px auto 0;max-width:640px;text-align:center;background:var(--leather);border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;padding:18px 20px}
+.result.on{display:block;animation:deal .5s both}
+.result p{margin:0 0 14px}
+@media (max-width:640px){ .arena{aspect-ratio:4/3} .foe .nm b{font-size:1.25rem} }
+
+/* ---------- ambush: a monster jumps you while you scroll ---------- */
+.hud{position:fixed;z-index:60;left:max(16px,env(safe-area-inset-left,0px));top:86px;width:min(300px,70vw);background:rgba(20,16,13,.95);border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;padding:8px 12px 10px;
+  transform:translateX(-130%);transition:transform .45s cubic-bezier(.2,1.3,.4,1);pointer-events:none}
+.hud.on{transform:none}
+.hud .row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.hud img{width:34px;height:44px;object-fit:contain;object-position:bottom}
+.hud b{font-family:var(--f-title);font-weight:400;font-size:1.2rem;color:var(--gold2)}
+.hud .hp i{background:linear-gradient(180deg,#7be38a,var(--green))}
+.hud .hp{height:20px}
+.hud.low .hp i{background:linear-gradient(180deg,#ffe06a,#e0a800);animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+.amb{position:fixed;inset:0;z-index:58;pointer-events:none;overflow:hidden;display:none}
+.amb.on{display:block}
+.amb .red{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(200,36,31,0) 30%,rgba(200,36,31,.75) 100%);opacity:0}
+.amb.on .red{animation:redp 1.6s ease-out forwards}
+@keyframes redp{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.amb img.m{position:absolute;right:-5%;bottom:-4%;height:min(92vh,900px);width:auto;filter:drop-shadow(10px 10px 0 #000);transform:translateX(70%) scale(.6) rotate(8deg);opacity:0}
+.amb.on img.m{animation:leap 2.9s cubic-bezier(.2,1.2,.3,1) forwards}
+@keyframes leap{0%{transform:translateX(70%) scale(.6) rotate(8deg);opacity:0}14%{transform:translateX(-12%) scale(1.12) rotate(-6deg);opacity:1}22%{transform:translateX(-6%) scale(1) rotate(-2deg)}78%{transform:translateX(-6%) scale(1) rotate(-2deg);opacity:1}100%{transform:translateX(80%) scale(.9) rotate(10deg);opacity:0}}
+.amb .slash{position:absolute;left:10%;top:22%;width:70%;height:50%;opacity:0}
+.amb .slash i{position:absolute;left:0;right:0;height:10px;border-radius:50%;background:linear-gradient(90deg,transparent,#fff 30%,#ffd0c8 70%,transparent);box-shadow:0 0 20px #ff3b2f;transform:rotate(-24deg) scaleX(0);transform-origin:left}
+.amb .slash i:nth-child(2){top:30%}.amb .slash i:nth-child(3){top:60%}
+.amb.on .slash{animation:show .9s .35s forwards}
+.amb.on .slash i{animation:claw .28s .38s cubic-bezier(.3,0,.2,1) forwards}
+.amb.on .slash i:nth-child(2){animation-delay:.44s}.amb.on .slash i:nth-child(3){animation-delay:.5s}
+@keyframes show{0%,70%{opacity:1}100%{opacity:0}}
+@keyframes claw{to{transform:rotate(-24deg) scaleX(1)}}
+.amb .crit{position:absolute;left:8%;top:30%;transform:scale(0) rotate(-10deg);text-align:left}
+.amb.on .crit{animation:critIn 2.6s .45s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes critIn{0%{transform:scale(0) rotate(-10deg)}12%{transform:scale(1.15) rotate(-4deg)}20%,82%{transform:scale(1) rotate(-6deg);opacity:1}100%{transform:scale(1) rotate(-6deg);opacity:0}}
+.amb .crit b{display:block;font-family:var(--f-title);font-weight:400;font-size:clamp(2.4rem,7vw,5.6rem);line-height:.95;color:#ff4a3d;-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:5px 5px 0 #000}
+.amb .crit span{display:inline-block;margin-top:8px;font-family:var(--f-num);font-weight:700;font-size:clamp(1.8rem,5vw,3.4rem);background:#fff;color:var(--red);border:4px solid #000;border-radius:10px;box-shadow:5px 5px 0 #000;padding:0 18px}
+.amb .crit small{display:block;margin-top:12px;font-family:var(--f-num);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(.8rem,2vw,1.05rem);color:#fff;text-shadow:2px 2px 0 #000}
+main.hit{animation:shk .5s}
+
+/* ---------- strike back: kill a monster on the page ---------- */
+.strike{background:#0d0a08;padding-block:clamp(70px,9vw,120px)}
+.strike .bgimg{background-image:url(art/bg_w8_2.webp)}
+.strike .shade{background:linear-gradient(0deg,#0d0a08 0%,rgba(13,10,8,.55) 45%,rgba(13,10,8,.85) 100%)}
+.stage{position:relative;height:clamp(360px,48vw,520px);margin-top:20px}
+.stage .foe2{position:absolute;left:50%;bottom:70px;height:86%;transform:translateX(-50%);filter:drop-shadow(8px 8px 0 #000)}
+.stage .foe2 img{height:100%;width:auto;max-width:none;position:absolute;left:50%;bottom:0;transform:translateX(-50%);transition:opacity .4s}
+.stage .foe2 .d{opacity:0;height:62%}
+.stage.dead .foe2 .a{opacity:0}.stage.dead .foe2 .d{opacity:1}
+.stage.hit .foe2 .a{animation:recoil .5s}
+@keyframes recoil{0%{filter:brightness(4)}30%{transform:translateX(-46%) rotate(5deg)}60%{transform:translateX(-53%) rotate(-3deg);filter:none}100%{transform:translateX(-50%)}}
+.stage .bar2{position:absolute;left:50%;bottom:16px;width:min(520px,90%);transform:translateX(-50%)}
+.stage .bar2 .nm{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
+.stage .bar2 .nm b{font-family:var(--f-title);font-weight:400;font-size:1.5rem;color:#fff;text-shadow:2px 2px 0 #000}
+.stage .fly{position:absolute;left:50%;bottom:-60px;width:clamp(54px,7vw,80px);aspect-ratio:5/7;margin-left:calc(clamp(54px,7vw,80px)/-2);border:3px solid #000;border-radius:9px;background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:4px 4px 0 #000;
+  display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:clamp(1rem,2vw,1.4rem);color:#111;opacity:0;line-height:1;text-align:center}
+.stage.go .fly{animation:throw .75s cubic-bezier(.3,0,.3,1) forwards}
+@keyframes throw{0%{opacity:0;transform:translate(var(--sx),0) rotate(0)}15%{opacity:1}75%{opacity:1;transform:translate(0,-230px) rotate(540deg) scale(.9)}100%{opacity:0;transform:translate(0,-250px) rotate(720deg) scale(.4)}}
+.stage .pow2{position:absolute;left:50%;top:22%;transform:translate(-50%,-50%) scale(0);text-align:center;z-index:3;white-space:nowrap}
+.stage .pow2.on{animation:powIn 1.9s cubic-bezier(.2,1.5,.4,1) forwards}
+.stage .pow2 b{display:block;font-family:var(--f-title);font-weight:400;font-size:clamp(2.4rem,7vw,5rem);color:var(--gold2);-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:5px 5px 0 #000;line-height:1}
+.stage .pow2 span{display:inline-block;margin-top:6px;font-family:var(--f-num);font-weight:700;font-size:clamp(1.6rem,4vw,2.8rem);color:#fff;background:var(--red);border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;padding:0 16px}
+.stage .ko{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%) rotate(-8deg) scale(0);font-family:var(--f-title);font-size:clamp(3rem,9vw,6.4rem);color:var(--gold2);-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000;white-space:nowrap;z-index:3}
+.stage.dead .ko{animation:koIn .6s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes koIn{to{transform:translate(-50%,-50%) rotate(-8deg) scale(1)}}
+.stage .loot{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);display:flex;gap:12px;opacity:0;z-index:3}
+.stage.dead .loot{animation:rise .5s .5s forwards}
+@keyframes rise{from{opacity:0;transform:translate(-50%,-20%)}to{opacity:1;transform:translate(-50%,-50%)}}
+.stage .loot span{display:flex;align-items:center;gap:6px;background:rgba(20,16,13,.92);border:3px solid #000;border-radius:10px;box-shadow:3px 3px 0 #000;padding:4px 14px;font-family:var(--f-num);font-weight:700;font-size:1.2rem;letter-spacing:.06em}
+.stage .loot img{width:26px;height:26px}
+.stage .loot .xp{color:var(--teal)}.stage .loot .g{color:var(--gold2)}
+.stage .coin{position:absolute;left:50%;top:40%;width:34px;height:34px;opacity:0;z-index:2}
+.stage.dead .coin{animation:coinpop 1.2s cubic-bezier(.2,.8,.4,1) forwards}
+@keyframes coinpop{0%{opacity:1;transform:translate(0,0) rotate(0)}60%{opacity:1;transform:translate(var(--cx),var(--cy)) rotate(360deg)}100%{opacity:0;transform:translate(var(--cx),calc(var(--cy) + 140px)) rotate(540deg)}}
+.stage .ring{position:absolute;left:50%;top:40%;width:20px;height:20px;border:6px solid var(--gold2);border-radius:50%;transform:translate(-50%,-50%) scale(0);opacity:0;z-index:2}
+.stage.hit .ring{animation:ring .6s ease-out}
+@keyframes ring{0%{opacity:1;transform:translate(-50%,-50%) scale(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(30)}}
+.strike-replay{margin-top:14px;background:none;border:0;color:var(--dim);font-family:var(--f-num);letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="icons/icon-192.png" alt=""><b>Axes &amp; Aces</b></a>
+    <nav aria-label="Sections"><a href="#story">Story</a><a href="#how">How to play</a><a href="#try">Try a hand</a><a href="#monsters">Monsters</a><a href="#quests">Quests</a><a href="#app">Get the app</a></nav>
+    <a class="btn" href="play.html">Play free</a>
+  </div>
+</header>
+
+<div class="hud" id="hud" aria-hidden="true"><div class="row"><img src="art/hero_t0.webp" alt=""><b>You</b></div><div class="hp"><i id="youI"></i><em id="youE">400 / 400</em></div></div>
+<div class="amb" id="amb" aria-hidden="true"><div class="red"></div><img class="m" src="art/werewolf.webp" alt=""><div class="slash"><i></i><i></i><i></i></div>
+  <div class="crit"><b>Critical blow!</b><span>-310</span><small>A werewolf ambushes you</small></div></div>
+<main>
+<!-- HERO -->
+<section class="hero">
+  <div class="embers" id="embers" aria-hidden="true"></div>
+  <div class="hero-media" aria-hidden="true"><video id="heroVid" muted playsinline autoplay preload="auto" poster="art/bg_castle.webp" src="vid/dragon_attack.mp4"></video></div>
+  <div class="wrap">
+    <span class="eyebrow">A dark comic card adventure</span>
+    <h1 class="logo"><span>Axes</span><span><span class="amp">&amp;</span>Aces</span></h1>
+    <p class="tagline">Fight monsters with poker hands.</p>
+    <p class="lede">Goblins stole Anna from the Gilded Ace. Old Bram gave you a deck of magic cards. Now every pair, straight and royal flush is a blow against 168 monsters, from tavern rats to the Demon King.</p>
+    <div class="cta">
+      <a class="btn big" href="play.html"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/></svg>Play free now</a>
+      <a class="btn big dark" href="#how">How it works</a>
+    </div>
+    <div class="saves" id="saves"><span class="saves-h">Welcome back. Continue your adventure</span></div>
+    <div class="free"><span>Free to play</span><span>No download</span><span>Phone, tablet or computer</span></div>
+  </div>
+  <span class="scroll-cue" aria-hidden="true"></span>
+</section>
+
+<!-- STORY -->
+<section class="band story" id="story">
+  <div class="bgimg" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="kicker rv">Your story</p>
+    <h2 class="rv">A quiet night at the Gilded Ace.<br>It doesn't last.</h2>
+    <p class="intro rv">You're Edward, a young soldier on the long road home. Then the door crashes open, and your quest begins.</p>
+    <div class="comic">
+      <figure class="panel p1 rv"><img src="art/sc_start_2.webp" alt="Old Bram throws a stream of glowing magic cards across the tavern to Edward" loading="lazy"><video data-src="vid/sc_start_2.mp4" muted loop playsinline aria-hidden="true" style="position:absolute;inset:0"></video>
+        <span class="tag">The magic cards</span><figcaption><span>Old Bram sends his magic deck flying across the room. "Every hand you play is a blow, lad. Make them count."</span></figcaption></figure>
+      <figure class="panel rv"><img src="art/sc_start_0.webp" alt="Edward by the fire while Anna brings him stew" loading="lazy"><span class="tag">The Gilded Ace</span><figcaption><span>Rain on the windows, stew by the fire, and Anna's smile.</span></figcaption></figure>
+      <figure class="panel rv"><img src="art/sc_start_1.webp" alt="Goblins crash into the tavern and grab Anna" loading="lazy"><span class="tag">Crash!</span><figcaption><span>Goblins burst in and drag Anna into the night.</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<div id="ambushAt" aria-hidden="true" style="height:1px"></div>
+<!-- HOW -->
+<section class="band how" id="how">
+  <div class="bgimg" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="wrap how-grid">
+    <div>
+      <p class="kicker rv">How to play</p>
+      <h2 class="rv">Your hand is your weapon.</h2>
+      <p class="intro rv">If you know poker, you already know how to fight. If you don't, Old Bram teaches you in a minute.</p>
+      <ol class="steps">
+        <li class="rv"><div><b>Draw your cards</b><p>Eight cards from Bram's magic deck land in your hand.</p></div></li>
+        <li class="rv"><div><b>Build the best hand</b><p>Pick up to five cards. Discard the rest and draw again if you need a better hand.</p></div></li>
+        <li class="rv"><div><b>Attack!</b><p>Bigger hands hit harder. A royal flush shakes the whole screen.</p></div></li>
+        <li class="rv"><div><b>Survive the counter</b><p>Every monster hits back. Armor, potions and spells keep you standing.</p></div></li>
+      </ol>
+    </div>
+    <div class="table rv">
+      <div class="fan" id="fan">
+        <span class="glow" aria-hidden="true"></span>
+        <div class="card" style="--i:0;--r:-28deg;--y:16px"><i>10<small>♠</small></i><em>♠</em></div>
+        <div class="card" style="--i:1;--r:-14deg;--y:2px"><i>J<small>♠</small></i><em>♠</em></div>
+        <div class="card" style="--i:2;--r:0deg;--y:-4px"><i>Q<small>♠</small></i><em>♠</em></div>
+        <div class="card" style="--i:3;--r:14deg;--y:2px"><i>K<small>♠</small></i><em>♠</em></div>
+        <div class="card" style="--i:4;--r:28deg;--y:16px"><i>A<small>♠</small></i><em>♠</em></div>
+      </div>
+      <div class="ladder" id="ladder">
+        <h4>The bigger the hand, the bigger the hit</h4>
+        <div class="rung"><span>Pair</span><span class="bar"><i style="--w:10%"></i></span></div>
+        <div class="rung"><span>Two pair</span><span class="bar"><i style="--w:18%"></i></span></div>
+        <div class="rung"><span>Three of a kind</span><span class="bar"><i style="--w:28%"></i></span></div>
+        <div class="rung"><span>Straight</span><span class="bar"><i style="--w:38%"></i></span></div>
+        <div class="rung"><span>Flush</span><span class="bar"><i style="--w:48%"></i></span></div>
+        <div class="rung"><span>Full house</span><span class="bar"><i style="--w:60%"></i></span></div>
+        <div class="rung"><span>Four of a kind</span><span class="bar"><i style="--w:74%"></i></span></div>
+        <div class="rung"><span>Straight flush</span><span class="bar"><i style="--w:88%"></i></span></div>
+        <div class="rung top"><span>Royal flush</span><span class="bar"><i style="--w:100%"></i></span></div>
+        <div class="ace"><b>Aces are wild with power.</b> Every Ace in a winning hand adds an Ace Bonus on top.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- TRY A HAND -->
+<section class="band try center" id="try">
+  <div class="bgimg" aria-hidden="true"></div>
+  <div class="wrap trywrap">
+    <p class="kicker rv">Try it right now</p>
+    <h2 class="rv">Play one hand<br>against the dragon.</h2>
+    <p class="intro rv">One hand. One discard. Make it count.</p>
+    <div class="arena rv" id="arena">
+      <video id="drgV" muted loop playsinline preload="none" poster="art/bg_castle.webp" data-src="vid/dragon_idle.mp4"></video>
+      <div class="flash" id="flash"></div>
+      <div class="pow" id="pow"><b id="powT"></b><span id="powN"></span></div>
+      <div class="foe"><div class="nm"><b>Grimstone Dragon</b><span>BOSS</span></div><div class="hp"><i id="hpI"></i><em id="hpE">1000 / 1000</em></div></div>
+    </div>
+    <div class="hand" id="hand" role="group" aria-label="Your cards"></div>
+    <div class="live" id="live" aria-live="polite"></div>
+    <div class="ctrl"><button class="btn dark" id="bDis" disabled>Discard (1 left)</button><button class="btn" id="bAtk" disabled>Attack!</button></div>
+    <div class="result" id="result"><p id="resT"></p><div class="ctrl" style="margin-top:0"><a class="btn" href="play.html">Play the full game</a><button class="btn dark" id="bAgain">Deal again</button></div></div>
+    <div class="tip" id="tip"><b id="tipH"></b><span id="tipB"></span><br><button class="x" id="tipX">Got it</button></div>
+  </div>
+</section>
+
+<!-- MONSTERS -->
+<section class="band mon center" id="monsters">
+  <div class="bgimg" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="kicker rv">The monsters</p>
+    <span class="big-num rv">168</span>
+    <h2 class="rv">monsters. Every one of them moves.</h2>
+    <p class="intro rv">Each one is hand-painted in dark comic style and comes to life when it attacks: dragons breathe fire, krakens rise from the deep, liches cast curses.</p>
+    <div class="vids">
+      <div class="vid wide rv" data-v="dragon" style="background-image:url(art/bg_castle.webp)"><div class="lbl"><b>Grimstone Dragon</b><small>Boss</small></div></div>
+      <div class="vid rv" data-v="kraken"><div class="lbl"><b>The Kraken</b><small>Boss</small></div></div>
+      <div class="vid rv" data-v="balrog"><div class="lbl"><b>Balrog</b><small>Boss</small></div></div>
+      <div class="vid rv" data-v="icequeen"><div class="lbl"><b>The Ice Witch</b><small>Boss</small></div></div>
+      <div class="vid rv" data-v="lich"><div class="lbl"><b>The Lich</b><small>Boss</small></div></div>
+      <div class="vid rv" data-v="skeleton"><div class="lbl"><b>Rattling Skeleton</b><small class="w">Monster</small></div></div>
+    </div>
+    <div class="roster" aria-hidden="true"><div class="roster-track" id="roster"></div></div>
+  </div>
+</section>
+
+<!-- QUESTS -->
+<section class="band worlds center" id="quests">
+  <div class="wrap">
+    <p class="kicker rv">The quests</p>
+    <h2 class="rv">Ten quests. Forty bosses.<br>One deck of cards.</h2>
+    <p class="intro rv">Rescue Anna and get knighted. Then the King has work for Sir Edward: frozen peaks, burning deserts, sunken ships and the gates of the Abyss.</p>
+    <div class="wgrid" id="wgrid"></div>
+    <p class="abyss rv">And then, the Endless Abyss. <span>How deep can you go?</span></p>
+  </div>
+</section>
+
+
+<!-- STRIKE BACK -->
+<section class="band strike center" id="strike">
+  <div class="bgimg" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="kicker rv">Your turn</p>
+    <h2 class="rv">Remember that werewolf?<br>Time to hit back.</h2>
+    <div class="stage" id="stage">
+      <span class="ring"></span>
+      <div class="foe2"><img class="a" src="art/troll.webp" alt="The Troll King"><img class="d" src="art/dead_troll.webp" alt="The Troll King, defeated"></div>
+      <div class="pow2" id="pow2"><b>Royal flush!</b><span>-2,400</span></div>
+      <div class="ko">Defeated!</div>
+      <div class="loot"><span class="g"><img src="art/i_coin.webp" alt="">+45 gold</span><span class="xp">+120 EXP</span></div>
+      <div class="bar2"><div class="nm"><b>Troll King</b><span style="font-family:var(--f-num);font-weight:700;font-size:.8rem;letter-spacing:.12em;background:var(--purple);color:#fff;border:2px solid #000;border-radius:6px;padding:1px 8px">BOSS</span></div><div class="hp"><i id="trI"></i><em id="trE">2400 / 2400</em></div></div>
+    </div>
+    <button class="strike-replay" id="replay">Watch it again</button>
+  </div>
+</section>
+
+<!-- RISE -->
+<section class="band rise center">
+  <div class="bgimg" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="kicker rv">Level up</p>
+    <h2 class="rv">From tavern boy<br>to Sir Edward.</h2>
+    <p class="intro rv">Win fights, earn gold and buy better steel. Every level makes every attack hit harder, and you can watch your hero grow.</p>
+    <div class="line" id="line">
+      <figure><img src="art/hero_t0.webp" alt="Edward in plain clothes" style="--h:52%" loading="lazy"><figcaption>Level 1</figcaption></figure>
+      <figure><img src="art/hero_t1.webp" alt="Edward in leather" style="--h:60%;transition-delay:.12s" loading="lazy"><figcaption>Leather</figcaption></figure>
+      <figure><img src="art/hero_t2.webp" alt="Edward in chain mail" style="--h:68%;transition-delay:.24s" loading="lazy"><figcaption>Chain mail</figcaption></figure>
+      <figure><img src="art/hero_t3.webp" alt="Edward in plate" style="--h:77%;transition-delay:.36s" loading="lazy"><figcaption>Steel</figcaption></figure>
+      <figure><img src="art/hero_t4.webp" alt="Sir Edward in full armor" style="--h:88%;transition-delay:.48s" loading="lazy"><figcaption>Knight</figcaption></figure>
+      <figure><img src="art/hero_t5.webp" alt="Sir Edward in shining titanium armor" style="--h:100%;transition-delay:.6s" loading="lazy"><figcaption>Legend</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="band" style="background:var(--soot)">
+  <div class="wrap">
+    <p class="kicker rv">Everything in the deck</p>
+    <h2 class="rv">More than a card game.</h2>
+    <div class="feats">
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_merchant.webp)"></div><div class="body"><h3>Gear up</h3><p>Trade gold with the travelling merchant for axes, swords, shields and armor, from Wooden up to Titanium.</p></div></article>
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_learn_wizard.webp)"></div><div class="body"><h3>Learn magic</h3><p>Fire, frost and healing spellbooks turn a bad hand into a comeback.</p></div></article>
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_find_chest.webp)"></div><div class="body"><h3>Find treasure</h3><p>Chests, strangers and hidden traps on every road. Some help. Some don't.</p></div></article>
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_a1_0.webp)"></div><div class="body"><h3>Daily Challenge</h3><p>Same monsters and the same cards for everyone, every day. Post your score and see who beats it.</p></div></article>
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_w8_end_0.webp)"></div><div class="body"><h3>A story worth finishing</h3><p>Comic scenes, characters you'll like and an orchestral soundtrack for every land.</p></div></article>
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_w3_start_0.webp)"></div><div class="body"><h3>Three heroes</h3><p>Name your hero and keep up to three adventures going at once. Pick up right where you left off.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- APP -->
+<section class="band app" id="app">
+  <div class="bgimg" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="wrap app-grid">
+    <div>
+      <p class="kicker rv">Take it with you</p>
+      <h2 class="rv">Coming soon to your phone.</h2>
+      <p class="intro rv">Axes &amp; Aces is on its way to Google Play and the App Store. Until then, it plays great right here in your phone's browser, and your adventure is saved on your device.</p>
+      <div class="stores rv">
+        <span class="store" aria-label="Google Play, coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3" fill="none" stroke="#f3e6c8" stroke-width="2"/><path d="M10 8.5v7l6-3.5z" fill="#ffd35c"/></svg><span><small>Coming soon on</small><b>Google Play</b></span><span class="soon">Soon</span></span>
+        <span class="store" aria-label="App Store, coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3" fill="none" stroke="#f3e6c8" stroke-width="2"/><path d="M12 7l1.4 2.9 3.1.4-2.3 2.2.6 3.1L12 14.1 9.2 15.6l.6-3.1-2.3-2.2 3.1-.4z" fill="#ffd35c"/></svg><span><small>Coming soon on the</small><b>App Store</b></span><span class="soon">Soon</span></span>
+      </div>
+      <div class="cta rv" style="margin-top:30px"><a class="btn big" href="play.html">Play free now</a></div>
+    </div>
+    <div class="phone rv" aria-hidden="true"><div></div></div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="band final center">
+  <div class="bgimg" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="wrap">
+    <h2 class="rv">Anna is waiting.</h2>
+    <p class="intro rv" style="margin-bottom:34px">Shuffle up, hero. Your first fight is one tap away.</p>
+    <div class="rv"><a class="btn big" href="play.html">Start your adventure</a></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#"><img src="icons/icon-192.png" alt=""><b>Axes &amp; Aces</b></a>
+    <div class="links"><a href="play.html">Play</a><a href="privacy.html">Privacy</a><a href="mailto:support@axesandaces.com">Support</a></div>
+    <span>&copy; 2026 AxesAndAces.com</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* sticky bar turns solid after the hero */
+var top=document.getElementById('top');
+function onScroll(){ top.classList.toggle('solid', scrollY>40); }
+addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+/* hero: a rotating reel of boss attacks */
+var reel=['dragon','kraken','balrog','lich','icequeen','demonking'], ri=0, hv=document.getElementById('heroVid');
+if(reduce){ hv.removeAttribute('autoplay'); hv.pause(); }
+else {
+  hv.addEventListener('ended',function(){ hv.classList.add('fade'); setTimeout(function(){ ri=(ri+1)%reel.length; hv.src='vid/'+reel[ri]+'_attack.mp4'; hv.play().catch(function(){}); },450); });
+  hv.addEventListener('playing',function(){ hv.classList.remove('fade'); });
+  hv.play().catch(function(){});
+}
+
+/* saved heroes: offer Continue */
+try{
+  var box=document.getElementById('saves'), n, any=false;
+  for(n=1;n<=3;n++){
+    var raw=localStorage.getItem('aa_save_'+n)||localStorage.getItem('aa_saved_'+n); if(!raw) continue;
+    var v=JSON.parse(raw); if(!v||!v.S) continue; var S=v.S;
+    var name=S.heroName; try{ name=name||JSON.parse(localStorage.getItem('aa_name_'+n)||'null'); }catch(e){} name=name||'Edward';
+    var tier=0; ['armor','helm','shield'].forEach(function(k){ if(S.eq&&S.eq[k]&&S.eq[k].tier>tier) tier=S.eq[k].tier; });
+    var a=document.createElement('a'); a.className='save'; a.href='play.html?slot='+n;
+    a.innerHTML='<img src="art/hero_t'+tier+'.webp" alt=""><span><b></b><small>Level '+(S.level||1)+' · Continue</small></span>';
+    a.querySelector('b').textContent=((S.world||0)>0||S.knighted?'Sir ':'')+name;
+    box.appendChild(a); any=true;
+  }
+  if(any) box.classList.add('on');
+}catch(e){}
+
+/* quests */
+var W=[['The Gilded Ace','Rescue Anna','bg_tavern','dragon'],['The Frozen Peaks','The Frost Crown','bg_w2_0','frostgiant'],['The Burning Sands','The Lost Caravan','bg_w3_0','sunlord'],
+  ['The Sunken Coast','The Drowned Bell','bg_w4_0','kraken'],['The Plague Marsh','The Rotting Curse','bg_w5_0','boghag'],['The Iron Mines','The Stolen Forge','bg_w6_0','irongolem'],
+  ['The Haunted Abbey','The Silent Bells','bg_w7_0','lich'],['The Elven Wilds','The Thorned Heart','bg_w8_0','thornqueen'],['The Sky Fortress','The Storm Throne','bg_w9_0','stormtitan'],['The Abyss','The Demon King','bg_w10_0','demonking']];
+var g=document.getElementById('wgrid');
+W.forEach(function(w,i){ var d=document.createElement('div'); d.className='world rv'; d.style.backgroundImage='url(art/'+w[2]+'.webp)'; d.style.transitionDelay=(i%5)*60+'ms';
+  d.innerHTML='<span class="n">'+(i+1)+'</span><img src="art/'+w[3]+'.webp" alt="" loading="lazy"><div class="t"><b>'+w[0]+'</b><small>'+w[1]+'</small></div>'; g.appendChild(d); });
+
+/* marching roster of monsters */
+var R=['goblin','rat','bat','boar','imp','bandit','skeleton','ghoul','spider','troll','wolf','icewolf','snowgoblin','mammoth','icetroll','yetichief','scorpion','mummy','sphinx','djinn','pharaoh','pirate','shark','merman','siren','seaserpent','crocodile','bogman','plaguedoctor','kobold','firedwarf','lavagolem','ghost','banshee','gargoyle','bonedragon','owlbear','unicorn','dryad','harpy','griffon','stormdrake','hellhound','cerberus','balrog'];
+var rt=document.getElementById('roster'), html='';
+R.forEach(function(k){ html+='<img src="art/'+k+'.webp" alt="" loading="lazy" onerror="this.remove()">'; });
+rt.innerHTML=html+html;
+
+/* monster videos: still art until scrolled into view, then they move */
+var vids=[].slice.call(document.querySelectorAll('.vid'));
+vids.forEach(function(el){ var k=el.dataset.v, v=document.createElement('video'); v.muted=true; v.loop=true; v.playsInline=true; v.preload='none'; v.poster='art/'+k+'.webp';
+  v.setAttribute('aria-hidden','true'); v.dataset.src='vid/'+k+'_idle.mp4'; el.insertBefore(v,el.firstChild);
+  el.addEventListener('mouseenter',function(){ if(reduce) return; v.loop=false; v.src='vid/'+k+'_attack.mp4'; v.play().catch(function(){}); v.onended=function(){ v.loop=true; v.src=v.dataset.src; v.play().catch(function(){}); }; });
+});
+
+/* reveal + start effects as things scroll into view */
+var io=new IntersectionObserver(function(es){ es.forEach(function(e){
+  var t=e.target;
+  if(e.isIntersecting){
+    t.classList.add('in');
+    if(t.id==='fan'||t.id==='ladder'||t.id==='line') t.classList.add('go');
+    if(t.classList.contains('table')){ document.getElementById('fan').classList.add('go'); document.getElementById('ladder').classList.add('go'); }
+    var v=t.querySelector&&t.querySelector('video[data-src]'); if(v&&!reduce){ if(!v.src) v.src=v.dataset.src; v.play().catch(function(){}); }
+  } else { var v2=t.querySelector&&t.querySelector('video[data-src]'); if(v2&&!v2.paused) v2.pause(); }
+}); },{threshold:.18});
+document.querySelectorAll('.rv,#line,.vid,.panel').forEach(function(el){ io.observe(el); });
+if(!('IntersectionObserver' in window)) document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
+
+/* embers drifting up the hero */
+if(!reduce){ var em=document.getElementById('embers'), eh=''; for(var k=0;k<34;k++){ eh+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;--s:'+(3+Math.random()*6).toFixed(1)+'px;--d:'+(6+Math.random()*8).toFixed(1)+'s;--dl:'+(-Math.random()*12).toFixed(1)+'s;--x:'+(Math.random()*160-80).toFixed(0)+'px"></i>'; } em.innerHTML=eh; }
+
+/* ---------- try a hand ---------- */
+var SU=['♠','♥','♦','♣'], RK=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+var HAND=document.getElementById('hand'), live=document.getElementById('live'), bDis=document.getElementById('bDis'), bAtk=document.getElementById('bAtk');
+var tip=document.getElementById('tip'), arena=document.getElementById('arena'), dv=document.getElementById('drgV');
+var deck, cards, sel, discards, HP, done, tipStep=0, started=false;
+var DMG={'High card':40,'Pair':90,'Two pair':160,'Three of a kind':240,'Straight':330,'Flush':400,'Full house':520,'Four of a kind':700,'Straight flush':880,'Royal flush':1000};
+function shuffle(){ deck=[]; for(var s=0;s<4;s++) for(var r=0;r<13;r++) deck.push({r:r,s:s}); for(var i=deck.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=deck[i]; deck[i]=deck[j]; deck[j]=t; } }
+function cardEl(c,i,anim){ var b=document.createElement('button'); b.className='pc'+(c.s===1||c.s===2?' red':'')+(anim?' deal':''); b.style.animationDelay=(anim?i*70:0)+'ms';
+  b.innerHTML='<span class="r">'+RK[c.r]+'<small>'+SU[c.s]+'</small></span><span class="m">'+SU[c.s]+'</span>'; b.setAttribute('aria-label',RK[c.r]+' of '+['spades','hearts','diamonds','clubs'][c.s]);
+  b.onclick=function(){ if(done) return; var k=sel.indexOf(i); if(k>=0) sel.splice(k,1); else { if(sel.length>=5){ say('Five cards at most'); return; } sel.push(i); } b.classList.toggle('sel'); update(); }; return b; }
+function draw(anim){ HAND.innerHTML=''; cards.forEach(function(c,i){ HAND.appendChild(cardEl(c,i,anim===true||(anim&&anim.indexOf(i)>=0))); }); }
+function say(t){ live.textContent=t; }
+function evalHand(cs){
+  if(!cs.length) return {n:'High card',use:[]};
+  var cnt={}, bys={}; cs.forEach(function(c,i){ (cnt[c.r]=cnt[c.r]||[]).push(i); });
+  var groups=Object.keys(cnt).map(function(r){ return {r:+r,ix:cnt[r]}; }).sort(function(a,b){ return b.ix.length-a.ix.length||b.r-a.r; });
+  var flush=cs.length===5&&cs.every(function(c){ return c.s===cs[0].s; });
+  var rs=cs.map(function(c){ return c.r; }).sort(function(a,b){ return a-b; });
+  var straight=cs.length===5&&groups.length===5&&(rs[4]-rs[0]===4||rs.join()==='0,1,2,3,12');
+  var all=cs.map(function(c,i){ return i; });
+  if(straight&&flush) return {n:rs[0]===8?'Royal flush':'Straight flush',use:all};
+  if(groups[0].ix.length===4) return {n:'Four of a kind',use:groups[0].ix};
+  if(groups[0].ix.length===3&&groups[1]&&groups[1].ix.length>=2) return {n:'Full house',use:groups[0].ix.concat(groups[1].ix)};
+  if(flush) return {n:'Flush',use:all};
+  if(straight) return {n:'Straight',use:all};
+  if(groups[0].ix.length===3) return {n:'Three of a kind',use:groups[0].ix};
+  if(groups[0].ix.length===2&&groups[1]&&groups[1].ix.length===2) return {n:'Two pair',use:groups[0].ix.concat(groups[1].ix)};
+  if(groups[0].ix.length===2) return {n:'Pair',use:groups[0].ix};
+  var hi=all.sort(function(a,b){ return cs[b].r-cs[a].r; }); return {n:'High card',use:[hi[0]]};
+}
+function picked(){ return sel.slice().sort(function(a,b){return a-b;}).map(function(i){ return cards[i]; }); }
+function update(){
+  bDis.disabled=done||!sel.length||discards<1; bAtk.disabled=done||!sel.length;
+  bDis.textContent='Discard ('+discards+' left)';
+  if(!sel.length){ say('Tap up to 5 cards'); return; }
+  var e=evalHand(picked()), aces=picked().filter(function(c){ return c.r===12; }).length;
+  say('Selected: '+e.n+(aces&&e.n!=='High card'?' + Ace Bonus':''));
+  if(tipStep===1 && sel.length>=2) showTip(2);
+}
+function setHP(){ document.getElementById('hpI').style.width=Math.max(0,HP/10)+'%'; document.getElementById('hpE').textContent=Math.max(0,HP)+' / 1000'; }
+function showTip(n){
+  tipStep=n; var T=[
+    ['Pick your cards','Tap up to five cards to build the best poker hand you can. Pairs, straights, flushes...',HAND],
+    ['Bad cards?','Select the ones you don\'t want and tap Discard to swap them. You get one discard here.',bDis],
+    ['Strike!','Happy with your hand? Tap Attack. Bigger hands hit harder, and Aces add a bonus.',bAtk]][n-1];
+  if(!T) { tip.classList.remove('on'); return; }
+  document.getElementById('tipH').textContent=T[0]; document.getElementById('tipB').textContent=T[1];
+  tip.classList.add('on');
+  var host=tip.parentNode.getBoundingClientRect(), r=T[2].getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
+  var x=Math.min(Math.max(8, r.left-host.left+r.width/2-tw/2), host.width-tw-8), y=r.top-host.top-th-18;
+  var below=n>1; if(below) y=r.bottom-host.top+18;
+  tip.classList.toggle('up', below); tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.setProperty('--ax',(r.left-host.left+r.width/2-x)+'px');
+}
+document.getElementById('tipX').onclick=function(){ tip.classList.remove('on'); };
+addEventListener('resize',function(){ if(tip.classList.contains('on')) showTip(tipStep); });
+function deal(){
+  shuffle(); cards=deck.splice(0,8); sel=[]; discards=1; HP=1000; done=false; setHP(); draw(true);
+  document.getElementById('result').classList.remove('on'); update(); setTimeout(function(){ showTip(1); }, 650);
+}
+bDis.onclick=function(){
+  if(!sel.length||discards<1) return; discards--; var gone=sel.slice(); sel=[];
+  [].forEach.call(HAND.children,function(b,i){ if(gone.indexOf(i)>=0) b.classList.add('gone'); });
+  setTimeout(function(){ gone.forEach(function(i){ cards[i]=deck.pop(); }); draw(gone); update(); if(tipStep<=2) showTip(3); },320);
+};
+bAtk.onclick=function(){
+  if(!sel.length||done) return; done=true; tip.classList.remove('on');
+  var cs=picked(), e=evalHand(cs), aces=cs.filter(function(c){ return c.r===12; }).length, bonus=e.n==='High card'?0:aces*40, dmg=DMG[e.n]+bonus;
+  var sorted=sel.slice().sort(function(a,b){return a-b;}); e.use.forEach(function(u){ HAND.children[sorted[u]].classList.add('score'); });
+  bDis.disabled=bAtk.disabled=true;
+  setTimeout(function(){
+    document.getElementById('powT').textContent=e.n+'!'; document.getElementById('powN').textContent='-'+dmg+(bonus?'  (Ace Bonus +'+bonus+')':'');
+    var p=document.getElementById('pow'); p.classList.remove('on'); void p.offsetWidth; p.classList.add('on');
+    var f=document.getElementById('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+    if(!reduce){ arena.classList.remove('shake'); void arena.offsetWidth; arena.classList.add('shake'); }
+    HP-=dmg; setHP(); say(e.n+' hits for '+dmg+'!');
+  },350);
+  setTimeout(function(){
+    var dead=HP<=0, rt=document.getElementById('resT');
+    if(dead){ rt.textContent='A royal flush! The Grimstone Dragon falls. You were born for this. The full adventure is waiting.'; }
+    else { if(!reduce){ dv.loop=false; dv.src='vid/dragon_attack.mp4'; dv.play().catch(function(){}); dv.onended=function(){ dv.loop=true; dv.src=dv.dataset.src; dv.play().catch(function(){}); }; }
+      rt.textContent='The dragon is still standing with '+HP+' health, and now it\'s angry. In the full game you\'ll have spells, potions, armor and a whole quest to get stronger first.'; }
+    document.getElementById('result').classList.add('on');
+  },2300);
+};
+document.getElementById('bAgain').onclick=deal;
+var tio=new IntersectionObserver(function(es){ es.forEach(function(e){
+  if(e.isIntersecting){ if(!started){ started=true; deal(); } if(!reduce){ if(!dv.src) dv.src=dv.dataset.src; dv.play().catch(function(){}); } }
+  else if(!dv.paused) dv.pause(); }); },{threshold:.3});
+tio.observe(arena);
+
+/* ---------- ambush while scrolling ---------- */
+var hud=document.getElementById('hud'), amb=document.getElementById('amb'), ambDone=false, myHP=400;
+function setYou(v){ myHP=v; document.getElementById('youI').style.width=(v/4)+'%'; document.getElementById('youE').textContent=v+' / 400'; hud.classList.toggle('low', v<100); }
+function ambush(){
+  if(ambDone) return; ambDone=true; setYou(400); hud.classList.add('on');
+  amb.classList.remove('on'); void amb.offsetWidth; amb.classList.add('on');
+  setTimeout(function(){ if(!reduce){ var M=document.querySelector('main'); M.classList.remove('hit'); void M.offsetWidth; M.classList.add('hit'); } setYou(90); },420);
+  setTimeout(function(){ amb.classList.remove('on'); },3300);
+  setTimeout(function(){ hud.classList.remove('on'); },6000);
+}
+new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting) ambush(); }); },{rootMargin:'0px 0px -35% 0px'}).observe(document.getElementById('ambushAt'));
+
+/* ---------- strike back and kill it ---------- */
+var stage=document.getElementById('stage'), killed=false;
+(function(){ var R=[['10','♠'],['J','♠'],['Q','♠'],['K','♠'],['A','♠']], h='';
+  R.forEach(function(c,i){ h+='<span class="fly" style="--sx:'+((i-2)*90)+'px;animation-delay:'+(i*.09)+'s">'+c[0]+'<br>'+c[1]+'</span>'; });
+  for(var k=0;k<14;k++){ var a=Math.random()*Math.PI*2, r=120+Math.random()*180; h+='<img class="coin" src="art/i_coin.webp" alt="" style="--cx:'+Math.round(Math.cos(a)*r)+'px;--cy:'+Math.round(Math.sin(a)*r*.6-80)+'px;animation-delay:'+(Math.random()*.25).toFixed(2)+'s">'; }
+  stage.insertAdjacentHTML('beforeend',h); })();
+function setTr(v){ document.getElementById('trI').style.width=(v/24)+'%'; document.getElementById('trE').textContent=v+' / 2400'; }
+function strike(){
+  stage.classList.remove('go','hit','dead'); document.getElementById('pow2').classList.remove('on'); setTr(2400); void stage.offsetWidth;
+  if(myHP<400){ hud.classList.add('on'); }
+  stage.classList.add('go');
+  setTimeout(function(){ stage.classList.add('hit'); var p=document.getElementById('pow2'); p.classList.add('on'); setTr(0);
+    if(!reduce){ var M=document.querySelector('main'); M.classList.remove('hit'); void M.offsetWidth; M.classList.add('hit'); } },820);
+  setTimeout(function(){ stage.classList.add('dead'); if(myHP<400){ setYou(400); } },2100);
+  setTimeout(function(){ hud.classList.remove('on'); },4200);
+}
+new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting&&!killed){ killed=true; strike(); } }); },{threshold:.55}).observe(stage);
+document.getElementById('replay').onclick=strike;
+})();
+</script>
+</body></html>

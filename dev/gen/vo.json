@@ -1,0 +1,38 @@
+[
+ {
+  "id": "vo_start_0",
+  "text": "The Gilded Ace. Rain hammers the windows. You sit by the fire with a warm mug. Rose, the barkeep's daughter, sets down a bowl of stew and smiles. \"You look like you've come a long way.\""
+ },
+ {
+  "id": "vo_start_1",
+  "text": "CRASH!. The door bursts open. Goblins and bandits pour in! Before anyone can move, two bandits grab Rose and drag her, kicking and screaming, down the cellar stairs. A snarling goblin blocks your way."
+ },
+ {
+  "id": "vo_start_2",
+  "text": "Old Bram, the barkeep. \"They took my Rosie!\" Old Bram tosses you a glowing deck of cards. \"Cards of Power! Make a poker hand and it turns into an attack. The better the hand, the harder you hit. Please... bring my daughter home!\""
+ },
+ {
+  "id": "vo_a1_0",
+  "text": "Into the Cellar. The Bandit Chief laughs as he falls. \"Too late, hero. The girl is already on her way to the master.\" On the cellar stairs you find Rose's red ribbon. You grab a torch and head down into the dark."
+ },
+ {
+  "id": "vo_a2_0",
+  "text": "The Dark Forest. Behind a cracked cellar wall, a secret tunnel leads out into the Dark Forest. Rose's scarf hangs on a branch. Fresh footprints lead deeper into the trees, where wolves are howling."
+ },
+ {
+  "id": "vo_a3_0",
+  "text": "Castle Grimstone. At the edge of the forest stands Castle Grimstone. From the tallest tower, you hear Rose calling for help. Then a huge shadow crosses the moon. The master is a dragon."
+ },
+ {
+  "id": "vo_end_0",
+  "text": "The dragon falls!. With one last mighty hand, the Grimstone Dragon crashes to the ground. Its monsters scatter into the hills."
+ },
+ {
+  "id": "vo_end_1",
+  "text": "Rose is free. You race up the tower stairs and break the lock. Rose throws her arms around you. \"I knew someone would come,\" she whispers."
+ },
+ {
+  "id": "vo_end_2",
+  "text": "Hero of the Gilded Ace. Back at the Gilded Ace, Old Bram hugs his daughter and won't let go. Then he pours you a drink on the house. \"To the hero who brought my Rosie home!\" The whole pub cheers."
+ }
+]

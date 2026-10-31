@@ -1,0 +1,7 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const errs=[];
+for(const [vw,vh] of [[1536,640],[1280,600],[1920,950],[390,844]]){const p=await b.newPage({viewport:{width:vw,height:vh}});p.on('pageerror',e=>errs.push(e.message));
+await p.goto('http://localhost:8765/site/audit.html');await p.evaluate(()=>{localStorage.clear();localStorage.setItem('aa_tutorialDone','true')});await p.reload();await p.waitForTimeout(900);
+const out=[];for(const [n,c] of [['shop',"S.coach=-1;S.level=3;S.gold=11;S.tips={shop:1,level:1,boss:1,path:1};S.eq={main:{type:'sword',tier:2},off:null,shield:{type:'shield',tier:1},helm:{type:'helm',tier:1},armor:{type:'armor',tier:1}};shopPanel()"],['learn',"learnPanel(BK['cleric1'])"],['vic',"S.winMood={flawless:true,bonus:3};S.pendingLv=1;S.lastWin={bonus:3,gold:5,healed:0,xp:21,name:'Giant Scorpion',icon:'',boss:false,drop:{kind:'potion'}};S.phase='victory';victoryPanel()"]]){
+ await p.evaluate(c=>window.__A.ev(c),c);await p.waitForTimeout(1500);out.push(n+':'+(await p.evaluate(()=>{const e=document.getElementById('panel');return e.scrollHeight-e.clientHeight})));await p.screenshot({path:`fit_${n}_${vw}.png`});}
+console.log(vw,vh,out.join(' '));await p.close();}
+console.log(JSON.stringify(errs));await b.close();})();
