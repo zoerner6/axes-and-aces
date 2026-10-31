@@ -2073,6 +2073,7 @@ function finishCaption(){ const el=$('capTxt'); if(!el) return; clearInterval(ty
 const sceneImg = id => `art/sc_${id}.webp`;
 function cineHTML(id, title, text, extra=''){
   const kb=['kb1','kb2','kb3'][id.length%3];
+  title=nm(title); text=nm(text);
   return `<div class="cine-scene ${kb}"><img src="${sceneImg(id)}" alt="">${extra}<span class="cine-title">${title}</span>
     <button class="cine-voice" data-act="playVo" hidden>Hear the narrator</button></div>
     <div class="cine-cap" data-act="capDone"><p><span class="ghost">${text}</span><span class="typed" id="capTxt"></span></p></div>`;
@@ -2409,7 +2410,7 @@ function spellStrike(id){
 }
 function bigBoom(t){ if(!soundOn||!ac) return; blip(55,.5+t*.1,'sine',.18); blip(42,.7,'sawtooth',.06,.03); if(t>=3) blip(30,.9,'sine',.14,.06); }
 function foeBanner(t, small, cls){ t=nm(t); const b=$('banner'); b.innerHTML=`${t}<small>${small}</small>`; b.className='banner '+cls; void b.offsetWidth; b.classList.add('show','slow'); }
-function banner(t, small){ $('banner').className='banner'; const b=$('banner'); b.innerHTML = small ? `${t}<small>${small}</small>` : t; anim(b,'show'); }
+function banner(t, small){ $('banner').className='banner'; const b=$('banner'); t=nm(t); small=nm(small); b.innerHTML = small ? `${t}<small>${small}</small>` : t; anim(b,'show'); }
 /* fruit-ninja style slashes: more slashes for better hands */
 const HIT_WORDS = {high:['Poke!',1], pair:['Nice hit!',1], two:['Double strike!',2], trio:['Smash!',2], straight:['Combo!',3],
                    flush:['Critical hit!',3], full:['Brutal!',4], four:['Devastating!',4], sflush:['LEGENDARY!',5]};
@@ -3414,7 +3415,7 @@ function namePanel(n, current){
 function titlePanel(sv){ return slotsPanel();
   loadWorld(sv.S.world||0); const L=sv.S; upgradeIdx(L); const where=AREAS[areaOf(L.idx||0)].name, when=new Date(sv.at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
-    <h2>Welcome back, ${L.world>0||L.knighted?'Sir Edward':'Edward'}</h2>
+    <h2>Welcome back, ${nm((L.world>0||L.knighted?'Sir ':'')+'Edward')}</h2>
     <div class="lines"><div><span>Quest</span><b>${worldName(L.world)}</b></div><div><span>Level</span><b>${L.level}</b></div><div><span>Where</span><b>${where}</b></div><div><span>Health</span><b>${L.hp} / ${L.maxHp}</b></div><div><span>Gold</span><b>${coin(L.gold)}</b></div><div><span>Saved</span><b>${when}</b></div></div>
     <button class="btn big" data-act="continue">Continue</button>
     <button class="btn big ghost daily" data-act="daily">Daily Challenge</button>
@@ -3494,7 +3495,7 @@ function unlock(id){
   const have=achHave(); if(have[id]) return; have[id]=Date.now(); store.set('aa_ach',have);
   const a=ACH.find(x=>x.id===id); if(!a) return;
   const e=document.createElement('div'); e.className='ach-pop';
-  e.innerHTML=`<span class="ach-ic">${I(a.icon)}</span><span><small>Achievement unlocked!</small><b>${a.name}</b><em>${a.desc}</em></span><button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`;
+  e.innerHTML=`<span class="ach-ic">${I(a.icon)}</span><span><small>Achievement unlocked!</small><b>${nm(a.name)}</b><em>${nm(a.desc)}</em></span><button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`;
   const narrow=innerWidth<900, wait=narrow&&S&&S.phase==='victory'?4200:0;
   setTimeout(()=>{ document.body.appendChild(e); trumpetCall(); setTimeout(()=>e.classList.add('out'),5200); setTimeout(()=>e.remove(),5800); }, wait);
 }
@@ -3551,7 +3552,7 @@ function bragInfo(kind, id){
   const w=S?(S.world||0):0, who=(typeof heroName==='function')?heroName():'Edward';
   if(kind==='ach'){ const a=ACH.find(x=>x.id===id)||ACH[0]; return {key:'ach_'+a.id, eyebrow:'Achievement unlocked', title:a.name, sub:a.desc+' in Axes & Aces.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
   if(kind==='boss'){ const d=S.lastWin||{}; const slug=ART[d.name]; return {key:slug?'boss_'+slug:'boss', eyebrow:`${worldName(w)}`, title:`I defeated ${(d.name||'').replace(/^The /,'the ')}!`, big:`Level ${S.level}`, sub:`${who} brought down ${/^The /.test(d.name||'')?d.name.replace(/^The /,'the '):'the '+d.name}.`, fig: slug?`art/dead_${slug}.webp`:null, bg:`art/${BGF(curArea())}.webp`}; }
-  if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?'I saved Anna and was knighted Sir Edward!':`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'A dark comic card adventure. Fight monsters with poker hands.', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
+  if(kind==='quest'){ return {key:'quest'+Math.min(10,w), eyebrow:'Quest complete', title:w<=1?nm('I saved Anna and was knighted Sir Edward!'):`I completed ${worldName(w-1)}!`, big:`Level ${S.level}`, sub:'A dark comic card adventure. Fight monsters with poker hands.', fig:`art/hero_t${heroTier()}.webp`, bg:'art/sc_end_3.webp'}; }
   if(kind==='death'){ const k=S.killer||{}; return {key:'fallen_t'+heroTier(), eyebrow:`${worldName(w)}`, title:`I reached level ${S.level}`, big:`${fmt(S.stats.best||0)} best hit`, sub:`Before ${/^The /.test(k.name||'')?k.name.replace(/^The /,'the '):'the '+(k.name||'monsters')} took me down.`, fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(k.area||0)}.webp`}; }
   if(kind==='level'){ return {key:'level_t'+heroTier(), eyebrow:'Level up', title:`I reached level ${S.level}!`, big:`×${lvlMult().toFixed(2)} damage`, sub:'Every attack now hits harder.', fig:`art/hero_t${heroTier()}.webp`, bg:`art/${BGF(curArea())}.webp`}; }
   if(kind==='daily'){ const r=S.dailyResult||{}; return {key:'daily', eyebrow:`Daily Challenge · ${r.date||''}`, title:r.wins>=5?'I beat today\'s Daily Challenge!':`I won ${r.wins||0} of 5 daily fights`, big:`${fmt(r.score||0)} points`, sub:'Same monsters, same cards for everyone today. Beat my score.', fig:r.fig||`art/hero_t${heroTier()}.webp`, bg:r.bg||'art/bg_castle.webp'}; }
@@ -3772,7 +3773,7 @@ function achPanel(){
     <div class="lines stats-lines"><div><span>Fights won</span><b>${fmt(L.wins)}</b></div><div><span>Bosses defeated</span><b>${fmt(L.bosses)}</b></div>
       <div><span>Biggest hit</span><b>${fmt(L.best)}${L.bestName?' ('+L.bestName+')':''}</b></div><div><span>Hands played</span><b>${fmt(L.hands)}</b></div>
       <div><span>Highest level</span><b>${L.level}</b></div><div><span>Quests completed</span><b>${L.quests}</b></div><div><span>Best daily score</span><b>${fmt(L.dailyBest)}</b></div></div>
-    <div class="ach-grid">${ACH.map(a=>`<div class="ach ${have[a.id]?'got':''}"><span class="ach-ic">${have[a.id]?I(a.icon):I('lock')}</span><span><b>${a.name}</b><small>${a.desc}</small></span>${have[a.id]?`<button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`:''}</div>`).join('')}</div>
+    <div class="ach-grid">${ACH.map(a=>`<div class="ach ${have[a.id]?'got':''}"><span class="ach-ic">${have[a.id]?I(a.icon):I('lock')}</span><span><b>${nm(a.name)}</b><small>${nm(a.desc)}</small></span>${have[a.id]?`<button data-act="brag" data-kind="ach" data-id="${a.id}">Brag</button>`:''}</div>`).join('')}</div>
     <button class="btn big" data-act="close">Back</button>`);
 }
 /* ---------- start ---------- */
