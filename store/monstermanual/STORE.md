@@ -66,8 +66,14 @@ KDP allows this book. Its rule, verbatim from its Content Guidelines page on
 > "AI-generated," even if you applied substantial edits afterwards.
 
 So the honest answer at upload is **yes, AI-generated, both text and images**.
-That disclosure goes to Amazon and is not printed on the product page. Unlike
-DriveThruRPG, disclosing is what makes it allowed rather than refused.
+Unlike DriveThruRPG, declaring it is what makes the book allowed rather than
+refused, and Amazon's pages attach no AI-specific penalty to answering yes.
+
+Two things Amazon does **not** say, which are worth not inventing: it does not
+publish the wording of the form, so read what is on the screen rather than
+hunting for a predicted sentence; and it does not say whether the declaration
+is shown to customers. Blogs claim more certainty than Amazon's own pages
+support.
 
 ### What it costs to print and what it can sell for
 
@@ -93,6 +99,15 @@ It is only worth it if the proof shows standard colour cannot handle the dark
 pages — and **the ink type locks to the ISBN once the book is published**, so
 that decision has to be made before, not after.
 
+### Expanded Distribution is probably out
+
+8.5 x 11 on white paper is eligible on both standard and premium colour, so
+the trim chart lets the book in. The content rules then exclude "Paperbacks
+with interior pages that require a high concentration of ink to be printed",
+which a full-colour bestiary plainly is. Enrol anyway: Amazon says being
+refused has "no impact into your KDP account status or the availability of
+your book(s) on Amazon."
+
 ### The risk worth knowing
 
 Ten of the 146 pages are full-bleed dark scenes, and dark full-bleed pages are
@@ -107,11 +122,11 @@ before publishing.
 |---|---|
 | Interior sheet | 8.625 x 11.25 in (8.5 x 11 trim + 0.125 in bleed on three sides) |
 | Trim box | slides per page so the bleed is always on the outside edge |
-| Margins | 0.583 in all round — clears KDP's 0.375 in gutter and 0.375 in bleed-side minimums |
+| Margins | 0.583 in all round — clears KDP's 0.375 in gutter and 0.375 in bleed-side minimums, and also the 0.5 in gutter required above 150 pages, so front matter can be added without reflowing |
 | Pages | 146, even, no cover page (KDP takes the cover separately) |
 | Interior file | 95 MB against KDP's 650 MB ceiling |
 | Cover sheet | 17.579 x 11.25 in, one PDF, back + spine + front |
-| Spine | 0.329 in (146 x 0.002252 in for standard colour); spine text allowed above 79 pages |
+| Spine | 0.329 in (146 x 0.002252 in, standard colour). Premium colour is thicker at 0.343 in, so switching ink means rebuilding the cover: `python src/book.py --premium` |
 | Spine text clearance | 6.5 pt each side, against KDP's 4.5 pt minimum |
 | Cover file | 7 MB, against the 40 MB KDP recommends |
 

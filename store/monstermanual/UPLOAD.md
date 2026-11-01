@@ -98,9 +98,9 @@ holding back, spine and front, with the spine sized for 146 pages.
    Keep "Dungeons & Dragons" out of the title, subtitle, description and
    keywords — `STORE.md` explains why.
 
-4. **This is the question to get right: AI content.** KDP asks whether the
-   book contains AI-generated content. **Answer yes, for both text and
-   images.** Their rule, in their words:
+4. **This is the question to get right: AI content.** Somewhere in the
+   Content step KDP asks you to declare AI-generated content. **Answer yes,
+   for both text and images.** Their rule, in their words:
 
    > We require you to inform us of AI-generated content (text, images, or
    > translations) when you publish a new book… If you used an AI-based tool
@@ -108,9 +108,17 @@ holding back, spine and front, with the spine sized for 146 pages.
    > you applied substantial edits afterwards.
 
    The pictures were made by an image model and the words were written by a
-   language model, so both are AI-generated, not AI-assisted. This disclosure
-   goes to Amazon, not onto the product page, and disclosing it is what makes
-   the book allowed. It is the same answer the coloring book gives.
+   language model, so both are AI-generated, not AI-assisted. Declaring it is
+   what makes the book allowed. It is the same answer the coloring book gives,
+   which matters because both books come from the same art.
+
+   Two honest caveats. **Amazon does not publish the wording of the form
+   anywhere**, so read what is actually on the screen rather than looking for
+   a sentence I have predicted. And Amazon does not say whether the
+   declaration is shown to customers — I previously wrote here that it stays
+   private, and I should not have, because their pages do not say so. What
+   their pages do say is that there is no AI-specific penalty attached to
+   answering yes.
 
 5. **ISBN:** take the free KDP one unless you want to own the ISBN.
 
@@ -126,6 +134,15 @@ holding back, spine and front, with the spine sized for 146 pages.
    costs $12.68 and would force the price above $21 before you earn anything.
    Standard is the right call for a book that is mostly light parchment
    pages, but see step 9 before you commit.
+
+   **If the proof makes you switch to premium, the cover has to be rebuilt.**
+   The spine is thicker on premium paper — 0.343 in against 0.329 in — and a
+   cover built for the wrong one will have the spine type drifting onto the
+   front. Rebuild it from `store/monstermanual/` with:
+
+   ```bash
+   python src/book.py --premium
+   ```
 
 7. **Upload the interior:** `Axes-and-Aces-Monster-Manual-KDP-interior.pdf`.
    It is 95 MB; KDP's ceiling is 650 MB, so it is well inside.
@@ -144,7 +161,22 @@ holding back, spine and front, with the spine sized for 146 pages.
     copy** after printing. The floor Amazon will allow is $11.45; do not go
     near it, print RPG books are not priced like novels.
 
-11. **Publish.** It takes up to 72 hours to go live.
+11. **Expanded Distribution: tick it, but do not count on it.** 8.5 x 11 on
+    white paper is eligible on both standard and premium colour, so the chart
+    lets you in. The content rules then exclude, in their words, "Paperbacks
+    with interior pages that require a high concentration of ink to be
+    printed" — which a full-colour bestiary plainly is. It costs nothing to
+    try: Amazon says that being refused or removed from Expanded Distribution
+    has "no impact into your KDP account status or the availability of your
+    book(s) on Amazon."
+
+12. **Publish.** It takes up to 72 hours to go live.
+
+**One scheduling note.** KDP allows **2 new titles per format per week**, for
+creation and for submission separately, resetting Sunday 00:00 UTC. The
+coloring book is also a paperback, so the two of them use both slots in a
+week. Two is enough for both; just do not plan a third paperback in the same
+week.
 
 ---
 

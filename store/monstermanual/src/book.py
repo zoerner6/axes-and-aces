@@ -738,7 +738,8 @@ def main():
     kmarks, kpages = build(ktmp, kdp=True)
     kout = os.path.join(DIST, 'Axes-and-Aces-Monster-Manual-KDP-interior.pdf')
     _, kpages2 = build(kout, kmarks, kdp=True)
-    cov, cw, ch, spine = kdp_cover(kpages2)
+    ink = 'premium' if '--premium' in sys.argv else 'standard'
+    cov, cw, ch, spine = kdp_cover(kpages2, ink)
     print()
     print('print edition (Amazon KDP paperback, 8.5 x 11 in)')
     print('  interior pages: %d  (even: %s)' % (kpages2, kpages2 % 2 == 0))
@@ -747,11 +748,19 @@ def main():
     print('  interior sheet: %.3f x %.3f in  (trim 8.5 x 11 plus bleed)'
           % ((PW + BLEED) / 72, (PH + 2 * BLEED) / 72))
     print('  interior:       %s' % os.path.abspath(kout))
-    print('  cover sheet:    %.3f x %.3f in, spine %.3f in'
-          % (cw / 72, ch / 72, spine / 72))
+    print('  cover sheet:    %.3f x %.3f in, spine %.3f in (%s colour)'
+          % (cw / 72, ch / 72, spine / 72, ink))
+    other = 'premium' if ink == 'standard' else 'standard'
+    print('  NOTE: the spine is sized for %s colour. Switching to %s changes'
+          % (ink, other))
+    print('        it to %.3f in, so rebuild the cover with'
+          % (kpages2 * SPINE_PER_PAGE[other]))
+    print('        python src/book.py %s'
+          % ('--premium' if other == 'premium' else '(no flag)'))
     print('  cover size:     %.1f MB  (KDP wants under 40 MB)'
           % (os.path.getsize(cov) / 1e6))
     print('  cover:          %s' % os.path.abspath(cov))
+    print()
     print()
     print('  printing cost and the lowest list price it allows, Amazon.com:')
     for ink, cost, floor in costs(kpages2):
