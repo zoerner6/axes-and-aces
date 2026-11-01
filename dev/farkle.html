@@ -88,7 +88,10 @@ img{max-width:100%}
 
 /* ---------- the bar across the top ---------- */
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
-.brand{display:flex;align-items:center;gap:8px;line-height:1;color:var(--gold);
+/* It is a link now, so it has to be a real tap target. The bar is already
+   44px tall from the buttons, so this costs no height. */
+.brand{display:flex;align-items:center;gap:8px;line-height:1;color:var(--gold);text-decoration:none;
+  min-height:44px;padding-right:6px;
   font-family:var(--f-logo);font-size:1.02rem;letter-spacing:.015em;text-transform:uppercase;
   text-shadow:2px 2px 0 #000,-1px 0 0 #000,0 -1px 0 #000}
 .brand img{flex:none;width:30px;height:30px;border-radius:7px;border:2px solid #000;box-shadow:2px 2px 0 #000}
@@ -315,6 +318,9 @@ img{max-width:100%}
 .say::after{content:"";position:absolute;left:25px;top:-4px;width:0;height:0;
   border:5px solid transparent;border-bottom-color:var(--bubble);border-top:0}
 .say.you{background:#dbe9f7}
+.say.narr{background:transparent;border:0;box-shadow:none;color:var(--parch-dim);
+  font-style:italic;padding:2px 2px;font-size:.95rem}
+.say.narr::before,.say.narr::after{display:none}
 .say:empty{display:none}
 
 /* ---------- you against it, side by side ---------- */
@@ -350,10 +356,10 @@ img{max-width:100%}
 .purse small{display:block;font-family:var(--f-num);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--parch-dim)}
 .xpwrap{min-width:0}
 .xphead{display:flex;justify-content:space-between;font-family:var(--f-num);font-weight:600;font-size:.74rem;color:var(--teal)}
-.xpbar{height:16px;border-radius:999px;background:#120d0b;border:2px solid #000;overflow:hidden;position:relative;margin-top:3px}
+.xpbar{height:20px;border-radius:999px;background:#120d0b;border:2px solid #000;overflow:hidden;position:relative;margin-top:3px}
 .xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4c9c93,var(--teal));transition:width .9s ease}
-.xpbar span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-weight:600;
-  font-size:.74rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.xpbar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1;
+  font-family:var(--f-num);font-weight:600;font-size:.74rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 
 /* ---------- level up ---------- */
 .lu-medal{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;align-self:center;
@@ -397,6 +403,7 @@ img{max-width:100%}
   font-family:var(--f-num);font-weight:700;font-size:1.02rem;color:var(--gold-hi);white-space:nowrap}
 .buy .cost img{width:19px;height:19px}
 .buy:disabled{opacity:.42;box-shadow:1px 1px 0 #000}
+a.buy{text-decoration:none}
 .buy.owned .cost{color:var(--heal-hi);font-size:.8rem}
 .purse-line{display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--f-num);
   font-weight:700;font-size:1.05rem;color:var(--gold-hi)}
@@ -615,7 +622,7 @@ img{max-width:100%}
 
 <div id="app">
   <header class="top">
-    <div class="brand"><img src="img/farkle-emblem.webp" width="88" height="88" alt=""><span class="wide-only">Monster </span>Farkle</div>
+    <a class="brand" href="index.html" aria-label="Back to Axes &amp; Aces"><img src="img/farkle-emblem.webp" width="88" height="88" alt=""><span class="wide-only">Monster </span>Farkle</a>
     <div class="tools">
       <button class="tool" data-act="menu">Menu</button>
       <button class="tool" data-act="guide">Scoring</button>
@@ -967,8 +974,18 @@ const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfis
 
 
 /* ---------- the state ---------- */
-/* the level ladder: what the next level costs, and what you have spent so far */
-const xpNeed = L => Math.round(40 * Math.pow(1.35, Math.max(1, L) - 1));
+/* The level ladder. This is near-linear on purpose, and getting it wrong is
+   the difference between a game and a wall.
+
+   A world is twelve fights and lifts the monsters eight levels, so the hero
+   has to gain eight levels in twelve fights, at every world. What a monster
+   is worth grows with its level, which is linear - so what a level costs has
+   to be linear too. It was 40 x 1.35^(L-1), which is exponential, and the two
+   curves came apart fast: the hero finished world two five levels light,
+   world four seventeen light and world six thirty-one light, by which point
+   nothing can be beaten. At 36 + 19L the hero ends every one of the ten
+   worlds within a level of its monsters. */
+const xpNeed = L => Math.round(36 + 19 * Math.max(1, L));
 const cumNeed = L => { let t = 0; for(let i = 1; i <= L; i++) t += xpNeed(i); return t; };
 
 const freshHero = () => ({
@@ -1149,6 +1166,8 @@ function menuPanel(){
         <b>Play on another device</b><span>Your private save code.</span><span class="cost">Open</span></button>
       <button class="buy" data-act="slots"><img class="ico" src="art/i_skull.webp" alt="">
         <b>Change hero</b><span>Three slots, three heroes.</span><span class="cost">Open</span></button>
+      <a class="buy" href="index.html"><img class="ico" src="img/emblem-64.webp" alt="">
+        <b>Back to Axes &amp; Aces</b><span>The card game and everything else.</span><span class="cost">Leave</span></a>
     </div>
     <button class="btn big" data-act="close">Back</button>`);
 }
@@ -2095,21 +2114,39 @@ function newTurn(){
 }
 
 /* ---------- how a fight starts ---------- */
+/* A Wild Boar saying "You shall not pass" is the sort of thing that makes a
+   game feel machine-made. Only things with a mouth for words get speech; the
+   rest get a line of narration about what they are doing. Default is beast,
+   because a silent bandit reads fine and a talking rat does not. */
+const HUMANOID = /goblin|bandit|knight|witch|skeleton|zombie|imp|vampire|ghost|lich|priest|pirate|captain|elf|dwarf|giant|troll|hag|siren|succubus|mummy|pharaoh|king|queen|lord|chief|guard|soldier|warrior|mage|monk|abbot|jailer|warden|foreman|raider|man|men|headless|wight|bonewalker|gravedigger|doctor|djinn|demon|wraith|banshee|poltergeist|sphinx|dragon|kobold|dryad|pixie|drowned|clockwork|titan|golem|smith|ghoul/i;
+const canSpeak = d => HUMANOID.test(d.slug || '') || HUMANOID.test(d.name || '');
+
+/* "The Ice Witch" already carries its article; "Wild Boar" needs one. */
+const theFoe = (d, cap) => /^the\s/i.test(d.name)
+  ? (cap ? d.name.replace(/^the/i, 'The') : d.name.replace(/^the/i, 'the'))
+  : (cap ? 'The ' : 'the ') + d.name;
+
 const ENC = {
-  ambush:{ title:'Ambush!',           text:'It jumped you out of the dark.' },
-  spot:  { title:'You spot it first', text:'It has not seen you yet.' },
-  path:  { title:'Blocked',           text:'It will not let you past.' },
-  boss:  { title:'',                  text:'It guards the way forward.' }
+  ambush:{ title:'Ambush!',           text:d => `${theFoe(d, true)} jumped you out of the dark.` },
+  spot:  { title:'You spot it first', text:d => `${theFoe(d, true)} has not seen you yet.` },
+  path:  { title:'Blocked',           text:d => `${theFoe(d, true)} will not let you past.` },
+  boss:  { title:'',                  text:d => `${theFoe(d, true)} guards the way forward.` }
 };
+/* what a thing that can talk says */
 const SAY = {
   ambush:['Gotcha!','Fresh meat!','Surprise, hero!'],
   path:['You shall not pass.','Turn back, little hero.','This path is mine.'],
   boss:['Your quest ends here.','You will go no further.','Turn back, or fall like the others.']
 };
+/* what the hero mutters on spotting something first - their voice, so a beast
+   gets it too */
+const SPOTTED = ['It has not seen me.', 'It has not caught my scent.', 'It has its back to me.'];
 const pick = a => a[rnd(a.length)];
 
 /* a typed line, so it arrives rather than just being there */
-let typer = null;
+let typer = null, panelTimers = [];
+const laterIn = (fn, ms) => { panelTimers.push(setTimeout(fn, ms)); };
+const clearPanelTimers = () => { panelTimers.forEach(clearTimeout); panelTimers = []; };
 function typeInto(el, text, speed = 26){
   clearInterval(typer);
   if(!el) return;
@@ -2140,8 +2177,10 @@ function fightIntro(){
   const kind = d.boss ? 'boss' : ['ambush','spot','path'][rnd(3)];
   S.enc = kind;
   const t = ENC[kind];
-  const title = kind === 'boss' ? `The ${d.name}!` : t.title;
-  const line = kind === 'spot' ? 'It has not seen me.' : pick(SAY[kind] || SAY.path);
+  const title = kind === 'boss' ? `${theFoe(d, true)}!` : t.title;
+  const talks = canSpeak(d);
+  const line = kind === 'spot' ? pick(SPOTTED) : talks ? pick(SAY[kind] || SAY.path) : '';
+  const bubbleClass = kind === 'spot' ? 'you' : '';
   openPanel(`
     <div class="scene">
       <img class="bg" src="art/${bgOf()}.webp" alt="">
@@ -2149,16 +2188,16 @@ function fightIntro(){
       <span class="tag">${title}</span>
       ${kind === 'spot' ? '<span class="mark">?</span>' : ''}
     </div>
-    <div class="say ${kind === 'spot' ? 'you' : ''}" id="encSay"></div>
+    <div class="say ${bubbleClass}" id="encSay"></div>
     ${tapeHTML(d)}
-    ${d.boss ? `<div class="tipbox"><b>${d.name}</b> fights by its own rule: ${d.rule.text}</div>` : ''}
+    ${d.boss ? `<div class="tipbox"><b>${theFoe(d, true)}</b> fights by one rule: ${d.rule.text}</div>` : ''}
     <p id="encCap"></p>
     <button class="btn big" data-act="fight">Fight!</button>`);
-  setTimeout(() => typeInto($('encSay'), line), kind === 'spot' ? 350 : 700);
-  setTimeout(() => typeInto($('encCap'), t.text, 18), 1100);
-  if(kind === 'ambush') setTimeout(() => { deadthud(); shake(); }, 300);
-  if(kind === 'boss') setTimeout(() => shake(2), 450);
-  if(kind === 'spot') setTimeout(() => { tone(880, .12, 'square', .05); tone(1320, .12, 'square', .05, .08); }, 1500);
+  if(line) laterIn(() => typeInto($('encSay'), line), kind === 'spot' ? 350 : 700);
+  laterIn(() => typeInto($('encCap'), t.text(d), 18), 1100);
+  if(kind === 'ambush') laterIn(() => { deadthud(); shake(); }, 300);
+  if(kind === 'boss') laterIn(() => shake(2), 450);
+  if(kind === 'spot') laterIn(() => { tone(880, .12, 'square', .05); tone(1320, .12, 'square', .05, .08); }, 1500);
 }
 
 /* ---------- the end of a fight ---------- */
@@ -2294,8 +2333,8 @@ function lost(){
       <h2>You have fallen</h2>
       <div class="scene"><img class="bg" src="art/${bgOf()}.webp" alt="">
         <img class="foe" src="art/${S.fight.d.slug}.webp" alt="${S.fight.d.name}">
-        <span class="tag">The ${S.fight.d.name}</span></div>
-      <p>You reached <b>level ${S.level}</b>${S.wins ? ` and won <b>${fmt(S.wins)}</b> ${S.wins === 1 ? 'fight' : 'fights'}` : ''} before it brought you down.</p>
+        <span class="tag">${theFoe(S.fight.d, true)}</span></div>
+      <p>You reached <b>level ${S.level}</b>${S.wins ? ` and won <b>${fmt(S.wins)}</b> ${S.wins === 1 ? 'fight' : 'fights'}` : ''} before ${theFoe(S.fight.d)} brought you down.</p>
       <button class="btn big ghost" data-act="brag" data-kind="death">Brag about how far you got</button>
       <button class="btn big" data-act="again">Try again</button>`);
   }, 1600);
