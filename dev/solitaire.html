@@ -73,6 +73,44 @@ img{max-width:100%}
 (() => {
 'use strict';
 
+/* ===================== what a round is worth =====================
+   Measured, not guessed, by dev/gen/peakdeal.cjs over 200,000 deals played by
+   a deliberately ordinary greedy player - the same discipline that set
+   HAND_AVG = 121 in dev/game.html and WINDUP_AVG = 545 in dev/farkle.html.
+   Monster health and monster hits are built off this, so neither side is
+   stronger than the other by default. Re-run peakdeal.cjs and update these if
+   the scoring or the layout ever changes.
+
+   Ordinary rounds, aces wrapping:
+     clearable with perfect play   93.9%
+     an ordinary player clears     47.0%
+     cards cleared                 26.8 of 28
+     peaks down                    2.27 of 3
+     longest run    avg/med/90th   6.63 / 6 / 9
+     ROUND DAMAGE   avg/med/90th    838 / 785 / 1196
+
+   Boss rounds, aces not wrapping - the headline boss rule:
+     clearable with perfect play   70.0%
+     an ordinary player clears     18.3%
+     longest run    avg/med/90th   5.91 / 6 / 8
+     ROUND DAMAGE   avg/med/90th    674 / 640 / 964
+
+   So switching the wrap off costs a player about a fifth of their damage and
+   drops the clear rate from a half to under a fifth. That one rule is worth
+   more than the other four boss rules together, which is worth knowing before
+   stacking them.
+
+   A correction to dev/plans/solitaire.md, step 2: it asks for the deal to be
+   biased - reshuffled until a solver says it is clearable - so a player never
+   gets a dead board. The measurement says do not bother. Dead boards, where a
+   player clears fewer than four cards, came out at 0.0% of 200,000 deals, and
+   an ordinary player averages 26.8 of 28 cards even when they lose. Failing to
+   clear is not a dead board; it is the designed way to lose a round, and it
+   happens about half the time on purpose. Biasing would have cost a full
+   solver run on every deal to fix a problem that does not exist. */
+const ROUND_AVG = 838;     /* the average damage a round produces */
+const ROUND_MED = 785;     /* the median, which is what the fight is tuned to */
+
 /* ===================== the deck =====================
    Ranks are 1..13 with 1 meaning ace. In Tri-Peaks an ace wraps both ways, so
    a king takes an ace and an ace takes a two, which is why this is a ring
