@@ -1,4 +1,6 @@
-"""Build b/daily.jpg, the share picture for the Guess the Monster page.
+"""Build b/guess.jpg, the share picture for the Guess the Monster page.
+
+(b/daily.jpg is taken: that is the game's own Daily Challenge brag card.)
 
 Every link to the puzzle that anyone posts shows this, so it has to say what
 the thing is in one look: the word logo, the puzzle's name, and a monster
@@ -33,7 +35,7 @@ def stroked(d, xy, text, fnt, fill, stroke=6, anchor="ls"):
     d.text(xy, text, font=fnt, fill=fill, anchor=anchor, stroke_width=stroke, stroke_fill=(0, 0, 0))
 
 
-def build(out=os.path.join(ROOT, "b", "daily.jpg")):
+def build(out=os.path.join(ROOT, "b", "guess.jpg")):
     card = Image.new("RGB", (W, H), INK)
 
     # the cellar, pushed right down so the words always read
