@@ -240,6 +240,87 @@ img{max-width:100%}
 .tipbox::before{content:"Old Bram says";display:block;font-family:var(--f-num);font-size:.64rem;letter-spacing:.12em;
   text-transform:uppercase;font-weight:700;color:#8a5a20;margin-bottom:2px}
 
+/* ---------- a scene at the top of a popup ---------- */
+.scene{position:relative;width:100%;aspect-ratio:16/9;border-radius:11px;border:3px solid #000;
+  box-shadow:3px 3px 0 #000;overflow:hidden;background:#0d0906;flex:none}
+.scene>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scene .foe{position:absolute;left:50%;bottom:0;translate:-50% 0;height:92%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.8))}
+.scene .tag{position:absolute;left:8px;top:8px;background:var(--gold);color:#000;border:3px solid #000;
+  box-shadow:3px 3px 0 #000;border-radius:7px;padding:3px 10px;rotate:-2.5deg;
+  font-family:var(--f-title);font-size:1.05rem;line-height:1.2;max-width:72%}
+.scene .mark{position:absolute;right:12px;top:14%;font-family:var(--f-title);font-size:2rem;color:var(--gold-hi);
+  text-shadow:0 3px 0 #000;animation:markpop .5s ease both}
+@keyframes markpop{0%{opacity:0;scale:.3}60%{scale:1.2}100%{opacity:1;scale:1}}
+.say{position:relative;background:var(--bubble);color:var(--bubble-ink);
+  border:3px solid #000;box-shadow:3px 3px 0 #000;border-radius:10px;padding:7px 11px;margin-top:9px;
+  font-size:.95rem;line-height:1.3;font-weight:500;min-height:1.3em}
+.say::before{content:"";position:absolute;left:22px;top:-9px;width:0;height:0;
+  border:7px solid transparent;border-bottom-color:#000;border-top:0}
+.say::after{content:"";position:absolute;left:25px;top:-4px;width:0;height:0;
+  border:5px solid transparent;border-bottom-color:var(--bubble);border-top:0}
+.say.you{background:#dbe9f7}
+.say:empty{display:none}
+
+/* ---------- you against it, side by side ---------- */
+.tape{display:grid;grid-template-columns:1fr auto 1fr;gap:3px 8px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:10px;padding:8px 10px}
+.tape .who{font-family:var(--f-num);font-weight:700;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim)}
+.tape .who.r{text-align:right}
+.tape .mid{font-family:var(--f-num);font-weight:600;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--parch-dim);text-align:center}
+.tape b{font-family:var(--f-num);font-weight:700;font-size:1.02rem;font-variant-numeric:tabular-nums}
+.tape b.r{text-align:right}
+.tape .mine{color:var(--heal-hi)} .tape .theirs{color:#ff9f90;text-align:right}
+
+/* ---------- victory ---------- */
+.vic{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+/* .hpbar is flex:1 so it can stretch along the fight bar. In a column that
+   makes flex-basis 0 and the height collapses to a line, so pin it here. */
+.vic .hpbar,.panel .hpbar{flex:none;height:22px}
+.vic-title{font-family:var(--f-title);font-size:2.3rem;line-height:1;color:var(--gold);text-shadow:0 3px 0 #000}
+.vic-tag{display:inline-flex;flex-direction:column;align-self:center;background:var(--gold);color:#000;
+  border:3px solid #000;box-shadow:3px 3px 0 #000;border-radius:9px;padding:3px 12px;rotate:-1.5deg}
+.vic-tag b{font-family:var(--f-title);font-weight:400;font-size:1.15rem;line-height:1.1}
+.vic-tag span{font-family:var(--f-num);font-weight:600;font-size:.78rem;letter-spacing:.04em}
+.vic-foe{display:grid;place-items:center}
+.vic-foe img{height:clamp(88px,20vh,150px);width:auto;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.7))}
+.vic-sub{font-size:1rem;color:var(--parch-dim);line-height:1.35}
+.vic-sub b{color:var(--parch)}
+.loot{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:10px;padding:8px 10px}
+.purse{display:flex;align-items:center;gap:7px}
+.purse img{width:30px;height:30px}
+.purse b{font-family:var(--f-num);font-weight:700;font-size:1.3rem;color:var(--gold-hi);font-variant-numeric:tabular-nums}
+.purse small{display:block;font-family:var(--f-num);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--parch-dim)}
+.xpwrap{min-width:0}
+.xphead{display:flex;justify-content:space-between;font-family:var(--f-num);font-weight:600;font-size:.74rem;color:var(--teal)}
+.xpbar{height:16px;border-radius:999px;background:#120d0b;border:2px solid #000;overflow:hidden;position:relative;margin-top:3px}
+.xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4c9c93,var(--teal));transition:width .9s ease}
+.xpbar span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-weight:600;
+  font-size:.74rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+
+/* ---------- level up ---------- */
+.lu-medal{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;align-self:center;
+  background:radial-gradient(circle at 36% 30%,#ffe9a8,var(--gold) 55%,#8a5e12);
+  border:3px solid #000;box-shadow:4px 4px 0 #000}
+.lu-medal b{font-family:var(--f-title);font-size:2.1rem;color:#2a1b06;line-height:1}
+.lu-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:9px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:9px;padding:7px 10px}
+.lu-row .ico{width:30px;height:30px;object-fit:contain}
+.lu-lbl{font-size:1rem;line-height:1.15;min-width:0}
+.lu-val{font-family:var(--f-num);font-weight:700;font-size:1.1rem;color:var(--gold-hi);white-space:nowrap;
+  display:flex;align-items:baseline;gap:6px;font-variant-numeric:tabular-nums}
+.lu-val .was{font-size:.7rem;color:var(--parch-dim);text-decoration:line-through}
+/* picking a perk */
+.perks{display:flex;flex-direction:column;gap:7px}
+.perk{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;text-align:left;
+  background:var(--wood-3);color:var(--parch);border:3px solid #000;box-shadow:3px 3px 0 #000;
+  border-radius:10px;padding:9px 11px;min-height:52px}
+.perk .ico{width:30px;height:30px;grid-row:span 2;object-fit:contain}
+.perk b{font-family:var(--f-title);font-weight:400;font-size:1.1rem;line-height:1.1}
+.perk span{font-size:.88rem;color:var(--parch-dim);line-height:1.3}
+.perk:hover,.perk:focus-visible{background:#55402f}
+
 /* ---------- things that fly across the screen ---------- */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 /* the axe going through it */
@@ -338,6 +419,23 @@ img{max-width:100%}
   .btn{font-size:.92rem;padding:10px 8px}
   .btn.strike{font-size:1.15rem}
 }
+/* The level-up screen carries more than any other popup - a medal, two stat
+   rows and three choices - and at 320x568 the third choice fell off the
+   bottom. No popup may need scrolling to reach its main button, so everything
+   above the choices gives height back. */
+@media (max-height:680px){
+  .panel .eyebrow{display:none}
+  .lu-medal{width:54px;height:54px}
+  .lu-medal b{font-size:1.6rem}
+  .lu-row{padding:5px 9px;gap:8px}
+  .lu-row .ico{width:26px;height:26px}
+  .lu-lbl{font-size:.94rem}
+  .perk{padding:7px 10px;min-height:48px;gap:2px 9px}
+  .perk b{font-size:1.02rem}
+  .perk span{font-size:.84rem;line-height:1.22}
+  .perks{gap:6px}
+}
+
 /* A short phone has to give the height back from somewhere, and it is never
    the dice: the monster shrinks instead, down to its floor. */
 @media (max-height:600px){
@@ -606,8 +704,10 @@ const weaponPts = () => (S.eq.main ? EQUIP[S.eq.main.type].atk[S.eq.main.tier] :
 const twoHanded = () => !!(S.eq.main && EQUIP[S.eq.main.type].hands === 2);
 const defense = () => ['shield','helm','armor'].reduce((a,k) => a + (S.eq[k] ? EQUIP[S.eq[k].type].def[S.eq[k].tier] : 0), 0);
 const atkMult = () => 1 + weaponPts() / 100;
-/* what a strike of this size actually lands for */
-const strikeDamage = w => armored(Math.round(w * lvlMult(S.level) * atkMult()), foeDef());
+/* what a strike of this size actually lands for, perks and all */
+const perkMult = w => (1 + .10 * perkCount('strong')) * (w > 1000 ? 1 + .25 * perkCount('gamble') : 1);
+const bankBonus = () => 50 * perkCount('steady');
+const strikeDamage = w => armored(Math.round(w * lvlMult(S.level) * atkMult() * perkMult(w)), foeDef());
 /* what one of the monster's hits actually costs you */
 const takeFrom = n => Math.max(1, Math.round(n / (1 + defense() / 100)));
 
@@ -636,6 +736,7 @@ const POOLS = [[
   {slug:'imp',    name:'Little Imp',    hp:.9,  atk:1.2, pat:[1, 'H', 1.2]}
 ]];
 const AREA_BG = ['bg_tavern'];
+const AREA_NAMES = ['The Gilded Ace'];
 const AREA_LV = [[1, 3]];
 
 
@@ -735,8 +836,11 @@ function startFight(){
   $('lvTag').textContent = `Lv ${d.lvl} · ${t}`;
   $('foePic').innerHTML = `<img src="art/${d.slug}.webp" alt="${d.name}" draggable="false">`;
   setFoeVideo(d.slug);
+  S.tookHit = false; S.usedSecond = false; S.bestHit = 0;
   setFoeBars(); setMyBars();
   newTurn();
+  busy = true;
+  fightIntro();
 }
 
 /* ---------- the plumbing check ----------
@@ -874,7 +978,7 @@ function renderDice(){
 }
 
 function renderWind(){
-  const add = pickScore(), total = wind + add, left = liveIdx().length;
+  const add = pickScore(), total = (wind + add) && (wind + add + bankBonus()), left = liveIdx().length;
   $('windNum').textContent = fmt(total);
   $('windNum').style.color = add ? 'var(--gold-hi)' : 'var(--gold)';
   $('rollNote').textContent = !started ? 'six dice'
@@ -937,6 +1041,10 @@ document.addEventListener('click', e => {
   if(act === 'close') return closePanel();
   if(act === 'roll') return doRoll();
   if(act === 'strike') return doStrike();
+  if(act === 'fight'){ clearInterval(typer); closePanel(); busy = false; renderDice(); return; }
+  if(act === 'onward'){ closePanel(); return S.pendingLv ? levelPanel() : nextFight(); }
+  if(act === 'perk') return takePerk(b.dataset.perk);
+  if(act === 'again'){ closePanel(); S.hp = S.maxHp; S.idx = 0; return startFight(); }
   toast('Not built yet: ' + act);
 });
 
@@ -1093,7 +1201,8 @@ async function doStrike(){
   if(busy) return;
   busy = true;
   commitPick();
-  const w = wind, tier = strikeTier(w), dmg = strikeDamage(w);
+  const w = wind + bankBonus(), tier = strikeTier(w), dmg = strikeDamage(w);
+  if(dmg > (S.bestHit || 0)) S.bestHit = dmg;
   $('rollBtn').disabled = $('strikeBtn').disabled = true;
   $('windNote').textContent = '';
   await sweepDice();
@@ -1119,6 +1228,18 @@ async function doStrike(){
 
 /* ---------- a farkle: your guard drops and it hits you ---------- */
 async function farkle(){
+  if(hasPerk('second') && !S.usedSecond && wind > 0){
+    S.usedSecond = true;
+    banner('Second wind!', `You keep ${fmt(wind)}`);
+    [0,1,2].forEach(k => tone(520 * Math.pow(1.22, k), .16, 'triangle', .06, k * .08));
+    await wait(1100);
+    hotDice();
+    await rollDice();
+    if(isFarkle(facesOf(rollIdx()))) return farkle();
+    $('windNote').textContent = 'Set aside what scores, then roll or strike.';
+    busy = false; renderDice();
+    return;
+  }
   D.filter(d => d.where === 'live').forEach(d => d.el.classList.add('shiver'));
   deadthud();
   banner('Farkle!', wind ? `You lose ${fmt(wind)}` : 'Nothing scored');
@@ -1149,6 +1270,7 @@ async function foeTurn(farkleMult){
     const absorbed = Math.min(S.block, after); S.block -= absorbed;
     const dmg = Math.max(0, after - absorbed);
     S.hp = Math.max(0, S.hp - dmg);
+    if(dmg > 0) S.tookHit = true;
     if(absorbed) pop($('myBlock'), `${fmt(absorbed)} blocked`, 'b');
     if(dmg > 0){
       setMyBars(); anim($('heroBox'), 'flash'); deadthud();
@@ -1186,32 +1308,206 @@ function newTurn(){
   $('windNote').textContent = 'Tap Roll to start.';
 }
 
-/* ---------- the end of a fight ----------
-   The full victory and fallen screens come with the next steps. */
+/* ---------- how a fight starts ---------- */
+const ENC = {
+  ambush:{ title:'Ambush!',           text:'It jumped you out of the dark.' },
+  spot:  { title:'You spot it first', text:'It has not seen you yet.' },
+  path:  { title:'Blocked',           text:'It will not let you past.' },
+  boss:  { title:'',                  text:'It guards the way forward.' }
+};
+const SAY = {
+  ambush:['Gotcha!','Fresh meat!','Surprise, hero!'],
+  path:['You shall not pass.','Turn back, little hero.','This path is mine.'],
+  boss:['Your quest ends here.','You will go no further.','Turn back, or fall like the others.']
+};
+const pick = a => a[rnd(a.length)];
+
+/* a typed line, so it arrives rather than just being there */
+let typer = null;
+function typeInto(el, text, speed = 26){
+  clearInterval(typer);
+  if(!el) return;
+  if(reduced()){ el.textContent = text; return; }
+  let n = 0;
+  el.textContent = '';
+  typer = setInterval(() => {
+    if(!document.body.contains(el)){ clearInterval(typer); return; }
+    el.textContent = text.slice(0, ++n);
+    if(n >= text.length) clearInterval(typer);
+  }, speed);
+}
+
+function tapeHTML(d){
+  const mine = Math.round(WINDUP_AVG * lvlMult(S.level) * atkMult());
+  const theirs = d.moves.filter(m => m.k === 'atk');
+  const hit = Math.round(theirs.reduce((a, b) => a + b.n, 0) / Math.max(1, theirs.length));
+  return `<div class="tape">
+    <span class="who">You</span><span class="mid"></span><span class="who r">It</span>
+    <b class="mine">${fmt(S.hp)}</b><span class="mid">Health</span><b class="theirs">${fmt(d.hp)}</b>
+    <b class="mine">${fmt(armored(mine, d))}</b><span class="mid">A normal blow</span><b class="theirs">${fmt(takeFrom(hit))}</b>
+    <b class="mine">+${defense()}</b><span class="mid">Armor</span><b class="theirs">+${foeArmor(d)}</b>
+  </div>`;
+}
+
+function fightIntro(){
+  const d = S.fight.d;
+  const kind = d.boss ? 'boss' : ['ambush','spot','path'][rnd(3)];
+  S.enc = kind;
+  const t = ENC[kind];
+  const title = kind === 'boss' ? `The ${d.name}!` : t.title;
+  const line = kind === 'spot' ? 'It has not seen me.' : pick(SAY[kind] || SAY.path);
+  openPanel(`
+    <div class="scene">
+      <img class="bg" src="art/${AREA_BG[S.area]}.webp" alt="">
+      <img class="foe" src="art/${d.slug}.webp" alt="${d.name}">
+      <span class="tag">${title}</span>
+      ${kind === 'spot' ? '<span class="mark">?</span>' : ''}
+    </div>
+    <div class="say ${kind === 'spot' ? 'you' : ''}" id="encSay"></div>
+    ${tapeHTML(d)}
+    <p id="encCap"></p>
+    <button class="btn big" data-act="fight">Fight!</button>`);
+  setTimeout(() => typeInto($('encSay'), line), kind === 'spot' ? 350 : 700);
+  setTimeout(() => typeInto($('encCap'), t.text, 18), 1100);
+  if(kind === 'ambush') setTimeout(() => { deadthud(); shake(); }, 300);
+  if(kind === 'boss') setTimeout(() => shake(2), 450);
+  if(kind === 'spot') setTimeout(() => { tone(880, .12, 'square', .05); tone(1320, .12, 'square', .05, .08); }, 1500);
+}
+
+/* ---------- the end of a fight ---------- */
 function won(){
   busy = true;
   const d = S.fight.d;
+  const flawless = !S.tookHit, clutch = S.hp <= S.maxHp * .12;
   banner('Victory!', `The ${d.name} is down`);
   anim($('foePic'), 'hit');
   [0,1,2,3].forEach(k => tone([523.25,659.25,783.99,1046.5][k], k === 3 ? .6 : .14, 'triangle', .06, k * .13));
-  S.gold += d.gold; S.xp += d.xp; S.wins++;
-  while(S.xp >= cumNeed(S.level)) levelUp();
+  const bonus = flawless ? d.gold : 0;
+  S.gold += d.gold + bonus;
+  S.xp += Math.round(d.xp * (hasPerk('study') ? 1.25 : 1));
+  S.wins++;
+  if(!S.best || S.bestHit > (S.best || 0)) S.best = S.bestHit || S.best;
   setMyBars();
-  setTimeout(() => { S.idx++; startFight(); }, 2400);
+  setTimeout(() => victoryPanel(d, { flawless, clutch, bonus }), 1500);
+}
+function victoryPanel(d, mood){
+  const oldLv = S.level, oldXp = S.xp - Math.round(d.xp * (hasPerk('study') ? 1.25 : 1));
+  while(S.xp >= cumNeed(S.level)) levelUp();
+  openPanel(`<div class="vic">
+    <div class="vic-title">Victory!</div>
+    ${mood.flawless ? `<div class="vic-tag"><b>Flawless</b><span>Not a scratch &middot; double gold</span></div>`
+      : mood.clutch ? `<div class="vic-tag"><b>Clutch</b><span>Won by a hair</span></div>` : ''}
+    <div class="vic-foe"><img src="art/dead_${d.slug}.webp" alt="${d.name}, defeated"></div>
+    <div class="vic-sub">You brought down the <b>${d.name}</b>.</div>
+    <div class="loot">
+      <div class="purse"><img src="art/i_coin.webp" alt=""><div><small>Gold</small><b id="vGold">${fmt(S.gold - d.gold - mood.bonus)}</b></div></div>
+      <div class="xpwrap">
+        <div class="xphead"><span>+${fmt(Math.round(d.xp * (hasPerk('study') ? 1.25 : 1)))} experience</span><span id="vLv">Level ${oldLv}</span></div>
+        <div class="xpbar"><i id="vXp"></i><span id="vXpTxt"></span></div>
+      </div>
+    </div>
+    <div class="hpbar" style="height:20px"><i style="width:${Math.max(0, S.hp / S.maxHp * 100)}%"></i><span>HP ${fmt(S.hp)} / ${fmt(S.maxHp)}</span></div>
+    <button class="btn big" data-act="onward">${S.pendingLv ? 'Level up!' : 'Onward'}</button>
+  </div>`);
+  countTo($('vGold'), S.gold - d.gold - mood.bonus, S.gold, 900, 300);
+  xpFill(oldLv, oldXp, 500);
+  if(mood.flawless || mood.clutch) setTimeout(() => { deadthud(); tone(523.25, .5, 'triangle', .05, .1); }, 300);
+}
+/* a number that arrives rather than appearing */
+function countTo(el, from, to, ms, delay = 0){
+  if(!el) return;
+  if(reduced()){ el.textContent = fmt(to); return; }
+  setTimeout(() => {
+    const t0 = performance.now();
+    (function step(now){
+      const k = Math.min(1, (now - t0) / ms);
+      el.textContent = fmt(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))));
+      if(k < 1) requestAnimationFrame(step); else el.textContent = fmt(to);
+    })(t0);
+  }, delay);
+}
+function xpFill(oldLv, oldXp, delay){
+  const base = cumNeed(oldLv - 1) || 0, need = xpNeed(oldLv);
+  const from = Math.max(0, Math.min(1, (oldXp - base) / need));
+  const to = S.level > oldLv ? 1 : Math.max(0, Math.min(1, (S.xp - base) / need));
+  const bar = $('vXp'), txt = $('vXpTxt');
+  if(!bar) return;
+  bar.style.width = (from * 100) + '%';
+  if(txt) txt.textContent = `${fmt(Math.max(0, S.xp - base))} / ${fmt(need)}`;
+  setTimeout(() => {
+    bar.style.width = (to * 100) + '%';
+    if(S.level > oldLv) setTimeout(() => {
+      const l = $('vLv'); if(l) l.textContent = `Level ${S.level}`;
+      tone(1046.5, .35, 'triangle', .06);
+    }, 900);
+  }, delay);
 }
 function levelUp(){
   S.level++;
-  S.maxHp = heroMaxHP(S.level);
-  S.hp = S.maxHp;
+  const was = S.maxHp;
+  S.maxHp = heroMaxHP(S.level) + (S.bonusHp || 0);
+  S.hp = Math.min(S.maxHp, S.hp + (S.maxHp - was));
   S.pendingLv = (S.pendingLv || 0) + 1;
 }
+
+/* ---------- level up ---------- */
+/* Nothing here touches the scoring block, on purpose: that block has to stay
+   pure so the simulators can lift it. A seventh die was the obvious perk and
+   is not here either - seven dice across a 320px screen come out at 38px, and
+   the dice clearing 44px matters more than any perk. */
+const PERKS = [
+  {id:'steady', name:'Steady Hand',    icon:'attack', desc:'Every bank is worth 50 more.'},
+  {id:'second', name:'Second Wind',    icon:'potion', desc:'Once a fight, a farkle is ignored.'},
+  {id:'tough',  name:'Tough as Nails', icon:'heart',  desc:'+40 health, now and every level.'},
+  {id:'strong', name:'Strong Arm',     icon:'sword',  desc:'Every strike hits 10% harder.'},
+  {id:'gamble', name:"Gambler's Nerve",icon:'coin',   desc:'Over 1,000 hits a quarter harder.'},
+  {id:'study',  name:'Quick Study',    icon:'xp',     desc:'A quarter more experience.'}
+];
+const hasPerk = id => (S.perks || []).indexOf(id) >= 0;
+const perkCount = id => (S.perks || []).filter(p => p === id).length;
+
+function levelPanel(){
+  const was = heroMaxHP(S.level - 1) + (S.bonusHp || 0);
+  const offer = PERKS.slice().sort(() => Math.random() - .5).slice(0, 3);
+  openPanel(`
+    <div class="eyebrow">You grew stronger</div>
+    <h2 style="text-align:center">Level up!</h2>
+    <div class="lu-medal"><b>${S.level}</b></div>
+    <div class="lu-row"><img class="ico" src="art/i_heart.webp" alt=""><span class="lu-lbl">Health</span>
+      <span class="lu-val"><span class="was">${fmt(was)}</span>${fmt(S.maxHp)}</span></div>
+    <div class="lu-row"><img class="ico" src="art/i_attack.webp" alt=""><span class="lu-lbl">Every strike</span>
+      <span class="lu-val"><span class="was">&times;${lvlMult(S.level - 1).toFixed(2)}</span>&times;${lvlMult(S.level).toFixed(2)}</span></div>
+    <p>Pick one.</p>
+    <div class="perks">${offer.map(p => `<button class="perk" data-act="perk" data-perk="${p.id}">
+      <img class="ico" src="art/i_${p.icon}.webp" alt=""><b>${p.name}</b><span>${p.desc}</span></button>`).join('')}</div>`);
+  [0,1,2].forEach(k => tone([523.25,659.25,783.99][k], .18, 'triangle', .055, k * .11));
+}
+function takePerk(id){
+  S.perks = (S.perks || []).concat([id]);
+  if(id === 'tough'){ S.bonusHp = (S.bonusHp || 0) + 40; S.maxHp += 40; S.hp += 40; }
+  S.pendingLv--;
+  setMyBars();
+  if(S.pendingLv > 0) levelPanel();
+  else { closePanel(); nextFight(); }
+}
+
 function lost(){
   busy = true;
   banner('You have fallen', `The ${S.fight.d.name} brought you down`);
   deadthud();
   S.deaths++;
-  setTimeout(() => { S.hp = S.maxHp; S.idx = 0; startFight(); }, 2600);
+  setTimeout(() => {
+    openPanel(`
+      <div class="eyebrow">${AREA_NAMES[S.area]}</div>
+      <h2>You have fallen</h2>
+      <div class="scene"><img class="bg" src="art/${AREA_BG[S.area]}.webp" alt="">
+        <img class="foe" src="art/${S.fight.d.slug}.webp" alt="${S.fight.d.name}">
+        <span class="tag">The ${S.fight.d.name}</span></div>
+      <p>You reached <b>level ${S.level}</b> and won <b>${fmt(S.wins)}</b> ${S.wins === 1 ? 'fight' : 'fights'} before it brought you down.</p>
+      <button class="btn big" data-act="again">Try again</button>`);
+  }, 1600);
 }
+function nextFight(){ S.idx++; startFight(); }
 
 buildTray();
 startFight();

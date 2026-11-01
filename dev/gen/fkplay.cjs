@@ -44,9 +44,12 @@ const TURNS = +(process.argv[2] || 14);
     wins: window.__FK.S.wins, deaths: window.__FK.S.deaths,
   }));
   /* wait for the game to be ready for input again */
-  async function settle(ms = 14000){
+  async function settle(ms = 20000){
     const t0 = Date.now();
     for(;;){
+      /* clear whatever popup is up: Fight!, Onward, a perk, Try again */
+      const btn = await p.$('#overlay:not([hidden]) [data-act="fight"], #overlay:not([hidden]) [data-act="onward"], #overlay:not([hidden]) [data-act="perk"], #overlay:not([hidden]) [data-act="again"]');
+      if(btn){ await btn.click().catch(()=>{}); await p.waitForTimeout(350); continue; }
       const r = await p.evaluate(() => !document.getElementById('rollBtn').disabled);
       if(r) return true;
       if(Date.now() - t0 > ms) return false;

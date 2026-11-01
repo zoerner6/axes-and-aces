@@ -42,6 +42,19 @@ const srv = http.createServer((q,r)=>{
     const bits = [];
     for(const k of ['overlaps','cropped','broken','clipped','offscreen','tiny','tapTargets'])
       if(r[k] && r[k].length) bits.push(`${k}:${JSON.stringify(r[k]).slice(0,220)}`);
+    /* No popup may need scrolling to reach its main button. The screen auditor
+       does not know about this, because it looks at elements and this is about
+       a box being taller than the room it has. */
+    const over = await p.evaluate(() => {
+      const ov = document.getElementById('overlay');
+      if(!ov || ov.hidden) return null;
+      const el = document.getElementById('panel');
+      const spill = el.scrollHeight - el.clientHeight;
+      if(spill <= 1) return null;
+      const last = el.querySelector('.btn.big:last-of-type, button:last-of-type');
+      return { spill, mainButtonBelowTheFold: last ? Math.round(last.getBoundingClientRect().bottom - el.getBoundingClientRect().bottom) : null };
+    });
+    if(over) bits.push(`panelScrolls:${JSON.stringify(over)}`);
     if(errs.length) bits.push('jsErrors:' + JSON.stringify(errs.slice(0,3)));
     console.log(`${w}x${h}  ${bits.length ? bits.join('  ') : 'clean'}`);
     await ctx.close();
