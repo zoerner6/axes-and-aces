@@ -49,6 +49,44 @@ A dark comic-book card adventure: you fight monsters with poker hands.
 - Use the game's own painted icons (coin, heart, shield, sword, potion, skull, map…).
 - **No emoji anywhere** in the game, posts or videos. Card suits (♠ ♥ ♦ ♣) are allowed because they're part of the cards.
 
+## The logo
+
+Three separate pieces. They are not interchangeable, and everything built in
+this world uses them.
+
+| Piece | File | What it is |
+|---|---|---|
+| **The word logo** | `img/logo-wide.webp` (1440x638, transparent) | The full lockup: a painted double-headed battle axe on the left, **AXES & ACES** in gold slab-serif capitals in the middle, and an Ace of Hearts on the right, all on a dark rounded plaque. Also `dev/gen/out/logo/logo-wide.png` and `banner.png` (1200x630) for sharing. |
+| **The icon** | `icons/icon-512.png`, `icon-192.png`, `icon-180.png`, `maskable-512.png` | Square. An Ace of Hearts behind a bold crossed double axe in crimson, teal and gold on soot black. Flatter and more graphic than the word logo's painted axe. This is the app icon and the favicon. |
+| **The emblem** | `img/emblem-64.webp` (88x88) | The icon cropped in tight, for sitting inline next to a line of text. |
+
+Rules:
+
+- **The word logo is the title.** It goes at the top of a page, on a cover, on
+  a title screen. Never retype "Axes & Aces" in some other typeface when the
+  word logo would do.
+- **The icon is the mark.** App icon, favicon, store tile, the corner of a
+  share picture, anywhere square and small. Never squash the word logo into a
+  square to make an icon.
+- **Never stretch either one.** Scale both sides together or leave it alone.
+- **Give it room.** Clear space all round of at least the height of the "A".
+- **It sits on dark.** Soot black `#14100d` or dark leather `#1b1410`. On
+  anything pale, use the plaque behind it rather than the bare lettering.
+- **Don't recolor, outline, add a glow, or set it at an angle.**
+
+### Other games and products in this world
+
+Axes & Aces is the first thing with this name, not the only one. A sister game
+or a book is **family, not a copy**:
+
+- Keep the gold slab-serif capitals, the soot-black ground, the gold and
+  parchment colors, and the painted-prop-on-dark feel.
+- Build its own mark out of **its own object** - dice for a dice game, a card
+  fan for a card game - sitting with the Ace the way the axe does.
+- Do not put the Axes & Aces word logo on a product that is not Axes & Aces.
+  Put its own name in the same family of lettering, and use the icon or emblem
+  as the small "same people made this" mark.
+
 ## Motion and sound
 - Things slam in with a small overshoot, then settle.
 - The bigger the moment, the bigger the effect: shake, flash, freeze, boom. Normal hits stay quick.
