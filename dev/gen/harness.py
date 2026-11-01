@@ -8,7 +8,14 @@ os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 src = sys.argv[1] if len(sys.argv) > 1 else "dev/game.html"
 out = sys.argv[2] if len(sys.argv) > 2 else "audittest.html"
 build = open("dev/build.py", encoding="utf-8").read()
-head = re.search(r'head = """(.*?)"""', build, re.S).group(1)
+# Each game on the site keeps its head in its own variable in dev/build.py, so a
+# test page can never drift from the real page. Match the assignment at the
+# start of a line, or `head` would also be found inside `fhead`.
+HEADVAR = {"farkle": "fhead"}
+var = HEADVAR.get(os.path.splitext(os.path.basename(src))[0], "head")
+m = re.search('^' + var + ' = """(.*?)"""', build, re.S | re.M)
+assert m, "could not find " + var + ' = """..."""' + " in dev/build.py"
+head = m.group(1)
 g = open(src, encoding="utf-8").read()
 h = g.rfind("})();")
 assert h > 0, "could not find the end of the game IIFE"
