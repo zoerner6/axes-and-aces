@@ -75,10 +75,8 @@ a{color:inherit}
   linear-gradient(180deg,rgba(10,7,5,.7) 0%,rgba(10,7,5,0) 22%)}
 .hero .wrap{padding-block:clamp(96px,14vh,140px) clamp(46px,9vh,90px)}
 .eyebrow{display:inline-block;font-family:var(--f-num);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:.92rem;color:var(--teal)}
-.logo{margin:.1em 0 .05em;font-family:var(--f-title);font-weight:400;line-height:.86;font-size:clamp(4.2rem,11vw,9.6rem);color:var(--gold2);
-  -webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000,0 0 60px rgba(242,182,50,.35);letter-spacing:.005em}
-.logo span{display:block}
-.logo .amp{color:var(--parch);font-size:.62em;display:inline-block;transform:translateY(-.08em) rotate(-6deg);margin:0 .06em}
+.logo{margin:.3rem 0 .5rem;line-height:0;font-size:0}
+.logo img{display:block;width:clamp(300px,52vw,720px);height:auto;filter:drop-shadow(0 0 60px rgba(242,182,50,.3))}
 .tagline{font-family:var(--f-title);font-weight:400;font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.15;margin:.35em 0 .5em;color:#fff;text-shadow:3px 3px 0 #000}
 .lede{max-width:34em;font-size:1.2rem;color:var(--parch);text-shadow:0 2px 8px #000;margin:0 0 1.6em}
 .cta{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
@@ -86,20 +84,20 @@ a{color:inherit}
 .free span::before{content:"";display:inline-block;width:8px;height:8px;background:var(--gold);border:1.5px solid #000;transform:rotate(45deg);margin-right:9px;vertical-align:1px}
 /* short screens: these must stay BELOW the rules they shrink, or they lose on source order */
 @media (max-height:900px){
-  .logo{font-size:clamp(3.4rem,8.4vw,7rem)}
+  .logo img{width:clamp(280px,46vw,600px)}
   .tagline{font-size:clamp(1.4rem,2.7vw,2.1rem)}
   .lede{font-size:1.06rem;margin-bottom:1.1em}
   .free{margin-top:14px}
 }
 @media (max-height:760px){
-  .logo{font-size:clamp(3rem,7.2vw,5.6rem)}
+  .logo img{width:clamp(260px,40vw,480px)}
   .tagline{font-size:clamp(1.25rem,2.4vw,1.8rem);margin:.25em 0 .35em}
   .lede{font-size:1rem;max-width:30em;margin-bottom:.9em}
   .free{display:none}
   .hero .wrap{padding-block:88px 40px}
 }
 @media (max-height:620px){
-  .logo{font-size:clamp(2.6rem,6vw,4.4rem)}
+  .logo img{width:clamp(230px,34vw,380px)}
   .lede{display:none}
   .hero .wrap{padding-block:76px 32px}
 }
@@ -440,7 +438,7 @@ main.hit{animation:shk .5s}
 <div class="prog" aria-hidden="true"><i id="progI"></i></div>
 <header class="top" id="top">
   <div class="wrap">
-    <a class="brand" href="#"><img src="icons/icon-192.png" alt=""><b>Axes &amp; Aces</b></a>
+    <a class="brand" href="#"><img src="img/emblem-64.webp" width="64" height="64" alt=""><b>Axes &amp; Aces</b></a>
     <nav aria-label="Sections"><a href="#story">Story</a><a href="#how">How to play</a><a href="#try">Try a hand</a><a href="#monsters">Monsters</a><a href="#quests">Quests</a><a href="#app">Get the app</a></nav>
     <a class="btn" href="play.html">Play free</a>
   </div>
@@ -456,7 +454,7 @@ main.hit{animation:shk .5s}
   <div class="hero-media" aria-hidden="true"><video class="front" id="heroVid" muted playsinline autoplay preload="auto" poster="art/bg_castle.webp" src="vid/dragon_attack.mp4"></video><video class="back out" id="heroVid2" muted playsinline preload="auto"></video></div>
   <div class="wrap">
     <span class="eyebrow">A dark comic card adventure</span>
-    <h1 class="logo"><span>Axes</span><span><span class="amp">&amp;</span>Aces</span></h1>
+    <h1 class="logo"><img src="img/logo-wide.webp" width="1440" height="638" alt="Axes &amp; Aces"></h1>
     <p class="tagline">Fight monsters with poker hands.</p>
     <p class="lede">Goblins stole Anna from the Gilded Ace. Old Bram gave you a deck of magic cards. Now every pair, straight and royal flush is a blow against 168 monsters, from tavern rats to the Demon King.</p>
     <div class="cta">
@@ -664,7 +662,7 @@ main.hit{animation:shk .5s}
 
 <footer>
   <div class="wrap">
-    <a class="brand" href="#"><img src="icons/icon-192.png" alt=""><b>Axes &amp; Aces</b></a>
+    <a class="brand" href="#"><img src="img/emblem-64.webp" width="64" height="64" alt=""><b>Axes &amp; Aces</b></a>
     <div class="links"><a href="play.html">Play</a><a href="privacy.html">Privacy</a><a href="mailto:support@axesandaces.com">Support</a></div>
     <span>&copy; 2026 AxesAndAces.com</span>
   </div>
