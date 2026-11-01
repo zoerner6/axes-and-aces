@@ -417,6 +417,53 @@ from `farkle.html`, committed, with the sweep clean.
 
 ---
 
+---
+
+# What changed while building it
+
+The plan above is what was intended. These are the places the build went a
+different way, and why. Everything else was built as written.
+
+- **Four of a kind does not score a flat 1000.** Each die past the third
+  doubles the three of a kind instead, so four 1s are 2000 and six 1s are 8000.
+  A flat 1000 would have made four 1s worth exactly what three 1s are worth, so
+  the fourth die earned nothing.
+- **Guards and heals are priced off what a turn delivers**, not off the
+  monster's own health. At the card game's 15% of health a monster healed more
+  than a strike did and could not be killed.
+- **Armor is divided back out of monster health**, so it does not lengthen a
+  fight twice over. Without that a heavy monster took fifteen strikes.
+- **Monster hits are a tenth of what a hero can take**, measured, not picked.
+  A ninth killed a bare hero every time; a thirteenth left a careful player
+  unable to lose.
+- **A boss is 1.45x health, not 1.9x.** At 1.9 it ran ten strikes against a
+  normal fight's six, and the player meets it already hurt.
+- **No "Seventh Knuckle" perk.** Seven dice across a 320px screen come out at
+  38px, under the 44px tap floor. A seventh die is not worth breaking the one
+  thing the whole game rests on.
+- **The merchant offers three charms a visit, not all six.** Six rows spill a
+  320x568 screen, and three is a choice while six is a catalog.
+- **Sound lives in the menu, not the top bar.** Four buttons and the title
+  wrapped to a second row at 320, costing 38px the monster needed.
+- **Losing keeps your level, gear and charms** and sends you back to the start
+  of the quest. A full wipe is a reason to close the tab.
+- **The daily challenge gives the player level 3 and a full set of tier-2
+  gear**, so the run is about the dice and nothing else.
+
+## How it is checked
+
+Five tools, all in `dev/gen/`, all run against the real page rather than a copy:
+
+- `dieavg.cjs` lifts the scoring block out of `dev/farkle.html`, checks it
+  against 24 cases, and plays 300,000 turns at each of twelve thresholds.
+- `fkbalance.cjs` lifts the scoring **and** the fight maths and plays whole
+  fights, by level, by gear tier and against bosses.
+- `fkplay.cjs` plays the real page by tapping, and catches stalls, buttons left
+  disabled and health going the wrong way.
+- `fkdaily.cjs` opens two clean browsers and proves they get the same day.
+- `fkscan.cjs` sweeps 25 screens at four phone sizes with `audit.js`, and also
+  checks that no popup needs scrolling to reach its main button.
+
 ## Left for Josh
 
 - **Publishing.** Do not publish to Netlify. Josh publishes.

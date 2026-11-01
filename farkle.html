@@ -121,7 +121,7 @@ img{max-width:100%}
   color:#fff;text-shadow:1px 1px 0 #000,0 0 4px #000;line-height:1;z-index:1}
 .stage-foot{position:absolute;left:10px;right:40px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap;z-index:2}
 /* The shout sits high and the damage number comes out of the middle. They were
-   both near the centre and landed on each other on a big hit. */
+   both near the middle and landed on each other on a big hit. */
 .banner{position:absolute;left:16px;right:16px;top:20%;text-align:center;font-family:var(--f-title);
   font-size:clamp(1.9rem,8.5vw,3rem);color:var(--gold);text-shadow:0 3px 0 #000,0 0 18px rgba(0,0,0,.85);
   opacity:0;pointer-events:none;z-index:3;text-transform:uppercase;line-height:1.05}
@@ -475,6 +475,20 @@ img{max-width:100%}
   background:var(--bubble);color:var(--ink);font-family:var(--f-num);font-weight:600;padding:9px 14px;border-radius:999px;
   z-index:70;font-size:.9rem;border:2px solid #000;box-shadow:3px 3px 0 #000;max-width:90vw;text-align:center}
 
+/* ================= desktop =================
+   On a wide screen the dice were taking a sixth of 880px each - 140px dice,
+   which look absurd and squash the monster into a strip. BRAND.md wants the
+   monster filling a desktop screen, so the dice stop growing and the height
+   they give up goes to the stage, which is the only part that stretches. */
+@media (min-width:700px){
+  /* width:100% matters. The table is a flex column, so a max-width with no
+     width lets the grid shrink to min-content and the 1fr columns collapse -
+     the dice came out 8px wide. */
+  .row6{width:100%;max-width:520px;margin-inline:auto}
+  .wind-num{font-size:2.4rem}
+  .actions{max-width:640px;margin-inline:auto;width:100%}
+}
+
 /* ================= phones =================
    Everything below is for a phone held upright. Four sizes are checked:
    390x844, 375x667, 360x740 and 320x568.
@@ -543,6 +557,12 @@ img{max-width:100%}
   .buy .ico{width:26px;height:26px}
   .buys{gap:5px}
   .tabs{gap:4px}
+  /* The menu is seven rows and every one of its names says what it does, so
+     the descriptions are the first thing to go on a short screen. */
+  .menu-list .buy span:not(.cost){display:none}
+  .menu-list .buy{min-height:46px;grid-template-rows:auto}
+  .menu-list .buy .ico{grid-row:1}
+  .menu-list .buy .cost{grid-row:1}
   /* the scoring table is nine rows, and the six-dice rows are the widest
      thing in the game: smaller dice buy the label a single line */
   .g-row{padding:4px 8px;gap:7px}
@@ -780,10 +800,10 @@ const rnd = n => Math.random() * n | 0;
 
 /* How long an even fight should run. A Farkle turn is several rolls and a
    decision, so a fight wants fewer turns than the card game wants hands.
-   Armour stretches it by about 15%, so five lands near six real turns. */
+   Armor stretches it by about 15%, so five lands near six real turns. */
 const TURNS = 5;
 
-/* What a turn delivers at this level, before the monster's armour. Guards and
+/* What a turn delivers at this level, before the monster's armor. Guards and
    heals are priced off THIS, not off the monster's own health. The card game
    prices them off max health and gets away with it because one hand there is
    nearly a third of a monster; a strike here is under a tenth, so the same 15%
@@ -810,8 +830,8 @@ const foeArmor = d => d ? (d.def != null ? d.def : foeArmorFor(d.lvl || 1, d.bos
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d) / 100)));
 
 /* Its health is the fight length you want, in strikes that actually land.
-   Armour is divided back out here on purpose: without that, a shelled monster
-   got the longer fight twice over - once from its armour and again from the
+   Armor is divided back out here on purpose: without that, a shelled monster
+   got the longer fight twice over - once from its armor and again from the
    kind's own health - and a heavy kind took fifteen strikes instead of five. */
 const monsterHP = (L, kindHp, armor) =>
   Math.round(TURNS * turnDamage(L) / (1 + armor / 100) * (kindHp || 1) / 50) * 50;
@@ -1054,7 +1074,7 @@ function slotsPanel(){
 function menuPanel(){
   openPanel(`
     <h2>Menu</h2>
-    <div class="buys">
+    <div class="buys menu-list">
       <button class="buy" data-act="togMusic"><img class="ico" src="art/i_inn.webp" alt="">
         <b>Music</b><span>Songs for each world.</span><span class="cost">${musicOn ? 'On' : 'Off'}</span></button>
       <button class="buy" data-act="togSfx"><img class="ico" src="art/i_bolt.webp" alt="">
@@ -1670,7 +1690,15 @@ document.addEventListener('click', e => {
   if(act === 'buyPot'){ spend(PO[b.dataset.pot].price); S.pots = (S.pots || []).concat([b.dataset.pot]);
     renderPots(); toast(`${PO[b.dataset.pot].name} in your bag.`); return shopPanel('pots'); }
   if(act === 'drink') return drink(b.dataset.pot);
-  if(act === 'again'){ closePanel(); S.hp = S.maxHp; S.idx = 0; S.world = 0; S.introBeat = 0; return storyPanel('start'); }
+  if(act === 'again'){
+    /* You keep your level, your gear and your charms. Losing sends you back to
+       the start of the quest, not back to nothing - this is a free game people
+       play on a phone, and a full wipe is a reason to close the tab. */
+    closePanel();
+    S.hp = S.maxHp; S.idx = 0; S.world = 0; S.introBeat = 0; S.endBeat = 0;
+    saveGame();
+    return storyPanel('start');
+  }
   if(act === 'storyNext') return storyNext(b.dataset.key);
   if(act === 'menu') return menuPanel();
   if(act === 'brag') return bragPanel(b.dataset.kind);
@@ -2193,7 +2221,7 @@ function lost(){
       <div class="scene"><img class="bg" src="art/${bgOf()}.webp" alt="">
         <img class="foe" src="art/${S.fight.d.slug}.webp" alt="${S.fight.d.name}">
         <span class="tag">The ${S.fight.d.name}</span></div>
-      <p>You reached <b>level ${S.level}</b> and won <b>${fmt(S.wins)}</b> ${S.wins === 1 ? 'fight' : 'fights'} before it brought you down.</p>
+      <p>You reached <b>level ${S.level}</b>${S.wins ? ` and won <b>${fmt(S.wins)}</b> ${S.wins === 1 ? 'fight' : 'fights'}` : ''} before it brought you down.</p>
       <button class="btn big ghost" data-act="brag" data-kind="death">Brag about how far you got</button>
       <button class="btn big" data-act="again">Try again</button>`);
   }, 1600);

@@ -28,9 +28,37 @@ const only = flag('--only');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
   '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4', '.mp3': 'audio/mpeg' };
 
-/* name, js to run, ms to wait */
+/* name, js to run, ms to wait. KIT gives the hero enough to show every part
+   of the screen at once: gear, charms, potions and a level waiting. */
+const KIT = `S.level=5; S.maxHp=800; S.hp=620; S.gold=48; S.xp=cumNeed(4)+10;
+  S.eq={main:{type:'axe',tier:3},off:null,shield:{type:'shield',tier:2},helm:{type:'helm',tier:3},armor:{type:'armor',tier:2}};
+  S.charms=['whet','cup']; S.pots=['heal','iron','rage'];`;
 const SCREENS = [
-  ['shell', '', 900],
+  ['heroes',      `localStorage.clear(); slotsPanel()`, 1200],
+  ['story-start', `closePanel(); S.introBeat=0; storyPanel('start')`, 2600],
+  ['story-area',  `closePanel(); S.world=0; S.idx=3; storyPanel('a1')`, 2600],
+  ['enc-normal',  KIT + `closePanel(); S.world=0; S.idx=1; startFight()`, 3000],
+  ['enc-boss',    KIT + `closePanel(); S.world=0; S.idx=2; startFight()`, 3000],
+  ['fight',       KIT + `closePanel(); S.world=0; S.idx=1; startFight(); setTimeout(()=>{closePanel();busy=false;renderDice();},1200)`, 3200],
+  ['fight-mid',   KIT + `closePanel(); S.world=0; S.idx=1; startFight(); setTimeout(()=>{closePanel();busy=false;started=true;window.__FK.setFaces([1,5,3,3,6,2]);document.querySelector('[data-die="0"]').click();document.querySelector('[data-die="1"]').click();},1200)`, 3200],
+  ['fight-boss',  KIT + `closePanel(); S.world=4; S.idx=2; startFight(); setTimeout(()=>{closePanel();busy=false;renderDice();},1200)`, 3400],
+  ['farkle',      KIT + `closePanel(); S.world=0; S.idx=1; startFight(); setTimeout(()=>{closePanel();busy=false;started=true;window.__FK.setFaces([2,3,4,6,2,3]);wind=900;renderWind();farkle();},1200)`, 3000],
+  ['strike',      KIT + `closePanel(); S.world=0; S.idx=1; startFight(); setTimeout(()=>{closePanel();busy=false;started=true;window.__FK.setFaces([1,1,1,1,1,1]);[0,1,2,3,4,5].forEach(i=>document.querySelector('[data-die="'+i+'"]').click());setTimeout(()=>doStrike(),300);},1200)`, 3300],
+  ['victory',     KIT + `closePanel(); S.world=0; S.idx=1; startFight(); setTimeout(()=>{closePanel();busy=false;S.tookHit=false;S.fight.hp=0;won();},1200)`, 4200],
+  ['levelup',     KIT + `closePanel(); S.pendingLv=1; S.level=5; levelPanel()`, 1400],
+  ['shop-rest',   KIT + `closePanel(); shopPanel('rest')`, 1100],
+  ['shop-smith',  KIT + `closePanel(); shopPanel('smith')`, 1100],
+  ['shop-charms', KIT + `closePanel(); shopPanel('charms')`, 1100],
+  ['shop-pots',   KIT + `closePanel(); shopPanel('pots')`, 1100],
+  ['fallen',      KIT + `closePanel(); S.world=0; S.idx=1; startFight(); setTimeout(()=>{closePanel();busy=false;S.hp=0;lost();},1200)`, 3400],
+  ['guide',       `closePanel(); guidePanel()`, 1000],
+  ['help',        `closePanel(); helpPanel()`, 1000],
+  ['menu',        `closePanel(); menuPanel()`, 1000],
+  ['cloud',       `closePanel(); cloudPanel()`, 1000],
+  ['hall',        `closePanel(); lbPanel()`, 1800],
+  ['daily',       `closePanel(); startDaily()`, 1200],
+  ['daily-done',  `closePanel(); startDaily(); S.daily.score=14820; S.wins=4; dailyDone()`, 1600],
+  ['brag',        KIT + `closePanel(); S.bestHit=4820; S.lastWin={name:'Bandit Chief',slug:'bandit',boss:true}; bragPanel('boss')`, 3200],
 ];
 
 function serve() {
@@ -50,7 +78,7 @@ function serve() {
   execFileSync('python', ['dev/gen/harness.py', 'dev/farkle.html', 'farkletest.html'], { stdio: 'inherit' });
   const srv = await serve();
   const base = `http://127.0.0.1:${srv.address().port}/farkletest.html`;
-  const b = await chromium.launch();
+  const b = await chromium.launch({args:['--autoplay-policy=no-user-gesture-required']});
 
   if (has('--probe')) {
     for (const [w, h] of sizes) {
@@ -97,6 +125,18 @@ function serve() {
         await p.addScriptTag({ content: AUDIT });
         const r = await p.evaluate(l => window.__AUDIT(l), `${name}@${tag}`);
         await p.screenshot({ path: path.join(outDir, `${name}_${tag}.png`) });
+        /* no popup may need scrolling to reach its main button */
+        const over = await p.evaluate(() => {
+          const ov = document.getElementById('overlay');
+          if(!ov || ov.hidden) return null;
+          const el = document.getElementById('panel');
+          const spill = el.scrollHeight - el.clientHeight;
+          if(spill <= 1) return null;
+          const big = [...el.children].filter(c => c.classList.contains('btn') && c.classList.contains('big'));
+          const last = big[big.length - 1];
+          return { spill, mainButtonBelowTheFold: last ? Math.round(last.getBoundingClientRect().bottom - el.getBoundingClientRect().bottom) : null };
+        });
+        if(over) r.panelScrolls = [over];
         r.errors = errs;
         report.push(r);
       } catch (e) {
@@ -112,7 +152,7 @@ function serve() {
   for (const r of report) {
     const bits = [];
     if (r.fatal) bits.push('FATAL ' + r.fatal);
-    for (const k of ['overlaps', 'cropped', 'broken', 'clipped', 'offscreen', 'tiny', 'tapTargets'])
+    for (const k of ['overlaps', 'cropped', 'broken', 'clipped', 'offscreen', 'tiny', 'tapTargets', 'panelScrolls'])
       if (r[k] && r[k].length) bits.push(`${k}=${r[k].length}`);
     if (r.errors && r.errors.length) bits.push(`jsErrors=${r.errors.length}`);
     if (bits.length) { bad++; console.log(`${r.label}  ${bits.join('  ')}`); }
