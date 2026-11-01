@@ -15,3 +15,4 @@ dev/android-app/ios/App/App.xcodeproj/xcuserdata/
 # local play/test copies, not part of the site
 playtest.html
 audiotest.html
+audittest.html
