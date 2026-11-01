@@ -6,9 +6,13 @@
 <meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces">
 <meta property="og:title" content="Guess the Monster: a new one every day">
 <meta property="og:description" content="It starts as a shadow. Five guesses. Share your row and keep your streak.">
-<meta property="og:image" content="https://axesandaces.com/b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image" content="https://axesandaces.com/b/daily.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Guess the Monster: the Axes &amp; Aces daily puzzle">
 <meta property="og:url" content="https://axesandaces.com/daily.html"><meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="twitter:image" content="https://axesandaces.com/b/daily.jpg">
+<meta name="twitter:image:alt" content="Guess the Monster: the Axes &amp; Aces daily puzzle">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192"><link rel="icon" href="icons/icon-512.png" sizes="512x512">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Germania+One&family=Alegreya+Sans:wght@400;500;700;800&family=Oswald:wght@500;600;700&display=swap">
 <style>
@@ -38,13 +42,18 @@ a{color:var(--gold2)}
 .top{border-bottom:3px solid #000;background:rgba(20,16,13,.92)}
 .top .wrap{display:flex;align-items:center;gap:12px;height:60px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
-.brand img{width:36px;height:36px;border-radius:9px;border:2px solid #000;box-shadow:3px 3px 0 #000}
-.brand b{font-family:var(--f-title);font-weight:400;font-size:1.3rem;color:var(--gold2);text-shadow:2px 2px 0 #000;white-space:nowrap}
+.brand{min-height:44px}
+.brand img{width:38px;height:38px;border-radius:9px;border:2px solid #000;box-shadow:3px 3px 0 #000}
 .top a.go{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-family:var(--f-num);font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-decoration:none;white-space:nowrap}
 .top a.go:hover{color:var(--gold2)}
 
 /* ---------- head ---------- */
-header.hd{padding:18px 0 6px;text-align:center}
+header.hd{padding:16px 0 6px;text-align:center}
+/* the word logo is the title of the whole thing; the puzzle's own name sits
+   under it. Clear space all round, and never squeezed out of shape. */
+.wordmark{display:block;width:clamp(190px,46vw,280px);margin:0 auto}
+.wordmark img{width:100%;height:auto}
+h1{margin-top:clamp(16px,5vw,26px)}
 h1{margin:0;font-family:var(--f-title);font-weight:400;font-size:clamp(2.1rem,9vw,3rem);line-height:1;color:var(--gold2);
   -webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000}
 .sub{margin:.5em 0 0;font-family:var(--f-num);font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:.78rem;color:var(--dim)}
@@ -135,12 +144,13 @@ footer a{margin:0 8px;white-space:nowrap}
 <div class="scene"></div>
 
 <div class="top"><div class="wrap">
-  <a class="brand" href="index.html"><img src="icons/icon-192.png" alt=""><b>Axes &amp; Aces</b></a>
+  <a class="brand" href="index.html"><img src="img/emblem-64.webp" width="88" height="88" alt="Axes &amp; Aces"></a>
   <a class="go" href="play.html">Play the game</a>
 </div></div>
 
 <div class="wrap">
   <header class="hd">
+    <a class="wordmark" href="index.html"><img src="img/logo-wide.webp" width="1440" height="638" alt="Axes &amp; Aces"></a>
     <h1>Guess the Monster</h1>
     <p class="sub" id="sub">Loading</p>
   </header>
@@ -584,27 +594,35 @@ async function onCard(){
     try{ await document.fonts.load('80px "Germania One"'); await document.fonts.load('700 40px Oswald'); }catch(e){}
     const c = document.createElement('canvas'); c.width = 1200; c.height = 630;
     const x = c.getContext('2d');
-    const bg = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'art/bg_cellar.webp'; });
+    const pic = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+    const [bg, logo, icon] = await Promise.all([pic('art/bg_cellar.webp'), pic('img/logo-wide.webp'), pic('icons/icon-512.png')]);
     if(bg){ const sc = Math.max(1200 / bg.width, 630 / bg.height); x.drawImage(bg, (1200 - bg.width * sc) / 2, (630 - bg.height * sc) / 2, bg.width * sc, bg.height * sc); }
     else { x.fillStyle = '#2a1608'; x.fillRect(0, 0, 1200, 630); }
     const gr = x.createLinearGradient(0, 0, 1200, 0);
     gr.addColorStop(0, 'rgba(10,5,3,.94)'); gr.addColorStop(.55, 'rgba(10,5,3,.78)'); gr.addColorStop(1, 'rgba(10,5,3,.15)');
     x.fillStyle = gr; x.fillRect(0, 0, 1200, 630);
+    /* the monster stops short of the top right so the icon badge stays clear */
     if(art){
-      const k = Math.min(470 / art.width, 520 / art.height), w = art.width * k, h = art.height * k;
+      const k = Math.min(440 / art.width, 460 / art.height), w = art.width * k, h = art.height * k;
       x.save(); x.shadowColor = 'rgba(0,0,0,.85)'; x.shadowBlur = 30; x.drawImage(art, 1160 - w, 600 - h, w, h); x.restore();
     }
     x.fillStyle = '#000'; x.fillRect(0, 0, 1200, 12); x.fillRect(0, 618, 1200, 12);
     x.textBaseline = 'alphabetic'; x.lineJoin = 'round'; x.strokeStyle = '#000';
-    x.font = '44px "Germania One", Georgia, serif'; x.fillStyle = '#f2b632'; x.fillText('Axes & Aces', 56, 92);
+    /* the word logo is the title: never retyped, never stretched */
+    if(logo){ const lw = 230, lh = logo.height * lw / logo.width; x.drawImage(logo, 56, 40, lw, lh); }
+    /* the icon sits in the corner so a thumbnail is still recognisable */
+    if(icon){ x.save(); x.beginPath(); const r = 14, bx = 1078, by = 30, bs = 82;
+      x.moveTo(bx + r, by); x.arcTo(bx + bs, by, bx + bs, by + bs, r); x.arcTo(bx + bs, by + bs, bx, by + bs, r);
+      x.arcTo(bx, by + bs, bx, by, r); x.arcTo(bx, by, bx + bs, by, r); x.closePath();
+      x.fillStyle = '#000'; x.fill(); x.clip(); x.drawImage(icon, bx + 4, by + 4, bs - 8, bs - 8); x.restore(); }
     x.font = '700 22px Oswald, Arial'; x.fillStyle = '#e8d9bb';
-    x.fillText(('Guess the Monster  ·  #' + DAY).toUpperCase(), 58, 132);
-    x.font = '74px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#fff3d0';
-    let y = wrapInto(x, st.won ? 'I got it in ' + st.guesses.length : 'It beat me today', 56, 212, 620, 80, 2);
-    x.font = '700 76px Oswald, Arial'; x.lineWidth = 9; x.fillStyle = st.won ? '#ffd35c' : '#c8241f';
-    x.strokeText(ANSWER.name, 56, y + 28); x.fillText(ANSWER.name, 56, y + 28);
+    x.fillText(('Guess the Monster  ·  #' + DAY).toUpperCase(), 58, 186);
+    x.font = '68px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#fff3d0';
+    let y = wrapInto(x, st.won ? 'I got it in ' + st.guesses.length : 'It beat me today', 56, 254, 600, 74, 2);
+    x.font = '700 72px Oswald, Arial'; x.lineWidth = 9; x.fillStyle = st.won ? '#ffd35c' : '#c8241f';
+    x.strokeText(ANSWER.name, 56, y + 26); x.fillText(ANSWER.name, 56, y + 26);
     x.font = '500 28px "Alegreya Sans", Georgia, serif'; x.lineWidth = 5; x.fillStyle = '#e8d9bb';
-    wrapInto(x, 'A new monster every day. Five guesses.', 58, y + 84, 600, 36, 2);
+    wrapInto(x, 'A new monster every day. Five guesses.', 58, y + 80, 580, 36, 1);
     x.font = '34px "Germania One", Georgia, serif'; x.lineWidth = 7; x.fillStyle = '#ffd35c';
     x.strokeText('Play free at', 58, 540); x.fillText('Play free at', 58, 540);
     x.font = '64px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#ffffff';
