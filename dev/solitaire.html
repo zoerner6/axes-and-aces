@@ -159,6 +159,18 @@ img{max-width:100%}
   box-shadow:0 0 0 3px var(--gold), 0 0 14px rgba(242,182,50,.55), 0 5px 0 rgba(0,0,0,.45);
 }
 .pk.gone{opacity:0;transform:scale(.6) translateY(-30px);pointer-events:none}
+.pk.flip{animation:pkflip .22s ease-out}
+@keyframes pkflip{from{transform:rotateY(85deg) scale(.94)}to{transform:none}}
+
+/* said out loud, briefly, when something happens that the board alone does not
+   explain - a cleared board, or a stock that has run dry */
+.banner{
+  position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:80;
+  font-family:var(--f-title);font-size:clamp(1.6rem,7vw,2.4rem);color:var(--gold-hi);
+  text-shadow:4px 4px 0 #000;pointer-events:none;animation:bannerIn 1.8s ease-out forwards;
+  text-align:center;max-width:90vw;
+}
+@keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0}}
 
 /* stacking: lower rows sit over the rows behind them, and within a row the
    later card sits over its neighbour, so every rank corner stays uncovered */
@@ -186,10 +198,24 @@ img{max-width:100%}
 .runbox{
   text-align:center;font-family:var(--f-num);min-width:5.4em;
 }
-.runbox b{display:block;font-size:clamp(1.7rem,8vw,2.6rem);line-height:1;color:var(--gold-hi);
-  text-shadow:3px 3px 0 #000;transition:transform .14s}
+/* The run gets louder as it goes. This is the whole tension of the game: the
+   number is the blow you are winding up, and a player has to feel it growing
+   before they will risk another card for it. It grows with the count, warms
+   from gold to white-hot, and picks up a glow that is not there at a run of
+   one. Capped, or a run of fifteen would push the board off the screen. */
+.runbox b{
+  display:block;line-height:1;color:var(--gold-hi);
+  font-size:clamp(1.7rem, calc(7vw + min(var(--r,0), 10) * .1rem), 3.3rem);
+  text-shadow:3px 3px 0 #000;
+  transition:transform .14s, font-size .18s, color .2s, filter .2s;
+}
 .runbox small{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--parch-dim)}
 .runbox.up b{transform:scale(1.22)}
+/* three gears, so the change is felt rather than merely measured */
+.runbox.hot b{color:#fff3cf;filter:drop-shadow(0 0 9px rgba(255,200,80,.75))}
+.runbox.wild b{color:#fff;filter:drop-shadow(0 0 16px rgba(255,180,60,.95));animation:runPulse .9s ease-in-out infinite}
+.runbox.wild small{color:var(--gold-hi)}
+@keyframes runPulse{50%{filter:drop-shadow(0 0 26px rgba(255,210,120,1))}}
 </style>
 
 <div id="app">
@@ -379,14 +405,14 @@ function drawTable(){
   const w = wasteTop();
   return `<div class="table">
     <div class="slot" id="stock">
-      ${R.si < R.stock.length ? `<button class="pk down" data-act="turn" style="--x:0"></button>` : '<div class="slot empty"></div>'}
+      ${R.si < R.stock.length ? `<button class="pk down" data-act="turn" style="--x:0;--row:0"></button>` : '<div class="slot empty"></div>'}
       ${R.si < R.stock.length ? `<span class="stockn">${R.stock.length - R.si}</span>` : ''}
     </div>
-    <div class="runbox" id="runbox">
+    <div class="runbox ${R.run >= 8 ? 'wild' : R.run >= 5 ? 'hot' : ''}" id="runbox" style="--r:${R.run}">
       <b>${R.run}</b><small>Run</small>
     </div>
-    <div class="slot">
-      <div class="pk ${SUITS[w.s].red ? 'red' : ''}" style="--x:0">${cardFace(w)}</div>
+    <div class="slot" id="wasteslot">
+      <div class="pk ${SUITS[w.s].red ? 'red' : ''}" style="--x:0;--row:0">${cardFace(w)}</div>
     </div>
   </div>`;
 }
@@ -395,6 +421,98 @@ function render(){
   $('stage').innerHTML =
     `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable();
 }
+
+/* ===================== playing =====================
+   Tapping a playable card sends it to the waste and the run grows. Tapping the
+   stock turns a card, which ends the run - and the run ending is when the blow
+   lands, so a tap on the stock is never free.
+
+   The card flies rather than vanishing. A card that simply disappears reads as
+   a mistake; one that travels to the waste tells the player where their run is
+   being kept. The flight is measured from the card's own box to the waste's,
+   so it stays right at any screen size without a number in here. */
+let busy = false;
+
+function flyToWaste(el, done){
+  const slot = document.querySelector('#wasteslot');
+  if(!slot || !el){ done(); return; }
+  const a = el.getBoundingClientRect(), b = slot.getBoundingClientRect();
+  el.style.zIndex = 60;
+  el.style.transition = 'transform .26s cubic-bezier(.4,.1,.5,1), opacity .26s ease-in';
+  el.style.transform =
+    `translate(${(b.left + b.width/2) - (a.left + a.width/2)}px,` +
+    ` ${(b.top + b.height/2) - (a.top + a.height/2)}px) scale(${b.width / a.width})`;
+  el.style.opacity = '.25';
+  setTimeout(done, 240);
+}
+
+function bumpRun(){
+  const box = $('runbox');
+  if(!box) return;
+  box.classList.add('up');
+  setTimeout(() => box.classList.remove('up'), 150);
+}
+
+function playCard(i){
+  if(busy || !canPlay(i)) return;
+  busy = true;
+  const el = document.querySelector(`.pk[data-i="${i}"]`);
+  flyToWaste(el, () => {
+    const c = R.tableau[i];
+    c.gone = true;
+    R.waste.push(c);
+    R.run++;
+    R.runVal += valueOf(c.r);
+    render();
+    bumpRun();
+    busy = false;
+    afterMove();
+  });
+}
+
+function turnStock(){
+  if(busy || R.si >= R.stock.length) return;
+  busy = true;
+  /* the run breaks here. Step 6 lands the blow; for now the count resets so
+     the loop is playable end to end. */
+  R.run = 0; R.runVal = 0;
+  R.waste.push(R.stock[R.si++]);
+  render();
+  busy = false;
+  afterMove();
+}
+
+/* Is anything left to do? Either there is a legal card, or there is stock to
+   turn. Neither means the round is over with peaks still standing, which is
+   the losing end of it. */
+const anyLegal = () => R.tableau.some((c, i) => canPlay(i));
+const cleared  = () => R.tableau.every(c => c.gone);
+
+function afterMove(){
+  if(cleared()){ onClear(); return; }
+  if(!anyLegal() && R.si >= R.stock.length) onDry();
+}
+
+/* Both of these get their real consequences in later steps - the finisher blow
+   and the monster's free hit. For now they say so plainly rather than leaving
+   a player staring at a board that will not move. */
+function onClear(){ banner('All three peaks down'); }
+function onDry(){ banner('Out of cards'); }
+
+function banner(text){
+  const b = document.createElement('div');
+  b.className = 'banner';
+  b.textContent = text;
+  $('app').appendChild(b);
+  setTimeout(() => b.remove(), 1800);
+}
+
+$('stage').addEventListener('click', e => {
+  const t = e.target.closest('[data-act="turn"]');
+  if(t){ turnStock(); return; }
+  const card = e.target.closest('.pk[data-i]');
+  if(card) playCard(+card.dataset.i);
+});
 
 /* ===================== a first dealt board ===================== */
 R = dealRound();
