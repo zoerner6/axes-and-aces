@@ -138,42 +138,48 @@ def fade_edge(c, y_edge, depth, up):
 
 def cover(bk):
     """The word logo is the title. It is never retyped in another typeface,
-    and it is never drawn wider than it can hold 300 dpi."""
+    and never drawn wider than the artwork can hold at 300 dpi.
+
+    Laid out downward from the logo's real height, so a different logo file
+    moves everything below it instead of colliding with it.
+    """
     c = bk.c
     bk.bg(L.SOOT)
-    word = bk.word
 
-    lw, lh = brand.fit(word, 330)
-    ly = PH - 36 - lh
-    c.drawImage(word['path'], (PW - lw) / 2, ly, lw, lh, mask='auto')
+    lw, lh = brand.fit(bk.word, 400)
+    ly = PH - 40 - lh
+    c.drawImage(bk.word['path'], (PW - lw) / 2, ly, lw, lh, mask='auto')
 
-    # "Monster Manual" is this book's own name, so it is set in type. Clear
-    # space below the logo is kept to more than the height of its "A".
+    # Clear space below the logo of more than the height of its "A", then
+    # this book's own name, which is type rather than artwork.
+    title_base = ly - 34 - 28
     c.setFont(L.TITLE_F, 40)
     c.setFillColor(L.GOLD)
-    c.drawCentredString(PW / 2, 560, 'MONSTER MANUAL')
+    c.drawCentredString(PW / 2, title_base, 'MONSTER MANUAL')
 
     img = os.path.join(PANELS, 'demonking_boss.jpg')
     ih = PW * 1088 / 1950                      # 341 pt at full bleed
-    iy = 189
+    iy = title_base - 30 - ih
     c.drawImage(img, 0, iy, PW, ih, mask=None)
     fade_edge(c, iy + ih, 78, up=False)        # top edge of the art
     fade_edge(c, iy, 78, up=True)              # bottom edge
 
+    y = iy - 20
     c.setFillColor(L.CRIMSON)
-    c.rect(M, 165, CW, 3, stroke=0, fill=1)
+    c.rect(M, y, CW, 3, stroke=0, fill=1)
     c.setFont(L.TITLE_F, 26)
     c.setFillColor(L.PARCH)
-    c.drawCentredString(PW / 2, 130, '168 monsters. Ten worlds.')
+    c.drawCentredString(PW / 2, y - 33, '168 monsters. Ten worlds.')
     c.setFont(L.BODY_F, 12.5)
     c.setFillColor(L.PARCH)
-    c.drawCentredString(PW / 2, 107, 'From the free card game at ' + T.SITE)
+    c.drawCentredString(PW / 2, y - 55, 'From the free card game at ' + T.SITE)
     c.setFont(L.LABEL_F, 11.5)
     c.setFillColor(L.GOLD)
-    c.drawCentredString(PW / 2, 81, T.TAGLINE.upper())
+    c.drawCentredString(PW / 2, y - 80, T.TAGLINE.upper())
     c.setFont(L.BODY_F, 8.5)
     c.setFillColor(L.MUTED)
-    c.drawCentredString(PW / 2, 50, 'Contains AI-generated content. See page 3.')
+    c.drawCentredString(PW / 2, y - 107,
+                        'Contains AI-generated content. See page 3.')
     bk.new_page()
 
 
@@ -182,7 +188,7 @@ def title_page(bk):
     the bare lettering ever touching pale paper."""
     c = bk.c
     word = bk.word
-    lw, lh = brand.fit(word, 300)
+    lw, lh = brand.fit(word, 340)
     ly = PH - 150 - lh
     c.drawImage(word['path'], (PW - lw) / 2, ly, lw, lh, mask='auto')
 
