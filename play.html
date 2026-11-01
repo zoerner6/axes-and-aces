@@ -834,7 +834,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .shop-go .innbtn .inn-txt small .coinv{font-size:1.05em}
 /* ---- encounters: animated scenes with info and a line of dialogue ---- */
 .cine-scene.enc{aspect-ratio:16/10}
-.enc-foe{position:absolute;left:50%;bottom:16%;width:62%;height:70%;transform:translateX(-50%);z-index:1;transform-origin:50% 100%}
+.enc-foe{position:absolute;left:50%;bottom:5%;width:66%;height:86%;transform:translateX(-50%);z-index:1;transform-origin:50% 100%}
 .enc-foe img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 12px rgba(0,0,0,.75))}
 .enc-path .enc-foe{animation:encWalk 1.3s cubic-bezier(.3,.6,.3,1) both}
 @keyframes encWalk{0%{transform:translateX(60%);opacity:0}15%{opacity:1}30%{transform:translateX(30%) translateY(-3%)}45%{transform:translateX(5%)}60%{transform:translateX(-30%) translateY(-3%)}100%{transform:translateX(-50%)}}
@@ -856,7 +856,7 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 .enc-say::before{right:auto;left:-10px;border-left-color:transparent;border-right:11px solid #f3e6c8}
 .enc-say.you{right:auto;left:3%;bottom:30%;font-style:italic;background:#e6ddc8}
 .enc-say.you::after,.enc-say.you::before{display:none}
-.enc-info{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:6px 8px 7px;background:linear-gradient(transparent,rgba(0,0,0,.85) 35%);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.enc-info{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;padding:10px 8px 0;text-align:center}
 .enc-info>b{font-family:var(--f-title);font-weight:400;font-size:clamp(1rem,3.6vw,1.35rem);color:#f3e6c8;text-shadow:2px 2px 0 #000}
 .enc-info>b i{font-style:normal;font-family:var(--f-num);font-size:.6em;letter-spacing:.12em;text-transform:uppercase;background:var(--hp);color:#fff;border:2px solid #000;border-radius:4px;padding:0 5px;vertical-align:3px}
 .enc-info .fc-stats{justify-content:center}
@@ -2247,18 +2247,11 @@ const cumNeed = L => { let t=0; for(let i=1;i<=L;i++) t+=xpNeed(i); return t; };
 /* the monster's level badge: its color warns how dangerous it is next to your own level */
 function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-S.level;
   return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
-/* A monster's fighting stats. Its hit must be its AVERAGE attack, not its
-   biggest one: the hero's figure beside it is an average hand, and comparing
-   its best punch to your typical hand makes every monster look stronger
-   than it is. Both sides now read as averages. */
-function foeStats(d){ const hits=d.moves.filter(m=>m.k==='atk').map(m=>m.n),
-  atk=hits.length?hits.reduce((a,b)=>a+b,0)/hits.length:0,
-  def=foeArmor(d), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
-  /* both numbers say what this monster does to you, the same way your own
-     card reads, instead of a raw stat you have to do maths against */
-  /* the monster's gear read in the same units as yours */
+/* A monster's Attack and Defense, shown as the scores themselves and nothing
+   else - the same two numbers, in the same shape, as the hero's own pills. */
+function foeStats(d){ const heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
   const fa=foeAtkScore(d.lvl||1, d.gear||1), fd=foeArmor(d);
-  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b><small>Attack · hits you for ~${fmt(takeFrom(atk))}</small></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b><small>Defense · your hits land for ~${fmt(armored(Math.round(HAND_AVG*atkMult()*lvlMult()), d))}</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
+  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b></span>`:''}</div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
@@ -2992,7 +2985,7 @@ function soldierPanel(){
 }
 
 /* ---------- screens ---------- */
-function openPanel(html){ stopVoice(); clearInterval(typeTimer); clearTimeout(typeDelay); cineNow=null; $('bubble').hidden=true; $('panel').classList.remove('wide','parch','cine'); $('panel').innerHTML=(S&&S.phase==='slots')?html:nm(html); $('overlay').hidden=false; $('panel').scrollTop=0; fitScenes(); requestAnimationFrame(fitScenes); setTimeout(fitScenes,250); setTimeout(fitScenes,900); }
+function openPanel(html){ stopVoice(); clearInterval(typeTimer); clearTimeout(typeDelay); cineNow=null; $('bubble').hidden=true; $('panel').classList.remove('wide','parch','cine','slotsp'); $('panel').innerHTML=(S&&S.phase==='slots')?html:nm(html); $('overlay').hidden=false; $('panel').scrollTop=0; fitScenes(); requestAnimationFrame(fitScenes); setTimeout(fitScenes,250); setTimeout(fitScenes,900); }
 function fitScenes(){
   document.querySelectorAll('.cine-scene').forEach(sc=>{
     const m=sc.querySelector('img,video.scene-vid'); if(!m) return;
@@ -3067,8 +3060,8 @@ function fightIntro(){
       ${S.enc==='spot'?'<span class="enc-mark">?!</span>':''}
       <span class="cine-title">${t.title}</span>
       <div class="bubble-say enc-say ${say.who}" id="dealSay"><span id="encSay"></span></div>
-      <div class="enc-info">${lvBadge(d,'lg')}<div class="enc-nm"><b>${d.name}</b>${foeStats(d)}</div></div>
     </div>
+    <div class="enc-info">${lvBadge(d,'lg')}<div class="enc-nm"><b>${d.name}</b>${foeStats(d)}</div></div>
     <div class="cine-cap" data-act="capDone"><p><span class="ghost">${plain}</span><span class="typed" id="capTxt"></span></p></div>
     ${d.boss?tip('boss','Bosses guard the end of every area and fight with a <b>special rule</b>. Cards marked with a red ✖ still count toward your poker hand, but do no damage.'):''}
     <button class="btn big vic-btn" data-act="fight">Fight!</button>`);
