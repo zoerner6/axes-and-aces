@@ -58,6 +58,42 @@ open("farkle.webmanifest", "w", encoding="utf-8").write("""{
   ]
 }
 """)
+# ---- Monster Solitaire: three peaks, one monster, its own page ----
+# Same rule as Monster Farkle above: its head lives in its own variable, because
+# dev/gen/harness.py pulls a head out of this file by name so a test page can
+# never drift from the real one.
+shead = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14100d"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Monster Solitaire">
+<meta name="description" content="Monster Solitaire: a free card game. Three peaks, one monster. The longer the run, the harder the blow.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Monster Solitaire: three peaks, one monster">
+<meta property="og:description" content="Clear the peaks in one long run and the blow lands hard. Turn a card and the monster gets its move. Free in your browser.">
+<meta property="og:image" content="https://axesandaces.com/b/solitaire.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://axesandaces.com/solitaire.html"><meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="solitaire.webmanifest"><link rel="icon" href="icons/sol-192.png"><link rel="apple-touch-icon" href="icons/sol-180.png">
+<style>html,body{height:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}body{margin:0;font:14px system-ui,sans-serif;background:#14100d}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
+"""
+sol = open("dev/solitaire.html", encoding="utf-8").read()
+open("solitaire.html", "w", encoding="utf-8").write(shead + sol + tail)
+open("solitaire.webmanifest", "w", encoding="utf-8").write("""{
+  "name": "Monster Solitaire",
+  "short_name": "Solitaire",
+  "description": "Three peaks, one monster. The longer the run, the harder the blow.",
+  "start_url": "/solitaire.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14100d",
+  "theme_color": "#14100d",
+  "icons": [
+    {"src": "icons/sol-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/sol-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/sol-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
+""")
 open("index.html", "w", encoding="utf-8").write(open("dev/landing.html", encoding="utf-8").read())
 open("sw.js", "w", encoding="utf-8").write("""const C='aa-v4';
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['./','index.html','play.html','manifest.json'])));});
@@ -66,4 +102,4 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.me
   if(/\\/(art|icons|img)\\//.test(u.pathname)){ e.respondWith(caches.open(C).then(async c=>{const r=await c.match(e.request); if(r) return r; const n=await fetch(e.request); if(n.ok&&n.status===200) c.put(e.request,n.clone()); return n;})); return; }
   e.respondWith(fetch(e.request,{cache:'no-cache'}).then(n=>{caches.open(C).then(c=>c.put(e.request,n.clone()));return n;}).catch(()=>caches.match(e.request)));});
 """)
-print("built index.html, play.html, farkle.html, farkle.webmanifest and sw.js")
+print("built index.html, play.html, farkle.html, solitaire.html, both webmanifests and sw.js")

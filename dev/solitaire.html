@@ -1,0 +1,113 @@
+<title>Monster Solitaire</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Germania+One&family=Alfa+Slab+One&family=Oswald:wght@500;600;700&family=Alegreya+Sans:wght@400;500;700;800&display=swap">
+<style>
+/* Monster Solitaire. Three peaks of cards over a waste pile, and a monster
+   waiting behind them. Clear a card onto the waste when it is one rank above
+   or below - aces wrap both ways - and the run grows. A run is the blow you
+   are winding up, and it lands when the run breaks.
+
+   Monster Farkle is push-your-luck: bank it or lose it. This is the long
+   chain: keep it going or settle for what you have. Two different feelings
+   off the same art, which is why both are worth building.
+
+   Colors, type and shapes come from BRAND.md, the same as the other two
+   games: soot black and dark leather, gold headlines, crimson for the
+   monster, green for you, teal for magic, 3px black borders with hard offset
+   shadows, no emoji anywhere a player can see. Germania One for titles,
+   Oswald for numbers and buttons, Alegreya Sans for anything you read.
+   Card suits are allowed - they are part of the cards. */
+:root{
+  --soot:#14100d; --leather:#1b1410; --wood:#241913; --wood-2:#33241b; --wood-3:#433025; --line:#5d4434;
+  --parch:#f3e6c8; --parch-dim:#c7b28c;
+  --gold:#f2b632; --gold-hi:#ffd35c;
+  --hp:#c8241f; --heal:#3fae4a; --heal-hi:#7be38a; --teal:#7fe3d8; --boss:#a63de0;
+  --steel:#76a9db; --ink:#16100d;
+  --bubble:#f3e6c8; --bubble-ink:#16100d;
+  --f-title:'Germania One','Palatino Linotype',Georgia,serif;
+  --f-num:'Oswald','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Alegreya Sans','Segoe UI',system-ui,sans-serif;
+  --f-logo:'Alfa Slab One', Rockwell, Georgia, serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{
+  margin:0;background:var(--soot);
+  background-image:repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, transparent 2px 46px),
+                   radial-gradient(ellipse at 50% 0%, rgba(242,182,50,.12), transparent 60%);
+  color:var(--parch);font-family:var(--f-body);font-size:16px;
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden;
+}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+#app{
+  max-width:880px;margin:0 auto;height:100%;min-height:0;
+  padding-left:max(14px, env(safe-area-inset-left, 0px));
+  padding-right:max(14px, env(safe-area-inset-right, 0px));
+  padding-block:8px 10px;display:flex;flex-direction:column;gap:7px;
+}
+#app.shake{animation:shake .38s}
+@keyframes shake{20%{transform:translate(-7px,2px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,1px)}80%{transform:translate(3px,-1px)}}
+
+/* A phone is the default here, not the exception. This rule exists so the
+   build can be checked: at 320 wide matchMedia('(max-width:560px)') must be
+   true, and if it is not, the test page was built without the viewport meta
+   and no phone CSS in this file is live. See dev/gen/harness.py. */
+@media (max-width:560px){
+  :root{ --phone:1; }
+  #app{ padding-inline:max(9px, env(safe-area-inset-left, 0px)); }
+}
+</style>
+
+<div id="app">
+  <div id="stage"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ===================== the deck =====================
+   Ranks are 1..13 with 1 meaning ace. In Tri-Peaks an ace wraps both ways, so
+   a king takes an ace and an ace takes a two, which is why this is a ring
+   rather than a line. Boss rounds switch the wrap off, and that is the whole
+   of the difference - see the boss rule in dev/plans/solitaire.md. */
+const SUITS = ['s','h','d','c'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+/* one above or one below, on a ring of 13 */
+function takes(a, b, wrap = true){
+  if(a == null || b == null) return false;
+  const d = Math.abs(a - b);
+  if(d === 1) return true;
+  return wrap && d === 12;      /* ace and king sit next to each other */
+}
+
+function freshDeck(){
+  const d = [];
+  for(const s of SUITS) for(let r = 1; r <= 13; r++) d.push({r, s});
+  return d;
+}
+
+/* Fisher-Yates against a supplied random, so a seeded daily deal and a casual
+   one run the same code. */
+function shuffle(d, rnd = Math.random){
+  for(let i = d.length - 1; i > 0; i--){
+    const j = (rnd() * (i + 1)) | 0;
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  return d;
+}
+
+const $ = id => document.getElementById(id);
+
+$('stage').innerHTML = '<p style="text-align:center;padding:2em 0;color:var(--parch-dim)">Monster Solitaire</p>';
+
+})();
+</script>
