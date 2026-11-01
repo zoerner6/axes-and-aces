@@ -623,9 +623,10 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 /* a flex column can squash the frame below its own ratio; when that happens the
    art must not be sliced, so show all of it against the frame's black instead */
 .cine-scene.showall>img,.cine-scene.showall>video.scene-vid{object-fit:contain;animation:none}
-.title-logo{display:block;width:min(74%,330px);height:auto;margin:0 auto 2px;
+.title-logo{display:block;width:min(58%,262px);height:auto;margin:0 auto;
   animation:cineIn .7s .1s ease both;filter:drop-shadow(0 6px 14px rgba(0,0,0,.9))}
-@media (max-height:760px){ .title-logo{width:min(60%,250px)} }
+@media (max-height:820px){ .title-logo{width:min(46%,204px)} }
+@media (max-height:700px){ .title-logo{width:min(40%,168px)} }
 .kb2>img{animation-name:kb2}.kb3>img{animation-name:kb3}
 @keyframes kb1{from{transform:scale(1.02)}to{transform:scale(1.16) translate(-2%,-1.5%)}}
 @keyframes kb2{from{transform:scale(1.16) translate(2%,1%)}to{transform:scale(1.03)}}
@@ -1162,9 +1163,14 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 @media (max-height:760px){ .aheadwarn{padding:7px 12px} .aheadwarn span{font-size:.86rem} }
 
 .nosaves{background:#2a1d16;border:3px solid #000;border-left:7px solid var(--gold);border-radius:10px;box-shadow:4px 4px 0 #000;padding:9px 14px;margin:2px 0;text-align:left}
-.panel.cine.slotsp{overflow:hidden}
-.panel.cine.slotsp .cine-scene{flex:0 1 auto;min-height:0;align-self:center;max-height:min(36vh,320px)!important;max-width:calc(min(36vh,320px)*16/9)!important}
+.panel.cine.slotsp{overflow:auto}
+.panel.cine.slotsp .cine-scene{flex:0 1 auto;min-height:min(17vh,150px);align-self:center;max-height:min(36vh,320px)!important;max-width:calc(min(36vh,320px)*16/9)!important}
 .panel.cine.slotsp .slots{gap:6px}
+/* First run on a short screen: logo, tavern, three slots, the lost-heroes
+   warning and two buttons do not all fit, and squeezing the tavern into a 4:1
+   strip reads as a bug. The logo is the better picture there, so the tavern
+   stands down until the warning is gone. */
+@media (max-height:880px){ .panel.cine.slotsp:has(.nosaves) .cine-scene{display:none} }
 /* the fallen screen carries a lot - why you died, your name, two social buttons,
    the run summary and the way out. The picture gives up its height first, so the
    buttons below it stay on screen instead of behind a scrollbar. */
