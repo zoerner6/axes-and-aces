@@ -24,15 +24,17 @@ body{width:860px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif
 
 /* the ace, on the game's own card face. indices sit on the cream field,
    not on the filigree, or they vanish into the border. */
-.ace{position:relative;flex:none;border-radius:10px;overflow:hidden;background:#f3ead3;
-  box-shadow:0 14px 26px rgba(0,0,0,.8),0 0 0 3px #1a120a}
-.ace img{display:block;width:100%;height:100%;object-fit:fill}
-.ace .pip{position:absolute;inset:0;display:grid;place-items:center;color:#171009;
-  font-family:'Segoe UI Symbol','Apple Symbols',serif;text-shadow:0 1px 0 rgba(255,255,255,.5)}
-.ace .ix{position:absolute;line-height:.78;text-align:center;color:#171009;font-family:'Eczar',serif;font-weight:800}
-.ace .ix i{display:block;font-style:normal;font-family:'Segoe UI Symbol','Apple Symbols',serif;margin-top:1px}
-.ace .ix.tl{top:15%;left:15%}
-.ace .ix.br{bottom:15%;right:15%;transform:rotate(180deg)}
+/* plain card - no frame. The axe covers the middle, so the A of hearts
+   lives in the two corners it leaves exposed. */
+.ace{position:relative;flex:none;border-radius:12px;overflow:hidden;
+  background-image:linear-gradient(162deg,#fffdf6 0%,#f8f1df 52%,#eadfc4 100%);
+  box-shadow:0 14px 26px rgba(0,0,0,.8),0 0 0 4px #14100a,inset 0 0 0 2px rgba(0,0,0,.07)}
+.ace .pip{position:absolute;inset:0;display:grid;place-items:center;color:#c0241c;
+  font-family:'Segoe UI Symbol','Apple Symbols',serif;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.ace .ix{position:absolute;line-height:.76;text-align:center;color:#c0241c;font-family:'Eczar',serif;font-weight:800}
+.ace .ix i{display:block;font-style:normal;font-family:'Segoe UI Symbol','Apple Symbols',serif;margin-top:2px}
+.ace .ix.tl{top:7%;left:9%}
+.ace .ix.br{bottom:7%;right:9%;transform:rotate(180deg)}
 .axe img{display:block;filter:drop-shadow(0 10px 16px rgba(0,0,0,.85))}
 
 /* ---------- A · primary horizontal lockup ---------- */
@@ -46,8 +48,8 @@ body{width:860px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif
 
 /* ---------- B · emblem, no words ---------- */
 .emb{position:relative;width:330px;height:330px;display:grid;place-items:center}
-.emb .ace{width:176px;height:262px;transform:rotate(-7deg)}
-.emb .axe{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-28deg);z-index:3}
+.emb .ace{width:176px;height:262px;transform:translate(-14px,6px) rotate(-9deg)}
+.emb .axe{position:absolute;left:50%;top:50%;transform:translate(-42%,-44%) rotate(-28deg);z-index:3}
 
 /* ---------- C · stacked, for a square ---------- */
 .sq{position:relative;padding:22px 46px 28px;border-radius:14px;background-color:#393d44;
@@ -62,7 +64,7 @@ body{width:860px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif
 .rivet.tl{top:10px;left:10px}.rivet.tr{top:10px;right:10px}.rivet.bl{bottom:10px;left:10px}.rivet.br{bottom:10px;right:10px}
 .sq .embs{position:relative;width:208px;height:168px;margin-bottom:2px}
 .sq .embs .ace{position:absolute;left:50%;top:0;width:104px;height:156px;transform:translateX(-50%) rotate(-7deg);z-index:2}
-.sq .embs .axe{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-28deg);z-index:3}
+.sq .embs .axe{position:absolute;left:50%;top:50%;transform:translate(-42%,-44%) rotate(-28deg);z-index:3}
 .rule{display:flex;align-items:center;gap:12px;margin:-2px 0}
 .rule i{display:block;width:66px;height:3px;border-radius:2px;
   background-image:linear-gradient(90deg,transparent,#b98f3c,transparent)}
@@ -80,10 +82,9 @@ body{width:860px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif
       <div class="tag">Fight monsters with poker hands</div>
     </div>
     <div class="ace" style="width:124px;height:184px;transform:rotate(7deg)">
-      <img src="../../art/card_face.webp" alt="">
-      <span class="ix tl" style="font-size:22px">A<i style="font-size:15px">&spades;</i></span>
-      <span class="ix br" style="font-size:22px">A<i style="font-size:15px">&spades;</i></span>
-      <span class="pip" style="font-size:58px">&spades;</span>
+      <span class="ix tl" style="font-size:22px">A<i style="font-size:15px">&hearts;</i></span>
+      <span class="ix br" style="font-size:22px">A<i style="font-size:15px">&hearts;</i></span>
+      <span class="pip" style="font-size:58px">&hearts;</span>
     </div>
   </div>
 </div><div class="cap"><b>A</b> · Primary lockup — site header, store banner</div></div>
@@ -92,9 +93,8 @@ body{width:860px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif
 <div class="cell"><div class="stage" style="height:380px">
   <div class="emb">
     <div class="ace">
-      <img src="../../art/card_face.webp" alt="">
-      <span class="ix tl" style="font-size:28px">A<i style="font-size:19px">&spades;</i></span>
-      <span class="ix br" style="font-size:28px">A<i style="font-size:19px">&spades;</i></span>
+      <span class="ix tl" style="font-size:28px">A<i style="font-size:19px">&hearts;</i></span>
+      <span class="ix br" style="font-size:28px">A<i style="font-size:19px">&hearts;</i></span>
     </div>
     <div class="axe"><img src="../../art/i_axe.webp" width="300" alt=""></div>
   </div>
@@ -106,9 +106,8 @@ body{width:860px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif
     <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
     <div class="embs">
       <div class="ace">
-        <img src="../../art/card_face.webp" alt="">
-        <span class="ix tl" style="font-size:17px">A<i style="font-size:12px">&spades;</i></span>
-        <span class="ix br" style="font-size:17px">A<i style="font-size:12px">&spades;</i></span>
+        <span class="ix tl" style="font-size:17px">A<i style="font-size:12px">&hearts;</i></span>
+        <span class="ix br" style="font-size:17px">A<i style="font-size:12px">&hearts;</i></span>
       </div>
       <div class="axe"><img src="../../art/i_axe.webp" width="196" alt=""></div>
     </div>
