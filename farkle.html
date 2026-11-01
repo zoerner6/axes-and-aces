@@ -280,6 +280,132 @@ function toast(msg){
 function openPanel(html){ $('panel').innerHTML=html; $('overlay').hidden=false; $('panel').scrollTop=0; }
 function closePanel(){ $('overlay').hidden=true; }
 
+/* ===== SCORING =====================================================
+   Real Farkle scoring. dev/gen/dieavg.cjs lifts this exact block out of this
+   file and runs it, so the simulator and the game can never drift apart. Keep
+   it self-contained: no DOM, no game state, nothing from outside the block.
+
+     each 1                    100
+     each 5                     50
+     three of a kind            face x 100, and three 1s are 1000
+     each extra matching die    doubles the three of a kind
+     straight, 1 through 6     1500
+     three pairs               1500
+     four of a kind + a pair   1500
+     two triplets              2500
+
+   The doubling rule is why four of a kind is not a flat number. A flat 1000
+   would have made four 1s worth the same as three 1s, so the fourth die earned
+   nothing - the sort of thing a player notices once and never trusts again.
+   Doubling is one sentence to explain, never goes backwards, and leaves six 1s
+   at 8000 as the jackpot of the whole game. */
+const FACE3 = [0, 1000, 200, 300, 400, 500, 600];   /* three of a kind, by face */
+
+const counts = faces => { const c = [0,0,0,0,0,0,0]; for(const f of faces) c[f]++; return c; };
+
+/* The best score for a set of dice that uses EVERY die in it, or null when some
+   die in the set is dead weight. That "every die" rule is what makes a
+   selection legal: you may not set aside a die that is not paying its way. */
+const setMemo = new Map();
+function scoreSet(c){
+  const n = c[1]+c[2]+c[3]+c[4]+c[5]+c[6];
+  if(!n) return 0;
+  const key = c.join(',');
+  if(setMemo.has(key)) return setMemo.get(key);
+  let best = -1;
+  if(n === 6){
+    const pairs = c.filter(x => x === 2).length, trips = c.filter(x => x === 3).length;
+    if(c[1]===1&&c[2]===1&&c[3]===1&&c[4]===1&&c[5]===1&&c[6]===1) best = Math.max(best, 1500);
+    if(pairs === 3) best = Math.max(best, 1500);
+    if(trips === 2) best = Math.max(best, 2500);
+    if(c.some(x => x === 4) && pairs === 1) best = Math.max(best, 1500);
+  }
+  for(let f = 1; f <= 6; f++) if(c[f] >= 3) for(let k = 3; k <= c[f]; k++){
+    const d = c.slice(); d[f] -= k;
+    const rest = scoreSet(d);
+    if(rest !== null) best = Math.max(best, FACE3[f] * (1 << (k - 3)) + rest);
+  }
+  if(c[1]){ const d = c.slice(); d[1]--; const r = scoreSet(d); if(r !== null) best = Math.max(best, 100 + r); }
+  if(c[5]){ const d = c.slice(); d[5]--; const r = scoreSet(d); if(r !== null) best = Math.max(best, 50 + r); }
+  const out = best < 0 ? null : best;
+  setMemo.set(key, out);
+  return out;
+}
+
+/* What a chosen handful of dice is worth. null means the choice is not legal. */
+const scoreOf = faces => scoreSet(counts(faces));
+
+/* Every subset of the roll, and the best of them. Ties go to the pick that
+   leaves the most dice to roll again, because that is worth more than nothing. */
+function bestSplit(faces){
+  const n = faces.length;
+  let best = { score: 0, keep: [] };
+  for(let m = 1; m < (1 << n); m++){
+    const sel = [];
+    for(let i = 0; i < n; i++) if(m & (1 << i)) sel.push(i);
+    const s = scoreOf(sel.map(i => faces[i]));
+    if(s === null || s <= 0) continue;
+    if(s > best.score || (s === best.score && sel.length < best.keep.length)) best = { score: s, keep: sel };
+  }
+  return best;
+}
+
+const isFarkle = faces => bestSplit(faces).score === 0;
+
+/* Could this handful still grow into something that scores? This is what makes
+   an illegal move impossible rather than merely discouraged: a die is only
+   tappable when some way of filling in the rest of the roll pays for it. */
+function reachable(faces, picked){
+  const rest = [];
+  for(let i = 0; i < faces.length; i++) if(picked.indexOf(i) < 0) rest.push(i);
+  for(let m = 0; m < (1 << rest.length); m++){
+    const sel = picked.slice();
+    for(let i = 0; i < rest.length; i++) if(m & (1 << i)) sel.push(rest[i]);
+    if(scoreOf(sel.map(i => faces[i])) > 0) return true;
+  }
+  return false;
+}
+
+/* The names, for the banner and the scoring screen. Plain first, loud second. */
+function namedCombos(c){
+  const n = c[1]+c[2]+c[3]+c[4]+c[5]+c[6], out = [];
+  if(n === 6){
+    if(c[1]===1&&c[2]===1&&c[3]===1&&c[4]===1&&c[5]===1&&c[6]===1) out.push(['Straight', 'ALL SIX!', 1500]);
+    if(c.filter(x => x === 2).length === 3) out.push(['Three pairs', 'THREE PAIRS!', 1500]);
+    if(c.filter(x => x === 3).length === 2) out.push(['Two triplets', 'TWO TRIPLETS!', 2500]);
+  }
+  for(let f = 1; f <= 6; f++) if(c[f] >= 3){
+    const word = ['', '', '', 'Three', 'Four', 'Five', 'Six'][c[f]];
+    out.push([`${word} ${f}s`, c[f] >= 5 ? 'UNBELIEVABLE!' : c[f] === 4 ? 'FOUR OF A KIND!' : null,
+              FACE3[f] * (1 << (c[f] - 3))]);
+  }
+  return out;
+}
+/* ===== END SCORING ===== */
+
+/* ---------- what a turn is actually worth ----------
+   Measured, not guessed: dev/gen/dieavg.cjs plays 300,000 turns at each of
+   twelve bank-at thresholds using the scoring block above. Every number below
+   is off that run.
+
+     bank at   per turn   farkle rate   when banked
+         250      543.1         12.8%           623
+         300      546.6         19.8%           682   <- best
+         350      542.4         29.1%           765
+         500      516.1         49.8%          1027
+        1000      440.0         71.5%          1541
+
+   A turn delivers 547 on average, counting farkles as nothing, and about one
+   turn in five farkles. The curve is almost flat from 250 to 400, which is the
+   best thing about the game: a careful player and a greedy player earn nearly
+   the same, so pushing your luck is a real choice rather than a mistake.
+
+   WINDUP_AVG is the median blow the fight maths is built from, the way
+   HAND_AVG = 121 works in dev/game.html. Monster health and monster hits are
+   scaled from this, so neither side is stronger than the other by default.
+   Re-run dieavg.cjs and update this if the scoring ever changes. */
+const WINDUP_AVG = 545;
+
 /* ---------- the plumbing check ----------
    The one thing that has to be true before any phone work is trusted. */
 const phoneCSSLive = () => matchMedia('(max-width:560px)').matches;
