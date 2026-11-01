@@ -1994,13 +1994,17 @@ GEAR.forEach(g=>{ g.tier=TIERS[g.id][0]; g.price=Math.round(TIERS[g.id][1]*1.25)
 const GR = Object.fromEntries(GEAR.map(g=>[g.id,g]));
 /* potions: bought with gold, used up when you drink them */
 const I = n => `<img class="ico" src="art/i_${n}.webp" alt="" draggable="false">`;
-const POTION_HEAL = .35, IRONSKIN_BLOCK = .5;
+const POTION_HEAL = .35, IRONSKIN_CUT = .5, IRONSKIN_CUT_BOSS = .25;
+/* Iron Skin holds for the whole fight: half of every hit, a quarter against a boss */
+const ironskinCut = () => { try{ return foeDef() && foeDef().boss ? IRONSKIN_CUT_BOSS : IRONSKIN_CUT; }catch(e){ return IRONSKIN_CUT; } };
+const RAGE_BOOST = .5, RAGE_BOOST_BOSS = .25;
+/* Rage holds for the whole fight too: half again on every hand, a quarter against a boss */
+const rageBoost = () => { try{ return foeDef() && foeDef().boss ? RAGE_BOOST_BOSS : RAGE_BOOST; }catch(e){ return RAGE_BOOST; } };
 const potionHeal = () => Math.round(S.maxHp*POTION_HEAL);
-const ironskinBlock = () => Math.round(S.maxHp*IRONSKIN_BLOCK);
 const SPELLS = [
   {id:'potion',  name:'Healing Potion',  icon:I('potion'), price:4, chip:'Heal 35%', kind:'h', desc:'Your health, back in one gulp.'},
-  {id:'ironskin',name:'Iron Skin Potion',icon:I('ironskin'), price:4, chip:'Block 50%', kind:'d', desc:'Soaks the next hit this turn.'},
-  {id:'rage',    name:'Rage Potion',     icon:I('rage'), price:5, chip:'Double damage', kind:'a', desc:'Your next attack hits twice as hard.'}
+  {id:'ironskin',name:'Iron Skin Potion',icon:I('ironskin'), price:4, chip:'Halve every hit', kind:'d', desc:'Half of every hit bounces off for the rest of the fight. A boss still gets a quarter through.'},
+  {id:'rage',    name:'Rage Potion',     icon:I('rage'), price:5, chip:'Hit half again as hard', kind:'a', desc:'Every hand hits half again as hard for the rest of the fight. Against a boss it is a quarter more.'}
 ];
 /* equipment: one item per slot, upgraded tier by tier */
 const MAT = {w:['','Wooden','Tin','Iron','Steel','Titanium'], a:['','Leather','Tin','Iron','Steel','Titanium']};
@@ -2028,7 +2032,6 @@ const atkMult = () => 1 + weaponPts()/100;
 /* the scores as the player feels them: +14 Attack is +14% damage,
    +190 Defense is 66% less damage taken */
 const atkPct = () => Math.round(weaponPts());
-const defPct = () => Math.round((1 - 1/(1+defense()/100))*100);
 /* what one of the monster's hits would actually cost you right now */
 const takeFrom = (n, big) => Math.max(1, Math.round(n / (1 + defense()/(big?200:100))));
 const defDiv = () => 1 + defense()/100;
@@ -2245,10 +2248,9 @@ function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-
 function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map(m=>m.n)), def=foeArmor(d), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
   /* both numbers say what this monster does to you, the same way your own
      card reads, instead of a raw stat you have to do maths against */
-  const armCut=Math.round((1 - 1/(1+def/100))*100);
   /* the monster's gear read in the same units as yours */
   const fa=foeAtkScore(d.lvl||1, d.gear||1), fd=foeArmor(d);
-  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b><small>Attack · hits you for ~${fmt(takeFrom(atk))}</small></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b><small>Defense · blocks ${armCut}%</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
+  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b><small>Attack · hits you for ~${fmt(takeFrom(atk))}</small></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b><small>Defense · your hits land for ~${fmt(armored(Math.round(HAND_AVG*atkMult()*lvlMult()), d))}</small></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b><small>Heals itself</small></span>`:''}</div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */
@@ -2271,7 +2273,7 @@ function startFight(){
   const id=curFoeId(), d=MONSTERS[id]; S.foePick=null;
   S.fight = {id, hp:d.hp, max:d.hp, block:0, turn:0, frozen:false, hp0:S.hp, hurt:false, atks:0,
              draw:shuffle(DECK.map(c=>c.id)), disc:[], hand:[], discards:1+S.discBonus+gearHas('disc')};
-  S.block = gearHas('turn'); S.rage=false; S.cast={};
+  S.block = gearHas('turn'); S.rage=false; S.ironskin=false; S.cast={};
   if(S.coach===0 && S.idx===0){ S.fight.draw=S.fight.draw.filter(x=>!TUTOR_HAND.includes(x)&&x!==cid(14,2)); S.fight.draw.push(cid(14,2)); S.fight.hand=TUTOR_HAND.slice(); }
   S.phase='play'; sel=[]; infoSel=null; $('foeSay').hidden=true; $('foeIcon').className='foe-icon'; $('foeIcon').dataset.name='';
   const enc=S.enc; S.enc=null;
@@ -2393,7 +2395,7 @@ function render(){
   hpLabel();
   { const lo=cumNeed(S.level-1), hi=cumNeed(S.level); $('xpBar').style.width=Math.max(0,Math.min(100,(S.xp-lo)/(hi-lo)*100))+'%'; $('xpNum').textContent=`EXP ${S.xp} / ${hi}`; }
   $('lvlNum').textContent = S.level; $('goldNum2').textContent = S.gold;
-  $('myBlock').hidden = !(S.block>0); $('myBlock').innerHTML = `${I('shield')} ${S.block}`;
+  $('myBlock').hidden = !myChipOn(); $('myBlock').innerHTML = myChipHTML();
   $('goldNum').innerHTML = coin(S.gold);
   $('discBtn').textContent = 'Discard';
   if(f){
@@ -2406,7 +2408,7 @@ function render(){
 }
 function renderKit(){
   const on=(k,i)=>infoSel&&infoSel.k===k&&infoSel.i===i?'on':'';
-  $('atkNum').textContent='+'+atkPct()+'%'; $('defNum').textContent='+'+defPct()+'%'; $('miniSold').innerHTML=soldierSVG();
+  $('atkNum').textContent='+'+atkPct(); $('defNum').textContent='+'+Math.round(defense()); $('miniSold').innerHTML=soldierSVG();
   let s=''; for(let i=0;i<3;i++){ const id=S.spells[i];
     s += id ? `<button class="slot spell ${on('s',i)}" data-act="slot" data-k="s" data-i="${i}" aria-label="${SP[id].name}">${SP[id].icon}</button>` : `<div class="slot empty"></div>`; }
   $('spells').innerHTML=s;
@@ -2448,7 +2450,7 @@ function previewHit(played, raw){
   const add=eff=>{ if(!eff) return; if(eff.p) P+=eff.p; if(eff.m) M+=eff.m; if(eff.x) M*=eff.x; };
   for(const c of played){ if(isOff(c)) continue; if(ids.includes(c.id)) S.gear.forEach(g=>{ if(GR[g].card) add(GR[g].card(c,ctx)); }); }
   S.gear.forEach(g=>{ if(GR[g].hand) add(GR[g].hand(ctx)); });
-  if(S.rage) M*=2;
+  if(S.rage) M*=1+rageBoost();
   M*=aceMult(ev);
   const share=hitShare(ev);
   const dd=Math.max(Math.floor(P*M*share), raw?0:liveFloor(played)); return {aces:acesIn(ev), type:ev.type, dmg:raw?dd:armored(dd, foeDef()), share};
@@ -2609,7 +2611,14 @@ function markHandTop(){ const h=$('hand'), w=document.querySelector('.handwrap')
 addEventListener('resize', ()=>markHandTop());
 function showFoeHp(hp){ const f=S.fight, pc=Math.max(0,hp/f.max*100)+'%', t=`${fmt(Math.max(0,Math.round(hp)))} / ${fmt(f.max)}`; $('foeBar').style.height=pc; $('foeBar').style.setProperty('--pct',pc); $('foeBar').parentElement.classList.toggle('empty', hp<=0); $('foeHp').textContent=t; $('foeHpBar').textContent=t; }
 function setFoeBars(){ const f=S.fight; showFoeHp(f.hp); $('foeBlock').hidden=!(f.block>0); $('foeBlock').innerHTML=`${I('shield')} ${f.block}`; }
-function setMyBars(){ hpLabel(); $('myBlock').hidden=!(S.block>0); $('myBlock').innerHTML=`${I('shield')} ${S.block}`; $('goldNum').innerHTML=coin(S.gold); $('goldNum2').textContent=S.gold; }
+/* the two potions last the whole fight, so the chip has to keep saying so */
+function myChipHTML(){ const bits=[];
+  if(S.ironskin) bits.push(`${I('ironskin')} Iron Skin`);
+  if(S.rage) bits.push(`${I('rage')} Rage`);
+  if(S.block>0) bits.push(`${I('shield')} ${S.block}`);
+  return bits.join(' · '); }
+const myChipOn = () => S.block>0 || !!S.ironskin || !!S.rage;
+function setMyBars(){ hpLabel(); $('myBlock').hidden=!myChipOn(); $('myBlock').innerHTML=myChipHTML(); $('goldNum').innerHTML=coin(S.gold); $('goldNum2').textContent=S.gold; }
 
 function claws(){
   if(reduced()) return;
@@ -2644,7 +2653,7 @@ async function attack(){
     if(ids.includes(c.id)) S.gear.forEach((g,i)=>{ if(GR[g].card) add(GR[g].card(c,ctx),i); });
   }
   S.gear.forEach((g,i)=>{ if(GR[g].hand) add(GR[g].hand(ctx),i); });
-  if(S.rage){ S.rage=false; M*=2; }
+  if(S.rage) M*=1+rageBoost();
   const aceN=acesIn(ev); M*=aceMult(ev);
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   render();
@@ -2686,7 +2695,7 @@ function run(){
   const f=S.fight; if(busy||!f||$('runBtn').disabled) return;
   const here=areaOf(), back=Math.max(0, (S.huntFoe?S.huntArea:here)-1);
   S.redo = S.redo || !S.huntFoe;  /* come back to the quest fight you ran from */
-  S.fight=null; sel=[]; infoSel=null; S.block=0;
+  S.fight=null; sel=[]; infoSel=null; S.block=0; S.ironskin=false; S.rage=false;
   S.huntFoe='gen'; S.huntArea=back; S.foePick=null; S.enc='spot';
   swoosh(); toast(back<here?`You run back to ${AREAS[back].name}!`:'You run and find an easier fight nearby!');
   fightIntro();
@@ -2720,7 +2729,9 @@ async function foeTurn(){
     const atks0=d.moves.filter(m=>m.k==='atk').map(m=>m.n), isBig=atks0.length>1 && mv.n>=Math.min(...atks0)*1.5;
     /* a critical blow punches through part of your armour */
     const raw=swing(mv.n);
-    const after=Math.max(1, Math.round(raw / (1 + defense()/(isBig?200:100))));
+    const after0=Math.max(1, Math.round(raw / (1 + defense()/(isBig?200:100))));
+    const iron=S.ironskin ? Math.round(after0*ironskinCut()) : 0;
+    const after=Math.max(1, after0-iron);
     const arm=mv.n-after, absorbed=Math.min(S.block,after), dmg=after-absorbed; S.hp-=dmg; if(dmg>0) f.hurt=true;
     const saved=arm+absorbed, atks=d.moves.filter(m=>m.k==='atk').map(m=>m.n), big=atks.length>1 && mv.n>=Math.min(...atks)*1.5;
     S.killer={name:d.name, dmg, raw:mv.n, saved, big, area:curArea()};
@@ -2918,8 +2929,8 @@ async function cast(){
     const i=infoSel.i, id=S.spells[i]; if(!id) return;
     S.spells.splice(i,1); infoSel=null;
     if(id==='potion'){ const n=Math.min(S.maxHp-S.hp,potionHeal()); healEvent(n,'+'+fmt(n)+' health'); healMe(potionHeal()); soothe(); setTimeout(soothe,260); lifeAdd(L=>{L.potions++;}); if(life().potions>=10) unlock('potions10'); }
-    else if(id==='ironskin'){ blockMe(ironskinBlock()); blip(500,.15,'square',.05); }
-    else if(id==='rage'){ S.rage=true; spellStrike('rage'); shake(2); pop($('heroBox'),'Next attack ×2!','m'); blip(300,.2,'sawtooth',.06); }
+    else if(id==='ironskin'){ S.ironskin=true; pop($('heroBox'),`Iron Skin! ${Math.round(ironskinCut()*100)}% off every hit`,'b'); setMyBars(); blip(500,.15,'square',.05); }
+    else if(id==='rage'){ S.rage=true; spellStrike('rage'); shake(2); pop($('heroBox'),`Rage! +${Math.round(rageBoost()*100)}% damage this fight`,'m'); setMyBars(); blip(300,.2,'sawtooth',.06); }
     render(); return;
   }
   if(infoSel.k==='h'){
@@ -2963,12 +2974,12 @@ function soldierCard(){
     return `<div class="lg"><span>${eqIcon(it.type,it.tier)}</span><b>${eqName(it.type,it.tier)}</b><em class="${e.atk?'a':'d'}">+${e.atk?e.atk[it.tier]:e.def[it.tier]}</em>${pips(it.tier)}</div>`; }).join('');
   return `<div class="sheetcard">
     <div class="sheetB"><div class="sh-fig">${soldierSVG()}<span class="sh-lv">${I('level')} Level ${S.level}</span></div><div class="ledger">${rows}</div></div>
-    <div class="totB"><span class="a">${I('attack')} Attack +${atkPct()}% damage</span><span class="d">${I('shield')} Defense +${defPct()}% protection</span></div>
+    <div class="totB"><span class="a">${I('attack')} Attack +${atkPct()}</span><span class="d">${I('shield')} Defense +${Math.round(defense())}</span></div>
   </div>`;
 }
 function soldierPanel(){
   openPanel(`<h2>${heroName()}</h2>${soldierCard()}
-    <p style="font-size:.9rem">Your <b>Attack</b> score is how much harder you hit: +${atkPct()}% damage. Your <b>Defense</b> is +${defPct()}% protection, so that much of every monster hit never lands. Buy better gear from the traveling merchant.</p>
+    <p style="font-size:.9rem">Your <b>Attack</b> of <b>+${atkPct()}</b> and your <b>Level ${S.level}</b> multiply every hand you play — an average hand lands for about <b>${fmt(Math.round(HAND_AVG*atkMult()*lvlMult()))}</b>. Your <b>Defense</b> of <b>+${Math.round(defense())}</b> soaks up part of every monster hit. Buy better gear from the traveling merchant.</p>
     <button class="btn big vic-btn" data-act="close">Back</button>`); $('panel').classList.add('parch');
 }
 
@@ -3386,7 +3397,7 @@ function guidePanel(){
   const rows=HAND_ORDER.slice().reverse().map(t=>{const b=handBase(t);
     return `<div class="g-row"><b>${HANDS[t].name}</b><span class="sc">${b.p} × ${b.m.toFixed(2)}${HAND_GOLD[t]?` · +${coin(HAND_GOLD[t])}`:''}</span><div class="ex">${HANDS[t].ex.map(mini).join('')}</div><small>${HANDS[t].tip}</small></div>`;}).join('');
   openPanel(`<div class="eyebrow">Hand guide</div><h2>Your attacks, strongest first</h2>
-    <p>Damage = <b>hand points × Attack × Level</b>. Your <b>Attack</b> score comes from your weapons: <b>+100 Attack means you hit twice as hard</b>. Every level adds another <b>32%</b> on top. Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
+    <p>Damage = <b>hand points × Attack × Level</b>. Your <b>Attack</b> score comes from your weapons: <b>+100 Attack means you hit twice as hard</b>. Every level adds another <b>12%</b> on top. Big hands also pay gold: Three of a Kind and Straight +${coin(1)}, Flush and Full House +${coin(2)}, Four of a Kind +${coin(3)}, Straight Flush +${coin(5)}. Your hand type sets the points.</p>
     <p><b>Aces</b> (gold cards) in your hand add <b>12% each</b>.</p>
     <p><b>Defense</b> works the same way in reverse: <b>+100 Defense means you take half as much</b>. Critical blows punch through half of it.</p>
     <p><b>No weapon?</b> Bare fists do <b>30% less damage</b>. Buy any weapon from the merchant to hit full strength.</p>
@@ -3401,7 +3412,7 @@ function helpPanel(){
       <li><span class="hn">${I('coin')}</span><div><b>Aces</b> (gold cards) that are part of your hand each add <b>12% more damage</b>. Bosses have a rule: cards marked with a red ✖ don't count for damage.</div></li>
       <li><span class="hn">${I('heart')}</span><div><b>Health doesn't refill by itself.</b> Rest at the inn, drink a potion, or tap <b>Rest</b> in a fight (the monster gets a free hit). Too tough? <b>Run</b> and train first.</div></li>
       <li><span class="hn">${I('sword')}</span><div><b>Get a weapon.</b> With empty hands you're punching, and every hit does <b>30% less damage</b>. The merchant's cheapest sword fixes that.</div></li>
-      <li><span class="hn">${I('level')}</span><div><b>Level up</b> for <b>32% more damage</b> each time. Weapons raise your <b>Attack</b> score and armor raises your <b>Defense</b>, and both multiply into every fight.</div></li>
+      <li><span class="hn">${I('level')}</span><div><b>Level up</b> for <b>12% more damage</b> each time. Weapons raise your <b>Attack</b> score and armor raises your <b>Defense</b>, and both multiply into every fight.</div></li>
       <li><span class="hn">${I('map')}</span><div><b>Rescue Anna,</b> get knighted, then take on 9 more quests and the Endless Abyss.</div></li>
     </ol>
     <p><button class="link" data-act="replayTutorial">Start over with Old Bram's tips</button></p>
