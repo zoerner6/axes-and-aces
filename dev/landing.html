@@ -131,6 +131,17 @@ a{color:inherit}
 .daily-cta h3{margin:0 0 .3em;font-size:clamp(1.7rem,5vw,2.3rem);color:var(--gold2);text-shadow:3px 3px 0 #000}
 .daily-cta p{margin:0 0 1.1em;color:var(--parch)}
 @media (max-width:700px){ .daily-cta .btn{width:100%} }
+.farkle-cta{display:grid;grid-template-columns:auto 1fr;gap:4px clamp(16px,3vw,26px);align-items:center}
+.farkle-cta .fk-mark{grid-row:span 3;width:clamp(84px,14vw,128px);height:auto;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.7))}
+.farkle-cta h3,.farkle-cta p,.farkle-cta .btn{grid-column:2;text-align:left}
+.farkle-cta .btn{justify-self:start}
+@media (max-width:700px){
+  .farkle-cta{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .farkle-cta .fk-mark{grid-row:auto;width:96px}
+  .farkle-cta h3,.farkle-cta p,.farkle-cta .btn{grid-column:1;text-align:center}
+  .farkle-cta .btn{justify-self:stretch}
+}
 
 /* ---------- sections ---------- */
 section{position:relative}
@@ -524,7 +535,7 @@ main.hit{animation:shk .5s}
 <header class="top" id="top">
   <div class="wrap">
     <a class="brand" href="#"><img src="img/emblem-64.webp" width="64" height="64" alt=""><b>Axes &amp; Aces</b></a>
-    <nav aria-label="Sections"><a href="#story">Story</a><a href="#how">How to play</a><a href="#try">Try a hand</a><a href="#monsters">Monsters</a><a href="daily.html">Daily puzzle</a><a href="#quests">Quests</a><a href="#app">Get the app</a></nav>
+    <nav aria-label="Sections"><a href="#story">Story</a><a href="#how">How to play</a><a href="#try">Try a hand</a><a href="#monsters">Monsters</a><a href="daily.html">Daily puzzle</a><a href="farkle.html">Monster Farkle</a><a href="#quests">Quests</a><a href="#app">Get the app</a></nav>
     <a class="btn" href="play.html">Play free</a>
   </div>
 </header>
@@ -653,6 +664,13 @@ main.hit{animation:shk .5s}
       <h3>Guess the Monster</h3>
       <p>One monster a day, the same one for everybody. It starts as a shadow and gets clearer with every wrong guess. Five guesses, then post your row.</p>
       <a class="btn" href="daily.html">Play today's puzzle</a>
+    </div>
+    <div class="daily-cta farkle-cta rv">
+      <img class="fk-mark" src="img/farkle-dice.webp" width="560" height="560" alt="" loading="lazy">
+      <h3>Monster Farkle</h3>
+      <p>The same monsters, six dice. Every die you keep winds the swing tighter, and the whole
+        thing lands when you strike. Push too far and your guard drops, and it hits you instead.</p>
+      <a class="btn" href="farkle.html">Play Monster Farkle</a>
     </div>
   </div>
 </section>
