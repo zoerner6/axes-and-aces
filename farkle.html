@@ -65,10 +65,16 @@ img{max-width:100%}
 .brand img{flex:none;width:30px;height:30px;border-radius:7px;border:2px solid #000;box-shadow:2px 2px 0 #000}
 .tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .tool{background:var(--leather);border:2px solid #000;box-shadow:2px 2px 0 #000;border-radius:999px;
-  padding:6px 11px;font-family:var(--f-num);font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+  padding:6px 11px;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--f-num);font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
 
 /* ---------- the monster ---------- */
-.stage{position:relative;flex:1 1 auto;min-height:104px;max-height:min(44vh,480px);
+/* The monster takes whatever is left over and no more. It is the only part
+   that stretches, so flex alone sizes it: everything else is flex:none at its
+   own height, and the stage gets the remainder. A max-height here looked
+   sensible and was not - it capped the monster on a tall phone and left a dead
+   band under the buttons where the leftover had nowhere to go. */
+.stage{position:relative;flex:1 1 auto;min-height:104px;
   border-radius:14px;overflow:hidden;border:3px solid #000;box-shadow:4px 4px 0 #000;
   display:flex;flex-direction:column;
   background:linear-gradient(rgba(10,5,3,.55), rgba(10,5,3,.05) 38%, rgba(10,5,3,.05) 70%, rgba(10,5,3,.6)),
@@ -77,8 +83,37 @@ img{max-width:100%}
 .foe-title{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
 .foe-name{font-family:var(--f-title);font-size:1.3rem;line-height:1.1;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 .foe-rule{font-family:var(--f-num);font-weight:600;font-size:.8rem;letter-spacing:.03em;color:#ffb7a3;text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.foe-pic{flex:1;min-height:0;display:grid;place-items:center;z-index:1;filter:drop-shadow(0 14px 18px rgba(0,0,0,.65))}
-.foe-pic img{display:block;height:clamp(88px,24vh,270px);max-width:76%;object-fit:contain}
+.foe-pic{flex:1;min-height:0;display:grid;place-items:center;z-index:1;filter:drop-shadow(0 14px 18px rgba(0,0,0,.65));
+  animation:breathe 3.2s ease-in-out infinite}
+.foe-pic img{display:block;height:clamp(84px,22vh,250px);max-width:76%;object-fit:contain}
+@keyframes breathe{50%{transform:scale(1.04) translateY(-5px)}}
+.foe-pic.hit{animation:foeHit .42s}
+@keyframes foeHit{0%{filter:brightness(2.4) saturate(0)}30%{transform:translateX(-14px) rotate(-7deg)}60%{transform:translateX(10px) rotate(5deg)}}
+
+/* The monster's standing clip. object-position sits high on purpose: the clips
+   are 16:9 and this stage is a short wide band, so cover trims the sides and
+   the head stays in frame. Never crop a head. */
+.foe-vidwrap{position:absolute;inset:0;overflow:hidden;z-index:0;opacity:0;transition:opacity .4s;pointer-events:none}
+.stage.hasvid .foe-vidwrap{opacity:1}
+.stage.hasvid .foe-pic{visibility:hidden}
+.foe-vidwrap::before{content:"";position:absolute;inset:-20px;background:var(--bgimg) center/cover;filter:blur(15px) brightness(.5)}
+.foe-vidwrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;
+  filter:contrast(1.06) saturate(1.06)}
+.foe-vidwrap video.atk{opacity:0;transition:opacity .22s ease}
+.foe-vidwrap video.atk.on{opacity:1}
+.foe-vidwrap.hit{animation:vidHit .42s}
+@keyframes vidHit{0%{filter:brightness(2.6) saturate(0)}35%{transform:translateX(-12px)}70%{transform:translateX(9px)}}
+.foe-vidwrap.healglow{animation:vidHeal 1.1s}
+@keyframes vidHeal{40%{filter:brightness(1.3) sepia(.5) hue-rotate(60deg)}}
+.foe-vidwrap.shieldglow{animation:vidShield 1.1s}
+@keyframes vidShield{40%{filter:brightness(1.25) sepia(.6) hue-rotate(175deg)}}
+
+/* the level badge and how dangerous this one is */
+.lvtag{display:inline-flex;align-items:center;gap:4px;border:2px solid #000;border-radius:999px;padding:2px 9px;
+  font-family:var(--f-num);font-weight:700;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--wood-3);color:var(--parch);box-shadow:2px 2px 0 #000}
+.lvtag.easy{background:#2c5230;color:#cfeccf} .lvtag.even{background:#4a3a1c;color:#ffe3a6}
+.lvtag.hard{background:#5e2a1e;color:#ffd0c2} .lvtag.boss{background:var(--boss);color:#fff}
 .vbar{position:absolute;right:11px;top:11px;bottom:11px;width:17px;border-radius:999px;
   background:rgba(0,0,0,.45);border:2px solid #000;overflow:hidden;z-index:2}
 .vbar i{position:absolute;left:0;right:0;bottom:0;height:100%;background:linear-gradient(0deg,#8e1a16,var(--hp) 70%,#ff7a6a);transition:height .45s ease}
@@ -152,7 +187,7 @@ img{max-width:100%}
 .die.locked{box-shadow:inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 2px #8a6a28, 2px 2px 0 #000;cursor:default}
 /* before the first roll of a turn: a die with nothing on it yet, so the tray
    never sits there showing six 1s and lighting up as an 8000 jackpot */
-.die.blank{filter:brightness(.52) saturate(.5);cursor:default}
+.die.blank{filter:brightness(.66) saturate(.72);cursor:default}
 .die.blank i{background:transparent!important;box-shadow:none!important}
 
 /* The tumble. Flat, not a 3D cube: a spinning cube is lovely for half a second
@@ -240,7 +275,6 @@ img{max-width:100%}
   .brand{font-size:1.25rem}
   .brand img{width:26px;height:26px}
   .tool{padding:5px 9px;font-size:.72rem}
-  .stage{max-height:min(38vh,380px)}
   .wind-num{font-size:1.9rem}
 }
 /* The name and three buttons stop fitting on one line somewhere under 430px,
@@ -273,9 +307,9 @@ img{max-width:100%}
   .btn.strike{font-size:1.15rem}
 }
 /* A short phone has to give the height back from somewhere, and it is never
-   the dice. */
+   the dice: the monster shrinks instead, down to its floor. */
 @media (max-height:600px){
-  .stage{max-height:min(30vh,260px);min-height:90px}
+  .stage{min-height:90px}
   .stage-top{padding-top:7px}
   .wind-num{font-size:1.7rem}
 }
@@ -292,8 +326,12 @@ img{max-width:100%}
   </header>
 
   <section class="stage" id="stage">
+    <div class="foe-vidwrap" id="foeVidWrap">
+      <video id="foeVid" muted playsinline loop preload="auto"></video>
+      <video id="foeAtk" class="atk" muted playsinline preload="auto"></video>
+    </div>
     <div class="stage-top">
-      <div class="foe-title"><span class="foe-name" id="foeName">The dice table</span></div>
+      <div class="foe-title"><span class="foe-name" id="foeName">The dice table</span><span class="lvtag" id="lvTag" hidden></span></div>
       <div class="foe-rule" id="foeRule" hidden></div>
     </div>
     <div class="vbar" aria-label="Monster health"><i id="foeBar"></i><span id="foeHp"></span></div>
@@ -303,7 +341,9 @@ img{max-width:100%}
   </section>
 
   <section class="hero" id="heroBox">
+    <span class="chip gold" id="lvChip"><img class="ico" src="art/i_level.webp" alt="">Lv <b id="lvNum">1</b></span>
     <div class="hpbar"><i id="myBar"></i><span id="myHp">HP 400 / 400</span></div>
+    <span class="chip gold" id="goldChip"><img class="ico" src="art/i_coin.webp" alt=""><b id="goldNum">3</b></span>
     <span class="chip blk" id="myBlock" hidden></span>
   </section>
 
@@ -472,6 +512,170 @@ function namedCombos(c){
    scaled from this, so neither side is stronger than the other by default.
    Re-run dieavg.cjs and update this if the scoring ever changes. */
 const WINDUP_AVG = 545;
+
+/* ===== THE FIGHT MATHS =============================================
+   Both sides measured in the same units, so neither is stronger by default.
+   The hero's output is a wind-up, which dev/gen/dieavg.cjs measured at 545 a
+   turn. Everything else is built off that and off what a hero of a given level
+   can take, the way dev/game.html builds its numbers off HAND_AVG. */
+const LVL_STEP = 1.12;
+const lvlMult = L => Math.pow(LVL_STEP, Math.max(1, L | 0));
+const heroMaxHP = L => 400 + 100 * (Math.max(1, L | 0) - 1);
+const rnd = n => Math.random() * n | 0;
+
+/* How long an even fight should run. A Farkle turn is several rolls and a
+   decision, so a fight wants fewer turns than the card game wants hands. */
+const TURNS = 6;
+const monsterHP = L => Math.round(TURNS * WINDUP_AVG * lvlMult(L) / 50) * 50;
+
+/* A kind's temperament, 0 to 1: 1 is all shell and no bite, 0 is all bite and
+   no shell. Read off the kind's own health and attack, the same trick
+   dev/game.html uses, so no monster needs tagging by hand. */
+const temper = k => Math.max(0, Math.min(1, ((k.hp || 1) / (k.atk || 1) - 0.6) / 1.1));
+
+/* Its ordinary hit is a share of what a hero of its level can take. Shell and
+   bite trade against each other: a heavy monster hits softer and lives longer. */
+const foeHit = (L, tp) => Math.round(heroMaxHP(L) / 9 * (1.3 - .6 * tp) / 5) * 5;
+/* Armor soaks a share of every strike. The cap keeps it under half, always. */
+const foeArmorFor = (L, boss, tp) => Math.min(95, Math.round((10 + L * 5) * (.6 + .8 * tp) * (boss ? 1.25 : 1)));
+const foeArmor = d => d ? (d.def != null ? d.def : foeArmorFor(d.lvl || 1, d.boss, d.tp)) : 0;
+const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d) / 100)));
+
+/* A farkle is the punishment, so it costs more than an ordinary move. */
+const FARKLE_MULT = 1.5;
+
+/* what you carry */
+const weaponPts = () => (S.eq.main ? EQUIP[S.eq.main.type].atk[S.eq.main.tier] : 0)
+  + (S.eq.off && !twoHanded() ? EQUIP[S.eq.off.type].atk[S.eq.off.tier] : 0);
+const twoHanded = () => !!(S.eq.main && EQUIP[S.eq.main.type].hands === 2);
+const defense = () => ['shield','helm','armor'].reduce((a,k) => a + (S.eq[k] ? EQUIP[S.eq[k].type].def[S.eq[k].tier] : 0), 0);
+const atkMult = () => 1 + weaponPts() / 100;
+/* what a strike of this size actually lands for */
+const strikeDamage = w => armored(Math.round(w * lvlMult(S.level) * atkMult()), foeDef());
+/* what one of the monster's hits actually costs you */
+const takeFrom = n => Math.max(1, Math.round(n / (1 + defense() / 100)));
+
+/* the same gear table the card game uses, so the art and the numbers match */
+const I = n => `<img class="ico" src="art/i_${n}.webp" alt="" draggable="false">`;
+const MAT = {w:['','Wooden','Tin','Iron','Steel','Titanium'], a:['','Leather','Tin','Iron','Steel','Titanium']};
+const EQUIP = {
+  sword: {slot:'main',  name:'Sword',      mat:'w', hands:1, atk:[0,8,16,28,44,64],   price:[0,4,8,12,18,26]},
+  axe:   {slot:'main',  name:'Battle Axe', mat:'w', hands:2, atk:[0,14,28,48,75,110], price:[0,6,11,17,25,36]},
+  dagger:{slot:'off',   name:'Dagger',     mat:'w', atk:[0,4,8,14,22,32],             price:[0,3,6,9,14,20]},
+  shield:{slot:'shield',name:'Shield',     mat:'w', def:[0,10,20,40,60,90],           price:[0,3,6,10,15,22]},
+  helm:  {slot:'helm',  name:'Helmet',     mat:'a', def:[0,10,20,30,50,70],           price:[0,3,5,8,12,18]},
+  armor: {slot:'armor', name:'Armor',      mat:'a', def:[0,20,30,50,80,120],          price:[0,5,9,14,20,30]}
+};
+const eqName = (type, tier) => `${MAT[EQUIP[type].mat][tier]} ${EQUIP[type].name}`;
+const heroTier = () => Math.max(0, ...['armor','helm','shield'].map(k => S.eq[k] ? S.eq[k].tier : 0));
+
+/* ---------- the monsters ----------
+   Area one of the first world, to fight against. The other nine worlds and
+   their areas come across from dev/game.html later. */
+const POOLS = [[
+  {slug:'goblin', name:'Sneaky Goblin', hp:1,   atk:1,   pat:[1, 1.3, 1]},
+  {slug:'rat',    name:'Giant Rat',     hp:1.2, atk:.8,  pat:[1, 1, 2.2]},
+  {slug:'bat',    name:'Tavern Bat',    hp:.8,  atk:1.1, pat:[1, 1]},
+  {slug:'boar',   name:'Wild Boar',     hp:1.4, atk:1,   pat:[.8, 1.8]},
+  {slug:'imp',    name:'Little Imp',    hp:.9,  atk:1.2, pat:[1, 'H', 1.2]}
+]];
+const AREA_BG = ['bg_tavern'];
+const AREA_LV = [[1, 3]];
+
+const VIDS = new Set(["abbot", "abyssbeast", "airelemental", "anglerfish", "ashghoul", "babydragon", "balrog", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "cerberus", "chaindemon", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "demonking", "demonknight", "demonmage", "djinn", "djinnwarrior", "dragon", "drowned", "dryad", "eel", "elfgeneral", "elfknight", "elfmage", "firedwarf", "firegiant", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gardenguard", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "griffon", "hagspawn", "harpy", "headless", "hellhound", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "imp2", "irongolem", "jackal", "jailer", "knight", "kobold", "kraken", "lavagolem", "lavaserpent", "leech", "lich", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "mushroomman", "octopus", "owlbear", "pharaoh", "phoenix", "pirate", "pixie", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rocbird", "rootbeast", "rootgolem", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "skyserpent", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "stormdrake", "stormgiant", "stormsoldier", "stormtitan", "stormwraith", "succubus", "sunlord", "templeguard", "thornbear", "thornbeast", "thornelf", "thornqueen", "thunderbird", "thunderknight", "toad", "tombguard", "treant", "troll", "unicorn", "vampire", "vampirebat", "vinesnake", "vulture", "warden", "werewolf", "wight", "willowisp", "windspirit", "witch", "wolf", "wolfpack", "wyrm", "yetichief", "zombie"]);
+/* when each attack clip lands its blow, in seconds */
+const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfish": 1.3, "ashghoul": 1.3, "babydragon": 1.65, "balrog": 1.2, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cerberus": 1.8, "chaindemon": 1.3, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.6, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "demonking": 1.0, "demonknight": 0.7, "demonmage": 2.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firegiant": 1.7, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "hellhound": 1.7, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "imp2": 2.2, "irongolem": 1.3, "jackal": 1.7, "jailer": 1.2, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "lavaserpent": 1.3, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "phoenix": 0.8, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.0, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rocbird": 1.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.3, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormgiant": 0.8, "stormsoldier": 1.5, "stormtitan": 1.6, "stormwraith": 1.0, "succubus": 1.1, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "thunderknight": 1.6, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vampirebat": 1.3, "vinesnake": 0.8, "vulture": 1.9, "warden": 1.1, "werewolf": 1.1, "wight": 0.8, "willowisp": 1.5, "windspirit": 1.8, "witch": 2.2, "wolf": 1.5, "wolfpack": 1.4, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
+
+function genMonster(area, L, boss){
+  const pool = POOLS[area], t = pool[rnd(pool.length)], tp = temper(t);
+  const hp = Math.round(monsterHP(L) * t.hp / 50) * 50;
+  const hit = foeHit(L, tp) * t.atk;
+  const nums = t.pat.filter(v => typeof v === 'number');
+  const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+  const moves = t.pat.map(v =>
+    v === 'B' ? { k:'blk',  n:Math.round(hp * .12) } :
+    v === 'H' ? { k:'heal', n:Math.round(hp * .14) } :
+                { k:'atk',  n:Math.max(5, Math.round(hit * (v / mean) / 5) * 5) });
+  return { slug:t.slug, name:t.name, lvl:L, tp, boss:!!boss, hp, moves,
+           def:foeArmorFor(L, boss, tp),
+           xp:Math.round((6 + 5 * L) * 1.8), gold:Math.ceil(L * .7) + 2 };
+}
+
+/* ---------- the state ---------- */
+let S = {
+  level:1, xp:0, gold:3, hp:400, maxHp:400, block:0,
+  eq:{ main:null, off:null, shield:null, helm:null, armor:null },
+  world:0, area:0, idx:0, fight:null
+};
+const foeDef = () => S.fight && S.fight.d;
+
+/* ---------- the monster on the stage ---------- */
+function setFoeVideo(slug){
+  const st = $('stage'), v = $('foeVid'), a = $('foeAtk');
+  $('foeAtk').classList.remove('on');
+  if(!slug || !VIDS.has(slug) || reduced()){ st.classList.remove('hasvid'); stopFoeVideo(); return; }
+  v.src = `${REMOTE}vid/${slug}_idle.mp4`;
+  a.src = `${REMOTE}vid/${slug}_attack.mp4`;
+  st.classList.add('hasvid');
+  const p = v.play(); if(p && p.catch) p.catch(() => {});
+  v.onerror = () => st.classList.remove('hasvid');
+}
+function stopFoeVideo(){ ['foeVid','foeAtk'].forEach(id => { try{ $(id).pause(); }catch(e){} }); }
+/* play the attack clip, and say when its blow actually lands */
+function playFoeAttack(){
+  if(!$('stage').classList.contains('hasvid')) return 0;
+  const a = $('foeAtk'), v = $('foeVid');
+  a.currentTime = 0; a.classList.add('on');
+  const p = a.play(); if(p && p.catch) p.catch(() => a.classList.remove('on'));
+  a.onended = () => { a.classList.remove('on'); v.currentTime = 0; const q = v.play(); if(q && q.catch) q.catch(() => {}); };
+  return Math.round(((HIT_AT[foeDef().slug] || 1.5) - 0.1) * 1000);
+}
+function threatOf(d){
+  if(d.boss) return ['boss', 'Boss'];
+  const g = (d.lvl || S.level) - S.level;
+  return g <= -2 ? ['easy', 'Easy'] : g >= 2 ? ['hard', 'Tough'] : ['even', 'Even'];
+}
+function intentText(mv){
+  if(!mv) return '';
+  return mv.k === 'atk' ? `Next: hits for ${fmt(takeFrom(mv.n))}`
+       : mv.k === 'blk' ? 'Next: raises its guard'
+       : 'Next: heals itself';
+}
+function setFoeBars(){
+  const f = S.fight; if(!f) return;
+  const pc = Math.max(0, f.hp / f.max * 100);
+  $('foeBar').style.height = pc + '%';
+  $('foeHp').textContent = '';
+  $('foeBlock').hidden = !(f.block > 0);
+  if(f.block > 0) $('foeBlock').textContent = `Guard ${fmt(f.block)}`;
+  const mv = f.d.moves[f.mv % f.d.moves.length];
+  $('intent').hidden = false;
+  $('intent').className = 'chip ' + (mv.k === 'atk' ? 'hit' : 'calm');
+  $('intent').textContent = intentText(mv);
+}
+function setMyBars(){
+  $('myBar').style.width = Math.max(0, S.hp / S.maxHp * 100) + '%';
+  $('myHp').textContent = `HP ${fmt(Math.max(0, S.hp))} / ${fmt(S.maxHp)}`;
+  $('lvNum').textContent = S.level;
+  $('goldNum').textContent = fmt(S.gold);
+  $('myBlock').hidden = !(S.block > 0);
+  if(S.block > 0) $('myBlock').textContent = `Guard ${fmt(S.block)}`;
+}
+function startFight(){
+  const [lo, hi] = AREA_LV[S.area];
+  const d = genMonster(S.area, lo + rnd(hi - lo + 1));
+  S.fight = { d, hp:d.hp, max:d.hp, block:0, mv:0 };
+  S.block = 0;
+  $('stage').style.setProperty('--bgimg', `url(art/${AREA_BG[S.area]}.webp)`);
+  $('foeName').textContent = d.name;
+  const [k, t] = threatOf(d);
+  $('lvTag').hidden = false; $('lvTag').className = 'lvtag ' + k;
+  $('lvTag').textContent = `Lv ${d.lvl} · ${t}`;
+  $('foePic').innerHTML = `<img src="art/${d.slug}.webp" alt="${d.name}" draggable="false">`;
+  setFoeVideo(d.slug);
+  setFoeBars(); setMyBars();
+  newTurn();
+}
 
 /* ---------- the plumbing check ----------
    The one thing that has to be true before any phone work is trusted. */
@@ -718,13 +922,12 @@ function doStrike(){
 }
 
 buildTray();
-placeDice();
-$('windNote').textContent = 'Tap Roll to start.';
+startFight();
 
 window.__FK = { phoneCSSLive, store, openPanel, closePanel, toast,
-  get D(){ return D; }, get wind(){ return wind; },
-  rollDice, doRoll, doStrike, newTurn, scoreOf, bestSplit, isFarkle, facesOf, rollIdx,
-  setFaces(fs){ fs.forEach((f, i) => { D[i].f = f; D[i].where = 'live'; paintFace(D[i].el, f); }); placeDice(); } };
+  get D(){ return D; }, get wind(){ return wind; }, get S(){ return S; },
+  rollDice, doRoll, doStrike, newTurn, startFight, scoreOf, bestSplit, isFarkle, facesOf, rollIdx,
+  setFaces(fs){ fs.forEach((f, i) => { D[i].f = f; D[i].where = 'live'; paintFace(D[i].el, f); }); started = true; placeDice(); } };
 })();
 </script>
 <script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
