@@ -83,6 +83,20 @@ which carry the resolution, and enlarged at most 1.8x. The scenes print at
 because the art is flat cel shading with heavy outlines, but it is not true
 300 dpi artwork and the listing does not claim it is.
 
+**Much of the art is cut off by its own canvas.** Measured across all 168:
+every one touches an edge, and ten are cut by 60 pixels or more — the Bog Hag
+loses 280 pixels across her bottom, the Ice Witch 253, the Lich 248. Those are
+cutouts, so the alpha ends in a dead straight line, and dropped into a scene
+that line reads as a printing fault rather than as art.
+
+`src/panels.py` measures each one and deals with it: a cut bottom is run off
+the bottom of the panel, where the panel border covers it and the creature
+still reads as standing in the scene, and a cut top or side is feathered where
+it is. Only the bottom is run off the frame. Doing the same to a cut top drags
+the creature into a corner with its feet in mid-air — the Demon Sorcerer's cut
+top is his raised flame, not his head. If you change the panel style, re-check
+these; `build/edges.json` has the per-monster measurements.
+
 **The challenge ratings are derived, not playtested.** They are consistent
 with each other, which is what matters for picking a monster, and the method
 is written out in the introduction so a GM can judge it. That is stated in the
