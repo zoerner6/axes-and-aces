@@ -27,3 +27,10 @@ dev/android-app/www/img/
 dev/android-app/www/icons/
 dev/android-app/www/music/
 dev/android-app/www/manifest.json
+
+# portal packages: rebuilt by dev/portal/build_portal.py, far too big for git
+dist/
+
+# the shrunk monster clips, rebuilt by dev/portal/encvid.py
+.vid-small/
+.enc-sample/
