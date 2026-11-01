@@ -5,7 +5,7 @@ window.__AUDIT = function(label){
   const vis = el => { const s=getComputedStyle(el); if(s.display==='none'||s.visibility==='hidden'||+s.opacity===0) return false;
     const r=el.getBoundingClientRect(); return r.width>1&&r.height>1&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth; };
   const txt = el => (el.textContent||'').trim();
-  const out = {label, viewport:innerWidth+'x'+innerHeight, overlaps:[], cropped:[], broken:[], clipped:[], offscreen:[], tiny:[]};
+  const out = {label, viewport:innerWidth+'x'+innerHeight, overlaps:[], cropped:[], broken:[], clipped:[], offscreen:[], tiny:[], tapTargets:[]};
 
   /* leaf elements that actually paint text */
   const leaves=[...document.querySelectorAll('body *')].filter(el=>{
@@ -53,6 +53,13 @@ window.__AUDIT = function(label){
     const r=el.getBoundingClientRect();
     if(r.left<-2||r.right>innerWidth+2) out.offscreen.push({t:txt(el).slice(0,40), left:Math.round(r.left), right:Math.round(r.right)});
     if(parseFloat(s.fontSize)<10.5) out.tiny.push({t:txt(el).slice(0,40), size:s.fontSize});
+  });
+  /* a thumb is about 9mm: anything you are meant to tap wants ~40px */
+  if(innerWidth<=560) document.querySelectorAll('a,button,[data-act],input,select,summary').forEach(el=>{
+    if(!vis(el)) return; const r=el.getBoundingClientRect();
+    if(Math.min(r.width,r.height)<34)
+      out.tapTargets.push({t:(txt(el)||el.getAttribute('aria-label')||el.tagName).slice(0,34),
+        box:Math.round(r.width)+'x'+Math.round(r.height)});
   });
   out.pageScrollsSideways = document.documentElement.scrollWidth > innerWidth+2;
   return out;

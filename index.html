@@ -147,6 +147,7 @@ h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-hei
 .comic{display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto;gap:18px;margin-top:48px}
 .panel{position:relative;margin:0;border:4px solid #000;border-radius:10px;overflow:hidden;box-shadow:7px 7px 0 #000;background:#000}
 .panel img,.panel video{width:100%;height:100%;object-fit:cover;aspect-ratio:16/9}
+.panel video{position:absolute;inset:0}
 .panel figcaption{position:absolute;left:14px;bottom:14px;right:14px;display:flex}
 .panel figcaption span{background:var(--parch);color:var(--pink);border:3px solid #000;border-radius:8px;box-shadow:3px 3px 0 #000;padding:8px 14px;font-weight:700;font-size:1.02rem;line-height:1.35;max-width:30em}
 .panel .tag{position:absolute;top:14px;left:14px;background:var(--gold);color:#16100d;border:3px solid #000;box-shadow:3px 3px 0 #000;font-family:var(--f-title);font-size:1.3rem;padding:2px 12px;transform:rotate(-3deg);border-radius:4px}
@@ -166,7 +167,9 @@ h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-hei
 .steps b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.5rem;color:#fff;line-height:1.1;margin-top:4px}
 .steps p{margin:.2em 0 0;color:var(--dim)}
 .table{position:relative}
-.fan{position:relative;height:clamp(250px,30vw,360px);margin-bottom:26px}
+/* the fan tips its outer cards well below its own box, so the gap under it
+   has to clear them or they land on top of the hand ladder */
+.fan{position:relative;height:clamp(250px,30vw,360px);margin-bottom:clamp(52px,5vw,60px)}
 .card{position:absolute;left:50%;bottom:0;width:clamp(110px,13vw,150px);aspect-ratio:5/7;margin-left:calc(clamp(110px,13vw,150px)/-2);border-radius:12px;border:3px solid #000;
   background:linear-gradient(160deg,#fffaf0,#f1e3c3);box-shadow:5px 5px 0 #000;transform-origin:50% 120%;color:#111;font-family:var(--f-num);font-weight:700;transition:transform .5s cubic-bezier(.2,1.4,.4,1)}
 .card i{position:absolute;top:8px;left:11px;font-style:normal;font-size:1.6rem;line-height:1;text-align:center}
@@ -176,7 +179,7 @@ h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-hei
 .fan.go .card{transform:rotate(var(--r)) translateY(var(--y))}
 .fan .glow{position:absolute;left:50%;bottom:20%;width:70%;height:60%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(255,211,92,.55),transparent 65%);filter:blur(10px)}
 .ladder{background:rgba(20,16,13,.88);border:3px solid #000;border-radius:12px;box-shadow:6px 6px 0 #000;padding:18px 20px}
-.ladder h4{margin:0 0 10px;font-family:var(--f-num);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:.85rem;color:var(--dim)}
+.ladder h4{margin:0 0 10px;font-family:var(--f-num);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:.85rem;color:var(--dim);text-wrap:balance}
 .rung{display:grid;grid-template-columns:9.5em 1fr;gap:12px;align-items:center;margin:7px 0;font-family:var(--f-num);font-weight:500;font-size:.98rem;letter-spacing:.04em}
 .rung .bar{height:14px;border:2px solid #000;border-radius:8px;background:#2a1f17;overflow:hidden}
 .rung .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
@@ -231,10 +234,12 @@ h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-hei
 /* ---------- rise: hero growth ---------- */
 .rise .bgimg{background-image:url(art/sc_end_3.webp);background-position:center 30%}
 .rise .shade{background:linear-gradient(0deg,var(--soot) 0%,rgba(20,16,13,.88) 40%,rgba(20,16,13,.75) 100%)}
-.line{display:flex;align-items:flex-end;justify-content:center;gap:clamp(4px,1.5vw,22px);margin-top:46px;height:clamp(240px,36vw,440px);position:relative}
+/* --h is a scale, not a percentage: measured off --rh so the caption under each
+   hero never eats into the picture and the last two steps stay different heights */
+.line{--rh:clamp(206px,31vw,400px);display:flex;align-items:flex-end;justify-content:center;gap:clamp(4px,1.5vw,22px);margin-top:46px;position:relative}
 .line::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:#000;border-radius:3px}
-.line figure{margin:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
-.line img{height:var(--h);width:auto;filter:drop-shadow(4px 4px 0 #000);transform:translateY(30px);opacity:0;transition:transform .7s cubic-bezier(.2,1.3,.4,1),opacity .5s}
+.line figure{margin:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.line img{height:calc(var(--rh) * var(--h));width:auto;flex:none;filter:drop-shadow(4px 4px 0 #000);transform:translateY(30px);opacity:0;transition:transform .7s cubic-bezier(.2,1.3,.4,1),opacity .5s}
 .line.go img{transform:none;opacity:1}
 .line figcaption{font-family:var(--f-num);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:var(--dim);margin-top:14px;white-space:nowrap}
 
@@ -258,7 +263,9 @@ h3{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-hei
 .store small{display:block;font-family:var(--f-num);font-weight:500;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:var(--dim)}
 .store b{display:block;font-family:var(--f-num);font-weight:700;font-size:1.45rem;letter-spacing:.02em;line-height:1.1}
 .store .soon{position:absolute;top:-14px;right:-10px;background:var(--red);color:#fff;border:3px solid #000;border-radius:6px;box-shadow:2px 2px 0 #000;font-family:var(--f-num);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;padding:2px 9px;transform:rotate(5deg)}
-.phone{justify-self:center;width:min(300px,70vw);aspect-ratio:9/19;border:5px solid #000;border-radius:38px;background:#000;box-shadow:10px 10px 0 #000,0 0 0 10px #2a1f17 inset;padding:10px;transform:rotate(4deg)}
+/* 10/17 leaves the inner screen at exactly 9:16, the shape of phone-fight.jpg,
+   so the game's own buttons no longer get sliced off at the sides */
+.phone{justify-self:center;width:min(300px,70vw);aspect-ratio:10/17;border:5px solid #000;border-radius:38px;background:#000;box-shadow:10px 10px 0 #000,0 0 0 10px #2a1f17 inset;padding:10px;transform:rotate(4deg)}
 .phone div{width:100%;height:100%;border-radius:28px;background:#14100d url(img/phone-fight.jpg) center top/cover;border:2px solid #2a1f17}
 
 /* ---------- final call + footer ---------- */
@@ -324,7 +331,7 @@ footer .links{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--f-num);lett
 .pc.red{color:var(--red)}
 /* Aces are gold and carry their bonus, same as in the game */
 .pc.ace{background:linear-gradient(160deg,#ffe9a0,#f2b632 55%,#d99a1c)}
-.ace10{position:absolute;left:28%;bottom:5%;transform:translateX(-50%);font-family:var(--f-num);font-weight:700;font-size:clamp(9px,2.6vw,14px);background:#14100e;color:#ffd35c;border-radius:4px;padding:0 4px;line-height:1.25;white-space:nowrap}
+.ace10{position:absolute;left:28%;bottom:5%;transform:translateX(-50%);font-family:var(--f-num);font-weight:700;font-size:clamp(11px,2.6vw,14px);background:#14100e;color:#ffd35c;border-radius:4px;padding:0 4px;line-height:1.25;white-space:nowrap}
 @media (max-width:520px){ .pc .r.br{display:none} .ace10{left:50%} }
 /* the damage read-out that floats over the hand in the game */
 .hand-tag{position:absolute;left:50%;top:-10px;transform:translate(-50%,-100%);z-index:5;pointer-events:none;white-space:nowrap;
@@ -366,7 +373,7 @@ footer .links{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--f-num);lett
 .hud img{width:34px;height:44px;object-fit:contain;object-position:bottom}
 .hud b{font-family:var(--f-title);font-weight:400;font-size:1.2rem;color:var(--gold2)}
 .hud .hp i{background:linear-gradient(180deg,#7be38a,var(--green))}
-.hud .hp{height:20px}
+.hud .hp{height:24px}
 .hud.low .hp i{background:linear-gradient(180deg,#ffe06a,#e0a800);animation:blink .5s steps(2) infinite}
 @keyframes blink{50%{opacity:.35}}
 .amb{position:fixed;inset:0;z-index:58;pointer-events:none;overflow:hidden;display:none}
@@ -431,6 +438,77 @@ main.hit{animation:shk .5s}
 .stage.hit .ring{animation:ring .6s ease-out}
 @keyframes ring{0%{opacity:1;transform:translate(-50%,-50%) scale(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(30)}}
 .strike-replay{margin-top:14px;background:none;border:0;color:var(--dim);font-family:var(--f-num);letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;cursor:pointer;text-decoration:underline}
+
+/* ---------- phone ---------- */
+@media (max-width:700px){
+  /* every band sat 80px + 80px apart, so a third of a screen of black
+     between each one, ten times down the page */
+  .band{padding-block:56px}
+  .final{padding-block:64px}
+  .comic{margin-top:26px}
+  .steps{margin-top:24px}
+  .arena{margin-top:28px}
+  .vids{margin-top:28px}
+  .roster{margin-top:26px}
+  .wgrid{margin-top:28px}
+  .line{margin-top:30px}
+  .feats{margin-top:28px}
+  .stores{margin-top:22px}
+  .abyss{margin-top:20px}
+
+  /* story: the caption box used to cover the art it was describing, so it
+     sits under the picture here instead */
+  .panel figcaption{position:static;display:block;left:auto;right:auto;bottom:auto}
+  .panel figcaption span{display:block;max-width:none;border:0;border-top:4px solid #000;border-radius:0;box-shadow:none;font-size:.98rem;line-height:1.4;padding:10px 13px 12px}
+  .panel .tag{top:10px;left:10px;font-size:1.12rem}
+  .comic .panel img,.comic .panel video{height:auto;aspect-ratio:16/9}
+  .comic .panel video{inset:0 0 auto}
+
+  /* how to play */
+  .fan{height:230px}
+  .ladder{padding:16px 16px 18px}
+  .rung{grid-template-columns:8.6em 1fr;gap:10px}
+
+  /* try a hand: Discard and Attack did not fit on one row, so the coaching
+     tip landed on top of Attack and was cut off by the end of the section */
+  .ctrl{gap:10px}
+  .ctrl .btn{min-height:52px;padding:0 16px;font-size:1rem}
+  .pc{width:clamp(40px,11vw,92px)}
+  .tip{max-width:min(276px,calc(100vw - 40px));font-size:.96rem}
+  .tip .x{min-height:34px;padding:9px 2px 0}
+  .trywrap:has(.tip.on){padding-bottom:170px}
+
+  /* the ambush filled the whole screen and put its own text on the monster */
+  .amb img.m{height:min(66vh,620px);right:-14%}
+  .amb .crit{top:36%;left:6%}
+  .amb .slash{top:20%;left:4%;width:78%;height:40%}
+  /* the HP card lives at the foot of the screen here, the way a game HUD does,
+     so it stops sitting on top of whatever heading you were reading */
+  .hud{width:min(258px,66vw);top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+
+  /* monsters: three stray sprites at 130px, five at 96px reads as a parade */
+  .roster img{height:96px}
+
+  /* rise: six heroes in one row overlapped each other and their labels ran
+     together into one line of text */
+  .line{--rh:164px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:146px 198px;gap:28px 4px;align-items:end}
+  .line figure{height:auto}
+  .line::before{content:"";position:absolute;left:0;right:0;top:146px;height:6px;background:#000;border-radius:3px}
+
+  /* features */
+  .feat .pic{aspect-ratio:16/9}
+  .feat .body{padding:14px 16px 18px}
+  .feat p{font-size:1rem}
+
+  /* get the app */
+  .store{min-width:0;width:100%}
+  .phone{width:min(258px,72vw)}
+
+  /* taps that came in under 34px */
+  .strike-replay{margin-top:8px;padding:9px 12px}
+  footer .links{gap:10px;margin-left:-8px}
+  footer .links a{display:inline-block;padding:9px 8px}
+}
 </style>
 </head>
 <body>
@@ -475,7 +553,7 @@ main.hit{animation:shk .5s}
     <h2 class="rv">A quiet night at the Gilded Ace.<br>It doesn't last.</h2>
     <p class="intro rv">You're Edward, a young soldier on the long road home. Then the door crashes open, and your quest begins.</p>
     <div class="comic">
-      <figure class="panel p1 rv"><img src="art/sc_start_2.webp" alt="Old Bram throws a stream of glowing magic cards across the tavern to Edward" loading="lazy"><video data-src="vid/sc_start_2.mp4" muted loop playsinline aria-hidden="true" style="position:absolute;inset:0"></video>
+      <figure class="panel p1 rv"><img src="art/sc_start_2.webp" alt="Old Bram throws a stream of glowing magic cards across the tavern to Edward" loading="lazy"><video data-src="vid/sc_start_2.mp4" muted loop playsinline aria-hidden="true"></video>
         <span class="tag">The magic cards</span><figcaption><span>Old Bram sends his magic deck flying across the room. "Every hand you play is a blow, lad. Make them count."</span></figcaption></figure>
       <figure class="panel rv"><img src="art/sc_start_0.webp" alt="Edward by the fire while Anna brings him stew" loading="lazy"><span class="tag">The Gilded Ace</span><figcaption><span>Rain on the windows, stew by the fire, and Anna's smile.</span></figcaption></figure>
       <figure class="panel rv"><img src="art/sc_start_1.webp" alt="Goblins crash into the tavern and grab Anna" loading="lazy"><span class="tag">Crash!</span><figcaption><span>Goblins burst in and drag Anna into the night.</span></figcaption></figure>
@@ -605,12 +683,12 @@ main.hit{animation:shk .5s}
     <h2 class="rv">From tavern boy<br>to Sir Edward.</h2>
     <p class="intro rv">Win fights, earn gold and buy better steel. Every level makes every attack hit harder, and you can watch your hero grow.</p>
     <div class="line" id="line">
-      <figure><img src="art/hero_t0.webp" alt="Edward in plain clothes" style="--h:52%" loading="lazy"><figcaption>Level 1</figcaption></figure>
-      <figure><img src="art/hero_t1.webp" alt="Edward in leather" style="--h:60%;transition-delay:.12s" loading="lazy"><figcaption>Leather</figcaption></figure>
-      <figure><img src="art/hero_t2.webp" alt="Edward in chain mail" style="--h:68%;transition-delay:.24s" loading="lazy"><figcaption>Chain mail</figcaption></figure>
-      <figure><img src="art/hero_t3.webp" alt="Edward in plate" style="--h:77%;transition-delay:.36s" loading="lazy"><figcaption>Steel</figcaption></figure>
-      <figure><img src="art/hero_t4.webp" alt="Sir Edward in full armor" style="--h:88%;transition-delay:.48s" loading="lazy"><figcaption>Knight</figcaption></figure>
-      <figure><img src="art/hero_t5.webp" alt="Sir Edward in shining titanium armor" style="--h:100%;transition-delay:.6s" loading="lazy"><figcaption>Legend</figcaption></figure>
+      <figure><img src="art/hero_t0.webp" alt="Edward in plain clothes" style="--h:.52" loading="lazy"><figcaption>Level 1</figcaption></figure>
+      <figure><img src="art/hero_t1.webp" alt="Edward in leather" style="--h:.60;transition-delay:.12s" loading="lazy"><figcaption>Leather</figcaption></figure>
+      <figure><img src="art/hero_t2.webp" alt="Edward in chain mail" style="--h:.68;transition-delay:.24s" loading="lazy"><figcaption>Chain mail</figcaption></figure>
+      <figure><img src="art/hero_t3.webp" alt="Edward in plate" style="--h:.77;transition-delay:.36s" loading="lazy"><figcaption>Steel</figcaption></figure>
+      <figure><img src="art/hero_t4.webp" alt="Sir Edward in full armor" style="--h:.88;transition-delay:.48s" loading="lazy"><figcaption>Knight</figcaption></figure>
+      <figure><img src="art/hero_t5.webp" alt="Sir Edward in shining titanium armor" style="--h:1;transition-delay:.6s" loading="lazy"><figcaption>Legend</figcaption></figure>
     </div>
   </div>
 </section>
@@ -621,7 +699,7 @@ main.hit{animation:shk .5s}
     <p class="kicker rv">Everything in the deck</p>
     <h2 class="rv">More than a card game.</h2>
     <div class="feats">
-      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_merchant.webp)"></div><div class="body"><h3>Gear up</h3><p>Trade gold with the travelling merchant for axes, swords, shields and armor, from Wooden up to Titanium.</p></div></article>
+      <article class="feat rv"><div class="pic" style="background-image:url(art/sc_merchant.webp)"></div><div class="body"><h3>Gear up</h3><p>Trade gold with the traveling merchant for axes, swords, shields and armor, from Wooden up to Titanium.</p></div></article>
       <article class="feat rv"><div class="pic" style="background-image:url(art/sc_learn_wizard.webp)"></div><div class="body"><h3>Learn magic</h3><p>Fire, frost and healing spellbooks turn a bad hand into a comeback.</p></div></article>
       <article class="feat rv"><div class="pic" style="background-image:url(art/sc_find_chest.webp)"></div><div class="body"><h3>Find treasure</h3><p>Chests, strangers and hidden traps on every road. Some help. Some don't.</p></div></article>
       <article class="feat rv"><div class="pic" style="background-image:url(art/sc_a1_0.webp)"></div><div class="body"><h3>Daily Challenge</h3><p>Same monsters and the same cards for everyone, every day. Post your score and see who beats it.</p></div></article>

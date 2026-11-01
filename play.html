@@ -1769,6 +1769,203 @@ body.hitstop #app{filter:brightness(1.6) contrast(1.2) saturate(1.3)}
   .panel p{font-size:1.12rem} .lines{font-size:1.02rem} .nosaves span{font-size:.98rem} }
 @media (max-width:480px){ .panel .cine-cap p{font-size:clamp(1.2rem,4.4vw,1.6rem)!important}
   .bubble-say{font-size:.95rem!important} .story p{font-size:1.18rem} }
+
+/* ================= phones =================
+   Everything below is for a phone held upright. The things that went wrong
+   there: the fallen picture shrank to a black sliver with the title sliced
+   through it, numbers ran out of the level-up rows, the monster window gave
+   its height away to the gear box, the monster clip sat in the middle of its
+   frame with blurred bars either side, and on every card the suit under the
+   rank printed through the big suit in the middle. */
+
+/* ---- the fallen screen ----
+   The picture is the only thing on this panel allowed to shrink, so it
+   absorbed the whole overflow and ended up about 38px tall with "You have
+   fallen" cut in half by the frame. Give it a floor; the panel scrolls
+   instead, which it already did on smaller phones. */
+.panel.cine.deathp .cine-scene.death{min-height:min(22vh,170px)!important}
+/* and buy that height back, because Start over has to stay on screen without
+   scrolling. Old Bram's aside is flavor, not news (it needs the full selector -
+   a rule above turns every small back on here), the run summary goes back to
+   two columns, and the panel's own gaps tighten. */
+@media (max-width:560px){ .panel.cine.deathp .death-why small.bram{display:none} }
+/* the summary was forced to one column on every phone, which cost about 70px
+   of the panel. Two columns fit from 360 up; only the narrowest phones stack. */
+@media (min-width:360px) and (max-width:560px){
+  .panel.cine.deathp .lines{grid-template-columns:1fr 1fr;gap:3px 12px}
+  .panel.cine.deathp .lines>div{padding-bottom:3px}
+}
+@media (max-width:560px){
+  .panel.cine.deathp{gap:7px;padding-block:12px}
+  .panel.cine.deathp .death-why{padding:7px 12px;gap:3px}
+  .panel.cine.deathp .name-row input{padding:7px 12px}
+  /* "Post my level" and "Challenge a friend" were stacking, at 86px for the
+     pair. Side by side at a smaller size they take one row. */
+  .panel.cine.deathp .row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .panel.cine.deathp .row .btn.big{font-size:1rem!important;padding:9px 6px;line-height:1.15}
+}
+/* the narrowest phones need the last few pixels from somewhere: the name field
+   already says "Sir Edward" in its placeholder, so its label can be small. */
+@media (max-width:380px){
+  .panel.cine.deathp .name-row{gap:2px}
+  .panel.cine.deathp .name-row label{font-size:.66rem}
+  .panel.cine.deathp .name-row input{font-size:1rem;padding:6px 10px}
+  .panel.cine.deathp .death-why small{line-height:1.28}
+  .panel.cine.deathp .cine-scene.death{min-height:min(19vh,140px)!important}
+}
+/* On a short phone the panel still has more in it than the screen holds, and
+   the one thing that must never be below the fold is the way out. Pin it to the
+   bottom of the panel; where the panel already fits there is no scrolling and
+   this does nothing. The second shadow is a band of panel colour, so the text
+   scrolls behind the button instead of into its gutter. */
+@media (max-width:560px){
+  .panel.cine.deathp>.btn.big:last-child{position:sticky;bottom:0;z-index:5;
+    box-shadow:4px 4px 0 #000,0 0 0 12px #1b1410}
+}
+
+/* ---- level up ----
+   The row is icon + name + value, and the value is one unbreakable line.
+   At 320px "was x1.57 x1.76" and the health bar plus "+100" were wider than
+   the row, so both ran out past the card edge. */
+@media (max-width:420px){
+  .lu-row{grid-template-columns:30px minmax(0,1fr) auto;gap:8px;padding:6px 9px}
+  .lu-lbl{font-size:1rem;line-height:1.1}
+  .lu-val{font-size:1rem;gap:7px;min-width:0}
+  .lu-val b{font-size:1.45rem} .lu-val b.hp{font-size:1.2rem}
+  .lu-val .was{font-size:.72rem}
+  .lu-bar{width:94px;height:22px} .lu-bar em{font-size:.72rem}
+  .lu-row .lu-ic .ico{width:30px;height:30px}
+  .lu-title{font-size:1.7rem;padding:2px 12px 4px} .lu-medal{width:66px;height:66px} .lu-medal b{font-size:2.1rem}
+}
+
+/* ---- the fight screen ----
+   The monster window is the one part that stretches, so on a short phone it
+   collapsed to about 100px while the gear box kept 190. Shrink the gear so
+   the monster gets the room. */
+@media (max-width:700px){
+  /* the clip fills the window. It used to sit full-height in the middle with
+     blurred scenery down both sides - on a 320px phone that was 104px of bars
+     around a 178px monster. */
+  .foe-vidwrap video{left:0;translate:none;width:100%;height:100%;max-width:100%;
+    aspect-ratio:auto;object-fit:cover;-webkit-mask-image:none;mask-image:none}
+  /* a thumb is about 9mm, and these were 26px tall. min-height on its own: a
+     button already centers its own label, and a display change here eats the
+     space in "Hand guide" and widens the row. */
+  .tool{min-height:34px}
+  .tool[data-act="help"]{min-width:34px}
+}
+/* at 360 the four buttons ran 25px past the right margin and Sound lost its
+   edge. "Hand guide" drops its first word earlier, which buys 34 of them. */
+@media (max-width:380px){ .wide-only{display:none} }
+@media (max-width:420px){
+  /* the monster's name, medallion and health number wrapped onto two lines and
+     took 84px of a 106px window. On one line they take about 45. */
+  .stage-top{padding:5px 8px 0}
+  .foe-title{gap:0 8px}
+  .foe-name{font-size:clamp(1.05rem,4.4vw,1.35rem)}
+  .foe-name .lvb-sm .lvb-shield{width:34px;height:34px;font-size:1.15rem}
+  .foe-hpnum{font-size:.82rem}
+}
+@media (max-height:640px){
+  .satchel{gap:3px;padding:4px}
+  .ribbon{padding:1px 7px} .satchel .ribbon .xp{height:14px}
+  .rings{gap:3px}
+  .pouch{padding:3px 3px 4px}
+  .pouch .slot,.pouch .slot.spell,.pouch .slot.book,.pouch .slot.heal{width:30px;height:30px}
+  .pouch .slot .ico{width:20px;height:20px}
+  .oval{width:min(100%,60px)}
+  .actions .btn{height:34px}
+  .hand{padding-top:8px}
+}
+/* the pouch names were under 10px, which is below what a phone can read */
+.pouch>b{font-size:.72rem;letter-spacing:.06em}
+@media (max-width:340px){ .pouch>b{font-size:.62rem;letter-spacing:.02em;padding:1px 4px} }
+/* "LV" on the monster medallion rides on the number's size; stop it shrinking
+   with it - at 1.15rem it was down to 8.5px */
+.lvb-shield small{font-size:max(10.6px,.44em)}
+/* the potion and spell rings are tapped mid-fight: give them a thumb's worth
+   of room wherever the screen has it */
+@media (max-height:780px) and (min-height:641px){
+  .pouch .slot,.pouch .slot.spell,.pouch .slot.book,.pouch .slot.heal{width:34px;height:34px}
+  .pouch .slot .ico{width:23px;height:23px}
+}
+
+/* ---- the cards ----
+   The rank sits top left and the big suit sits in the middle, and on a phone
+   card - 36px wide at 320 - the two land on each other: the small spade under
+   the "6" prints straight through the big spade. The small suit is saying
+   nothing the big one does not, so it stands down and the rank gets its corner
+   back. Face cards and the ace's BONUS tag move clear of it too. */
+@media (max-width:560px){
+  .card .cn i{display:none}
+  .card .md{margin-top:30%}
+  .card .md.face{margin-top:26%}
+  .card .md.face img{width:64%}
+  .card:has(.ace10) .md{font-size:clamp(17px,5vw,30px);margin-top:12%}
+  .ace10{font-size:clamp(10px,2.6vw,14px);bottom:2%}
+}
+/* The same collision turns up on a narrow desktop window, where seven cards
+   share the middle column and each is about 48px wide: there the upside-down
+   index in the far corner printed straight through the suit as well. Ask the
+   card how wide it is rather than the screen, so a wide card keeps both
+   indexes and only a cramped one gives them up. */
+.card{container-type:inline-size}
+@container (max-width:62px){
+  .card .cn i,.card .cn.br{display:none}
+  .card .md{font-size:min(50px,80cqw);margin-top:30%}
+  .card .md.face{margin-top:26%}
+  .card .md.face img{width:64%}
+}
+
+/* ---- victory ----
+   With a loot drop on a 568px screen the panel ran past the bottom and took
+   the only button with it. */
+@media (max-height:780px){
+  .vic .loot{padding:7px 12px}
+  .vic .loot-txt small{font-size:.88rem}
+  .purse-coin{width:48px;height:48px} .purse-txt b{font-size:1.9rem}
+  .xp-gain{font-size:1.8rem} .xpbar2{height:22px}
+  .purse,.xpbox{padding:6px 12px}
+  .vic-hp .hpbar{height:20px}
+  .vic-foe .vf.deadpic img{height:clamp(56px,11vh,96px)!important}
+}
+@media (max-height:620px){
+  .vic-title{font-size:1.9rem!important}
+  .vic-tag b{font-size:1.3rem} .vic-tag span{font-size:.68rem}
+  .vic .vic-sub{font-size:1rem}
+  .vic .loot{padding:6px 10px;gap:10px}
+  .vic .loot-ic .ico{width:42px;height:42px}
+  .vic .loot-txt{font-size:.95rem} .vic .loot-txt b{font-size:1.1rem} .vic .loot-txt small{display:none}
+  .purse-coin{width:42px;height:42px} .purse-txt b{font-size:1.7rem} .purse-gain{font-size:1.2rem}
+  .xp-gain{font-size:1.6rem} .xpbar2{height:20px} .xpbar2 span{font-size:.8rem}
+  .purse,.xpbox{padding:5px 10px} .xpbox{gap:5px}
+  .vic-hp .hpbar{height:18px}
+  .panel:has(.vic) .vic-btn,.panel:has(.vic) .btn.big{padding-block:9px}
+}
+
+/* ---- the merchant ----
+   On a 568px phone the soldier card filled the whole first screen and the
+   first thing for sale was 800px below it. */
+@media (max-width:560px){
+  .sh-fig img.soldier-svg,.split-side .sh-fig img.soldier-svg,
+  .panel.wide .sh-fig img.soldier-svg{height:clamp(140px,24vh,220px)!important}
+  /* the two totals were 129px each in a 250px card, so they stacked */
+  .totB{gap:6px} .totB span{padding:2px 8px;font-size:.85rem} .totB .ico{width:15px;height:15px}
+  .sheetcard{padding:9px;gap:7px}
+}
+
+/* ---- tale of the tape ----
+   Two figures, four numbers, a word and two bars share 320px. The bars were
+   down to about 30px, which reads as a blob rather than a measure, so the
+   figures hand a little width back. */
+@media (max-width:420px){
+  .tape{grid-template-columns:clamp(50px,15vw,64px) minmax(0,1fr) clamp(50px,15vw,64px);gap:5px;padding:5px 6px}
+  .tp-fig>b{font-size:.76rem;max-width:8ch}
+  .tp-n{min-width:2.1em;font-size:.76rem}
+  .tp-row{gap:3px}
+}
+/* the three-letter row labels were at 8.6px, under what a phone shows legibly */
+@media (max-width:560px){ .tp-lbl{font-size:.69rem;min-width:0;letter-spacing:0} }
 </style>
 
 <div id="app">
