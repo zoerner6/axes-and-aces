@@ -1,6 +1,6 @@
 # Axes & Aces Monster Manual
 
-A 145-page, 5E-compatible bestiary of all 168 monsters in the card game, built
+A 146-page, 5E-compatible bestiary of all 168 monsters in the card game, built
 entirely from the game's own art and data. Nothing here is published. The
 files are ready to upload and the steps are in `UPLOAD.md`.
 

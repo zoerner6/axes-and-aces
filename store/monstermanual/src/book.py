@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
 
+import brand
 import layout as L
 import statblock as SB
 import text as T
@@ -43,6 +44,8 @@ class Book:
         self.marks = {}
         self.y = TOP
         self.chapter = ''
+        self.word = brand.trimmed(brand.WORD_LOGO, 'wordlogo')
+        self.icon = brand.trimmed(brand.ICON, 'icon')
 
     # ---- page plumbing -------------------------------------------------
     def mark(self, key):
@@ -115,43 +118,98 @@ class Book:
 
 
 # ------------------------------------------------------------------ pages
+def fade_edge(c, y_edge, depth, up):
+    """Blend an image edge into the soot page.
+
+    Solid at the edge and clear `depth` points in, so the picture dissolves
+    into the black instead of stopping at a line. `up` fades upward from a
+    bottom edge, otherwise downward from a top edge.
+    """
+    steps = 80
+    step = depth / steps
+    for i in range(steps):
+        c.setFillColorRGB(0.078, 0.063, 0.051, alpha=1.0 - i / float(steps))
+        y = y_edge + i * step if up else y_edge - (i + 1) * step
+        c.rect(0, y, PW, step + 0.6, stroke=0, fill=1)
+    # The fill alpha persists in the graphics state, and the last step above
+    # leaves it near zero. Images drawn afterwards would come out as ghosts.
+    c.setFillAlpha(1)
+
+
 def cover(bk):
+    """The word logo is the title. It is never retyped in another typeface,
+    and it is never drawn wider than it can hold 300 dpi."""
     c = bk.c
     bk.bg(L.SOOT)
+    word = bk.word
+
+    lw, lh = brand.fit(word, 330)
+    ly = PH - 36 - lh
+    c.drawImage(word['path'], (PW - lw) / 2, ly, lw, lh, mask='auto')
+
+    # "Monster Manual" is this book's own name, so it is set in type. Clear
+    # space below the logo is kept to more than the height of its "A".
+    c.setFont(L.TITLE_F, 40)
+    c.setFillColor(L.GOLD)
+    c.drawCentredString(PW / 2, 560, 'MONSTER MANUAL')
+
     img = os.path.join(PANELS, 'demonking_boss.jpg')
     ih = PW * 1088 / 1950                      # 341 pt at full bleed
-    iy = 236                                   # bottom edge of the art
+    iy = 189
     c.drawImage(img, 0, iy, PW, ih, mask=None)
-    # fade the art into the black above and below it
-    for i in range(70):
-        a = i / 70.0
-        c.setFillColorRGB(0.078, 0.063, 0.051, alpha=a)
-        c.rect(0, iy + ih - 1 - i * 1.1, PW, 1.4, stroke=0, fill=1)
-        c.rect(0, iy + i * 1.1, PW, 1.4, stroke=0, fill=1)
-
-    c.setFont(L.TITLE_F, 64)
-    c.setFillColor(L.BRIGHT)
-    c.drawCentredString(PW / 2, PH - 118, 'AXES & ACES')
-    c.setFont(L.TITLE_F, 39)
-    c.setFillColor(L.GOLD)
-    c.drawCentredString(PW / 2, PH - 162, 'MONSTER MANUAL')
+    fade_edge(c, iy + ih, 78, up=False)        # top edge of the art
+    fade_edge(c, iy, 78, up=True)              # bottom edge
 
     c.setFillColor(L.CRIMSON)
-    c.rect(M, 204, CW, 3, stroke=0, fill=1)
-    c.setFont(L.TITLE_F, 27)
+    c.rect(M, 165, CW, 3, stroke=0, fill=1)
+    c.setFont(L.TITLE_F, 26)
     c.setFillColor(L.PARCH)
-    c.drawCentredString(PW / 2, 166, '168 monsters. Ten worlds.')
-    c.setFont(L.BODY_F, 13)
+    c.drawCentredString(PW / 2, 130, '168 monsters. Ten worlds.')
+    c.setFont(L.BODY_F, 12.5)
     c.setFillColor(L.PARCH)
-    c.drawCentredString(PW / 2, 142, 'From the free card game at ' + T.SITE)
-    c.setFont(L.LABEL_F, 12)
+    c.drawCentredString(PW / 2, 107, 'From the free card game at ' + T.SITE)
+    c.setFont(L.LABEL_F, 11.5)
     c.setFillColor(L.GOLD)
-    c.drawCentredString(PW / 2, 114, T.TAGLINE.upper())
-    c.setFillColor(L.CRIMSON)
-    c.rect(PW / 2 - 70, 100, 140, 1.4, stroke=0, fill=1)
-    c.setFont(L.BODY_F, 9)
+    c.drawCentredString(PW / 2, 81, T.TAGLINE.upper())
+    c.setFont(L.BODY_F, 8.5)
     c.setFillColor(L.MUTED)
-    c.drawCentredString(PW / 2, 74, 'Contains AI-generated content. See page 2.')
+    c.drawCentredString(PW / 2, 50, 'Contains AI-generated content. See page 3.')
+    bk.new_page()
+
+
+def title_page(bk):
+    """The logo carries its own dark plaque, so it sits on parchment without
+    the bare lettering ever touching pale paper."""
+    c = bk.c
+    word = bk.word
+    lw, lh = brand.fit(word, 300)
+    ly = PH - 150 - lh
+    c.drawImage(word['path'], (PW - lw) / 2, ly, lw, lh, mask='auto')
+
+    y = ly - 52
+    c.setFont(L.TITLE_F, 34)
+    c.setFillColor(L.CRIMSON)
+    c.drawCentredString(PW / 2, y, 'MONSTER MANUAL')
+    y -= 26
+    c.setFont(L.BODY_I, 13)
+    c.setFillColor(L.INK)
+    c.drawCentredString(PW / 2, y, T.SUBTITLE)
+
+    y -= 26
+    c.setFillColor(L.CRIMSON)
+    c.rect(PW / 2 - 110, y, 220, 1.6, stroke=0, fill=1)
+
+    icon = bk.icon
+    y -= 86
+    c.drawImage(icon['path'], PW / 2 - 29, y, 58, 58, mask='auto')
+
+    y -= 34
+    c.setFont(L.LABEL_F, 11)
+    c.setFillColor(L.MUTED)
+    c.drawCentredString(PW / 2, y, T.TAGLINE.upper())
+    c.setFont(L.BODY_F, 11)
+    c.setFillColor(L.INK)
+    c.drawCentredString(PW / 2, 86, 'Play the game free at ' + T.SITE)
     bk.new_page()
 
 
@@ -223,15 +281,16 @@ def world_opener(bk, w, blocks):
     img = os.path.join(PANELS, '%s_boss.jpg' % hero['slug'])
     ih = PW * 1088 / 1950
     c.drawImage(img, 0, PH - ih, PW, ih, mask=None)
-    for i in range(70):
-        c.setFillColorRGB(0.078, 0.063, 0.051, alpha=i / 70.0)
-        c.rect(0, PH - ih + i * 1.1, PW, 1.3, stroke=0, fill=1)
+    fade_edge(c, PH - ih, 80, up=True)         # bottom edge of the art
 
+    # The icon is the mark: small and repeated, one on each world opener.
     y = PH - ih - 18
+    ic = 26
+    c.drawImage(bk.icon['path'], M, y - 9, ic, ic, mask='auto')
     c.setFont(L.LABEL_F, 11)
     c.setFillColor(L.GOLD)
-    c.drawString(M, y, 'WORLD %d' % (w['i'] + 1))
-    y -= 38
+    c.drawString(M + ic + 9, y, 'WORLD %d' % (w['i'] + 1))
+    y -= 42
     c.setFont(L.TITLE_F, 40)
     c.setFillColor(L.BRIGHT)
     c.drawString(M, y, w['name'])
@@ -427,6 +486,7 @@ def build(path, toc=None):
     worlds, blocks = data['worlds'], data['blocks']
     bk = Book(path, toc)
     cover(bk)
+    title_page(bk)
     legal(bk)
     contents(bk, worlds)
     intro(bk)

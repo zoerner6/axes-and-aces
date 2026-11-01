@@ -2,6 +2,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 
+import brand
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 FONTS = os.path.join(HERE, '..', 'fonts')
 PANELS = os.path.join(HERE, '..', 'build', 'panels')
@@ -26,40 +28,53 @@ def centered(d, y, text, f, fill):
 
 
 def main():
+    """Laid out top down, each block placed under the one before it, so
+    nothing can land on top of the art."""
     os.makedirs(DIST, exist_ok=True)
     im = Image.new('RGB', (W, H), SOOT)
+    d = ImageDraw.Draw(im)
 
-    # The art has to leave room for a title block above and a strapline below,
-    # so it is sized to the gap between them rather than to the full width.
+    # The word logo is the title here too, never retyped.
+    word = brand.trimmed(brand.WORD_LOGO, 'wordlogo')
+    logo = Image.open(word['path']).convert('RGBA')
+    lw = 560
+    logo = logo.resize((lw, int(lw * logo.height / logo.width)), Image.LANCZOS)
+    im.paste(logo, ((W - lw) // 2, 6), logo)
+    y = 6 + logo.height + 4
+
+    f_title = font('germania.ttf', 54)
+    centered(d, y, 'MONSTER MANUAL', f_title, GOLD)
+    y += d.textbbox((0, 0), 'MONSTER MANUAL', font=f_title)[3] + 18
+
+    # Whatever is left between the title and the strapline is the art.
+    strap_h = 196
+    art_h = H - y - strap_h
     art = Image.open(os.path.join(PANELS, 'demonking_boss.jpg')).convert('RGB')
-    top, art_h = 196, 596
     art_w = int(art_h * art.width / art.height)
+    if art_w > W:
+        art_w, art_h = W, int(W * art.height / art.width)
     art = art.resize((art_w, art_h), Image.LANCZOS)
     ax = (W - art_w) // 2
-    im.paste(art, (ax, top))
+    im.paste(art, (ax, y))
 
-    fade_h = 80
+    fade_h = min(70, art_h // 4)
     fade = Image.new('RGBA', (art_w, fade_h), (0, 0, 0, 0))
     fd = ImageDraw.Draw(fade)
     for i in range(fade_h):
         fd.line([(0, i), (art_w, i)],
                 fill=(20, 16, 13, 255 - int(255 * i / fade_h)))
-    im.paste(fade, (ax, top), fade)
+    im.paste(fade, (ax, y), fade)
     flip = fade.transpose(Image.FLIP_TOP_BOTTOM)
-    im.paste(flip, (ax, top + art_h - fade_h), flip)
+    im.paste(flip, (ax, y + art_h - fade_h), flip)
 
-    d = ImageDraw.Draw(im)
-    centered(d, 34, 'AXES & ACES', font('germania.ttf', 104), BRIGHT)
-    centered(d, 142, 'MONSTER MANUAL', font('germania.ttf', 58), GOLD)
-
-    y = top + art_h + 22                      # 858
+    y += art_h + 22
     d.rectangle([90, y, W - 90, y + 5], fill=CRIMSON)
-    centered(d, y + 22, '168 monsters. Ten worlds.',
-             font('germania.ttf', 48), PARCH)
-    centered(d, y + 86, 'FULL 5E STAT BLOCKS AND ART FOR EVERY ONE',
-             font('oswald.ttf', 23), GOLD)
-    centered(d, H - 36, 'Contains AI-generated content',
-             font('AlegreyaSans-Regular.ttf', 20), MUTED)
+    centered(d, y + 18, '168 monsters. Ten worlds.',
+             font('germania.ttf', 46), PARCH)
+    centered(d, y + 84, 'FULL 5E STAT BLOCKS AND ART FOR EVERY ONE',
+             font('oswald.ttf', 22), GOLD)
+    centered(d, y + 130, 'Contains AI-generated content',
+             font('AlegreyaSans-Regular.ttf', 19), MUTED)
 
     out = os.path.join(DIST, 'cover-itch.png')
     im.save(out, 'PNG', optimize=True)

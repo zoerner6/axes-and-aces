@@ -105,7 +105,7 @@ with a picture, a stat block, and a line telling you how it actually fights.
 **Use it with whatever you are already running.** There is no setting to buy
 into and no new rules to learn. It is a book of monsters.
 
-**145 pages, PDF.**
+**146 pages, PDF.**
 
 ---
 
