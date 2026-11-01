@@ -41,7 +41,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .tool{background:var(--wood-2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:800;font-size:.8rem}
 
-.stage{position:relative;flex:1 1 auto;min-height:112px;max-height:400px;border-radius:16px;overflow:hidden;border:3px solid #000;display:flex;flex-direction:column;
+.stage{position:relative;flex:1 1 auto;min-height:112px;max-height:min(54vh,620px);border-radius:16px;overflow:hidden;border:3px solid #000;display:flex;flex-direction:column;
   background:linear-gradient(rgba(10,5,3,.55), rgba(10,5,3,.05) 38%, rgba(10,5,3,.05) 70%, rgba(10,5,3,.6)), var(--bgimg) center/cover no-repeat, var(--scene)}
 .stage[data-area="0"]{--bgimg:url(art/bg_tavern.webp)} .stage[data-area="1"]{--bgimg:url(art/bg_cellar.webp)}
 .stage[data-area="2"]{--bgimg:url(art/bg_forest.webp)} .stage[data-area="3"]{--bgimg:url(art/bg_castle.webp)}
@@ -768,8 +768,8 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 @keyframes freshGlow{50%{box-shadow:0 0 0 2px #000,0 0 14px 5px rgba(120,255,140,.85),inset 0 2px 4px rgba(0,0,0,.6)}}
 @media (max-width:460px){ .learn-how{grid-template-columns:1fr} .learn-demo{flex-direction:row;justify-content:center} .learn-arrow{max-width:none} .pouch.demo .rings{flex-direction:row} .pouch.demo{width:auto;padding:4px 8px} }
 .learn-how .pouch>b{color:var(--gold)}
-.cine-scene{max-height:44vh}
-.cine-scene.short{max-height:30vh}
+.cine-scene{max-height:44vh;max-width:calc(44vh*16/9);margin-inline:auto}
+.cine-scene.short{max-height:30vh;max-width:calc(30vh*21/9)}
 /* ---- boss finishing move ---- */
 .fin{position:fixed;inset:0;z-index:90;overflow:hidden;display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .35s}
 .fin.on{opacity:1}.fin.out{opacity:0}
@@ -1156,15 +1156,15 @@ body{background-color:#100c0a;background-image:radial-gradient(rgba(255,255,255,
 
 .nosaves{background:#2a1d16;border:3px solid #000;border-left:7px solid var(--gold);border-radius:10px;box-shadow:4px 4px 0 #000;padding:9px 14px;margin:2px 0;text-align:left}
 .panel.cine.slotsp{overflow:hidden}
-.panel.cine.slotsp .cine-scene{flex:0 1 auto;min-height:0;max-height:min(30vh,240px)!important}
+.panel.cine.slotsp .cine-scene{flex:0 1 auto;min-height:0;align-self:center;max-height:min(36vh,320px)!important;max-width:calc(min(36vh,320px)*16/9)!important}
 .panel.cine.slotsp .slots{gap:6px}
 @media (max-height:860px){
-  .panel.cine.slotsp .cine-scene{max-height:min(22vh,190px)!important}
+  .panel.cine.slotsp .cine-scene{max-height:min(30vh,260px)!important;max-width:calc(min(30vh,260px)*16/9)!important}
   .panel.cine.slotsp .slot-card{padding:6px 10px}
   .nosaves{padding:7px 12px} .nosaves b{font-size:1rem} .nosaves span{font-size:.84rem;line-height:1.35}
 }
 @media (max-height:720px){
-  .panel.cine.slotsp .cine-scene{max-height:min(17vh,135px)!important}
+  .panel.cine.slotsp .cine-scene{max-height:min(26vh,210px)!important;max-width:calc(min(26vh,210px)*16/9)!important}
   .panel.cine.slotsp .slot-card{padding:4px 10px}
   .nosaves span{font-size:.8rem;line-height:1.3}
 }
@@ -1835,14 +1835,18 @@ function playFoeAttack(){
   const k=ART[foeDef().name]; return Math.round(((HIT_AT[k]||1.5)-0.1)*1000);
 }
 /* monster health (raised 25%, then eased back 10% twice) */
-const monsterHP = L => 1.27*(L<=10 ? 130*Math.pow(1.15,L-1) : 130*Math.pow(1.15,9)*Math.pow(L/10,1.35));
+const monsterHP = L => 2.37*(L<=10 ? 130*Math.pow(LVL_STEP,L-1) : 130*Math.pow(LVL_STEP,9)*Math.pow(L/10,1.35));
 /* every monster wears armor: it soaks this much from each of your hits (never more than half the hit) */
 /* ---------- a monster's gear ----------
    A monster carries the Attack and Defense a hero of its own level would
    carry, so the two sides read in the same units. Its kind shifts that: a
    heavy monster wears more, a quick one wears less. Past level 10 the gear
    creeps rather than running away. */
-const FOE_PUNCH = 1.35;   /* how hard they swing */
+/* What a played hand is worth on average, measured over 300,000 deals with the
+   discard a real player makes (dev/gen/handavg.cjs). This is the median a
+   monster's hit is built from, so neither side is stronger by default. */
+const HAND_AVG = 121;
+const lvlMultOf = L => Math.pow(LVL_STEP, Math.max(1, L|0));
 const FOE_TOUGH = 1.35;   /* how much health they carry */
 const GEAR_ATK = [0,0,8,16,28,48,48,75,75,110,110];
 const GEAR_DEF = [0,0,40,70,120,120,190,190,280,280,280];
@@ -1862,8 +1866,13 @@ function genMonster(a, L, fixed){
   const pub=(a===0&&!(S&&S.world));
   const gk=t.hp;                                   /* a heavier kind wears heavier gear */
   const hp=Math.round(monsterHP(L)*FOE_TOUGH*t.hp*r()*(pub?.8:1)/5)*5;
-  const atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(1+foeAtkScore(L,gk)/100)*(pub?.8:1);
-  const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*v)*10)});
+  /* Its median hit is what a hand is worth on average, put through the same
+     attack score and level multiplier the hero uses - so at equal level and
+     equal attack the two of us deal the same damage. He varies with the cards,
+     it varies with the dice roll in swing(). */
+  const atk=HAND_AVG*lvlMultOf(L)*(1+foeAtkScore(L,gk)/100)*(pub?.8:1);
+  const hits=t.pat.filter(v=>typeof v==='number'), meanV=hits.reduce((a,b)=>a+b,0)/hits.length;
+  const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*(v/meanV)/10)*10)});
   return {gear:gk, def:pub?FLOOR_DEF:foeArmorFor(L,false,gk), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
 let AREAS = [
@@ -1906,8 +1915,9 @@ const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir '+baseName(
 const nm = t => { if(typeof t!=='string') return t; t=t.replace(/\b([Tt])he The /g,'$1he '); const n=baseName(); return n==='Edward' ? t : t.replace(/\bEdward\b/g, n); };
 function ruleOf(r){ return {rule:`${SUITS[r.off].s} ${SUITS[r.off].n}s do no damage`, off:c=>c.suit===r.off}; }
 function genBoss(def, L){
-  const hp=Math.round(monsterHP(L)*3/10)*10, atk=(4+2.6*(L-1))*1.25*FOE_PUNCH*(1+foeAtkScore(L,1.25)/100);
-  const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*v)*10)});
+  const hp=Math.round(monsterHP(L)*3/10)*10, atk=HAND_AVG*lvlMultOf(L)*(1+foeAtkScore(L,1.25)/100);
+  const bh=def.pat.filter(v=>typeof v==='number'), bMean=bh.reduce((a,b)=>a+b,0)/bh.length;
+  const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*(v/bMean)/10)*10)});
   return Object.assign({gear:1.25, def:foeArmorFor(L,true,1.25), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
 }
 function loadWorld(w){
@@ -2089,8 +2099,8 @@ function stopMusic(){ clearInterval(musicTimer); musicTimer=null; musicArea=-1; 
 function updateMusic(){
   if(!ac) return;
   const sw=songWant();
-  if(sw && !SONG_BAD.has(sw)){ if(musicArea>=0) stopMusic(); if(!song||song.id!==sw) songSwap(sw); return; }
-  if(song){ songStop(song); song=null; }
+  if(sw && !SONG_BAD.has(sw)){ if(musicArea>=0) stopMusic(); if((!song||song.id!==sw) && songPending!==sw) songSwap(sw); return; }
+  if(song||songPending){ songStop(song, 420, .13); song=null; songPending=null; }
   const want = musicOn ? Math.max(0,Math.min(TRACKS.length-1,curArea())) : -1;
   if(want===musicArea) return;
   stopMusic(); if(want<0) return;
@@ -2344,7 +2354,12 @@ function cardHTML(c, extra=''){
 }
 const mini = ([r,s]) => `<span class="mini ${SUITS[s].red?'red':''}">${RL(r)}${SUITS[s].s}</span>`;
 /* every swing rolls within 15% of the monster's usual hit */
-const swing = n => Math.max(1, Math.round(n * (0.85 + Math.random()*0.3)));
+/* The monster's roll is the hero's own hand spread turned into a die: twelve
+   faces taken from the real distribution of played hands (dev/gen/die.cjs),
+   so it has the same weak turns and the same rare big ones. Mean 1.0 and
+   median 0.5 - the same as the cards, which is what makes the two sides even. */
+const FOE_DIE = [.25,.25,.25,.5,.5,.5,.5,.833,1.25,1.833,2.667,2.667];
+const swing = n => Math.max(1, Math.round(n * FOE_DIE[(Math.random()*FOE_DIE.length)|0]));
 function intentText(mv){
   if(!mv) return '';
   if(S.fight&&S.fight.stunned) return `${I('skull')} Startled: skips its first move`;
@@ -3557,7 +3572,7 @@ function slotsPanel(){
       <div class="slot-btns"><button class="btn" data-act="slotPlay" data-slot="${n}">Play</button><button class="slot-del" data-act="slotDel" data-slot="${n}" aria-label="Delete this hero">Delete</button></div></div>`; }).join('');
   openPanel(`<div class="cine-scene"><img src="art/sc_start_0.webp" alt=""><span class="cine-title">Axes &amp; Aces</span></div>
     <h2>Choose your hero</h2><div class="slots">${cards}</div>
-    ${!anySlots()?`<div class="nosaves">${I('cloud')||''}<b>Played before and your heroes are gone?</b>
+    ${!anySlots()?`<div class="nosaves">${I('chest')}<b>Played before and your heroes are gone?</b>
       <span>Heroes are kept in this browser. A <b>private or incognito window</b> throws them away when you close it, and so does clearing your browsing data.
       If you saved to the cloud, your code brings them back.</span></div>`:''}
     <div class="row"><button class="btn big ghost" data-act="cloud">${anySlots()?'Cloud save':'I have a cloud code'}</button>
@@ -3586,7 +3601,7 @@ function titlePanel(sv){ return slotsPanel();
 
 /* ================= recorded music: a song per world, a boss song, smooth crossfades ================= */
 const SONG_BAD = new Set();
-let musBus=null, song=null;
+let musBus=null, song=null, songPending=null;
 function songWant(){
   if(!musicOn || !S) return null;
   const fightish = S.phase==='play'||S.phase==='intro';
@@ -3602,12 +3617,20 @@ function songStart(id){
   const g=ac.createGain(); g.gain.value=0; node.connect(g); g.connect(musBus);
   const me={id,a,g,next:false};
   a.addEventListener('error',()=>{ SONG_BAD.add(id); if(song===me){ song=null; updateMusic(); } });
-  a.addEventListener('timeupdate',()=>{ if(song===me && !me.next && a.duration && a.currentTime>a.duration-4){ me.next=true; songSwap(id); } });
+  a.addEventListener('timeupdate',()=>{ if(song===me && !me.next && a.duration && a.currentTime>a.duration-4){ me.next=true; songSwap(id, true); } });
   a.play().then(()=>{ g.gain.setTargetAtTime(1,ac.currentTime,.7); }).catch(()=>{});
   return me;
 }
-function songStop(me){ if(!me) return; try{ me.g.gain.setTargetAtTime(0,ac.currentTime,.6); }catch(e){} setTimeout(()=>{ try{ me.a.pause(); me.g.disconnect(); }catch(e){} },3500); }
-function songSwap(id){ const old=song; song=songStart(id); songStop(old); }
+function songStop(me, after, tc){ if(!me) return; try{ me.g.gain.setTargetAtTime(0,ac.currentTime,tc||.6); }catch(e){} setTimeout(()=>{ try{ me.a.pause(); me.g.disconnect(); }catch(e){} }, after||3500); }
+/* Looping the SAME tune overlaps on purpose, so the loop has no gap. Moving to a
+   DIFFERENT tune must not: two songs in two keys at once just sounds like a mess,
+   so the old one is cleared out before the new one starts. */
+function songSwap(id, loop){
+  const old=song;
+  if(loop){ song=songStart(id); songStop(old); return; }
+  songStop(old, 420, .13); song=null; songPending=id;
+  setTimeout(()=>{ if(songPending!==id) return; songPending=null; if(!song && songWant()===id) song=songStart(id); }, 400);
+}
 
 /* ================= travelers and finds appear where Edward actually is ================= */
 function worldClue(){ const a=areaOf(), b=MONSTERS['boss_'+a], st=QUEST_STEPS[Math.min(QUEST_STEPS.length-1,a*3)];

@@ -11,3 +11,7 @@ dev/android-app/ios/App/Pods/
 dev/android-app/ios/App/Podfile.lock
 dev/android-app/ios/App/App.xcworkspace/xcuserdata/
 dev/android-app/ios/App/App.xcodeproj/xcuserdata/
+
+# local play/test copies, not part of the site
+playtest.html
+audiotest.html
