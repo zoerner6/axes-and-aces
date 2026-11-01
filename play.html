@@ -2247,8 +2247,13 @@ const cumNeed = L => { let t=0; for(let i=1;i<=L;i++) t+=xpNeed(i); return t; };
 /* the monster's level badge: its color warns how dangerous it is next to your own level */
 function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-S.level;
   return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
-/* a monster's fighting stats: its strongest hit and its biggest shield */
-function foeStats(d){ const atk=Math.max(0,...d.moves.filter(m=>m.k==='atk').map(m=>m.n)), def=foeArmor(d), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
+/* A monster's fighting stats. Its hit must be its AVERAGE attack, not its
+   biggest one: the hero's figure beside it is an average hand, and comparing
+   its best punch to your typical hand makes every monster look stronger
+   than it is. Both sides now read as averages. */
+function foeStats(d){ const hits=d.moves.filter(m=>m.k==='atk').map(m=>m.n),
+  atk=hits.length?hits.reduce((a,b)=>a+b,0)/hits.length:0,
+  def=foeArmor(d), heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
   /* both numbers say what this monster does to you, the same way your own
      card reads, instead of a raw stat you have to do maths against */
   /* the monster's gear read in the same units as yours */
