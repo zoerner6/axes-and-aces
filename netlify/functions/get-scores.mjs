@@ -4,11 +4,15 @@ import { sql, json, preflight } from "./_db.mjs";
 export default async (req) => {
   const pre = preflight(req); if (pre) return pre;
   const u = new URL(req.url);
-  const board = u.searchParams.get("board") === "level" ? "level" : "daily";
+  // Same fixed list as add-score. Monster Farkle has its own two boards.
+  const BOARDS = ["daily", "level", "farkle", "farkle_daily"];
+  const asked = u.searchParams.get("board");
+  const board = BOARDS.includes(asked) ? asked : "daily";
   const day = u.searchParams.get("day");
   try {
-    const rows = board === "daily" && /^\d{4}-\d{2}-\d{2}$/.test(day || "")
-      ? await sql`select name, score from scores where board = 'daily' and day = ${day} order by score desc, created_at asc limit 20`
+    const daily = board === "daily" || board === "farkle_daily";
+    const rows = daily && /^\d{4}-\d{2}-\d{2}$/.test(day || "")
+      ? await sql`select name, score from scores where board = ${board} and day = ${day} order by score desc, created_at asc limit 20`
       : await sql`select name, score from scores where board = ${board} order by score desc, created_at asc limit 20`;
     return json({ scores: rows });
   } catch (e) {

@@ -157,7 +157,22 @@ img{max-width:100%}
    change that sinks the game, because six dice have to be read at a glance.
    The flavor is in the material: --die-* is swapped per world, and the pips
    stay at maximum contrast in every single set. */
+/* One set of dice per world, and nothing else about the die changes. Every
+   set was picked face-first for pip contrast, not the other way round: a pale
+   face with a near-black pip, or a dark face with a near-white one, and
+   nothing in between. If a set makes the pips harder to read at 320px the set
+   is wrong, not the rule. */
 :root{ --die-face:#f6ecd4; --die-face-2:#d8c7a2; --die-face-3:#bfa87e; --die-pip:#16100d; }
+.w0{ --die-face:#f6ecd4; --die-face-2:#d8c7a2; --die-face-3:#bfa87e; --die-pip:#16100d }  /* bone */
+.w1{ --die-face:#eaf4fb; --die-face-2:#c3dcec; --die-face-3:#9cc0d6; --die-pip:#0e2634 }  /* frost-cut crystal */
+.w2{ --die-face:#f6e2b4; --die-face-2:#ddc085; --die-face-3:#c0a062; --die-pip:#3a2206 }  /* desert stone */
+.w3{ --die-face:#dcefe8; --die-face-2:#aed3c7; --die-face-3:#86b2a6; --die-pip:#0c2a26 }  /* sunken coral */
+.w4{ --die-face:#dfe7c6; --die-face-2:#b8c69a; --die-face-3:#95a478; --die-pip:#1e2a0d }  /* bog amber */
+.w5{ --die-face:#4a4a52; --die-face-2:#33333a; --die-face-3:#232328; --die-pip:#f2f2f6 }  /* blackened iron */
+.w6{ --die-face:#ede6f2; --die-face-2:#c9bed3; --die-face-3:#a89bb4; --die-pip:#241a2e }  /* grave marble */
+.w7{ --die-face:#e8f3df; --die-face-2:#c2d9b3; --die-face-3:#9cb98c; --die-pip:#162a10 }  /* silver birch */
+.w8{ --die-face:#e4ecf7; --die-face-2:#bccadd; --die-face-3:#94a6bf; --die-pip:#141f33 }  /* storm quartz */
+.w9{ --die-face:#5a2420; --die-face-2:#401714; --die-face-3:#2c0f0d; --die-pip:#ffd9a8 }  /* ember glass */
 .die{
   position:relative;aspect-ratio:1;width:100%;min-width:0;padding:9.5%;border:3px solid #000;border-radius:19%;
   background:linear-gradient(155deg, var(--die-face), var(--die-face-2) 58%, var(--die-face-3));
@@ -359,6 +374,39 @@ img{max-width:100%}
 .charmrow{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .charmrow img{width:24px;height:24px;object-fit:contain;filter:drop-shadow(0 1px 2px #000)}
 
+/* ---------- the scoring table ---------- */
+.guide{display:flex;flex-direction:column;gap:5px}
+.g-row{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:9px;padding:6px 9px}
+.g-row span{font-size:.95rem;line-height:1.2;min-width:0}
+.g-row em{font-style:normal;font-family:var(--f-num);font-weight:700;font-size:.95rem;color:var(--gold-hi);white-space:nowrap}
+.mini{display:flex;gap:3px}
+.mini .md{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:1px;
+  width:22px;height:22px;padding:2.5px;border:2px solid #000;border-radius:22%;
+  background:linear-gradient(155deg,var(--die-face),var(--die-face-3));box-sizing:border-box}
+.mini .md b{border-radius:50%;background:var(--die-pip)}
+
+/* ---------- how to play ---------- */
+.howto{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--parch-dim);line-height:1.4}
+.howto b{color:var(--parch)}
+
+/* ---------- the hall, and your save code ---------- */
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.lb li{display:grid;grid-template-columns:28px 1fr auto;gap:9px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:8px;padding:6px 9px}
+.lb li.me{background:#4a3a1c}
+.lb li span{font-family:var(--f-num);font-weight:700;color:var(--parch-dim);text-align:center}
+.lb li b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb li em{font-style:normal;font-family:var(--f-num);font-weight:700;color:var(--gold-hi)}
+.cloud-code{font-family:var(--f-num);font-weight:700;font-size:1.25rem;letter-spacing:.08em;text-align:center;
+  background:#120d0b;border:3px solid #000;box-shadow:3px 3px 0 #000;border-radius:10px;padding:10px 8px;
+  color:var(--gold-hi);word-break:break-all}
+.name-row{display:flex;flex-direction:column;gap:4px}
+.name-row label{font-family:var(--f-num);font-weight:600;font-size:.74rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--parch-dim)}
+.name-row input{font:inherit;font-size:1.02rem;background:#120d0b;color:var(--parch);
+  border:3px solid #000;border-radius:9px;padding:9px 11px;min-height:44px;width:100%;box-sizing:border-box}
+
 /* ---------- things that fly across the screen ---------- */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 /* the axe going through it */
@@ -480,6 +528,16 @@ img{max-width:100%}
   .buy .ico{width:26px;height:26px}
   .buys{gap:5px}
   .tabs{gap:4px}
+  /* the scoring table is nine rows, and the six-dice rows are the widest
+     thing in the game: smaller dice buy the label a single line */
+  .g-row{padding:4px 8px;gap:7px}
+  .g-row span{font-size:.88rem}
+  .g-row em{font-size:.88rem}
+  .mini .md{width:16px;height:16px;padding:1.5px;border-width:1.5px}
+  .mini{gap:2px}
+  .guide{gap:4px}
+  .howto{gap:4px;padding-left:18px;font-size:.94rem}
+  .tipbox{padding:7px 10px;font-size:.9rem}
 }
 
 /* A short phone has to give the height back from somewhere, and it is never
@@ -849,12 +907,13 @@ const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfis
 const xpNeed = L => Math.round(40 * Math.pow(1.35, Math.max(1, L) - 1));
 const cumNeed = L => { let t = 0; for(let i = 1; i <= L; i++) t += xpNeed(i); return t; };
 
-let S = {
-  level:1, xp:0, gold:3, hp:400, maxHp:400, block:0, pendingLv:0, wins:0, deaths:0,
-  perks:[], charms:[], pots:[], shopTab:'rest',
+const freshHero = () => ({
+  level:1, xp:0, gold:5, hp:400, maxHp:400, block:0, pendingLv:0, wins:0, deaths:0,
+  perks:[], charms:[], pots:[], shopTab:'rest', name:store.get('name', ''),
   eq:{ main:null, off:null, shield:null, helm:null, armor:null },
-  world:0, area:0, idx:0, fight:null
-};
+  world:0, idx:0, introBeat:0, endBeat:0, fight:null
+});
+let S = freshHero();
 const foeDef = () => S.fight && S.fight.d;
 
 /* ---------- the monster on the stage ---------- */
@@ -919,6 +978,7 @@ function startFight(){
   S.fight = { d, hp:d.hp, max:d.hp, block:0, mv:0 };
   S.block = 0;
   $('stage').style.setProperty('--bgimg', `url(art/${bgOf()}.webp)`);
+  document.body.className = 'w' + ((S.world || 0) % 10);
   $('stage').classList.toggle('boss', !!boss);
   $('foeName').textContent = d.name;
   const [k, t] = threatOf(d);
@@ -933,7 +993,199 @@ function startFight(){
   setFoeBars(); setMyBars(); renderPots();
   newTurn();
   busy = true;
+  S.phase = 'fight'; updateMusic();
   fightIntro();
+}
+
+/* ===================== keeping your hero =====================
+   Three slots under fk_ keys, so Monster Farkle can never overwrite an
+   Axes & Aces hero or a Monster Solitaire one. The cloud functions store
+   whatever JSON they are handed, so they need no change for a second game. */
+let SLOT = (() => { try{ return +JSON.parse(localStorage.getItem('fk_slot') || '1') || 1; }catch(e){ return 1; } })();
+const SK = (k, n) => `fk_${k}_${n || SLOT}`;
+const heroName = () => (S && S.name) || store.get('name', '') || 'Edward';
+
+function saveGame(){
+  if(!S || S.daily) return;
+  try{ localStorage.setItem(SK('save'), JSON.stringify({ S, at:Date.now() })); }catch(e){}
+}
+function loadSave(n){ try{ return JSON.parse(localStorage.getItem(SK('save', n)) || 'null'); }catch(e){ return null; } }
+function slotLine(n){
+  const v = loadSave(n);
+  if(!v || !v.S) return { n, empty:true };
+  const L = v.S;
+  return { n, empty:false, name:L.name || 'Edward', level:L.level || 1,
+           where:(WORLDS[(L.world || 0) % 10].areas[Math.min(3, Math.floor((L.idx || 0) / AREA_FIGHTS))] || {}).name || '',
+           world:worldName(L.world || 0) };
+}
+function slotsPanel(){
+  const rows = [1, 2, 3].map(slotLine);
+  openPanel(`
+    <h2>Monster Farkle</h2>
+    <p>Six dice. One monster. Wind up the blow, or lose the lot.</p>
+    <div class="buys">${rows.map(r => r.empty
+      ? `<button class="buy" data-act="newHero" data-slot="${r.n}">
+          <img class="ico" src="art/i_level.webp" alt=""><b>New hero</b><span>Slot ${r.n}</span>
+          <span class="cost">Start</span></button>`
+      : `<button class="buy" data-act="loadHero" data-slot="${r.n}">
+          <img class="ico" src="art/hero_t${Math.min(5, Math.floor(r.level / 3))}.webp" alt=""><b>${r.name}</b>
+          <span>Level ${r.level} &middot; ${r.where}</span><span class="cost">Play</span></button>`).join('')}</div>
+    <button class="btn big ghost" data-act="cloud">Play on another device</button>`);
+}
+
+/* ---------- the menu ---------- */
+function menuPanel(){
+  openPanel(`
+    <h2>Menu</h2>
+    <div class="buys">
+      <button class="buy" data-act="togMusic"><img class="ico" src="art/i_inn.webp" alt="">
+        <b>Music</b><span>Songs for each world.</span><span class="cost">${musicOn ? 'On' : 'Off'}</span></button>
+      <button class="buy" data-act="togSfx"><img class="ico" src="art/i_bolt.webp" alt="">
+        <b>Sound effects</b><span>Dice, blows and coins.</span><span class="cost">${soundOn ? 'On' : 'Off'}</span></button>
+      <button class="buy" data-act="guide"><img class="ico" src="art/i_map.webp" alt="">
+        <b>Scoring</b><span>What every combination is worth.</span><span class="cost">Open</span></button>
+      <button class="buy" data-act="lb"><img class="ico" src="art/i_chest.webp" alt="">
+        <b>Hall of heroes</b><span>How far other players got.</span><span class="cost">Open</span></button>
+      <button class="buy" data-act="cloud"><img class="ico" src="art/i_bag.webp" alt="">
+        <b>Play on another device</b><span>Your private save code.</span><span class="cost">Open</span></button>
+      <button class="buy" data-act="slots"><img class="ico" src="art/i_skull.webp" alt="">
+        <b>Change hero</b><span>Three slots, three heroes.</span><span class="cost">Open</span></button>
+    </div>
+    <button class="btn big" data-act="close">Back</button>`);
+}
+
+/* ---------- the leaderboard and the cloud ----------
+   Same Netlify functions as the card game, on its own boards. */
+const API = REMOTE + '.netlify/functions/';
+async function api(path, body){
+  const r = await fetch(API + path, body
+    ? { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body) } : {});
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(j.error || 'Could not reach the server');
+  return j;
+}
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const myName = () => store.get('name', '');
+function nameRow(){
+  return `<div class="name-row"><label for="lbName">Your name</label>
+    <input id="lbName" maxlength="20" placeholder="Edward" value="${(myName() || '').replace(/"/g, '')}"></div>`;
+}
+function scoreList(rows, mine){
+  if(!rows || !rows.length) return '<p class="menu-note">No scores yet. Be the first.</p>';
+  return `<ol class="lb">${rows.map((r, i) => `<li class="${mine && r.name === mine ? 'me' : ''}">
+    <span>${i + 1}</span><b>${String(r.name).replace(/</g, '')}</b><em>${fmt(r.score)}</em></li>`).join('')}</ol>`;
+}
+async function lbPanel(){
+  openPanel(`<div class="eyebrow">Hall of heroes</div><h2>Highest level</h2>
+    <div id="lbList"><p class="menu-note">Loading...</p></div>
+    ${nameRow()}
+    <button class="btn big" data-act="postScore">Post my level</button>
+    <button class="btn big ghost" data-act="close">Back</button>`);
+  try{
+    const j = await api('get-scores?board=farkle');
+    const el = $('lbList'); if(el) el.innerHTML = scoreList(j.scores, myName());
+  }catch(e){
+    const el = $('lbList');
+    if(el) el.innerHTML = `<p class="menu-note">The hall is not reachable from here. Play at AxesAndAces.com to join it.</p>`;
+  }
+}
+async function postScore(btn){
+  const v = (($('lbName') || {}).value || '').trim().slice(0, 20);
+  if(!v){ toast('Type your name first'); const i = $('lbName'); if(i) i.focus(); return; }
+  store.set('name', v);
+  if(S) S.name = v;
+  if(btn){ btn.disabled = true; btn.textContent = 'Posting...'; }
+  try{
+    await api('add-score', { board:'farkle', name:v, score:S.level });
+    if(btn) btn.textContent = 'Posted';
+    toast('Your level is up there.');
+    const j = await api('get-scores?board=farkle');
+    const el = $('lbList'); if(el) el.innerHTML = scoreList(j.scores, v);
+  }catch(e){ if(btn){ btn.disabled = false; btn.textContent = 'Try again'; } toast(e.message); }
+}
+function cloudCode(){
+  let c = store.get('cloud', '');
+  if(!c){
+    const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    c = Array.from(crypto.getRandomValues(new Uint8Array(16)), x => a[x % a.length]).join('');
+    store.set('cloud', c);
+  }
+  return c;
+}
+const prettyCode = c => c.match(/.{1,4}/g).join('-');
+function cloudPanel(){
+  openPanel(`<div class="eyebrow">Play on any device</div><h2>Your save code</h2>
+    <p>Write this down or copy it. Type it on another phone or computer to pick up where you left off.</p>
+    <div class="cloud-code">${prettyCode(cloudCode())}</div>
+    <div class="row"><button class="btn ghost" data-act="cloudSave">Save to cloud</button>
+      <button class="btn ghost" data-act="cloudCopy">Copy code</button></div>
+    <div class="name-row"><label for="cloudIn">Load a save code</label>
+      <input id="cloudIn" maxlength="24" placeholder="ABCD-EFGH-JKLM-NPQR"></div>
+    <button class="btn big ghost" data-act="cloudLoad">Load from cloud</button>
+    <p class="menu-note" id="cloudMsg"></p>
+    <button class="btn big" data-act="close">Back</button>`);
+}
+async function cloudSave(quiet){
+  if(!S) return;
+  const m = $('cloudMsg');
+  try{
+    await api('save-game', { code:'FK' + cloudCode(), data:{ S, at:Date.now() } });
+    if(!quiet){ toast('Saved to the cloud'); if(m) m.textContent = 'Saved. Use your code on any device.'; }
+  }catch(e){ if(!quiet){ toast(e.message); if(m) m.textContent = e.message; } }
+}
+async function cloudLoad(){
+  const raw = (($('cloudIn') || {}).value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const m = $('cloudMsg');
+  if(raw.length < 12){ if(m) m.textContent = 'Type the 16-letter code.'; return; }
+  try{
+    const j = await api('load-game?code=FK' + raw);
+    const sv = j.data;
+    if(!sv || !sv.S) throw new Error('No save found for that code');
+    store.set('cloud', raw);
+    S = sv.S;
+    saveGame(); closePanel();
+    toast('Your hero is back.');
+    startFight();
+  }catch(e){ if(m) m.textContent = e.message; }
+}
+
+/* ---------- what everything scores ----------
+   Little real dice in the table, not words. The whole point of the game is
+   recognising a shape on the table, so the guide shows the shape. */
+function miniDice(faces){
+  return `<span class="mini">${faces.map(f => `<i class="md">${
+    PIPS[f].map(k => `<b style="grid-area:${1 + (k / 3 | 0)}/${1 + k % 3}"></b>`).join('')}</i>`).join('')}</span>`;
+}
+const SCORE_ROWS = [
+  [[1], 'Each 1', '100'],
+  [[5], 'Each 5', '50'],
+  [[4,4,4], 'Three of a kind', 'face × 100'],
+  [[1,1,1], 'Three 1s', '1,000'],
+  [[3,3,3,3], 'Each extra match', 'doubles it'],
+  [[1,2,3,4,5,6], 'Straight 1 to 6', '1,500'],
+  [[2,2,4,4,6,6], 'Three pairs', '1,500'],
+  [[5,5,5,5,2,2], 'Four of a kind + a pair', '1,500'],
+  [[1,1,1,4,4,4], 'Two triplets', '2,500']
+];
+function guidePanel(){
+  openPanel(`<div class="eyebrow">Old Bram's table</div><h2>What the dice are worth</h2>
+    <div class="guide">${SCORE_ROWS.map(([f, n, v]) =>
+      `<div class="g-row">${miniDice(f)}<span>${n}</span><em>${v}</em></div>`).join('')}</div>
+    <p class="menu-note">Only 1s and 5s score alone. Set aside all six and you get all six back.</p>
+    <button class="btn big" data-act="close">Back</button>`);
+}
+function helpPanel(){
+  openPanel(`<div class="eyebrow">How to play</div><h2>Monster Farkle</h2>
+    <ol class="howto">
+      <li><b>Roll</b> six dice.</li>
+      <li><b>Tap the dice that score.</b> Only those light up, so you cannot pick wrong.</li>
+      <li><b>Roll again</b> with what is left. The wind-up grows.</li>
+      <li><b>Strike</b>, and the monster takes the whole wind-up.</li>
+      <li>Roll nothing that scores and that is a <b>farkle</b>: the wind-up is gone and the monster hits you.</li>
+    </ol>
+    <div class="tipbox">The longer you push, the harder you hit, and the more you have to lose.</div>
+    <button class="btn big ghost" data-act="guide">What the dice are worth</button>
+    <button class="btn big" data-act="close">Back</button>`);
 }
 
 /* ---------- the plumbing check ----------
@@ -979,6 +1231,61 @@ function knock(delay = 0, vol = 1){
 const snap = () => { tone(1250, .06, 'square', .045); tone(1870, .05, 'triangle', .03, .035); };
 const unsnap = () => tone(620, .07, 'triangle', .035);
 const deadthud = () => { tone(104, .26, 'sawtooth', .09); tone(66, .34, 'sine', .11, .02); };
+
+/* ---------- music ----------
+   The same recorded songs the card game uses, with the same trick for looping
+   without a gap: a loop overlaps itself on purpose, but moving to a DIFFERENT
+   song clears the old one out first, because two tunes in two keys at once is
+   just a mess. */
+let musicOn = store.get('music', true);
+let musBus = null, song = null, songPending = null;
+const SONG_BAD = new Set();
+function songWant(){
+  if(!musicOn || !S) return null;
+  if(S.phase === 'fight'){
+    const d = foeDef();
+    if(d && d.boss) return 'boss';
+    return 'fight' + (1 + ((S.idx || 0) % 2));
+  }
+  return 'w' + (((S.world || 0) % 10) + 1);
+}
+function songStart(id){
+  if(!audio() || SONG_BAD.has(id)) return null;
+  if(!musBus){ musBus = ac.createGain(); musBus.gain.value = .5; musBus.connect(ac.destination); }
+  const a = new Audio(`${REMOTE}music/${id}.mp3`);
+  a.preload = 'auto'; a.crossOrigin = 'anonymous';
+  let node; try{ node = ac.createMediaElementSource(a); }catch(e){ SONG_BAD.add(id); return null; }
+  const g = ac.createGain(); g.gain.value = 0;
+  node.connect(g); g.connect(musBus);
+  const me = { id, a, g, next:false };
+  a.addEventListener('error', () => { SONG_BAD.add(id); if(song === me){ song = null; updateMusic(); } });
+  a.addEventListener('timeupdate', () => {
+    if(song === me && !me.next && a.duration && a.currentTime > a.duration - 4){ me.next = true; songSwap(id, true); }
+  });
+  a.play().then(() => g.gain.setTargetAtTime(1, ac.currentTime, .7)).catch(() => {});
+  return me;
+}
+function songStop(me, after, tc){
+  if(!me) return;
+  try{ me.g.gain.setTargetAtTime(0, ac.currentTime, tc || .6); }catch(e){}
+  setTimeout(() => { try{ me.a.pause(); me.g.disconnect(); }catch(e){} }, after || 3500);
+}
+function songSwap(id, loop){
+  const old = song;
+  if(loop){ song = songStart(id); songStop(old); return; }
+  songStop(old, 420, .13); song = null; songPending = id;
+  setTimeout(() => {
+    if(songPending !== id) return;
+    songPending = null;
+    if(!song && songWant() === id) song = songStart(id);
+  }, 400);
+}
+function updateMusic(){
+  const want = songWant();
+  if(!want){ songStop(song); song = null; return; }
+  if(song && song.id === want) return;
+  songSwap(want, false);
+}
 
 /* ---------- the dice ----------
    Six dice, each keeping its own column for the whole turn. 'where' is the only
@@ -1161,6 +1468,32 @@ document.addEventListener('click', e => {
   if(act === 'drink') return drink(b.dataset.pot);
   if(act === 'again'){ closePanel(); S.hp = S.maxHp; S.idx = 0; S.world = 0; S.introBeat = 0; return storyPanel('start'); }
   if(act === 'storyNext') return storyNext(b.dataset.key);
+  if(act === 'menu') return menuPanel();
+  if(act === 'slots') return slotsPanel();
+  if(act === 'guide') return guidePanel();
+  if(act === 'help') return helpPanel();
+  if(act === 'lb') return lbPanel();
+  if(act === 'postScore') return postScore(b);
+  if(act === 'cloud') return cloudPanel();
+  if(act === 'cloudSave') return cloudSave();
+  if(act === 'cloudLoad') return cloudLoad();
+  if(act === 'cloudCopy'){
+    const t = prettyCode(cloudCode());
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+      .then(() => toast('Code copied')).catch(() => toast(t));
+    return;
+  }
+  if(act === 'togMusic'){ musicOn = !musicOn; store.set('music', musicOn); updateMusic(); return menuPanel(); }
+  if(act === 'togSfx'){ soundOn = !soundOn; store.set('sound', soundOn); return menuPanel(); }
+  if(act === 'newHero'){
+    SLOT = +b.dataset.slot; try{ localStorage.setItem('fk_slot', JSON.stringify(SLOT)); }catch(e){}
+    S = freshHero(); closePanel(); return storyPanel('start');
+  }
+  if(act === 'loadHero'){
+    SLOT = +b.dataset.slot; try{ localStorage.setItem('fk_slot', JSON.stringify(SLOT)); }catch(e){}
+    const v = loadSave(SLOT); if(!v || !v.S) return toast('That slot is empty');
+    S = v.S; closePanel(); return startFight();
+  }
   toast('Not built yet: ' + act);
 });
 
@@ -1524,6 +1857,7 @@ function won(){
   S.wins++;
   if(!S.best || S.bestHit > (S.best || 0)) S.best = S.bestHit || S.best;
   setMyBars();
+  saveGame();
   setTimeout(() => victoryPanel(d, { flawless, clutch, bonus }), 1500);
 }
 function victoryPanel(d, mood){
@@ -1648,6 +1982,7 @@ function lost(){
    shows a story beat; clearing the fourth finishes the world and starts the
    next. Past the tenth world it keeps going, deeper each time. */
 function nextFight(){
+  saveGame();
   const wasBoss = isBossStep();
   if(!wasBoss){ S.idx++; return startFight(); }
   if(areaOf() >= 3) return worldDone();
@@ -1660,6 +1995,7 @@ function worldDone(){
   storyPanel('end');
 }
 function storyPanel(key){
+  S.phase = 'story'; updateMusic();
   const w = worldOf();
   const beat = key === 'end' ? w.story.end[S.endBeat || 0]
              : key === 'start' ? w.intro[S.introBeat || 0]
@@ -1726,6 +2062,7 @@ const REST_PRICE = 4, REST_SHARE = .5;
 /* ---------- the merchant ---------- */
 const TABS = [['rest','Rest'], ['smith','Smith'], ['charms','Charms'], ['pots','Potions']];
 function shopPanel(tab){
+  S.phase = 'camp'; updateMusic();
   S.shopTab = tab || S.shopTab || 'rest';
   const t = S.shopTab;
   openPanel(`
@@ -1830,7 +2167,10 @@ function drink(id){
 }
 
 buildTray();
-storyPanel('start');
+/* pick up where you left off, or meet the dice for the first time */
+const saved = loadSave(SLOT);
+if(saved && saved.S){ S = saved.S; startFight(); }
+else storyPanel('start');
 
 window.__FK = { phoneCSSLive, store, openPanel, closePanel, toast,
   get D(){ return D; }, get wind(){ return wind; }, get S(){ return S; },
