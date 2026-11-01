@@ -41,6 +41,35 @@ jobs:
       - name: Install the app's packages
         run: npm ci || npm install
 
+      # Apple turns down apps that are only a window onto a website
+      # (review guideline 4.2), so the iPhone app carries the game itself and
+      # plays with no signal. The monster clips are 585MB, far too much to
+      # ship, so those still stream from the site when there is a connection
+      # and the game falls back to the still art when there isn't.
+      - name: Build the game into the app
+        working-directory: .
+        run: |
+          python3 dev/build.py
+          mkdir -p dev/android-app/www
+          cp play.html dev/android-app/www/index.html
+          cp manifest.json dev/android-app/www/
+          cp -r art img icons music dev/android-app/www/
+          du -sh dev/android-app/www
+
+      # Android keeps loading the website, so site updates still reach it
+      # without a rebuild. Only the iPhone build runs off its own copy.
+      - name: Point the iPhone app at its own files
+        working-directory: .
+        run: |
+          python3 -I - <<'PY'
+          import json
+          p = 'dev/android-app/capacitor.config.json'
+          c = json.load(open(p))
+          c['server'].pop('url', None)
+          json.dump(c, open(p, 'w'), indent=1)
+          print(c)
+          PY
+
       - name: Copy the web files in
         run: npx cap sync ios
 

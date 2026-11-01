@@ -1,7 +1,8 @@
 // POST /.netlify/functions/save-game  {code, data}
-import { sql, json } from "./_db.mjs";
+import { sql, json, preflight } from "./_db.mjs";
 
 export default async (req) => {
+  const pre = preflight(req); if (pre) return pre;
   if (req.method !== "POST") return json({ error: "Use POST" }, 405);
   let b;
   try { b = await req.json(); } catch { return json({ error: "Bad request" }, 400); }

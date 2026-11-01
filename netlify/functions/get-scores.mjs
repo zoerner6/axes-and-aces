@@ -1,7 +1,8 @@
 // GET /.netlify/functions/get-scores?board=daily&day=2026-10-31  -> top 20 scores
-import { sql, json } from "./_db.mjs";
+import { sql, json, preflight } from "./_db.mjs";
 
 export default async (req) => {
+  const pre = preflight(req); if (pre) return pre;
   const u = new URL(req.url);
   const board = u.searchParams.get("board") === "level" ? "level" : "daily";
   const day = u.searchParams.get("day");

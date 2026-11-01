@@ -1,7 +1,8 @@
 // GET /.netlify/functions/load-game?code=XXXX  -> {data}
-import { sql, json } from "./_db.mjs";
+import { sql, json, preflight } from "./_db.mjs";
 
 export default async (req) => {
+  const pre = preflight(req); if (pre) return pre;
   const code = new URL(req.url).searchParams.get("code") || "";
   if (!/^[A-Za-z0-9]{12,64}$/.test(code)) return json({ error: "Bad code" }, 400);
   try {
