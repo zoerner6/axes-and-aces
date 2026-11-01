@@ -45,7 +45,16 @@ const PL_DEF_REAL=L=>Math.round(knightDef(L)*0.7);
 const lvlMult=L=>Math.pow(LVL_STEP,L);
 /* the monster's die, mirrored from the hero's own hand spread */
 const FOE_DIE=[.25,.25,.25,.5,.5,.5,.5,.833,1.25,1.833,2.667,2.667];
-const roll=()=>FOE_DIE[(Math.random()*FOE_DIE.length)|0];
+const DIE_TOP=Math.max(...FOE_DIE);
+/* the die is squeezed toward 1 on the bigger moves, so the kind's pattern and
+   the die together never reach past the hero's own 2.667x. E[face]=1, so the
+   mean does not move. */
+const OLD=!!process.env.OLD;
+const roll=(pat=1)=>{ const f=FOE_DIE[(Math.random()*FOE_DIE.length)|0];
+  if(OLD) return f;
+  const k=Math.max(0,Math.min(1,(DIE_TOP/pat-1)/(DIE_TOP-1)));
+  return 1+(f-1)*k; };
+const HIT_CAP=OLD?99:.6;
 
 /* real monster patterns from the game: numbers attack, B blocks, H heals */
 const PATS=[[1,1,1.6],[1,1.4],[1,1,1.5],['B',1,1.6],[0.8,0.8,2.1],[1,'H',1.4],[0.8,2],[1,1.5],[1.2,'H',1.4],[1.3,1.3],[1,'B',1.9]];
@@ -82,7 +91,9 @@ function fight(pl, ml, hpMul, myHPbase, perLvlHP){
     if(mv==='B'){ block=Math.round(fhp*.12); }
     else if(mv==='H'){ fhp=Math.min(fhp+Math.round(fhp*.15), 130*Math.pow(HP_STEP,ml-1)*hpMul*kh); }
     else {
-      let dmg=(foeBase*(mv/meanV)*roll())/myDefDiv;
+      const pat=mv/meanV;
+      let dmg=(foeBase*pat*roll(pat))/myDefDiv;
+      dmg=Math.min(dmg, myMax*HIT_CAP);
       dmg=Math.max(1,dmg-block); block=0;
       hp-=dmg;
     }
