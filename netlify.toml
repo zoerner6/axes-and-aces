@@ -26,6 +26,16 @@
     Cache-Control = "no-cache"
 
 [[headers]]
+  for = "/farkle.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/farkle.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
   for = "/sw.js"
   [headers.values]
     Cache-Control = "no-cache"
