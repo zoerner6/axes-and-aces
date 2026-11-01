@@ -3329,26 +3329,30 @@ function sellPanel(){
   setTimeout(()=>{ if(S.phase==='sell') coins(); },2600);
 }
 function pathPanel(){
-  if(S.redo){ nextFight(); return; }
   S.phase='path';
   const unlocked=areaOf(), nextIdx=S.idx+1;
-  const hunts=[unlocked].map(i=>AREAS[i]).map((a)=>`<button class="pathbtn hunt" data-act="hunt" data-a="${unlocked}"><span class="inn-ic">${a.icon}</span><span class="inn-txt"><b>Train at ${a.name}</b><small>Build up your experience and gold</small></span></button>`).reverse().join('');
+  /* off the quest path: training on purpose, or you ran and the fight is still waiting */
+  const away = !!S.huntFoe || !!S.redo, hereA = S.huntFoe ? S.huntArea : unlocked, fled = away && hereA < unlocked;
+  const here = AREAS[hereA];
   const newLand = AREA_START.includes(nextIdx), step = nextIdx <= LAST_IDX ? QUEST_STEPS[newLand ? AREA_START.indexOf(nextIdx)*3 : Math.min(areaOf(nextIdx)*3+1, QUEST_STEPS.length-1)] : null;
-  /* only a real choice before leaving for a new place; otherwise just keep going */
-  if(step && !newLand){ S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); return; }
-  openPanel(`<div class="eyebrow">Where to next?</div><h2>Choose your path</h2>
+  /* mid-quest there is nothing to choose, so keep going. once you have stepped off
+     the path, though, staying put is a choice, and only you get to end it. */
+  if(step && !newLand && !away){ S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); return; }
+  const hunts = `<button class="pathbtn hunt" data-act="hunt" data-a="${hereA}"><span class="inn-ic">${here.icon}</span><span class="inn-txt"><b>${fled?'Stay at':'Train at'} ${here.name}</b><small>${fled?'Keep fighting here for experience and gold':'Build up your experience and gold'}</small></span></button>`;
+  const warnA = newLand ? AREA_START.indexOf(nextIdx) : fled ? unlocked : -1;
+  openPanel(`<div class="eyebrow">${away?'Stay here, or get back to it?':'Where to next?'}</div><h2>Choose your path</h2>
     <div class="panel-hp"><div class="hpbar mehp"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i><span>HP ${S.hp} / ${S.maxHp}</span></div></div>
     ${newLand?saveBox():''}
-    ${newLand&&nextIdx<=LAST_IDX?(()=>{
-      const [lo,hi]=AREA_LV[AREA_START.indexOf(nextIdx)]||[], gap=lo-(S.level||1);
+    ${warnA>=0&&nextIdx<=LAST_IDX?(()=>{
+      const [lo,hi]=AREA_LV[warnA]||[], gap=lo-(S.level||1);
       if(!lo) return '';
       const hard = gap>=3 ? 'far stronger than you' : gap>=1 ? 'stronger than you' : 'a match for you';
-      return `<div class="aheadwarn"><b>${I('skull')} ${AREAS[AREA_START.indexOf(nextIdx)].name} is dangerous</b>
+      return `<div class="aheadwarn"><b>${I('skull')} ${AREAS[warnA].name} is dangerous</b>
         <span>The monsters there are <b>level ${lo} to ${hi}</b> and you are <b>level ${S.level}</b> — ${hard}.
-        Train where you are until you feel ready, or push on and risk it.</span></div>`;
+        ${fled?`Stay at ${here.name} as long as you like, or go back and face it.`:'Train where you are until you feel ready, or push on and risk it.'}</span></div>`;
     })():''}
     ${tip('path','Not ready to push on? <b>Train</b> where you are to earn experience and gold, then continue the quest when you feel strong.')}
-    ${step?`<button class="pathbtn quest" data-act="quest"><span class="inn-ic">${newLand?AREAS[AREA_START.indexOf(nextIdx)].icon:I('map')}</span><span class="inn-txt"><b>${step.go}</b><small>${step.why}</small></span></button>`:''}
+    ${step?`<button class="pathbtn quest" data-act="quest"><span class="inn-ic">${fled?AREAS[unlocked].icon:newLand?AREAS[AREA_START.indexOf(nextIdx)].icon:I('map')}</span><span class="inn-txt"><b>${fled?`Back to ${AREAS[unlocked].name}`:step.go}</b><small>${fled?'Pick the quest up where you left it':step.why}</small></span></button>`:''}
     ${hunts}`);
 }
 function nextFight(){
@@ -3516,7 +3520,7 @@ document.addEventListener('click', e=>{
     case 'leaveShop': pathPanel(); break;
     case 'shopTab': S.shopTab=t.dataset.tab; shopPanel(); break;
     case 'quest': S.huntFoe=null; S.enc=null; S.foePick=null; nextFight(); break;
-    case 'hunt': { const a=+t.dataset.a; if(a!==areaOf()) return;
+    case 'hunt': { const a=+t.dataset.a; if(a>areaOf()) return;
       S.huntFoe='gen'; S.huntArea=a; S.shop=null; S.enc=null; S.foePick=null; fightIntro(); break; }
     case 'findOk': S.find=null; render(); fightIntro(); break;
     case 'eat': { const f=S.find; if(!f||!f.choice) return; f.choice=false; const b=S.hp;
