@@ -51,7 +51,10 @@ const srv = http.createServer((q,r)=>{
       const el = document.getElementById('panel');
       const spill = el.scrollHeight - el.clientHeight;
       if(spill <= 1) return null;
-      const last = el.querySelector('.btn.big:last-of-type, button:last-of-type');
+      /* the main button is the last .btn.big that is a direct child of the
+         panel - not a .buy row inside a list, which :last-of-type would find */
+      const big = [...el.children].filter(c => c.classList.contains('btn') && c.classList.contains('big'));
+      const last = big[big.length - 1];
       return { spill, mainButtonBelowTheFold: last ? Math.round(last.getBoundingClientRect().bottom - el.getBoundingClientRect().bottom) : null };
     });
     if(over) bits.push(`panelScrolls:${JSON.stringify(over)}`);
