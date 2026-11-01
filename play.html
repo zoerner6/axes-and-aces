@@ -1928,10 +1928,11 @@ const FLOOR_DEF = 5;
 const foeArmorFor = (L, boss, tp) => foeDefScore(L, boss ? 0 : tp, boss);
 const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss, d.tp)) : 0;
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d)/100)));
-/* Fire Bolt is a roll, not a flat number: somewhere between a quarter and three
-   quarters of what the monster is carrying, and its armour takes a bite out of
-   that the same as it does out of a sword. */
-const FIRE_LO = .25, FIRE_HI = .75;
+/* A wizard's damage book rolls for a slice of what the monster is carrying -
+   its band is on the book itself - and its armour takes a bite out of that the
+   same as it does out of a sword. No band tops the monster's health, so a bolt
+   finishes a wounded one and never deletes a fresh one. */
+const spellRoll = (max, band) => Math.ceil(max * (band[0] + Math.random()*(band[1]-band[0])));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
   /* the pub is where you start with no gear: its monsters are softer */
@@ -2105,10 +2106,10 @@ const tierCap = () => (S.world||0)>0 ? 5 : Math.min(5, areaOf()+2);
 /* spellbooks: unlocked by level, bought once, cast once per fight */
 const BOOKS = [
   {id:'cleric1',name:'Cleric Training I',  icon:I('cleric'), school:'cleric', lvl:2, price:6,  chip:'Heal 30%', desc:'One heal, every fight.'},
-  {id:'fire',   name:'Fire Bolt',          icon:I('fire'), school:'wizard', lvl:3, price:6,  chip:'25-75% damage', desc:"Rolls for a quarter to three quarters of the monster's full health. Its armor takes some of that back."},
+  {id:'fire',   name:'Fire Bolt',          icon:I('fire'), school:'wizard', lvl:3, price:6,  roll:[.25,.75], chip:'25-75% damage', desc:"Rolls for a quarter to three quarters of the monster's full health. Its armor takes some of that back."},
   {id:'cleric2',name:'Cleric Training II', icon:I('cleric'), school:'cleric', lvl:4, price:10, need:'cleric1', chip:'2nd heal 30%', desc:'A second heal, every fight.'},
   {id:'frost',  name:'Frost',              icon:I('frost'), school:'wizard', lvl:5, price:10, chip:'Skip a turn', desc:'The monster misses its next move.'},
-  {id:'bolt',   name:'Lightning',          icon:I('bolt'), school:'wizard', lvl:6, price:12, chip:'25% damage', desc:"Takes 25% of the monster's full health."},
+  {id:'bolt',   name:'Lightning',         icon:I('bolt'), school:'wizard', lvl:6, price:12, roll:[.45,.90], chip:'45-90% damage', desc:"Rolls for about half to nearly all of the monster's full health. Its armor takes some of that back."},
   {id:'cleric3',name:'Cleric Training III',icon:I('cleric'), school:'cleric', lvl:6, price:14, need:'cleric2', chip:'3rd heal 30%', desc:'A third heal, every fight.'}
 ];
 const healRounds = () => S.books.filter(b=>BK[b]&&BK[b].school==='cleric').length;
@@ -3024,10 +3025,7 @@ async function cast(){
       await wait(520); busy=false; render(); return;
     }
     shake(3);
-    const spellDmg = id==='bolt'
-      ? Math.ceil(f.max*.25)
-      : armored(Math.ceil(f.max*(FIRE_LO + Math.random()*(FIRE_HI-FIRE_LO))), foeDef());
-    hitFoe(spellDmg, 3);
+    hitFoe(armored(spellRoll(f.max, (BK[id]&&BK[id].roll) || [.25,.75]), foeDef()), 3);
     await wait(820); busy=false;
     if(f.hp<=0){ busy=true; await victory(); return; }
     render();
