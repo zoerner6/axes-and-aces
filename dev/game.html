@@ -1851,39 +1851,49 @@ const monsterHP = L => 2.37*(L<=10 ? 130*Math.pow(LVL_STEP,L-1) : 130*Math.pow(L
 const HAND_AVG = 121;
 const lvlMultOf = L => Math.pow(LVL_STEP, Math.max(1, L|0));
 const FOE_TOUGH = 1.35;   /* how much health they carry */
-const GEAR_ATK = [0,0,8,16,28,48,48,75,75,110,110];
-const GEAR_DEF = [0,0,40,70,120,120,190,190,280,280,280];
-const gearAt = (tbl, L) => L<=10 ? tbl[Math.max(1,L|0)] : Math.round(tbl[10]*(1+(L-10)*0.06));
-/* a monster never carries more than half again the best gear in the game,
-   however heavy its kind or deep the world */
-const foeAtkScore = (L, k=1) => Math.min(Math.round(GEAR_ATK[10]*1.5), Math.round(gearAt(GEAR_ATK, L)*k));
-/* Armour tracks the LEVEL only. The kind multiplier (how beefy a monster type
-   is) already raises its health and its attack; letting it raise armour too
-   compounded - a tanky kind got 1.4x the health AND kept 63% of every hit.
-   The 0.7 is because the gear table is what a player COULD own at that level,
-   and nobody is ever fully kitted: it puts a monster's armour where a real
-   hero's actually sits, which is what makes the two sides comparable. */
-const FOE_ARMOUR = 0.7;
-const foeDefScore = (L) => Math.min(Math.round(GEAR_DEF[10]*1.5), Math.round(gearAt(GEAR_DEF, L)*FOE_ARMOUR));
-/* nothing fights with no defence at all */
+/* ---------------------------------------------------------------------------
+   What a well-equipped knight carries at each level - the best shield, helmet
+   and armour he could be wearing, and a sword with a dagger in the off hand.
+   Read straight off the EQUIP table so the two can never drift apart.
+
+   NO MONSTER MAY EXCEED THESE NUMBERS. That is the whole rule. A level-1
+   monster cannot out-armour leather and cannot out-hit a wooden sword and
+   dagger. Past the last tier both creep 6% a level so the endless worlds
+   keep moving.
+--------------------------------------------------------------------------- */
+const KIT_TIER = L => L<=2 ? 1 : L<=4 ? 2 : L<=6 ? 3 : L<=8 ? 4 : 5;
+const creep = (v, L) => L<=9 ? v : Math.round(v * (1 + (L-9)*0.06));
+const knightAtk = L => creep(EQUIP.sword.atk[KIT_TIER(L)] + EQUIP.dagger.atk[KIT_TIER(L)], L);
+const knightDef = L => creep(EQUIP.shield.def[KIT_TIER(L)] + EQUIP.helm.def[KIT_TIER(L)] + EQUIP.armor.def[KIT_TIER(L)], L);
+
+/* A kind's temperament, 0 to 1: 1 is all shell and no bite (a turtle, a
+   golem), 0 is all bite and no shell (a frog, a bat). Derived from the kind's
+   own health and attack, so none of the 170-odd monsters needs retagging.
+   Armour and attack trade against each other - a heavy shell costs you swing. */
+const temper = k => Math.max(0, Math.min(1, (((k && k.hp) || 1) / ((k && k.atk) || 1) - 0.6) / 1.1));
+const ARM_LO = .20, ARM_HI = .95;   /* share of the knight's armour a monster may wear */
+const ATK_LO = .40, ATK_HI = .95;   /* share of the knight's attack it may swing */
+const foeAtkScore = (L, tp) => Math.round(knightAtk(L) * (ATK_HI - (ATK_HI-ATK_LO)*(tp==null?.5:tp)));
+const foeDefScore = (L, tp) => Math.round(knightDef(L) * (ARM_LO + (ARM_HI-ARM_LO)*(tp==null?.5:tp)));
 const FLOOR_DEF = 5;
-const foeArmorFor = (L, boss) => Math.max(FLOOR_DEF, Math.round(foeDefScore(L) * (boss ? 1.25 : 1)));
-const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss, d.gear)) : 0;
+/* a boss sits at the top of the band, never past it */
+const foeArmorFor = (L, boss, tp) => Math.max(FLOOR_DEF, foeDefScore(L, boss ? .95 : tp));
+const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss, d.tp)) : 0;
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d)/100)));
 function genMonster(a, L, fixed){
   const pool=POOLS[a], t=fixed?pool.find(x=>x.name===fixed):pool[Math.floor(Math.random()*pool.length)], r=()=>0.9+Math.random()*0.2;
   /* the pub is where you start with no gear: its monsters are softer */
   const pub=(a===0&&!(S&&S.world));
-  const gk=t.hp;                                   /* a heavier kind wears heavier gear */
+  const tp=temper(t);                              /* shell-vs-bite, 0..1 */
   const hp=Math.round(monsterHP(L)*FOE_TOUGH*t.hp*r()*(pub?.8:1)/5)*5;
   /* Its median hit is what a hand is worth on average, put through the same
      attack score and level multiplier the hero uses - so at equal level and
      equal attack the two of us deal the same damage. He varies with the cards,
      it varies with the dice roll in swing(). */
-  const atk=HAND_AVG*lvlMultOf(L)*(1+foeAtkScore(L,gk)/100)*(pub?.8:1);
+  const atk=HAND_AVG*lvlMultOf(L)*(1+foeAtkScore(L,tp)/100)*(pub?.8:1);
   const hits=t.pat.filter(v=>typeof v==='number'), meanV=hits.reduce((a,b)=>a+b,0)/hits.length;
   const moves=t.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*t.atk*(v/meanV)/10)*10)});
-  return {gear:gk, def:pub?FLOOR_DEF:foeArmorFor(L,false,gk), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
+  return {tp, def:pub?FLOOR_DEF:foeArmorFor(L,false,tp), name:t.name, icon:t.icon, lvl:L, hp, xp:Math.round((6+5*L)*r()*((S&&S.world)?2:1)), gold:Math.max(1,Math.ceil(L*.7)+Math.floor(Math.random()*2)), moves};
 }
 let AREAS = [
   {name:'The Gilded Ace', icon:'<img class="ico" src="art/i_area_tavern.webp" alt="">', foes:['goblin','rat','bandit']},
@@ -1925,10 +1935,10 @@ const heroName = () => ((S&&(S.world||0)>0)||(S&&S.knighted)) ? 'Sir '+baseName(
 const nm = t => { if(typeof t!=='string') return t; t=t.replace(/\b([Tt])he The /g,'$1he '); const n=baseName(); return n==='Edward' ? t : t.replace(/\bEdward\b/g, n); };
 function ruleOf(r){ return {rule:`${SUITS[r.off].s} ${SUITS[r.off].n}s do no damage`, off:c=>c.suit===r.off}; }
 function genBoss(def, L){
-  const hp=Math.round(monsterHP(L)*3/10)*10, atk=HAND_AVG*lvlMultOf(L)*(1+foeAtkScore(L,1.25)/100);
+  const hp=Math.round(monsterHP(L)*3/10)*10, atk=HAND_AVG*lvlMultOf(L)*(1+foeAtkScore(L,0)/100);
   const bh=def.pat.filter(v=>typeof v==='number'), bMean=bh.reduce((a,b)=>a+b,0)/bh.length;
   const moves=def.pat.map(v=> v==='B'?{k:'blk',n:Math.round(hp*.12)} : v==='H'?{k:'heal',n:Math.round(hp*.15)} : {k:'atk',n:Math.max(10,Math.round(atk*(v/bMean)/10)*10)});
-  return Object.assign({gear:1.25, def:foeArmorFor(L,true,1.25), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
+  return Object.assign({tp:0, def:foeArmorFor(L,true), name:def.name, icon:'', boss:true, lvl:L, hp, xp:Math.round((6+5*L)*3.6), gold:Math.ceil(L*.7)+3, moves}, ruleOf(def.rule));
 }
 function loadWorld(w){
   w=w||0; const b=w%10, off=w*8;
@@ -2244,7 +2254,7 @@ function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-
   return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
 /* A monster's Attack and Defense, shown as the scores themselves and nothing
    else - the same two numbers, in the same shape, as the hero's own pills. */
-function foeStats(d){ const fa=foeAtkScore(d.lvl||1, d.gear||1), fd=foeArmor(d);
+function foeStats(d){ const fa=foeAtkScore(d.lvl||1, d.tp), fd=foeArmor(d);
   return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b></span></div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }

@@ -28,12 +28,19 @@ function drawHand(d){
 const HP_STEP=Number(process.env.HP_STEP||1.12);
 const HAND_AVG=121;          /* measured: what a played hand is worth, on average */
 const LVL_STEP=1.12, ACE_MULT=.12;
-const PL_ATK=[0,0,8,16,28,48,48,75,75,110,110];
-const PL_DEF=[0,0,40,70,120,120,190,190,280,280,280];
-const atLvl=(t,L)=>L<=10?t[Math.max(1,L)]:Math.round(t[10]*(1+(L-10)*0.06));
-const foeAtkScore=(L,k=1)=>Math.round(atLvl(PL_ATK,L)*k);
-const FOE_ARMOUR=0.7;
-const foeDefScore=(L)=>Math.round(atLvl(PL_DEF,L)*FOE_ARMOUR);
+const EQ={sword:[0,8,16,28,44,64],axe:[0,14,28,48,75,110],dagger:[0,4,8,14,22,32],
+          shield:[0,10,20,40,60,90],helm:[0,10,20,30,50,70],armor:[0,20,30,50,80,120]};
+const KIT=L=>L<=2?1:L<=4?2:L<=6?3:L<=8?4:5;
+const creep=(v,L)=>L<=9?v:Math.round(v*(1+(L-9)*0.06));
+const knightAtk=L=>creep(EQ.sword[KIT(L)]+EQ.dagger[KIT(L)],L);
+const knightDef=L=>creep(EQ.shield[KIT(L)]+EQ.helm[KIT(L)]+EQ.armor[KIT(L)],L);
+const ARM_LO=.20,ARM_HI=.95,ATK_LO=.40,ATK_HI=.95;
+const temper=k=>Math.max(0,Math.min(1,((k.hp/k.atk)-0.6)/1.1));
+const foeAtkScore=(L,tp)=>Math.round(knightAtk(L)*(ATK_HI-(ATK_HI-ATK_LO)*tp));
+const foeDefScore=(L,tp)=>Math.round(knightDef(L)*(ARM_LO+(ARM_HI-ARM_LO)*tp));
+/* the hero is never fully kitted: about 70% of the cap he could own */
+const PL_ATK_REAL=L=>Math.round(knightAtk(L)*0.8);
+const PL_DEF_REAL=L=>Math.round(knightDef(L)*0.7);
 const lvlMult=L=>Math.pow(LVL_STEP,L);
 /* the monster's die, mirrored from the hero's own hand spread */
 const FOE_DIE=[.25,.25,.25,.5,.5,.5,.5,.833,1.25,1.833,2.667,2.667];
@@ -59,8 +66,9 @@ function fight(pl, ml, hpMul, myHPbase, perLvlHP){
   const myMax=myHPbase+perLvlHP*(pl-1); let hp=myMax;
   let fhp=Math.round(130*Math.pow(HP_STEP,ml-1)*hpMul*kh);
 
-  const myAtk=1+PL_ATK[Math.min(10,pl)]/100, myDefDiv=1+PL_DEF[Math.min(10,pl)]*0.7/100;
-  const fAtk=1+foeAtkScore(ml,kh)/100, fDefDiv=1+foeDefScore(ml)/100;
+  const myAtk=1+PL_ATK_REAL(pl)/100, myDefDiv=1+PL_DEF_REAL(pl)/100;
+  const tp=temper({hp:kh,atk:ka});
+  const fAtk=1+foeAtkScore(ml,tp)/100, fDefDiv=1+foeDefScore(ml,tp)/100;
   /* the monster's median hit: the same shape as the hero's, built on the same average hand */
   const foeBase=HAND_AVG*lvlMult(ml)*fAtk*ka;
 

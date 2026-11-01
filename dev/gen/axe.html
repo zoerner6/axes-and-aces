@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>axe shapes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:720px;background:#14100c;padding:18px;display:flex;gap:10px;font:600 10px/1.4 system-ui;color:#8c7c63}
+.c{flex:1;text-align:center}
+svg{display:block;margin:0 auto 6px;background:#1d1711;border-radius:8px}
+</style></head><body>
+
+<!-- A: wrong on purpose (the current one) - blob -->
+<div class="c"><svg width="160" height="300" viewBox="0 0 150 300">
+  <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+    <path d="M104 56 L62 48 C28 56 12 88 18 120 C24 152 50 172 80 176 L104 180 Z" fill="#aab3bd"/>
+  </g>
+</svg>A — current (blob)</div>
+
+<!-- B: flares from haft to edge, horn + beard -->
+<div class="c"><svg width="160" height="300" viewBox="0 0 150 300">
+  <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+    <path d="M102 88 L54 50 C26 70 14 102 18 132 C22 164 44 188 72 198 L102 164 Z" fill="#aab3bd"/>
+  </g>
+</svg>B — flared, horn + beard</div>
+
+<!-- C: classic single-bit, straight top, curved edge, deep beard -->
+<div class="c"><svg width="160" height="300" viewBox="0 0 150 300">
+  <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+    <path d="M102 80 L46 62 C22 84 14 118 22 148 C30 176 54 194 82 200 L102 170 Z" fill="#aab3bd"/>
+  </g>
+</svg>C — classic single-bit</div>
+
+<!-- D: broad viking bearded axe, shallow crescent edge -->
+<div class="c"><svg width="160" height="300" viewBox="0 0 150 300">
+  <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+    <path d="M102 84 L58 58 C30 76 16 106 18 136 L26 196 C54 190 82 196 102 176 Z" fill="#aab3bd"/>
+  </g>
+</svg>D — viking bearded</div>
+
+<!-- E: double-bit, symmetrical -->
+<div class="c"><svg width="160" height="300" viewBox="0 0 150 300">
+  <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="63" y="14" width="25" height="274" rx="12" fill="#7a5327"/>
+    <path d="M70 92 L30 58 C8 84 6 130 26 162 L70 150 Z" fill="#aab3bd"/>
+    <path d="M80 92 L120 58 C142 84 144 130 124 162 L80 150 Z" fill="#aab3bd"/>
+  </g>
+</svg>E — double-bit</div>
+
+</body></html>
