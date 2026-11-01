@@ -59,7 +59,7 @@ a{color:inherit}
 @media (max-width:900px){ .top nav{display:none} .top .btn{margin-left:auto} .brand b{font-size:1.35rem} }
 
 /* ---------- hero ---------- */
-.hero{position:relative;height:100svh;min-height:520px;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;border-bottom:4px solid #000}
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;border-bottom:4px solid #000}
 .hero-media{position:absolute;inset:0;z-index:-2;background:#000 url(art/bg_castle.webp) center/cover}
 /* two buffers: the next boss loads behind at full opacity, the old one fades off on top, so the background never shows */
 .hero-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:1;transition:opacity .7s linear}
@@ -74,6 +74,17 @@ a{color:inherit}
   linear-gradient(0deg,var(--soot) 0%,rgba(20,16,13,0) 34%),
   linear-gradient(180deg,rgba(10,7,5,.7) 0%,rgba(10,7,5,0) 22%)}
 .hero .wrap{padding-block:clamp(96px,14vh,140px) clamp(46px,9vh,90px)}
+.eyebrow{display:inline-block;font-family:var(--f-num);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:.92rem;color:var(--teal)}
+.logo{margin:.1em 0 .05em;font-family:var(--f-title);font-weight:400;line-height:.86;font-size:clamp(4.2rem,11vw,9.6rem);color:var(--gold2);
+  -webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000,0 0 60px rgba(242,182,50,.35);letter-spacing:.005em}
+.logo span{display:block}
+.logo .amp{color:var(--parch);font-size:.62em;display:inline-block;transform:translateY(-.08em) rotate(-6deg);margin:0 .06em}
+.tagline{font-family:var(--f-title);font-weight:400;font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.15;margin:.35em 0 .5em;color:#fff;text-shadow:3px 3px 0 #000}
+.lede{max-width:34em;font-size:1.2rem;color:var(--parch);text-shadow:0 2px 8px #000;margin:0 0 1.6em}
+.cta{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.free{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--f-num);font-weight:500;letter-spacing:.12em;text-transform:uppercase;font-size:.85rem;color:var(--dim)}
+.free span::before{content:"";display:inline-block;width:8px;height:8px;background:var(--gold);border:1.5px solid #000;transform:rotate(45deg);margin-right:9px;vertical-align:1px}
+/* short screens: these must stay BELOW the rules they shrink, or they lose on source order */
 @media (max-height:900px){
   .logo{font-size:clamp(3.4rem,8.4vw,7rem)}
   .tagline{font-size:clamp(1.4rem,2.7vw,2.1rem)}
@@ -92,23 +103,16 @@ a{color:inherit}
   .lede{display:none}
   .hero .wrap{padding-block:76px 32px}
 }
-.eyebrow{display:inline-block;font-family:var(--f-num);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:.92rem;color:var(--teal)}
-.logo{margin:.1em 0 .05em;font-family:var(--f-title);font-weight:400;line-height:.86;font-size:clamp(4.2rem,11vw,9.6rem);color:var(--gold2);
-  -webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:6px 6px 0 #000,0 0 60px rgba(242,182,50,.35);letter-spacing:.005em}
-.logo span{display:block}
-.logo .amp{color:var(--parch);font-size:.62em;display:inline-block;transform:translateY(-.08em) rotate(-6deg);margin:0 .06em}
-.tagline{font-family:var(--f-title);font-weight:400;font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.15;margin:.35em 0 .5em;color:#fff;text-shadow:3px 3px 0 #000}
-.lede{max-width:34em;font-size:1.2rem;color:var(--parch);text-shadow:0 2px 8px #000;margin:0 0 1.6em}
-.cta{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.free{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--f-num);font-weight:500;letter-spacing:.12em;text-transform:uppercase;font-size:.85rem;color:var(--dim)}
-.free span::before{content:"";display:inline-block;width:8px;height:8px;background:var(--gold);border:1.5px solid #000;transform:rotate(45deg);margin-right:9px;vertical-align:1px}
+/* a returning player also carries a continue card, so give that case more room back */
+@media (max-height:860px){ .saves.on{margin-top:14px} .hero:has(.saves.on) .lede{display:none} }
+@media (max-height:720px){ .hero:has(.saves.on) .tagline{font-size:clamp(1.15rem,2.2vw,1.6rem)} .hero:has(.saves.on) .save img{width:38px;height:50px} }
 .scroll-cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:28px;height:44px;border:3px solid var(--parch);border-radius:16px;opacity:.6}
 .scroll-cue::after{content:"";position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--parch);animation:cue 1.6s infinite}
 @keyframes cue{0%{transform:translateY(0);opacity:1}80%{transform:translateY(14px);opacity:0}100%{opacity:0}}
 @media (max-width:700px){
   .hero{align-items:flex-end}
   .hero::before{background:linear-gradient(0deg,var(--soot) 8%,rgba(10,7,5,.82) 52%,rgba(10,7,5,.15) 85%),linear-gradient(180deg,rgba(10,7,5,.7),rgba(10,7,5,0) 20%)}
-  .hero .wrap{padding-block:46vh 60px}
+  .hero .wrap{padding-block:max(84px,min(46vh,calc(100svh - 630px))) 48px}
   .scroll-cue{display:none}
   .btn.big{width:100%}
 }

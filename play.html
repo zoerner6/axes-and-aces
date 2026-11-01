@@ -2315,10 +2315,8 @@ const lvl = t => S.levels[t]||1;
 /* Aces: +10 points each */
 /* Aces add a flat +10 points; your level multiplier already makes them grow */
 const ACE_MULT = .12;   /* each Ace in the hand adds 12% */
-const aceBonus = () => 10;
 /* Aces bonus: Aces that are part of the hand itself (a pair of Aces or better, or a straight) count triple */
 const acesIn = ev => ev.type==='high' ? 0 : ev.cards.filter(c=>c.rank===14&&!isOff(c)).length;
-const acesExtra = ev => acesIn(ev)*aceBonus();
 const aceMult = ev => 1 + acesIn(ev)*ACE_MULT;
 const hitShare = ev => ev.cards.filter(c=>!isOff(c)).length / ev.cards.length;
 const heartsFlush = ev => (ev.type==='flush'||ev.type==='sflush') && ev.cards.every(c=>c.suit===1&&!isOff(c));
@@ -2354,7 +2352,7 @@ function cardHTML(c, extra=''){
   const s=SUITS[c.suit], face=c.rank>=11&&c.rank<=13;
   return `<button class="card ${s.red?'red':''} ${c.rank===14?'king':''} ${extra}" data-act="card" data-id="${c.id}" aria-label="${RNAME(c.rank)} of ${s.n}s">`+
     `<span class="cn">${RL(c.rank)}<i>${s.s}</i></span><span class="md ${face?'face':''}">${face?`<img src="art/face_${RL(c.rank).toLowerCase()}.webp" alt="" draggable="false">`:s.s}</span>`+
-    `<span class="cn br">${RL(c.rank)}<i>${s.s}</i></span>${c.rank===14?`<span class="ace10">+${Math.round(ACE_MULT*100)}%</span>`:''}</button>`;
+    `<span class="cn br">${RL(c.rank)}<i>${s.s}</i></span>${c.rank===14?`<span class="ace10">BONUS</span>`:''}</button>`;
 }
 const mini = ([r,s]) => `<span class="mini ${SUITS[s].red?'red':''}">${RL(r)}${SUITS[s].s}</span>`;
 /* every swing rolls within 15% of the monster's usual hit */
@@ -2422,7 +2420,7 @@ function renderPreview(){
   if(!(f && sel.length && S.phase==='play')){ tag.hidden=true; fitButtons(); return; }
   const played=f.hand.filter(id=>sel.includes(id)).map(cardById), pv=previewHit(played), d=foeDef();
   const need5 = false;
-  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Aces +${Math.round(pv.aces*ACE_MULT*100)}%</em>`:''}${barehanded()?' <em>Fists −30%</em>':''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
+  tag.innerHTML = need5 ? `${HANDS[pv.type].name} <em>Play exactly 5 cards</em>` : `${HANDS[pv.type].name}! <b>+${fmt(pv.dmg)}</b>${pv.aces?` <em class="aces-tag">Ace bonus +${fmt(Math.max(1, pv.dmg - Math.round(pv.dmg/(1+pv.aces*ACE_MULT))))}</em>`:''}${barehanded()?' <em>Fists −30%</em>':''}${pv.share<1?' <em>some cards do no damage</em>':''}`;
   tag.classList.toggle('big', ['full','four','sflush','flush','straight'].includes(pv.type));
   tag.hidden=false; fitButtons();
 }
@@ -2632,7 +2630,7 @@ async function attack(){
   }
   S.gear.forEach((g,i)=>{ if(GR[g].hand) add(GR[g].hand(ctx),i); });
   if(S.rage){ S.rage=false; M*=2; }
-  const aceN=acesIn(ev), aceX=acesExtra(ev); M*=aceMult(ev);
+  const aceN=acesIn(ev); M*=aceMult(ev);
   if(heartsFlush(ev)) heal+=Math.round(S.maxHp*.25);
   render();
   if(weaponPts()) anim($('gearBtn'),'wiggle');
@@ -2640,7 +2638,8 @@ async function attack(){
   const share=hitShare(ev), dmg=armored(Math.max(Math.floor(P*M*share), liveFloor(played)), foeDef()); S.lastHit=dmg;
   /* the health bar drops with every slash as it lands */
   const lands=Math.max(0, dmg-Math.min(f.block,dmg)), hp0=f.hp;
-  if(aceN){ await acesEvent(aceN, Math.floor(aceX*M)); }
+  /* the real extra HP the Aces added to THIS hit, after armour - the card itself only promises a bonus */
+  if(aceN){ await acesEvent(aceN, Math.max(1, dmg - Math.round(dmg/aceMult(ev)))); }
   await wait(120); await slashes(nSlash, k=>showFoeHp(hp0-lands*k/nSlash));
   if(share<1) toast(share===0 ? `No damage! The ${foeDef().name} shrugs off those cards.` : `Cards marked ✖ did no damage, so you hit for less.`);
   if(dmg>S.stats.best){ S.stats.best=dmg; S.stats.bestName=HANDS[ev.type].name; }
