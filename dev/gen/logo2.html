@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Axes &amp; Aces — axe + ace lockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:760px;background:#0b0705;padding:22px;font-family:'Oswald',sans-serif}
+.cell{margin-bottom:26px}
+.stage{position:relative;height:430px;border-radius:12px;display:grid;place-items:center;overflow:hidden;
+  background-image:radial-gradient(ellipse at 50% 40%,#2c1f15 0%,#160f09 58%,#0a0604 100%)}
+.cap{margin-top:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:11px;color:#7e6c52}
+.cap b{color:#c9a961}
+
+/* ---------- gold letters: outline, metal face, top lip ---------- */
+.word{position:relative;display:inline-block;line-height:.9;white-space:nowrap}
+.word .lyr{display:block}
+.word .out{position:absolute;inset:0;-webkit-text-stroke:15px #0e0702;color:#0e0702;z-index:0}
+.word .face{position:relative;z-index:2;color:transparent;-webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(180deg,#fffaea 0%,#ffe8a8 13%,#f3c75f 32%,#dc9f31 50%,#9c6318 68%,#6b400f 83%,#dca93f 100%)}
+.word .lip{position:absolute;inset:0;transform:translateY(-3px);z-index:3;color:transparent;
+  -webkit-background-clip:text;background-clip:text;opacity:.52;
+  background-image:linear-gradient(180deg,#fffdf4 0%,#fff4cf 14%,transparent 30%)}
+.ecz{font-family:'Eczar',serif;font-weight:800;letter-spacing:.01em}
+
+/* ---------- the ace card ---------- */
+.ace{position:relative;width:132px;height:188px;border-radius:14px;flex:none;
+  background-image:linear-gradient(162deg,#fffdf4 0%,#f6ecd2 46%,#e2d2ae 100%);
+  border:7px solid #0e0702;box-shadow:0 12px 24px rgba(0,0,0,.75),inset 0 0 0 2px rgba(0,0,0,.12)}
+.ace .ix{position:absolute;top:7px;left:10px;line-height:1;text-align:center;color:#14100b}
+.ace .ix b{display:block;font-family:'Eczar',serif;font-weight:800;font-size:27px}
+.ace .ix svg{width:15px;height:17px;display:block;margin:1px auto 0}
+.ace .ix.br{top:auto;left:auto;bottom:7px;right:10px;transform:rotate(180deg)}
+.ace .big{position:absolute;inset:0;display:grid;place-items:center}
+.ace .big svg{width:62px;height:72px}
+
+/* ---------- the axe ---------- */
+.axe{display:block}
+
+/* 1 — emblem above, name stacked */
+.p1{position:relative;padding:34px 60px 38px;border-radius:14px;background-color:#393d44;
+  background-image:repeating-linear-gradient(103deg,rgba(255,255,255,.045) 0 2px,transparent 2px 9px),
+    radial-gradient(ellipse at 50% 0%,#5a616b 0%,#343940 46%,#1a1d22 100%);
+  border:7px solid #0e1114;
+  box-shadow:0 16px 0 -4px #07090b,0 26px 46px rgba(0,0,0,.8),inset 0 2px 0 rgba(255,255,255,.2);
+  display:flex;flex-direction:column;align-items:center;gap:12px}
+.rivet{position:absolute;width:16px;height:16px;border-radius:50%;
+  background-image:radial-gradient(circle at 34% 30%,#fff3cf,#d7a33f 46%,#6d4210);
+  box-shadow:0 2px 2px rgba(0,0,0,.8),inset 0 -2px 2px rgba(0,0,0,.45)}
+.rivet.tl{top:11px;left:11px}.rivet.tr{top:11px;right:11px}.rivet.bl{bottom:11px;left:11px}.rivet.br{bottom:11px;right:11px}
+.emblem{position:relative;width:230px;height:200px}
+.emblem .ace{position:absolute;left:50%;top:6px;transform:translateX(-50%) rotate(-9deg)}
+.emblem .axe{position:absolute;left:-6px;top:-6px;transform:rotate(38deg);transform-origin:50% 50%}
+.stack{display:flex;flex-direction:column;align-items:center;gap:0}
+.rule{display:flex;align-items:center;gap:13px;margin:2px 0 1px}
+.rule i{display:block;width:76px;height:3px;border-radius:2px;
+  background-image:linear-gradient(90deg,transparent,#b98f3c,transparent)}
+.rule span{font-family:'Eczar',serif;font-weight:800;font-size:30px;color:#d7ab4d;text-shadow:0 2px 0 #0e0702}
+
+/* 2 — horizontal: axe, name, ace */
+.p2{position:relative;display:flex;align-items:center;gap:26px;padding:26px 40px 30px;border-radius:12px;
+  background-image:linear-gradient(180deg,#30220f 0%,#1d1308 46%,#120b05 100%);
+  border:7px solid #0e0702;box-shadow:0 18px 38px rgba(0,0,0,.85),inset 0 2px 0 rgba(255,214,130,.16)}
+.p2 .mid{display:flex;flex-direction:column;align-items:center}
+.tag{margin-top:9px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;font-size:12px;color:#7fe3d4;text-shadow:0 2px 0 #05201c}
+
+/* 3 — the card is the stage, axe buried in it */
+.p3{position:relative;width:360px;height:300px;display:grid;place-items:center}
+.p3 .ace{width:234px;height:300px;transform:rotate(-5deg)}
+.p3 .axe{position:absolute;left:-54px;top:-26px;transform:rotate(44deg)}
+.p3 .nameover{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-5deg);text-align:center}
+</style></head>
+<body>
+
+<!-- ============ 1 ============ -->
+<div class="cell"><div class="stage">
+  <div class="p1">
+    <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
+    <div class="emblem">
+      <div class="ace">
+        <span class="ix"><b>A</b><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+        <span class="ix br"><b>A</b><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+        <span class="big"><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+      </div>
+      <svg class="axe" width="236" height="236" viewBox="0 0 150 300">
+        <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+          <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+          <path d="M104 56 L62 48 C28 56 12 88 18 120 C24 152 50 172 80 176 L104 180 Z" fill="#aab3bd"/>
+        </g>
+        <path d="M62 70 C38 78 26 100 30 122 C34 146 54 160 76 164" fill="none" stroke="#f2f7fc" stroke-width="11" stroke-linecap="round" opacity=".55"/>
+        <rect x="104" y="20" width="9" height="262" rx="4" fill="#9c6c35" opacity=".8"/>
+      </svg>
+    </div>
+    <div class="stack">
+      <span class="word ecz" style="font-size:76px"><span class="lyr out">AXES</span><span class="lyr face">AXES</span><span class="lyr lip">AXES</span></span>
+      <div class="rule"><i></i><span>&amp;</span><i></i></div>
+      <span class="word ecz" style="font-size:76px"><span class="lyr out">ACES</span><span class="lyr face">ACES</span><span class="lyr lip">ACES</span></span>
+    </div>
+  </div>
+</div><div class="cap"><b>1</b> · Axe through the ace, iron plate</div></div>
+
+<!-- ============ 2 ============ -->
+<div class="cell"><div class="stage">
+  <div class="p2">
+    <svg class="axe" width="104" height="208" viewBox="0 0 150 300" style="transform:rotate(-14deg)">
+      <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+        <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+        <path d="M104 56 L62 48 C28 56 12 88 18 120 C24 152 50 172 80 176 L104 180 Z" fill="#aab3bd"/>
+      </g>
+      <path d="M62 70 C38 78 26 100 30 122 C34 146 54 160 76 164" fill="none" stroke="#f2f7fc" stroke-width="11" stroke-linecap="round" opacity=".55"/>
+    </svg>
+    <div class="mid">
+      <span class="word ecz" style="font-size:66px"><span class="lyr out">AXES</span><span class="lyr face">AXES</span><span class="lyr lip">AXES</span></span>
+      <span class="word ecz" style="font-size:66px;margin-top:-2px"><span class="lyr out">&amp; ACES</span><span class="lyr face">&amp; ACES</span><span class="lyr lip">&amp; ACES</span></span>
+      <div class="tag">Fight monsters with poker hands</div>
+    </div>
+    <div class="ace" style="transform:rotate(9deg)">
+      <span class="ix"><b>A</b><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+      <span class="ix br"><b>A</b><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+      <span class="big"><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+    </div>
+  </div>
+</div><div class="cap"><b>2</b> · Axe left, ace right, name between</div></div>
+
+<!-- ============ 3 ============ -->
+<div class="cell"><div class="stage">
+  <div class="p3">
+    <div class="ace">
+      <span class="ix"><b>A</b><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+      <span class="ix br"><b>A</b><svg viewBox="0 0 120 140"><path d="M60 8 C60 8 10 54 10 85 C10 103 25 116 42 116 C50 116 56 113 60 107 C64 113 70 116 78 116 C95 116 110 103 110 85 C110 54 60 8 60 8 Z M52 105 C52 119 46 130 37 135 L83 135 C74 130 68 119 68 105 Z" fill="#14100b"/></svg></span>
+    </div>
+    <svg class="axe" width="260" height="260" viewBox="0 0 150 300">
+      <g stroke="#0e0702" stroke-width="11" stroke-linejoin="round" stroke-linecap="round">
+        <rect x="97" y="14" width="27" height="274" rx="13" fill="#7a5327"/>
+        <path d="M104 56 L62 48 C28 56 12 88 18 120 C24 152 50 172 80 176 L104 180 Z" fill="#aab3bd"/>
+      </g>
+      <path d="M62 70 C38 78 26 100 30 122 C34 146 54 160 76 164" fill="none" stroke="#f2f7fc" stroke-width="11" stroke-linecap="round" opacity=".55"/>
+    </svg>
+    <div class="nameover">
+      <span class="word ecz" style="font-size:52px"><span class="lyr out">AXES</span><span class="lyr face">AXES</span><span class="lyr lip">AXES</span></span><br>
+      <span class="word ecz" style="font-size:52px"><span class="lyr out">&amp; ACES</span><span class="lyr face">&amp; ACES</span><span class="lyr lip">&amp; ACES</span></span>
+    </div>
+  </div>
+</div><div class="cap"><b>3</b> · Axe buried in the ace, name across it</div></div>
+
+</body></html>

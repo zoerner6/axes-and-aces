@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Axes &amp; Aces — placard studies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700;800;900&family=Eczar:wght@700;800&family=Alfa+Slab+One&family=Rye&family=Pirata+One&family=Oswald:wght@500;600;700&family=Alegreya+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0906;color:#f3e6c8;font-family:'Alegreya Sans',system-ui,sans-serif;padding:56px 40px 80px}
+h1{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:15px;color:#7e6c52;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;max-width:1560px}
+.cell{display:flex;flex-direction:column;gap:14px}
+.stage{position:relative;height:420px;border-radius:12px;overflow:hidden;display:grid;place-items:center;
+  background:radial-gradient(ellipse at 50% 42%,#2a1d14 0%,#150e09 58%,#0b0704 100%)}
+.cap{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:12px;color:#7e6c52}
+.cap b{color:#c9a961;font-weight:600}
+
+/* ---------- shared letter treatment ----------
+   Three stacked copies make a real bevel: a fat black outline behind,
+   the gradient face on top, and a one-pixel light edge above that. */
+.word{position:relative;display:inline-block;line-height:.92;white-space:nowrap}
+.word span.lyr{display:block}
+.word .out{position:absolute;inset:0;-webkit-text-stroke:16px #0f0803;color:#0f0803;z-index:0}
+.word .face{position:relative;z-index:2;color:transparent;-webkit-background-clip:text;background-clip:text}
+.word .lip{position:absolute;inset:0;transform:translateY(-3px);z-index:3;color:transparent;
+  -webkit-background-clip:text;background-clip:text;opacity:.55;
+  background-image:linear-gradient(180deg,#fffdf4 0%,#fff4cf 16%,transparent 34%)}
+
+/* aged metal: bone highlight, gold body, bronze shadow, a bounce light at the foot.
+   background-image, never the `background` shorthand — the shorthand resets
+   background-clip back to border-box and the letters paint as solid bars. */
+.gold .face{background-image:linear-gradient(180deg,#fffaea 0%,#ffe8a8 14%,#f3c75f 34%,#dc9f31 52%,#9c6318 70%,#6d4210 84%,#d9a63b 100%)}
+.steel .face{background-image:linear-gradient(180deg,#ffffff 0%,#dfe6ee 16%,#9fadbd 40%,#5d6b7c 62%,#2f3845 82%,#8695a6 100%)}
+.blood .face{background-image:linear-gradient(180deg,#ffd9c9 0%,#f07a5a 20%,#c8341f 46%,#7d1410 72%,#e0634a 100%)}
+
+/* ---------- 1. hammered iron plate, gothic ---------- */
+.plate{position:relative;padding:40px 64px 44px;border-radius:14px;background-color:#3b3f46;
+  background-image:
+    repeating-linear-gradient(104deg,rgba(255,255,255,.04) 0 2px,transparent 2px 9px),
+    radial-gradient(ellipse at 50% 0%,#5b626c 0%,#363b42 45%,#1c1f24 100%);
+  border:7px solid #0f1215;box-shadow:0 18px 0 -4px #080a0c,0 26px 44px rgba(0,0,0,.8),inset 0 2px 0 rgba(255,255,255,.22)}
+.rivet{position:absolute;width:17px;height:17px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#fff3cf,#d7a33f 46%,#6d4210);box-shadow:0 2px 2px rgba(0,0,0,.8),inset 0 -2px 2px rgba(0,0,0,.45)}
+.rivet.tl{top:12px;left:12px}.rivet.tr{top:12px;right:12px}.rivet.bl{bottom:12px;left:12px}.rivet.br{bottom:12px;right:12px}
+.g-axes{font-family:'Grenze Gotisch',serif;font-weight:900;font-size:108px;letter-spacing:.01em}
+.g-aces{font-family:'Grenze Gotisch',serif;font-weight:900;font-size:108px;letter-spacing:.01em}
+.stack{display:flex;flex-direction:column;align-items:center;gap:2px}
+.amp{font-family:'Grenze Gotisch',serif;font-weight:700;font-size:46px;color:#c9a961;
+  text-shadow:0 2px 0 #0f0803;letter-spacing:.3em;display:flex;align-items:center;gap:14px}
+.amp::before,.amp::after{content:"";display:block;width:74px;height:3px;background:linear-gradient(90deg,transparent,#a8823c,transparent)}
+
+/* ---------- 2. shaped guild sign, slab ---------- */
+/* the notch is drawn as its own wedge underneath, so it can never eat the words */
+.sign{position:relative;padding:30px 66px 34px;
+  background-image:linear-gradient(180deg,#5a3a1e 0%,#3d2512 40%,#24150a 100%);
+  border:7px solid #130b04;border-radius:6px;
+  box-shadow:0 20px 40px rgba(0,0,0,.85)}
+.sign::after{content:"";position:absolute;left:50%;top:100%;width:76px;height:44px;margin-left:-38px;
+  background-image:linear-gradient(180deg,#2a1810,#180d06);
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  border-left:7px solid #130b04;border-right:7px solid #130b04;box-sizing:border-box}
+.signwrap{position:relative;filter:drop-shadow(0 10px 0 rgba(0,0,0,.55))}
+.e-word{font-family:'Eczar',serif;font-weight:800;font-size:92px;letter-spacing:.015em}
+.band{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:6px}
+.band i{display:block;width:88px;height:4px;background:linear-gradient(90deg,transparent,#c08f3a,transparent);border-radius:2px}
+
+/* ---------- 3. comic slab ---------- */
+.slabwrap{transform:rotate(-2.2deg)}
+.a-word{font-family:'Alfa Slab One',serif;font-size:96px;letter-spacing:.005em}
+.a-word .out{-webkit-text-stroke:20px #120a04;color:#120a04}
+.kick{font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.3em;text-transform:uppercase;font-size:15px;
+  color:#7fe3d4;text-shadow:0 2px 0 #06201c;margin-top:16px;text-align:center}
+.ribbon{position:relative;margin-top:10px;padding:7px 34px;background:linear-gradient(180deg,#b9241a,#6d0d08);
+  border:5px solid #180703;border-radius:5px;box-shadow:0 7px 0 #180703;
+  font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.24em;text-transform:uppercase;font-size:16px;color:#ffe9b0}
+
+/* ---------- 4. stamped card plate ---------- */
+.cardplate{position:relative;width:420px;padding:36px 0 30px;border-radius:26px;
+  background:linear-gradient(170deg,#241a12,#120b06);border:8px solid #0d0704;
+  box-shadow:0 22px 40px rgba(0,0,0,.85),inset 0 0 0 3px rgba(201,169,97,.4),inset 0 0 60px rgba(0,0,0,.9);
+  display:flex;flex-direction:column;align-items:center;gap:6px}
+.p-word{font-family:'Pirata One',serif;font-size:84px;letter-spacing:.02em}
+.pips{display:flex;gap:16px;align-items:center;margin-top:8px}
+.pips svg{width:22px;height:26px;display:block}
+.corner{position:absolute;font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;color:#c9a961;opacity:.85}
+.corner.tl{top:12px;left:18px}.corner.br{bottom:12px;right:18px;transform:rotate(180deg)}
+
+.emb{display:block;margin:0 auto 6px}
+</style></head>
+<body>
+<h1>Axes &amp; Aces — placard studies</h1>
+<div class="grid">
+
+  <!-- 1 -->
+  <div class="cell"><div class="stage">
+    <div class="plate">
+      <i class="rivet tl"></i><i class="rivet tr"></i><i class="rivet bl"></i><i class="rivet br"></i>
+      <div class="stack">
+        <span class="word gold g-axes"><span class="lyr out">AXES</span><span class="lyr face">AXES</span><span class="lyr lip">AXES</span></span>
+        <span class="amp">&amp;</span>
+        <span class="word gold g-aces"><span class="lyr out">ACES</span><span class="lyr face">ACES</span><span class="lyr lip">ACES</span></span>
+      </div>
+    </div>
+  </div><div class="cap"><b>1</b> · Hammered iron plate — Grenze Gotisch Black</div></div>
+
+  <!-- 2 -->
+  <div class="cell"><div class="stage">
+    <div class="sign">
+      <div class="signwrap">
+        <svg class="emb" width="104" height="60" viewBox="0 0 104 60" fill="none">
+          <g stroke="#120b04" stroke-width="5" stroke-linejoin="round">
+            <path d="M52 56 L18 22 C10 12 16 4 26 8 L52 22 L78 8 C88 4 94 12 86 22 Z" fill="#c08f3a"/>
+          </g>
+        </svg>
+        <span class="word gold e-word"><span class="lyr out">AXES</span><span class="lyr face">AXES</span><span class="lyr lip">AXES</span></span>
+        <div class="band"><i></i><span class="amp" style="font-size:38px">&amp;</span><i></i></div>
+        <span class="word gold e-word"><span class="lyr out">ACES</span><span class="lyr face">ACES</span><span class="lyr lip">ACES</span></span>
+      </div>
+    </div>
+  </div><div class="cap"><b>2</b> · Shaped guild sign — Eczar ExtraBold</div></div>
+
+  <!-- 3 -->
+  <div class="cell"><div class="stage">
+    <div class="slabwrap" style="display:flex;flex-direction:column;align-items:center">
+      <span class="word gold a-word"><span class="lyr out">AXES</span><span class="lyr face">AXES</span><span class="lyr lip">AXES</span></span>
+      <span class="word blood a-word" style="font-size:96px;margin-top:-6px"><span class="lyr out">&amp; ACES</span><span class="lyr face">&amp; ACES</span><span class="lyr lip">&amp; ACES</span></span>
+      <div class="ribbon">Fight monsters with poker hands</div>
+    </div>
+  </div><div class="cap"><b>3</b> · Comic slab — Alfa Slab One</div></div>
+
+  <!-- 4 -->
+  <div class="cell"><div class="stage">
+    <div class="cardplate">
+      <span class="corner tl">A&spades;</span><span class="corner br">A&spades;</span>
+      <span class="word gold p-word"><span class="lyr out">Axes</span><span class="lyr face">Axes</span><span class="lyr lip">Axes</span></span>
+      <span class="word gold p-word" style="font-size:84px"><span class="lyr out">&amp; Aces</span><span class="lyr face">&amp; Aces</span><span class="lyr lip">&amp; Aces</span></span>
+      <div class="pips">
+        <svg viewBox="0 0 120 140"><path d="M60 10 C60 10 12 54 12 84 C12 102 26 114 42 114 C50 114 56 111 60 105 C64 111 70 114 78 114 C94 114 108 102 108 84 C108 54 60 10 60 10 Z M53 103 C53 117 47 128 38 133 L82 133 C73 128 67 117 67 103 Z" fill="#c9a961"/></svg>
+        <svg viewBox="0 0 120 140"><path d="M60 128 C60 128 12 84 12 54 C12 36 26 24 42 24 C50 24 56 27 60 33 C64 27 70 24 78 24 C94 24 108 36 108 54 C108 84 60 128 60 128 Z" fill="#8c2a1e"/></svg>
+        <svg viewBox="0 0 120 140"><path d="M60 10 C60 10 12 54 12 84 C12 102 26 114 42 114 C50 114 56 111 60 105 C64 111 70 114 78 114 C94 114 108 102 108 84 C108 54 60 10 60 10 Z M53 103 C53 117 47 128 38 133 L82 133 C73 128 67 117 67 103 Z" fill="#c9a961"/></svg>
+      </div>
+    </div>
+  </div><div class="cap"><b>4</b> · Stamped card plate — Pirata One</div></div>
+
+</div>
+</body></html>

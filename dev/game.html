@@ -1857,10 +1857,17 @@ const gearAt = (tbl, L) => L<=10 ? tbl[Math.max(1,L|0)] : Math.round(tbl[10]*(1+
 /* a monster never carries more than half again the best gear in the game,
    however heavy its kind or deep the world */
 const foeAtkScore = (L, k=1) => Math.min(Math.round(GEAR_ATK[10]*1.5), Math.round(gearAt(GEAR_ATK, L)*k));
-const foeDefScore = (L, k=1) => Math.min(Math.round(GEAR_DEF[10]*1.5), Math.round(gearAt(GEAR_DEF, L)*k));
+/* Armour tracks the LEVEL only. The kind multiplier (how beefy a monster type
+   is) already raises its health and its attack; letting it raise armour too
+   compounded - a tanky kind got 1.4x the health AND kept 63% of every hit.
+   The 0.7 is because the gear table is what a player COULD own at that level,
+   and nobody is ever fully kitted: it puts a monster's armour where a real
+   hero's actually sits, which is what makes the two sides comparable. */
+const FOE_ARMOUR = 0.7;
+const foeDefScore = (L) => Math.min(Math.round(GEAR_DEF[10]*1.5), Math.round(gearAt(GEAR_DEF, L)*FOE_ARMOUR));
 /* nothing fights with no defence at all */
 const FLOOR_DEF = 5;
-const foeArmorFor = (L, boss, k) => Math.max(FLOOR_DEF, foeDefScore(L, (k||1)*(boss?1.25:1)));
+const foeArmorFor = (L, boss) => Math.max(FLOOR_DEF, Math.round(foeDefScore(L) * (boss ? 1.25 : 1)));
 const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss, d.gear)) : 0;
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d)/100)));
 function genMonster(a, L, fixed){
@@ -2237,9 +2244,8 @@ function threat(d){ if(d.boss) return ['boss','Boss']; const g=(d.lvl||S.level)-
   return g<=-2?['easy','Easy']:g<=0?['even','Even fight']:g===1?['tough','Tough']:g<=3?['danger','Dangerous']:['deadly','Deadly']; }
 /* A monster's Attack and Defense, shown as the scores themselves and nothing
    else - the same two numbers, in the same shape, as the hero's own pills. */
-function foeStats(d){ const heal=Math.max(0,...d.moves.filter(m=>m.k==='heal').map(m=>m.n));
-  const fa=foeAtkScore(d.lvl||1, d.gear||1), fd=foeArmor(d);
-  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b></span>${heal?`<span class="fs heal">${I('heart')}<b>${fmt(heal)}</b></span>`:''}</div>`; }
+function foeStats(d){ const fa=foeAtkScore(d.lvl||1, d.gear||1), fd=foeArmor(d);
+  return `<div class="fstats"><span class="fs atk">${I('attack')}<b>+${fmt(fa)}</b></span><span class="fs def">${I('shield')}<b>+${fmt(fd)}</b></span></div>`; }
 function lvBadge(d, size){ const [k,t]=threat(d), l=d.lvl||'?';
   return `<span class="lvb ${k} lvb-${size}" title="${t}"><span class="lvb-shield"><small>LV</small><b>${l}</b></span>${size==='lg'&&!['even','easy'].includes(k)?`<span class="lvb-word">${t}</span>`:''}</span>`; }
 /* each place has more monsters than the last before its boss: 3, 4, 5, then 6 */

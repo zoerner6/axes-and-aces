@@ -32,7 +32,8 @@ const PL_ATK=[0,0,8,16,28,48,48,75,75,110,110];
 const PL_DEF=[0,0,40,70,120,120,190,190,280,280,280];
 const atLvl=(t,L)=>L<=10?t[Math.max(1,L)]:Math.round(t[10]*(1+(L-10)*0.06));
 const foeAtkScore=(L,k=1)=>Math.round(atLvl(PL_ATK,L)*k);
-const foeDefScore=(L,k=1)=>Math.round(atLvl(PL_DEF,L)*k);
+const FOE_ARMOUR=0.7;
+const foeDefScore=(L)=>Math.round(atLvl(PL_DEF,L)*FOE_ARMOUR);
 const lvlMult=L=>Math.pow(LVL_STEP,L);
 /* the monster's die, mirrored from the hero's own hand spread */
 const FOE_DIE=[.25,.25,.25,.5,.5,.5,.5,.833,1.25,1.833,2.667,2.667];
@@ -58,8 +59,8 @@ function fight(pl, ml, hpMul, myHPbase, perLvlHP){
   const myMax=myHPbase+perLvlHP*(pl-1); let hp=myMax;
   let fhp=Math.round(130*Math.pow(HP_STEP,ml-1)*hpMul*kh);
 
-  const myAtk=1+PL_ATK[Math.min(10,pl)]/100, myDefDiv=1+PL_DEF[Math.min(10,pl)]/100;
-  const fAtk=1+foeAtkScore(ml,kh)/100, fDefDiv=1+foeDefScore(ml,kh)/100;
+  const myAtk=1+PL_ATK[Math.min(10,pl)]/100, myDefDiv=1+PL_DEF[Math.min(10,pl)]*0.7/100;
+  const fAtk=1+foeAtkScore(ml,kh)/100, fDefDiv=1+foeDefScore(ml)/100;
   /* the monster's median hit: the same shape as the hero's, built on the same average hand */
   const foeBase=HAND_AVG*lvlMult(ml)*fAtk*ka;
 
