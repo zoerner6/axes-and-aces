@@ -152,6 +152,20 @@ means the publish has not happened yet.
 
 ---
 
+## About the covers
+
+They are built from the real brand files, not from screenshots or retyped text:
+the word logo itself sits on the three CrazyGames covers, cropped to its plaque
+and scaled with both sides together. BRAND.md asks for clear space all round of
+at least the height of the "A", and `dev/portal/covers.py` measures that on every
+build and says so if a layout is short.
+
+Poki's thumbnail asks for no lettering at all, so it carries the icon instead,
+bottom right, over the gameplay art.
+
+If you change the key art, run `python dev/portal/covers.py` and it rebuilds all
+four.
+
 ## One bug found and fixed along the way
 
 The Grimstone Dragon — the boss at the end of the first quest — introduced itself
