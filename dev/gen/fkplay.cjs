@@ -33,6 +33,8 @@ const TURNS = +(process.argv[2] || 14);
 
   const look = () => p.evaluate(() => ({
     foe: document.getElementById('foeName').textContent,
+    world: window.__FK.S.world, idx: window.__FK.S.idx,
+    boss: !!(window.__FK.S.fight && window.__FK.S.fight.d.boss),
     foeHp: Math.round(parseFloat(document.getElementById('foeBar').style.height||'100')),
     hp: window.__FK.S.hp, maxHp: window.__FK.S.maxHp,
     lv: window.__FK.S.level, gold: window.__FK.S.gold, xp: window.__FK.S.xp,
@@ -79,7 +81,7 @@ const TURNS = +(process.argv[2] || 14);
         return 'left';
       });
       if(atShop){ await p.waitForTimeout(300); continue; }
-      const btn = await p.$('#overlay:not([hidden]) [data-act="fight"], #overlay:not([hidden]) [data-act="onward"], #overlay:not([hidden]) [data-act="perk"], #overlay:not([hidden]) [data-act="again"]');
+      const btn = await p.$('#overlay:not([hidden]) [data-act="fight"], #overlay:not([hidden]) [data-act="onward"], #overlay:not([hidden]) [data-act="perk"], #overlay:not([hidden]) [data-act="again"], #overlay:not([hidden]) [data-act="storyNext"]');
       if(btn){ await btn.click().catch(()=>{}); await p.waitForTimeout(350); continue; }
       const r = await p.evaluate(() => !document.getElementById('rollBtn').disabled);
       if(r) return true;
@@ -128,7 +130,7 @@ const TURNS = +(process.argv[2] || 14);
     await p.waitForTimeout(900);
     const after = await look();
     wins = after.wins; losses = after.deaths;
-    console.log(`turn ${String(t).padStart(2)}  ${before.foe.padEnd(16)} Lv${before.lv} foeHp ${String(before.foeHp).padStart(3)}% -> ${String(after.foeHp).padStart(3)}%   you ${String(after.hp).padStart(4)}/${after.maxHp}  g${after.gold} xp${after.xp} gear${after.gear} ch${after.charms} p${after.pots}  W${after.wins}/D${after.deaths}  ${after.banner ? '[' + after.banner.slice(0,30) + ']' : ''}`);
+    console.log(`turn ${String(t).padStart(2)}  w${before.world}.${before.idx}${before.boss?'B':' '} ${before.foe.padEnd(17)} Lv${before.lv} foeHp ${String(before.foeHp).padStart(3)}% -> ${String(after.foeHp).padStart(3)}%   you ${String(after.hp).padStart(4)}/${after.maxHp}  g${after.gold} xp${after.xp} gear${after.gear} ch${after.charms} p${after.pots}  W${after.wins}/D${after.deaths}  ${after.banner ? '[' + after.banner.slice(0,30) + ']' : ''}`);
     if(after.hp < 0) console.log('  BUG: health went below zero');
     if(after.foeHp < 0) console.log('  BUG: monster health went below zero');
   }

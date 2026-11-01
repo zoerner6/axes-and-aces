@@ -24,7 +24,7 @@ const F = {};
 new Function('X', 'WINDUP_AVG',
   lift('SCORING', 'END SCORING') + '\n' + lift('THE FIGHT MATHS', 'END FIGHT MATHS') +
   '\nObject.assign(X,{bestSplit,isFarkle,scoreOf,genMonster,monsterHP,foeHit,foeArmorFor,armored,' +
-  'heroMaxHP,lvlMult,turnDamage,temper,POOLS,AREA_LV,TURNS,FARKLE_MULT,EQUIP});'
+  'heroMaxHP,lvlMult,turnDamage,temper,WORLDS,TURNS,FARKLE_MULT,EQUIP});'
 )(F, +src.match(/const WINDUP_AVG = (\d+)/)[1]);
 
 const roll = n => { const f = []; for (let i = 0; i < n; i++) f.push(1 + (Math.random() * 6 | 0)); return f; };
@@ -44,8 +44,10 @@ function playerTurn(bankAt) {
 }
 
 /* One whole fight. Gear is given as flat Attack and Defense points. */
-function fight(L, atkPts, defPts, bankAt, cap = 60) {
-  const d = F.genMonster(0, L);
+function fight(L, atkPts, defPts, bankAt, cap = 60, boss = false, area = 0) {
+  const a = F.WORLDS[0].areas[area];
+  const kind = boss ? a.boss : a.pool[Math.random() * a.pool.length | 0];
+  const d = F.genMonster(kind, L, boss);
   let fhp = d.hp, fblk = 0, mv = 0;
   let hp = F.heroMaxHP(L), turns = 0;
   const lm = F.lvlMult(L), am = 1 + atkPts / 100;
@@ -93,6 +95,22 @@ for (const [label, atk, def] of GEAR) {
   }
   console.log('');
 }
+/* a boss should be longer and harder than a normal fight, not a wall */
+console.log('bosses, first tier gear, at the level you meet them:');
+console.log('  area   win rate   turns   health left');
+for (const [area, L] of [[0, 3], [1, 5], [2, 7], [3, 9]]) {
+  let wins = 0, turns = 0, left = 0;
+  const atk = F.EQUIP.sword.atk[2] + F.EQUIP.dagger.atk[2];
+  const def = F.EQUIP.shield.def[2] + F.EQUIP.helm.def[2] + F.EQUIP.armor.def[2];
+  for (let i = 0; i < N; i++) {
+    const r = fight(L, atk, def, 350, 60, true, area);
+    if (r.won) { wins++; left += r.hpLeft / r.maxHp; }
+    turns += r.turns;
+  }
+  console.log(`  ${String(area + 1).padStart(4)}   ${(wins / N * 100).toFixed(0).padStart(7)}%   ${(turns / N).toFixed(1).padStart(5)}   ${wins ? (left / wins * 100).toFixed(0).padStart(10) + '%' : '         -'}`);
+}
+console.log('');
+
 /* how much the bank-at choice matters inside a real fight */
 console.log('bare hands at level 1, by how greedy the player is:');
 console.log('  bank at   win rate   turns');
