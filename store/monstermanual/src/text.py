@@ -245,3 +245,20 @@ APPENDIX_CR = (
 APPENDIX_AZ = 'Every creature in the book by name.'
 
 STORE_BLURB_HEAD = 'A bestiary of 168 monsters, in ten worlds, from a free card game.'
+
+# The back of the printed book. Kept short: it has to read at arm's length
+# in a thumbnail as well as in the hand.
+BACK_COVER = (
+    "Every monster from the card game Axes & Aces, with a full stat block "
+    "and a picture, ready to drop on a table.\n\n"
+    "Ten worlds, easiest to hardest. A tavern cellar, frozen peaks, burning "
+    "sands, a sunken coast, a plague marsh, iron mines, a haunted abbey, "
+    "elven wilds, a sky fortress, and the Abyss. World one is written for a "
+    "1st-level party. World ten is written for a 20th.\n\n"
+    "Forty of them are bosses, each on a page of its own, each with the one "
+    "trick that makes it different.\n\n"
+    "No setting to buy into and no new rules to learn. The introduction "
+    "shows exactly how the card game's numbers became challenge ratings, so "
+    "you can see the working and decide whether to trust it.\n\n"
+    "168 monsters. Challenge 1/2 to 22."
+)

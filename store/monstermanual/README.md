@@ -27,14 +27,24 @@ fine — they explicitly allow it inside a rulebook, which is why the book forma
 was chosen — but the AI-written text rules it out, and no amount of editing
 changes where the words came from.
 
-**itch.io allows it** with its AI disclosure tag set, and that is where it
-should go. Price $14.99.
+**Two stores are open.** itch.io takes the PDF at $14.99 with its AI
+disclosure tag set. Amazon KDP takes a 146-page paperback at $24.99, which
+requires an AI-content disclosure at upload and allows the book on that
+basis; print-ready interior and wraparound cover are both built. Foundry
+VTT's package browser is closed to it for the same reason as DriveThruRPG,
+so the free module installs from a link.
+
+`STORE.md` has the print arithmetic. One thing not to get wrong: **KDP locks
+the ink type to the ISBN once the book is published**, so standard versus
+premium colour has to be settled from a proof beforehand.
 
 ## What gets built
 
 | Output | Size | In git? |
 |---|---|---|
-| `dist/Axes-and-Aces-Monster-Manual.pdf` | ~93 MB | No |
+| `dist/Axes-and-Aces-Monster-Manual.pdf` (itch.io) | ~95 MB | No |
+| `dist/Axes-and-Aces-Monster-Manual-KDP-interior.pdf` | ~95 MB | No |
+| `dist/Axes-and-Aces-Monster-Manual-KDP-cover.pdf` | ~7 MB | No |
 | `dist/cover-itch.png` | ~1 MB | No |
 | `build/panels/` (168 composited scenes) | ~71 MB | No |
 | `build/roster.json`, `build/blocks.json` | ~400 KB | Yes |

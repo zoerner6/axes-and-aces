@@ -31,10 +31,21 @@ GUTTER = 16.0
 BLOCK_W = CW - PANEL_W - GUTTER
 MIN_SLOT = 302.0                    # two mob entries to a page
 
+# ---- print edition -------------------------------------------------------
+# Amazon KDP trims 0.125 in off the top, bottom and outside edge, so a print
+# interior is laid out on a larger sheet and the trim box is slid to one side
+# depending on which hand the page falls on. The 42 pt margin already clears
+# KDP's minimums for this page count - 0.5 in gutter, 0.375 in outside with
+# bleed - so only the sheet changes, never the text block.
+BLEED = 9.0                         # 0.125 in
+
 
 class Book:
-    def __init__(self, path, toc=None):
-        self.c = canvas.Canvas(path, pagesize=letter)
+    def __init__(self, path, toc=None, kdp=False):
+        self.kdp = kdp
+        self.bleed = BLEED if kdp else 0.0
+        size = (PW + self.bleed, PH + 2 * self.bleed) if kdp else letter
+        self.c = canvas.Canvas(path, pagesize=size)
         self.c.setTitle(T.TITLE)
         self.c.setAuthor('Axes & Aces')
         self.c.setSubject('A 5E-compatible bestiary of 168 monsters')
@@ -46,6 +57,18 @@ class Book:
         self.chapter = ''
         self.word = brand.trimmed(brand.WORD_LOGO, 'wordlogo')
         self.icon = brand.trimmed(brand.ICON, 'icon')
+        self._origin()
+
+    def _origin(self):
+        """Slide the trim box so the bleed falls on the outside edge.
+
+        A right-hand page bleeds to the right, so the trim sits flush left; a
+        left-hand page is the other way round. showPage resets the matrix, so
+        this is re-applied for every page.
+        """
+        if not self.kdp:
+            return
+        self.c.translate(0.0 if self.page % 2 else self.bleed, self.bleed)
 
     # ---- page plumbing -------------------------------------------------
     def mark(self, key):
@@ -63,13 +86,20 @@ class Book:
             self.c.drawRightString(PW - M, PH - M + 10, self.chapter)
 
     def bg(self, color=L.PARCH):
+        """Page colour, run out past the trim on every side."""
+        b = self.bleed * 2
         self.c.setFillColor(color)
-        self.c.rect(0, 0, PW, PH, stroke=0, fill=1)
+        self.c.rect(-b, -b, PW + 2 * b, PH + 2 * b, stroke=0, fill=1)
+
+    def full_x(self):
+        """Left edge and width of something that must reach both trim edges."""
+        return -self.bleed, PW + 2 * self.bleed
 
     def new_page(self, dark=False):
         self.folio(dark)
         self.c.showPage()
         self.page += 1
+        self._origin()
         self.bg(L.SOOT if dark else L.PARCH)
         self.y = TOP
 
@@ -118,7 +148,7 @@ class Book:
 
 
 # ------------------------------------------------------------------ pages
-def fade_edge(c, y_edge, depth, up):
+def fade_edge(c, y_edge, depth, up, x=0.0, w=PW):
     """Blend an image edge into the soot page.
 
     Solid at the edge and clear `depth` points in, so the picture dissolves
@@ -130,7 +160,7 @@ def fade_edge(c, y_edge, depth, up):
     for i in range(steps):
         c.setFillColorRGB(0.078, 0.063, 0.051, alpha=1.0 - i / float(steps))
         y = y_edge + i * step if up else y_edge - (i + 1) * step
-        c.rect(0, y, PW, step + 0.6, stroke=0, fill=1)
+        c.rect(x, y, w, step + 0.6, stroke=0, fill=1)
     # The fill alpha persists in the graphics state, and the last step above
     # leaves it near zero. Images drawn afterwards would come out as ghosts.
     c.setFillAlpha(1)
@@ -160,9 +190,10 @@ def cover(bk):
     img = os.path.join(PANELS, 'demonking_boss.jpg')
     ih = PW * 1088 / 1950                      # 341 pt at full bleed
     iy = title_base - 30 - ih
-    c.drawImage(img, 0, iy, PW, ih, mask=None)
-    fade_edge(c, iy + ih, 78, up=False)        # top edge of the art
-    fade_edge(c, iy, 78, up=True)              # bottom edge
+    fx, fw = bk.full_x()
+    c.drawImage(img, fx, iy, fw, ih, mask=None)
+    fade_edge(c, iy + ih, 78, up=False, x=fx, w=fw)   # top edge of the art
+    fade_edge(c, iy, 78, up=True, x=fx, w=fw)         # bottom edge
 
     y = iy - 20
     c.setFillColor(L.CRIMSON)
@@ -286,8 +317,9 @@ def world_opener(bk, w, blocks):
     hero = next((b for b in bs if b['boss'] and b['area_i'] == 3), bs[-1])
     img = os.path.join(PANELS, '%s_boss.jpg' % hero['slug'])
     ih = PW * 1088 / 1950
-    c.drawImage(img, 0, PH - ih, PW, ih, mask=None)
-    fade_edge(c, PH - ih, 80, up=True)         # bottom edge of the art
+    fx, fw = bk.full_x()
+    c.drawImage(img, fx, PH - ih, fw, ih + bk.bleed * 2, mask=None)
+    fade_edge(c, PH - ih, 80, up=True, x=fx, w=fw)   # bottom edge of the art
 
     # The icon is the mark: small and repeated, one on each world opener.
     y = PH - ih - 18
@@ -487,11 +519,14 @@ def appendix_az(bk, blocks):
     bk.y = BOT
 
 
-def build(path, toc=None):
+def build(path, toc=None, kdp=False):
     data = json.load(open(os.path.join(BUILD, 'blocks.json'), encoding='utf-8'))
     worlds, blocks = data['worlds'], data['blocks']
-    bk = Book(path, toc)
-    cover(bk)
+    bk = Book(path, toc, kdp=kdp)
+    if not kdp:
+        # A print interior carries no cover: KDP takes the cover as its own
+        # wraparound file.
+        cover(bk)
     title_page(bk)
     legal(bk)
     contents(bk, worlds)
@@ -522,8 +557,164 @@ def build(path, toc=None):
     appendix_cr(bk, blocks)
     appendix_az(bk, blocks)
     bk.folio()
+    if kdp and bk.page % 2:
+        # A printed book has to end on a left-hand page.
+        bk.c.showPage()
+        bk.page += 1
+        bk._origin()
+        bk.bg(L.PARCH)
     bk.c.save()
     return bk.marks, bk.page
+
+
+# KDP's own figures, read off its help pages on 1 November 2026.
+SPINE_PER_PAGE = {'standard': 0.002252, 'premium': 0.002347}   # inches
+PRINT_COST = {'standard': (1.00, 0.0402), 'premium': (1.00, 0.080)}  # large trim, .com
+ROYALTY = 0.60
+
+
+def kdp_cover(pages, ink='standard'):
+    """The wraparound cover: back, spine and front in one PDF.
+
+    Width  = bleed + back + spine + front + bleed
+    Height = bleed + trim height + bleed
+    """
+    spine = pages * SPINE_PER_PAGE[ink] * 72.0
+    w = BLEED + PW + spine + PW + BLEED
+    h = BLEED + PH + BLEED
+    out = os.path.join(DIST, 'Axes-and-Aces-Monster-Manual-KDP-cover.pdf')
+    c = canvas.Canvas(out, pagesize=(w, h))
+    c.setTitle(T.TITLE + ' - cover')
+
+    word = brand.trimmed(brand.WORD_LOGO, 'wordlogo')
+    icon = brand.trimmed(brand.ICON, 'icon')
+
+    c.setFillColor(L.SOOT)
+    c.rect(0, 0, w, h, stroke=0, fill=1)
+
+    front_x = BLEED + PW + spine        # left edge of the front cover
+    back_x = BLEED
+
+    # ---- front ----
+    lw, lh = brand.fit(word, 400)
+    ly = h - BLEED - 40 - lh
+    c.drawImage(word['path'], front_x + (PW - lw) / 2, ly, lw, lh, mask='auto')
+    tb = ly - 34 - 28
+    c.setFont(L.TITLE_F, 40)
+    c.setFillColor(L.GOLD)
+    c.drawCentredString(front_x + PW / 2, tb, 'MONSTER MANUAL')
+
+    img = os.path.join(PANELS, 'demonking_boss.jpg')
+    ih = PW * 1088 / 1950
+    iy = tb - 30 - ih
+    c.drawImage(img, front_x, iy, PW, ih, mask=None)
+    for i in range(80):
+        c.setFillColorRGB(0.078, 0.063, 0.051, alpha=1.0 - i / 80.0)
+        c.rect(front_x, iy + ih - (i + 1) * 78 / 80.0, PW, 78 / 80.0 + 0.6,
+               stroke=0, fill=1)
+        c.rect(front_x, iy + i * 78 / 80.0, PW, 78 / 80.0 + 0.6, stroke=0, fill=1)
+    c.setFillAlpha(1)
+
+    y = iy - 20
+    c.setFillColor(L.CRIMSON)
+    c.rect(front_x + M, y, PW - 2 * M, 3, stroke=0, fill=1)
+    c.setFont(L.TITLE_F, 26)
+    c.setFillColor(L.PARCH)
+    c.drawCentredString(front_x + PW / 2, y - 33, '168 monsters. Ten worlds.')
+    c.setFont(L.BODY_F, 12.5)
+    c.drawCentredString(front_x + PW / 2, y - 55,
+                        'From the free card game at ' + T.SITE)
+    c.setFont(L.LABEL_F, 11.5)
+    c.setFillColor(L.GOLD)
+    c.drawCentredString(front_x + PW / 2, y - 80, T.TAGLINE.upper())
+
+    # ---- spine (KDP allows spine text above 79 pages) ----
+    # KDP wants at least 0.0625 in between spine text and each spine edge,
+    # and warns of that much drift again when the book is bound. Sizing the
+    # type to 45% of the spine leaves roughly double the minimum.
+    clearance = 4.5                                   # 0.0625 in in points
+    if spine >= 16:
+        fs = min(18.0, spine * 0.45)
+        if (spine - fs) / 2 >= clearance:
+            c.saveState()
+            c.translate(front_x - spine / 2, h / 2)
+            c.rotate(-90)
+            c.setFont(L.TITLE_F, fs)
+            c.setFillColor(L.GOLD)
+            c.drawCentredString(0, -fs * 0.34,
+                                'AXES & ACES  ·  MONSTER MANUAL')
+            c.restoreState()
+
+    # ---- back ----
+    bx = back_x + M
+    bw = PW - 2 * M
+    ty = h - BLEED - 72
+    c.setFont(L.TITLE_F, 26)
+    c.setFillColor(L.BRIGHT)
+    c.drawString(bx, ty, '168 monsters. Ten worlds.')
+    ty -= 10
+    c.setFillColor(L.CRIMSON)
+    c.rect(bx, ty, bw, 2.5, stroke=0, fill=1)
+    ty -= 14
+
+    for para in T.BACK_COVER.split('\n\n'):
+        for line in L.wrap(para, L.BODY_F, 11.5, bw):
+            ty -= 15.5
+            c.setFont(L.BODY_F, 11.5)
+            c.setFillColor(L.PARCH)
+            c.drawString(bx, ty, line)
+        ty -= 7
+
+    ty -= 16
+    c.setFont(L.LABEL_F, 10)
+    c.setFillColor(L.GOLD)
+    c.drawString(bx, ty, T.TAGLINE.upper())
+
+    # A row of monsters across the middle, which is what the back of a
+    # bestiary is for, and what fills the space the copy leaves.
+    show = ['goblin', 'frostgiant', 'kraken', 'lich']
+    gap = 10.0
+    tw = (bw - gap * (len(show) - 1)) / len(show)
+    th = tw * 602 / 1080
+    # Sit the strip in the gap between the copy and the footer rather than
+    # straight under the copy, so the back reads as balanced.
+    ty = BLEED + 215
+    for i, slug in enumerate(show):
+        src = os.path.join(PANELS, slug + '_mob.jpg')
+        if not os.path.exists(src):
+            src = os.path.join(PANELS, slug + '_boss.jpg')
+            ih2 = tw * 1088 / 1950
+        else:
+            ih2 = th
+        x = bx + i * (tw + gap)
+        c.setFillColor(L.SOOT)
+        c.rect(x + 2, ty - 2, tw, ih2, stroke=0, fill=1)
+        c.drawImage(src, x, ty, tw, ih2, mask=None)
+        c.setStrokeColor(L.SOOT)
+        c.setLineWidth(1.6)
+        c.rect(x, ty, tw, ih2, stroke=1, fill=0)
+
+    ic = 46
+    c.drawImage(icon['path'], bx, BLEED + 96, ic, ic, mask='auto')
+    c.setFont(L.BODY_F, 10)
+    c.setFillColor(L.PARCH)
+    c.drawString(bx + ic + 12, BLEED + 120, 'Play the game free at ' + T.SITE)
+    c.setFont(L.BODY_F, 8.5)
+    c.setFillColor(L.MUTED)
+    c.drawString(bx + ic + 12, BLEED + 104, 'Contains AI-generated content.')
+
+    # KDP prints the barcode bottom-right of the back cover: keep it clear.
+    c.save()
+    return out, w, h, spine
+
+
+def costs(pages):
+    rows = []
+    for ink in ('standard', 'premium'):
+        fixed, per = PRINT_COST[ink]
+        cost = fixed + pages * per
+        rows.append((ink, cost, cost / ROYALTY))
+    return rows
 
 
 def main():
@@ -533,12 +724,39 @@ def main():
     marks, pages = build(tmp)
     out = os.path.join(DIST, 'Axes-and-Aces-Monster-Manual.pdf')
     marks2, pages2 = build(out, marks)
-    print('pages: %d' % pages2)
-    print('size:  %.1f MB' % (os.path.getsize(out) / 1e6))
-    print('out:   %s' % os.path.abspath(out))
+    print('digital edition (itch.io)')
+    print('  pages: %d' % pages2)
+    print('  size:  %.1f MB' % (os.path.getsize(out) / 1e6))
+    print('  out:   %s' % os.path.abspath(out))
     if pages != pages2:
-        print('NOTE: page count moved between passes (%d -> %d); '
+        print('  NOTE: page count moved between passes (%d -> %d); '
               'contents numbers may be off by a page.' % (pages, pages2))
+
+    if '--no-kdp' in sys.argv:
+        return
+    ktmp = os.path.join(BUILD, 'kdp1.pdf')
+    kmarks, kpages = build(ktmp, kdp=True)
+    kout = os.path.join(DIST, 'Axes-and-Aces-Monster-Manual-KDP-interior.pdf')
+    _, kpages2 = build(kout, kmarks, kdp=True)
+    cov, cw, ch, spine = kdp_cover(kpages2)
+    print()
+    print('print edition (Amazon KDP paperback, 8.5 x 11 in)')
+    print('  interior pages: %d  (even: %s)' % (kpages2, kpages2 % 2 == 0))
+    print('  interior size:  %.1f MB  (KDP allows 650 MB)'
+          % (os.path.getsize(kout) / 1e6))
+    print('  interior sheet: %.3f x %.3f in  (trim 8.5 x 11 plus bleed)'
+          % ((PW + BLEED) / 72, (PH + 2 * BLEED) / 72))
+    print('  interior:       %s' % os.path.abspath(kout))
+    print('  cover sheet:    %.3f x %.3f in, spine %.3f in'
+          % (cw / 72, ch / 72, spine / 72))
+    print('  cover size:     %.1f MB  (KDP wants under 40 MB)'
+          % (os.path.getsize(cov) / 1e6))
+    print('  cover:          %s' % os.path.abspath(cov))
+    print()
+    print('  printing cost and the lowest list price it allows, Amazon.com:')
+    for ink, cost, floor in costs(kpages2):
+        print('    %-9s $%5.2f per copy  ->  list at least $%5.2f'
+              % (ink, cost, floor))
 
 
 if __name__ == '__main__':

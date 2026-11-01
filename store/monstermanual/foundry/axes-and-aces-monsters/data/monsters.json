@@ -300,20 +300,6 @@
   },
   "items": [
    {
-    "name": "Spider Climb",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The giant rat can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
-   {
     "name": "Pack Tactics",
     "type": "feat",
     "img": "icons/svg/aura.svg",
@@ -7465,20 +7451,6 @@
   },
   "items": [
    {
-    "name": "Water Breathing",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The sabre walrus can breathe only underwater.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
-   {
     "name": "Amphibious",
     "type": "feat",
     "img": "icons/svg/aura.svg",
@@ -12735,20 +12707,6 @@
   },
   "items": [
    {
-    "name": "Water Breathing",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The giant crab can breathe only underwater.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
-   {
     "name": "Amphibious",
     "type": "feat",
     "img": "icons/svg/aura.svg",
@@ -13874,20 +13832,6 @@
    "skills": {}
   },
   "items": [
-   {
-    "name": "Water Breathing",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The giant octopus can breathe only underwater.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
    {
     "name": "Amphibious",
     "type": "feat",
@@ -16245,20 +16189,6 @@
   },
   "items": [
    {
-    "name": "Spider Climb",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The plague rat can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
-   {
     "name": "Pack Tactics",
     "type": "feat",
     "img": "icons/svg/aura.svg",
@@ -16470,20 +16400,6 @@
    "skills": {}
   },
   "items": [
-   {
-    "name": "Spider Climb",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The giant leech can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
    {
     "name": "Amphibious",
     "type": "feat",
@@ -16948,20 +16864,6 @@
    "skills": {}
   },
   "items": [
-   {
-    "name": "Water Breathing",
-    "type": "feat",
-    "img": "icons/svg/aura.svg",
-    "system": {
-     "description": {
-      "value": "<p>The the swamp king croc can breathe only underwater.</p>"
-     },
-     "activation": {
-      "type": "",
-      "cost": null
-     }
-    }
-   },
    {
     "name": "Hold Breath",
     "type": "feat",

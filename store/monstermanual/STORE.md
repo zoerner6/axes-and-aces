@@ -23,20 +23,105 @@ is the one that kills it. The text in this book was written with AI help, and
 their banned-tools list names Claude and ChatGPT directly. One policy covers
 DriveThruRPG, DMs Guild and Roll20, so all three are out.
 
-**itch.io is open and is where this should go.** It permits AI art and AI text
-in paid products, and asks only that the project is tagged honestly with its
-AI Disclosure field. That tag is set in step 6 of the upload checklist.
+**Two stores are open, and the book should go to both.**
 
-Backups, if itch ever changes its mind: Gumroad and Payhip have no AI rules at
+**itch.io** takes the PDF. It permits AI art and AI text in paid products and
+asks only that the project is tagged honestly with its AI Disclosure field.
+It is where RPG buyers actually browse.
+
+**Amazon KDP** takes a paperback. It requires an AI-content disclosure at
+upload and allows the book on that basis.
+
+To be clear about which earns more: the **PDF earns more per sale**. At
+$14.99 on itch, with itch's default 10% share, that is about $13.49 a copy
+against the paperback's $8.12 at $24.99, because a printed book costs $6.87
+to manufacture. The paperback is worth doing for reach, not margin — Amazon
+is where people who have never heard of the game will find it, and a physical
+book is a different purchase from a PDF. Details and the print arithmetic are
+in the next section.
+
+Backups, if either changes its mind: Gumroad and Payhip have no AI rules at
 all, and Ko-fi explicitly permits AI work as long as you do not pass it off as
 hand-made. None of those three bring any buyers of their own, so they are
 checkout pages rather than stores.
 
+Not worth doing: a **Kindle** edition. This is a 146-page full-colour 8.5x11
+book of stat blocks. Reflowable would destroy the layout and fixed-layout
+reads badly on a phone. The PDF already serves digital buyers.
+
 ---
 
-## Price
+## The print edition on Amazon KDP
 
-**Launch at $14.99.**
+KDP allows this book. Its rule, verbatim from its Content Guidelines page on
+1 November 2026:
+
+> We require you to inform us of AI-generated content (text, images, or
+> translations) when you publish a new book or make edits to and republish an
+> existing book through KDP. AI-generated images include cover and interior
+> images and artwork. You are not required to disclose AI-assisted content.
+
+> **AI-generated:** ... If you used an AI-based tool to create the actual
+> content (whether text, images, or translations), it is considered
+> "AI-generated," even if you applied substantial edits afterwards.
+
+So the honest answer at upload is **yes, AI-generated, both text and images**.
+That disclosure goes to Amazon and is not printed on the product page. Unlike
+DriveThruRPG, disclosing is what makes it allowed rather than refused.
+
+### What it costs to print and what it can sell for
+
+8.5 x 11 counts as a **large trim size** at KDP (anything over 6.12 inches
+wide). At 146 pages, on Amazon.com:
+
+| Ink | Printing cost a copy | Lowest list price allowed | Royalty at $24.99 |
+|---|---|---|---|
+| **Standard colour** | $6.87 | $11.45 | **$8.12** |
+| Premium colour | $12.68 | $21.13 | $2.31 |
+
+Printing cost is `fixed + pages x per-page`: $1.00 + 146 x $0.0402 for
+standard, $1.00 + 146 x $0.080 for premium. Royalty is 60% of list minus
+printing cost.
+
+**Sell it at $24.99 in standard colour.** That earns about $8.12 a copy,
+against $4.93 at the $19.99 the itch research suggested for a PDF. A
+146-page full-colour large-format book is not priced like a novel; print RPG
+books routinely sit above this.
+
+Premium colour is the better-looking option and makes a third of the money.
+It is only worth it if the proof shows standard colour cannot handle the dark
+pages — and **the ink type locks to the ISBN once the book is published**, so
+that decision has to be made before, not after.
+
+### The risk worth knowing
+
+Ten of the 146 pages are full-bleed dark scenes, and dark full-bleed pages are
+the hardest thing for print-on-demand to render well: banding, muddiness and
+show-through are all common. The other ~130 pages are light parchment with
+modest pictures and will print fine. Order one proof and look at the ten
+before publishing.
+
+### Print specifications, already met
+
+| | |
+|---|---|
+| Interior sheet | 8.625 x 11.25 in (8.5 x 11 trim + 0.125 in bleed on three sides) |
+| Trim box | slides per page so the bleed is always on the outside edge |
+| Margins | 0.583 in all round — clears KDP's 0.375 in gutter and 0.375 in bleed-side minimums |
+| Pages | 146, even, no cover page (KDP takes the cover separately) |
+| Interior file | 95 MB against KDP's 650 MB ceiling |
+| Cover sheet | 17.579 x 11.25 in, one PDF, back + spine + front |
+| Spine | 0.329 in (146 x 0.002252 in for standard colour); spine text allowed above 79 pages |
+| Spine text clearance | 6.5 pt each side, against KDP's 4.5 pt minimum |
+| Cover file | 7 MB, against the 40 MB KDP recommends |
+
+---
+
+## Price of the PDF on itch.io
+
+**Launch at $14.99.** The paperback is priced separately in the KDP section
+above, at $24.99 — a printed book costing $6.87 to manufacture cannot sit at
+the PDF's price.
 
 Comparable bestiaries, checked 1 November 2026:
 
@@ -140,8 +225,19 @@ Play the game free at **AxesAndAces.com**.
 Use these on itch (it allows up to 10):
 
 ```
-dnd, dungeons-and-dragons, 5e, ttrpg, bestiary, monsters, srd, fantasy, tabletop, gm-tools
+5e, ttrpg, bestiary, monsters, srd, fantasy, tabletop, gm-tools, dungeon-master, fifth-edition
 ```
+
+**I removed "dnd" and "dungeons-and-dragons" from this list, and they should
+stay off.** The licence this book uses says, in its own words: "Please do not
+include any other attribution regarding Wizards other than that provided
+above. You may, however, include a statement on your work that it is
+'compatible with fifth edition' or '5E compatible.'" A store tag is not an
+attribution, it is using someone else's trademark to sell a product. Plenty of
+publishers do it anyway; it is also the kind of thing that gets a listing
+pulled with no warning, and the upside is small because "5e" and "fifth
+edition" already find the same buyers. Same rule on Amazon: keep
+"Dungeons & Dragons" out of the title, subtitle, description and keywords.
 
 ## Classification settings on itch
 
