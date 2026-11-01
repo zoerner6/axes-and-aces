@@ -2,7 +2,9 @@
 # The panels are ~74 MB of composited JPEGs and the PDF is tens of MB, so
 # neither belongs in the repository.
 build/panels/
-build/pass1.pdf
+# Every intermediate PDF the build writes. pass1 is the digital edition's
+# first numbering pass, kdp1 the print edition's; both are ~95 MB.
+build/*.pdf
 dist/
 build/preview/
 
