@@ -17,7 +17,16 @@ This file is for moving the project from the cloud session to a local Claude Cod
 - **Android app:** made with Capacitor. It is a thin shell that opens https://axesandaces.com.
   - Website updates reach the app automatically.
   - The app only needs rebuilding for native changes, such as a new version number, icon or permissions.
-- **iPhone app:** not started.
+- **iPhone app:** Capacitor as well, but **not** a website shell. It carries the
+  game inside the app and plays with no signal, because Apple turns down apps
+  that are only a window onto a website (review guideline 4.2). The monster
+  clips are 585MB, far too much to ship, so those still stream from the site
+  when there is a connection and the game falls back to the still art when
+  there isn't.
+  - It is built on a Mac at GitHub, so no Mac is needed here. See section 5b.
+  - Because the app's page is served from inside the app and not from the site,
+    the videos, the leaderboard and the cloud saves need the full address.
+    `REMOTE` in `dev/game.html` adds it. On the website it is empty.
 
 ## 2. Where things are (repo root)
 
@@ -35,7 +44,9 @@ This file is for moving the project from the cloud session to a local Claude Cod
 | `netlify.toml` | Netlify settings: no-cache headers for the HTML pages and a block on `/store/*`. |
 | `netlify/functions/` | Leaderboard and cloud-save server code. The database link is only in Netlify's secret `DATABASE_URL`. |
 | `store/google-play/` | Google Play upload files: the aab, listing text, screenshots, feature graphic and icon. |
-| `dev/android-app/` | Android app project (Capacitor). |
+| `dev/android-app/` | Android app project (Capacitor). **The iPhone project lives in here too**, at `dev/android-app/ios/`, because both share one Capacitor project. |
+| `.github/workflows/ios.yml` | Builds the iPhone app on a Mac at GitHub. See section 5b. |
+| `dev/gen/harness.py` | Builds a test page the same way `build.py` builds the real one. Use it for any phone measuring. |
 | `dev/gen/` | Old helper scripts from the cloud session (see section 7). |
 | `dev/tests/` | Browser test scripts (Playwright) used to screenshot and check layouts. |
 | `dev/tog.js` | Makes the Facebook share pictures in `b/`. |
@@ -53,15 +64,48 @@ This file is for moving the project from the cloud session to a local Claude Cod
 
 When the game changes, also update the Claude preview artifact (section 1 link). It is the game only: the page head skeleton plus `dev/game.html`, published as `index.html`. Its art, vid and music files are already uploaded there.
 
-## 4. Status right now (Oct 31, 2026)
+## 4. Status right now (Nov 1, 2026)
 
-**Waiting on Josh / not live yet:**
-- [ ] **Netlify publish.** The new front page, the hero-slot phone fix, the easier monsters and the Facebook-picture fixes are all pushed to GitHub but **not live yet**. Run the publish command in step 3.5. Then check that https://axesandaces.com contains "Play one hand" and that https://axesandaces.com/play.html loads the game.
-- [ ] **Google Play.** Upload `store/google-play/axes-and-aces-1.0.aab` (versionCode 2, minSdk 24) in Play Console. Google rejected the first one because it used minSdk 22. Listing text and form answers are in `store/google-play/store-listing.txt`.
-- [ ] **App Store (iPhone).** Not started. The front page shows "Coming soon" buttons for both stores.
-- [ ] **support@axesandaces.com.** Email forwarding was planned through Porkbun (the domain registrar) but never confirmed as set up.
+**Waiting on Josh:**
+- [ ] **The app record in App Store Connect.** The iPhone app cannot be sent to
+  Apple until the app exists there with bundle ID
+  `io.github.zoerner6.axesandaces`. Only Josh can make it. Everything else is
+  ready: the three API secrets are stored in the repo and the app compiles.
+- [ ] **support@axesandaces.com.** Forwarding at Porkbun. The Porkbun API has
+  no endpoint for email forwarding, so it has to be set on the Porkbun website.
+  The address is printed on `privacy.html`, which Apple's reviewer will click.
+- [ ] **One more publish needed.** The server functions now answer a
+  cross-origin call, which the iPhone app needs for the leaderboard and cloud
+  saves. That is committed but **not published**. Publish before testing the
+  iPhone build, or those two things will fail in the app and work on the web.
 
-**Done today:**
+**Done Nov 1:**
+- Phone layout pass over the whole game and the front page, commit `f9bd76d` -
+  **published and live**. The fallen screen, cards printing suit on suit, the
+  monster clip, header buttons, the level-up rows, the tape, the merchant, and
+  the front page's comic captions and picture rows.
+- The iPhone app now carries the game, commit `cc91a19`. Not published, not
+  sent to Apple yet.
+- Google Play: Josh says the submission is in. Nobody here can see the Play
+  Console, so that is his word and not checked.
+- Two things given up on purpose on phones: Old Bram's line after you die is
+  hidden (it cost about 70px and pushed Start over off the screen), and the
+  potion rings are 30px instead of 34 on a 568px-tall screen.
+
+**Known traps:**
+- `npx netlify deploy --prod --site axes-and-aces` **fails** with "Not Found".
+  The folder is already linked to the site, so leave `--site` off entirely:
+  `npx netlify deploy --prod`.
+- `dev/game.html` has no `<head>`, so a test page made by injecting into it has
+  no viewport meta, and a phone-sized Chrome then lays the page out at 980px
+  with every `max-width` rule switched off. Build test pages with
+  `python dev/gen/harness.py`, and check `matchMedia('(max-width:560px)')`
+  is true at 320 wide before trusting any measurement.
+- The whole repo root is published, so `HANDOFF.md`, `BRAND.md` and `dev/` are
+  readable on the live site. The repo is public on GitHub anyway, so nothing is
+  exposed that wasn't already, but it is untidy.
+
+**Done Oct 31:**
 - Facebook share pictures:
   - Reworded the share text (no more "Can you beat it too?").
   - Replaced the yellow box with outlined lettering.
@@ -105,6 +149,44 @@ When the game changes, also update the Claude preview artifact (section 1 link).
   - You need Android SDK 36 and Java 17+.
 - **Every new upload needs a higher `versionCode`** in `android/app/build.gradle`. It's 2 now.
 - minSdk is set in `android/variables.gradle` (24).
+
+## 5b. iPhone app
+
+- Same Capacitor project as Android, at `dev/android-app/ios/`. App id
+  `io.github.zoerner6.axesandaces`, the same one Android uses.
+- **No Mac needed.** It builds on a Mac at GitHub. Open the repo's **Actions**
+  tab, pick **iPhone app**, press **Run workflow**. Leaving "Send the build to
+  TestFlight" off only checks that it compiles; turning it on signs it and
+  sends it to Apple.
+- **It is not a website shell.** Unlike Android, the iPhone build carries the
+  game inside the app, because Apple turns down apps that are only a window
+  onto a website. The workflow does that itself, every build:
+  1. runs `dev/build.py`,
+  2. copies `play.html` in as the app's `index.html`, plus `art/`, `img/`,
+     `icons/`, `music/` and `manifest.json`,
+  3. drops the `server.url` line from `capacitor.config.json`, so the app runs
+     off its own copy.
+  None of that copy is committed - it is assembled on the runner and
+  gitignored here. **Android is untouched by this** and still loads the
+  website, so site updates keep reaching the Android app without a rebuild.
+- **The monster clips are not in the app.** 585MB is far too much to ship, so
+  they stream from the site when there is a connection. With no signal the
+  game falls back to the still art, which it already did whenever a clip
+  failed to load.
+- **Three secrets must exist** in the repo (Settings > Secrets and variables >
+  Actions). All three were added 2026-10-31 and are in place:
+  `APPSTORE_ISSUER_ID`, `APPSTORE_KEY_ID`, `APPSTORE_P8`. Apple only lets the
+  `.p8` file be downloaded once, so Josh needs his own copy kept safe.
+- **The app must exist in App Store Connect first**, with that same bundle ID.
+  That is the one step nobody here can do.
+- **Version numbers** are in `ios/App/App.xcodeproj/project.pbxproj`:
+  `MARKETING_VERSION` is the public version (1.0), `CURRENT_PROJECT_VERSION` is
+  the build number and **must go up on every upload**. It is 1 now, so the
+  first upload is fine and the second needs a bump.
+- **If Apple still rejects it under guideline 4.2**, the answer is not to argue:
+  it means something still looks like a web page. Check that the build really
+  did drop `server.url` (the step prints the config) and that the app opened
+  its own files rather than the site.
 
 ## 6. Game facts worth knowing
 
