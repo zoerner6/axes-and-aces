@@ -116,13 +116,67 @@ img{max-width:100%}
 .wind-num{font-family:var(--f-title);font-size:2.1rem;line-height:1;color:var(--gold);text-shadow:0 2px 0 #000;font-variant-numeric:tabular-nums}
 .wind-note{font-family:var(--f-num);font-weight:600;font-size:.76rem;color:var(--parch-dim);text-align:right;line-height:1.2}
 
-/* Both rows are the same six columns, so a die set aside slides straight up
-   out of its own column instead of jumping sideways. */
+/* Both rows are the same six columns, and every die keeps its own column for
+   the whole turn, so a die set aside slides straight up out of its column
+   instead of jumping sideways across the tray. */
 .row6{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;align-items:center}
-.held{min-height:34px;padding:4px;border-radius:10px;border:2px dashed var(--line);background:rgba(0,0,0,.25)}
-.held.empty{border-style:dashed}
-.live{min-height:48px}
-.slot{aspect-ratio:1;min-width:0}
+/* No side padding on the set-aside tray on purpose: its six columns have to
+   line up exactly with the six below it, or a die set aside slides up AND
+   sideways and the whole point of fixed columns is lost. */
+.held{padding:4px 0;border-radius:10px;border:2px dashed var(--line);border-left:0;border-right:0;
+  background:rgba(0,0,0,.28);min-height:38px}
+.live{min-height:50px}
+
+/* ---------- a die ----------
+   Ordinary readable pips, always. Monster faces on dice faces would be the one
+   change that sinks the game, because six dice have to be read at a glance.
+   The flavor is in the material: --die-* is swapped per world, and the pips
+   stay at maximum contrast in every single set. */
+:root{ --die-face:#f6ecd4; --die-face-2:#d8c7a2; --die-face-3:#bfa87e; --die-pip:#16100d; }
+.die{
+  position:relative;aspect-ratio:1;width:100%;min-width:0;padding:9.5%;border:3px solid #000;border-radius:19%;
+  background:linear-gradient(155deg, var(--die-face), var(--die-face-2) 58%, var(--die-face-3));
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.2), 3px 3px 0 #000;
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4%;
+}
+.die i{border-radius:50%;background:transparent}
+.die i.on{background:var(--die-pip);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+/* a die that could still be part of something that scores */
+.die.can{box-shadow:inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 3px var(--gold), 3px 3px 0 #000}
+/* a die that cannot. It has to stay readable - the player is about to decide
+   whether to re-roll it - so this says "scores nothing", not "broken". */
+.die.dead{filter:grayscale(.7) brightness(.78);box-shadow:inset 0 -3px 0 rgba(0,0,0,.2), 2px 2px 0 #000}
+/* set aside this roll - still yours to take back */
+.die.pick{box-shadow:inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 3px var(--gold-hi), 0 0 14px rgba(255,211,92,.5), 3px 3px 0 #000}
+/* set aside for good, earlier in the turn */
+.die.locked{box-shadow:inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 2px #8a6a28, 2px 2px 0 #000;cursor:default}
+/* before the first roll of a turn: a die with nothing on it yet, so the tray
+   never sits there showing six 1s and lighting up as an 8000 jackpot */
+.die.blank{filter:brightness(.52) saturate(.5);cursor:default}
+.die.blank i{background:transparent!important;box-shadow:none!important}
+
+/* The tumble. Flat, not a 3D cube: a spinning cube is lovely for half a second
+   and unreadable for the other half, and reading six dice fast is the whole
+   game. The face flips a few times mid-tumble from script, so it reads as a
+   real roll, and it lands square because tilted pips are harder to read. */
+@keyframes tumble{
+  0%  {transform:translateY(-130%) rotate(-30deg) scale(.82)}
+  34% {transform:translateY(8%)    rotate(190deg) scale(1.05)}
+  54% {transform:translateY(-24%)  rotate(268deg) scale(.97)}
+  76% {transform:translateY(5%)    rotate(330deg) scale(1.04)}
+  90% {transform:translateY(-5%)   rotate(352deg) scale(1)}
+  100%{transform:translateY(0)     rotate(360deg) scale(1)}
+}
+.die.tumble{animation:tumble var(--dur,580ms) cubic-bezier(.3,.72,.38,1) both}
+@keyframes land{0%{transform:scale(1.14,.88)}46%{transform:scale(.96,1.07)}100%{transform:scale(1)}}
+.die.land{animation:land .22s ease-out}
+@keyframes shiver{25%{transform:translateX(-2px) rotate(-3deg)}75%{transform:translateX(2px) rotate(3deg)}}
+.die.shiver{animation:shiver .3s ease-in-out 2}
+@keyframes hotflash{0%,100%{filter:none}40%{filter:brightness(1.7) saturate(1.5) drop-shadow(0 0 12px var(--gold))}}
+.die.hot{animation:hotflash .5s ease-in-out}
+@media (prefers-reduced-motion: reduce){
+  .die.tumble,.die.land,.die.shiver,.die.hot{animation:none}
+}
 
 /* ---------- the buttons ---------- */
 .actions{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -189,6 +243,15 @@ img{max-width:100%}
   .stage{max-height:min(38vh,380px)}
   .wind-num{font-size:1.9rem}
 }
+/* The name and three buttons stop fitting on one line somewhere under 430px,
+   and a second row of buttons costs 38px of height the monster needs. The
+   title goes first: the page is called Monster Farkle and the menu says so,
+   so the word on the bar is doing the least work of anything up there.
+   Sound is not up here at all - it lives in the menu, with the other settings. */
+@media (max-width:430px){
+  .brand .wide-only{display:none}
+  .tools{flex-wrap:nowrap}
+}
 /* Six dice stay in one row on every phone that matters. At 320 wide, with the
    narrow padding below, that is a 46px die - above the 44px tap floor and the
    pips still read at a glance. Two rows of three would be prettier dice and
@@ -197,8 +260,13 @@ img{max-width:100%}
 @media (max-width:300px){
   .row6{grid-template-columns:repeat(3,1fr)}
 }
+/* At 320 the die has to clear 44px, and every bit of side padding on the way
+   in comes off it: the page, then the table, then the gaps between six dice.
+   8 + 6 + four-pixel gaps leaves a 45px die. 10 + 10 + five left it at 42. */
 @media (max-width:380px){
-  #app{padding-left:max(10px, env(safe-area-inset-left,0px));padding-right:max(10px, env(safe-area-inset-right,0px))}
+  #app{padding-left:max(8px, env(safe-area-inset-left,0px));padding-right:max(8px, env(safe-area-inset-right,0px))}
+  .table{padding:8px 6px 9px}
+  .row6{gap:4px}
   .panel{padding:13px;gap:9px}
   .panel h2{font-size:1.5rem}
   .btn{font-size:.92rem;padding:10px 8px}
@@ -215,12 +283,11 @@ img{max-width:100%}
 
 <div id="app">
   <header class="top">
-    <div class="brand"><img src="img/emblem-64.webp" width="64" height="64" alt="">Monster Farkle</div>
+    <div class="brand"><img src="img/emblem-64.webp" width="64" height="64" alt=""><span class="wide-only">Monster </span>Farkle</div>
     <div class="tools">
       <button class="tool" data-act="menu">Menu</button>
       <button class="tool" data-act="guide">Scoring</button>
       <button class="tool" data-act="help" aria-label="How to play">?</button>
-      <button class="tool" data-act="sound">Sound</button>
     </div>
   </header>
 
@@ -410,17 +477,254 @@ const WINDUP_AVG = 545;
    The one thing that has to be true before any phone work is trusted. */
 const phoneCSSLive = () => matchMedia('(max-width:560px)').matches;
 
+/* ---------- sound ----------
+   Dice on a wooden table: a short noise knock through a band-pass, with a low
+   body under it. Built the same way dev/game.html builds its effects. */
+let ac = null, noiseBuf = null;
+let soundOn = store.get('sound', true);
+function audio(){
+  if(!ac){ try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
+  if(ac && ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function noise(){
+  if(!noiseBuf){
+    noiseBuf = ac.createBuffer(1, ac.sampleRate * .4, ac.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const s = ac.createBufferSource(); s.buffer = noiseBuf; return s;
+}
+function tone(f, dur, type = 'triangle', vol = .07, delay = 0){
+  if(!soundOn || !audio()) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .012);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + .02);
+}
+/* one die hitting the table */
+function knock(delay = 0, vol = 1){
+  if(!soundOn || !audio()) return;
+  const t = ac.currentTime + delay, n = noise(), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = 'bandpass'; f.frequency.value = 1500 + Math.random() * 900; f.Q.value = 1.3;
+  g.gain.setValueAtTime(.16 * vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + .09);
+  n.connect(f); f.connect(g); g.connect(ac.destination); n.start(t); n.stop(t + .12);
+  tone(90 + Math.random() * 40, .07, 'sine', .05 * vol, delay);
+}
+/* a die snapping into the set-aside tray */
+const snap = () => { tone(1250, .06, 'square', .045); tone(1870, .05, 'triangle', .03, .035); };
+const unsnap = () => tone(620, .07, 'triangle', .035);
+const deadthud = () => { tone(104, .26, 'sawtooth', .09); tone(66, .34, 'sine', .11, .02); };
+
+/* ---------- the dice ----------
+   Six dice, each keeping its own column for the whole turn. 'where' is the only
+   thing that moves them: live on the table, pick set aside this roll and still
+   takeable back, locked set aside for good earlier in the turn. */
+const PIPS = { 1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8] };
+const DICE = 6;
+let D = [];          /* the six dice */
+let wind = 0;        /* locked into this turn's wind-up, not counting the pick */
+let rolling = false; /* dice in the air: nothing is tappable */
+let started = false; /* before the first roll the dice are blank, not showing six 1s */
+
+const liveIdx  = () => D.map((d, i) => i).filter(i => D[i].where === 'live');
+const pickIdx  = () => D.map((d, i) => i).filter(i => D[i].where === 'pick');
+const rollIdx  = () => D.map((d, i) => i).filter(i => D[i].where === 'live' || D[i].where === 'pick');
+const facesOf  = ix => ix.map(i => D[i].f);
+/* the roll the scoring is judged on: everything not locked away earlier */
+const pickScore = () => { const s = scoreOf(facesOf(pickIdx())); return s === null ? 0 : s; };
+
+function dieEl(i){
+  const b = document.createElement('button');
+  b.className = 'die'; b.dataset.die = i; b.type = 'button';
+  for(let k = 0; k < 9; k++) b.appendChild(document.createElement('i'));
+  return b;
+}
+function paintFace(el, f){
+  const on = PIPS[f];
+  [...el.children].forEach((pip, k) => pip.className = on.includes(k) ? 'on' : '');
+  el.setAttribute('aria-label', `Die showing ${f}`);
+}
+
+/* Move things without jumping: measure, move, then animate the gap away. */
+function flip(els, mutate){
+  if(reduced()){ mutate(); return; }
+  const was = new Map();
+  els.forEach(el => was.set(el, el.getBoundingClientRect()));
+  mutate();
+  els.forEach(el => {
+    const a = was.get(el), b = el.getBoundingClientRect();
+    const dx = a.left - b.left, dy = a.top - b.top;
+    if(!dx && !dy) return;
+    el.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }],
+               { duration:250, easing:'cubic-bezier(.2,.9,.3,1.25)' });
+  });
+}
+
+function buildTray(){
+  $('heldRow').innerHTML = ''; $('liveRow').innerHTML = '';
+  D = [];
+  for(let i = 0; i < DICE; i++){
+    const el = dieEl(i);
+    el.style.gridColumn = String(i + 1);
+    D.push({ f:1, where:'live', el });
+    $('liveRow').appendChild(el);
+    paintFace(el, 1);
+  }
+}
+
+/* Put every die in the row its state says, and dress it. */
+function placeDice(){
+  const held = $('heldRow'), live = $('liveRow');
+  D.forEach(d => {
+    const want = d.where === 'live' ? live : held;
+    if(d.el.parentElement !== want) want.appendChild(d.el);
+  });
+  held.classList.toggle('empty', !D.some(d => d.where !== 'live'));
+  renderDice();
+}
+
+function renderDice(){
+  const roll = rollIdx();                                /* the dice in this roll */
+  const faces = facesOf(roll);
+  const pos = new Map(roll.map((g, k) => [g, k]));        /* die number -> place in the roll */
+  const picked = pickIdx().map(g => pos.get(g));
+  D.forEach((d, i) => {
+    const el = d.el;
+    el.classList.remove('can', 'dead', 'pick', 'locked', 'blank');
+    if(!started){ el.classList.add('blank'); el.disabled = true; return; }
+    if(d.where === 'locked'){ el.classList.add('locked'); el.disabled = true; return; }
+    if(d.where === 'pick'){ el.classList.add('pick'); el.disabled = rolling; return; }
+    /* A die is tappable only when some way of filling in the rest of this roll
+       pays for it. That is what makes an illegal pick impossible rather than
+       merely discouraged: one 2 out of three 2s never lights up, all three do. */
+    const could = !rolling && reachable(faces, picked.concat([pos.get(i)]));
+    el.classList.add(could ? 'can' : 'dead');
+    el.disabled = rolling || !could;
+  });
+  renderWind();
+}
+
+function renderWind(){
+  const add = pickScore(), total = wind + add, left = liveIdx().length;
+  $('windNum').textContent = fmt(total);
+  $('windNum').style.color = add ? 'var(--gold-hi)' : 'var(--gold)';
+  $('rollNote').textContent = !started ? 'six dice'
+    : !add ? 'set aside first'
+    : left === 0 ? 'hot dice - all six' : `${left} ${left === 1 ? 'die' : 'dice'} left`;
+  $('strikeNote').textContent = total ? `hit for ${fmt(total)}` : 'nothing yet';
+  $('rollBtn').disabled = rolling || (started && add === 0);
+  $('strikeBtn').disabled = rolling || !started || add === 0;
+}
+
+function toggleDie(i){
+  const d = D[i];
+  if(rolling || (d.where !== 'live' && d.where !== 'pick')) return;
+  d.where = d.where === 'live' ? 'pick' : 'live';
+  if(d.where === 'pick') snap(); else unsnap();
+  flip(D.map(x => x.el), placeDice);
+}
+
+/* ---------- the roll ---------- */
+function rollDice(){
+  const ix = liveIdx();
+  if(!ix.length) return Promise.resolve([]);
+  rolling = true; renderDice();
+  const dur = reduced() ? 1 : 580;
+  ix.forEach((i, k) => {
+    const d = D[i], el = d.el;
+    d.f = 1 + (Math.random() * 6 | 0);
+    el.classList.remove('land', 'shiver', 'hot', 'tumble');
+    el.style.setProperty('--dur', dur + 'ms');
+    if(reduced()){ paintFace(el, d.f); return; }
+    void el.offsetWidth;
+    el.style.animationDelay = (k * 60) + 'ms';
+    el.classList.add('tumble');
+    /* the face flips while it is in the air, then lands on the real one */
+    let flips = 0;
+    const spin = setInterval(() => {
+      if(++flips > 6){ clearInterval(spin); paintFace(el, d.f); return; }
+      paintFace(el, 1 + (Math.random() * 6 | 0));
+    }, dur / 8);
+    setTimeout(() => {
+      clearInterval(spin); paintFace(el, d.f);
+      el.classList.remove('tumble'); el.style.animationDelay = '';
+      el.classList.add('land'); knock(0, .9);
+      setTimeout(() => el.classList.remove('land'), 240);
+    }, dur + k * 60);
+  });
+  return new Promise(done => setTimeout(() => {
+    rolling = false; renderDice();
+    done(ix);
+  }, reduced() ? 40 : dur + ix.length * 60 + 120));
+}
+
 document.addEventListener('click', e => {
-  const b=e.target.closest('[data-act]'); if(!b) return;
-  const act=b.dataset.act;
-  if(act==='close') return closePanel();
-  toast('Not built yet: '+act);
+  const die = e.target.closest('[data-die]');
+  if(die){ audio(); return toggleDie(+die.dataset.die); }
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  audio();
+  const act = b.dataset.act;
+  if(act === 'close') return closePanel();
+  if(act === 'roll') return doRoll();
+  if(act === 'strike') return doStrike();
+  toast('Not built yet: ' + act);
 });
 
-/* The shell is up. The dice, the scoring and the fight come next. */
-$('windNote').textContent = 'Set aside the dice that score, then roll the rest.';
+/* ---------- the turn, so far ----------
+   Banking and farkling land in the next step; for now a roll that scores
+   nothing says so and starts again, so the tray can be driven and measured. */
+async function doRoll(){
+  if(!started){ started = true; }
+  commitPick();
+  if(!liveIdx().length) hotDice();
+  const ix = await rollDice();
+  afterRoll(ix);
+}
+function commitPick(){
+  const add = pickScore();
+  if(!add) return;
+  wind += add;
+  pickIdx().forEach(i => D[i].where = 'locked');
+  placeDice();
+}
+function hotDice(){
+  D.forEach(d => { d.where = 'live'; d.el.classList.add('hot'); });
+  placeDice();
+  toast('Hot dice! All six come back.');
+  [0, 1, 2].forEach(k => tone(660 * Math.pow(1.26, k), .14, 'triangle', .06, k * .07));
+}
+function afterRoll(ix){
+  if(isFarkle(facesOf(rollIdx()))){
+    ix.forEach(i => D[i].el.classList.add('shiver'));
+    deadthud();
+    $('windNote').innerHTML = '<b>Farkle.</b> Nothing scored.';
+    setTimeout(newTurn, 1400);
+    return;
+  }
+  $('windNote').textContent = 'Set aside the dice that score, then roll the rest.';
+}
+function newTurn(){
+  wind = 0; started = false;
+  D.forEach(d => { d.where = 'live'; d.el.classList.remove('shiver', 'hot'); });
+  placeDice();
+  $('windNote').textContent = 'Tap Roll to start.';
+}
+function doStrike(){
+  commitPick();
+  toast(`Strike for ${fmt(wind)}! The fight comes next.`);
+  setTimeout(newTurn, 900);
+}
 
-window.__FK = { phoneCSSLive, store, openPanel, closePanel, toast };
+buildTray();
+placeDice();
+$('windNote').textContent = 'Tap Roll to start.';
+
+window.__FK = { phoneCSSLive, store, openPanel, closePanel, toast,
+  get D(){ return D; }, get wind(){ return wind; },
+  rollDice, doRoll, doStrike, newTurn, scoreOf, bestSplit, isFarkle, facesOf, rollIdx,
+  setFaces(fs){ fs.forEach((f, i) => { D[i].f = f; D[i].where = 'live'; paintFace(D[i].el, f); }); placeDice(); } };
 })();
 </script>
 <script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script></body></html>
