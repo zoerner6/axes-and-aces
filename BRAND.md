@@ -87,6 +87,27 @@ or a book is **family, not a copy**:
   Put its own name in the same family of lettering, and use the icon or emblem
   as the small "same people made this" mark.
 
+#### Monster Farkle
+
+The first sister game, at `farkle.html`. Its object is dice.
+
+| Piece | File | What it is |
+|---|---|---|
+| **The mark** | built in the page, from `img/farkle-dice.webp` | The painted dice on the left, **MONSTER FARKLE** in gold slab capitals in the middle, an Ace of Hearts on the right, on the same dark plaque. The lettering is SVG, not a picture of lettering, so it stays sharp at any size and can never come out misspelled. |
+| **The icon** | `icons/farkle-512.png`, `farkle-192.png`, `farkle-180.png`, `farkle-maskable-512.png` | Square. An Ace of Hearts behind three dice in crimson, teal and gold on soot black — the axe's place taken by dice. Its favicon and app tile. |
+| **The emblem** | `img/farkle-emblem.webp` (88x88) | The icon cropped in tight, for the top bar. |
+| **The banner** | `b/farkle.jpg` (1200x630) | What Facebook fetches for a Monster Farkle link. Rendered from the game's own mark by `dev/gen/fkbanner.cjs`, so it cannot drift from the start screen. |
+
+The slab face is **Alfa Slab One**, used for the mark and nowhere else — the
+rest of the game is Germania One, Oswald and Alegreya Sans as usual.
+
+The Axes & Aces emblem appears on the start screen, in the share banner and on
+every brag picture, small, as "An Axes & Aces game". It is never Monster
+Farkle's own identity.
+
+`dev/gen/fkbrand.py` rebuilds every one of these from the two source pictures
+in `dev/gen/out/brand/`.
+
 ## Motion and sound
 - Things slam in with a small overshoot, then settle.
 - The bigger the moment, the bigger the effect: shake, flash, freeze, boom. Normal hits stay quick.

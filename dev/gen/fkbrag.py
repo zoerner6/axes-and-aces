@@ -7,8 +7,10 @@ picture: it carries the og: tags so the post shows the card, then sends the
 visitor straight to the game. Keys are prefixed farkle_ so none of them can
 collide with the card game's 220 pages already in b/.
 
-The picture each page points at is the one the game draws on the player's own
-device, so these pages name a fallback image that lives in b/ already.
+Each page names b/farkle.jpg as its picture - Monster Farkle's own banner,
+rendered by dev/gen/fkbanner.cjs from the game's own mark. It must not be the
+Axes & Aces banner: BRAND.md is explicit that the Axes & Aces word logo does
+not go on a product that is not Axes & Aces.
 """
 import io, os
 
@@ -34,7 +36,7 @@ TPL = """<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{titl
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Monster Farkle">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}">
-<meta property="og:image" content="{site}b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image" content="{site}b/farkle.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:url" content="{site}b/{key}.html"><meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="{site}farkle.html">
 <script>location.replace("{site}farkle.html"+(location.search||"?")+(location.search?"&":"")+"ref={key}");</script>

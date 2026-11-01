@@ -33,14 +33,31 @@ fhead = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="description" content="Monster Farkle: a free dice game. Six dice, one monster. Wind up the blow, or lose the lot.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Monster Farkle: six dice, one monster">
 <meta property="og:description" content="Roll six dice and wind up the blow. Bank it and the monster takes it. Farkle and it hits you. Free in your browser.">
-<meta property="og:image" content="https://axesandaces.com/b/game.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image" content="https://axesandaces.com/b/farkle.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:url" content="https://axesandaces.com/farkle.html"><meta name="twitter:card" content="summary_large_image">
-<link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="farkle.webmanifest"><link rel="icon" href="icons/farkle-192.png"><link rel="apple-touch-icon" href="icons/farkle-180.png">
 <style>html,body{height:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}body{margin:0;font:14px system-ui,sans-serif;background:#14100d}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
 """
 f = open("dev/farkle.html", encoding="utf-8").read()
 open("farkle.html", "w", encoding="utf-8").write(fhead + f + tail)
+open("farkle.webmanifest", "w", encoding="utf-8").write("""{
+  "name": "Monster Farkle",
+  "short_name": "Farkle",
+  "description": "Six dice, one monster. Wind up the blow, or lose the lot.",
+  "start_url": "/farkle.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14100d",
+  "theme_color": "#14100d",
+  "icons": [
+    {"src": "icons/farkle-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/farkle-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/farkle-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
+""")
 open("index.html", "w", encoding="utf-8").write(open("dev/landing.html", encoding="utf-8").read())
 open("sw.js", "w", encoding="utf-8").write("""const C='aa-v4';
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['./','index.html','play.html','manifest.json'])));});
@@ -49,4 +66,4 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.me
   if(/\\/(art|icons|img)\\//.test(u.pathname)){ e.respondWith(caches.open(C).then(async c=>{const r=await c.match(e.request); if(r) return r; const n=await fetch(e.request); if(n.ok&&n.status===200) c.put(e.request,n.clone()); return n;})); return; }
   e.respondWith(fetch(e.request,{cache:'no-cache'}).then(n=>{caches.open(C).then(c=>c.put(e.request,n.clone()));return n;}).catch(()=>caches.match(e.request)));});
 """)
-print("built index.html, play.html, farkle.html and sw.js")
+print("built index.html, play.html, farkle.html, farkle.webmanifest and sw.js")

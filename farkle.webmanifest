@@ -1,0 +1,16 @@
+{
+  "name": "Monster Farkle",
+  "short_name": "Farkle",
+  "description": "Six dice, one monster. Wind up the blow, or lose the lot.",
+  "start_url": "/farkle.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14100d",
+  "theme_color": "#14100d",
+  "icons": [
+    {"src": "icons/farkle-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/farkle-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/farkle-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

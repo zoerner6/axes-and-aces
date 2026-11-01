@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Germania+One&family=Oswald:wght@500;600;700&family=Alegreya+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Germania+One&family=Alfa+Slab+One&family=Oswald:wght@500;600;700&family=Alegreya+Sans:wght@400;500;700;800&display=swap">
 <style>
 /* Monster Farkle. Six dice on a tavern table. The turn's total is the blow you
    are winding up: strike and the monster takes it, farkle and it hits you.
@@ -47,9 +47,50 @@ img{max-width:100%}
 #app.shake{animation:shake .38s}
 @keyframes shake{20%{transform:translate(-7px,2px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,1px)}80%{transform:translate(3px,-1px)}}
 
+/* ===================== the Monster Farkle mark =====================
+   BRAND.md: a sister game is family, not a copy. So this keeps the Axes & Aces
+   word logo's gold slab-serif capitals, its soot-black plaque, its gold and
+   parchment palette and its painted-prop-on-dark feel - and builds its own
+   mark from its own object. The axe's place is taken by dice.
+
+   The lettering is SVG rather than a picture of lettering: it stays sharp at
+   any size, it can never come out misspelled, and the black outline is drawn
+   behind the gold fill with paint-order, which a picture cannot be edited to
+   do later. --f-logo is the one slab face in the page, used nowhere else. */
+:root{ --f-logo:'Alfa Slab One', Rockwell, Georgia, serif; }
+.fklogo{
+  position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;gap:8px;padding:12px 13px;flex:none;
+  background:radial-gradient(ellipse at 26% 14%, #4b3425 0%, #2a1d14 55%, #140e09 100%);
+  border:3px solid #000;border-radius:16px;box-shadow:0 6px 0 #000, 0 11px 20px rgba(0,0,0,.55);
+}
+.fklogo .dice{width:clamp(54px,17vw,92px);height:auto;flex:none;
+  filter:drop-shadow(0 5px 7px rgba(0,0,0,.75)) drop-shadow(0 0 14px rgba(242,182,50,.18))}
+.fklogo .words{width:100%;height:auto;display:block;overflow:visible}
+/* the Ace, drawn rather than fetched: three shapes and it never 404s */
+.fklogo .ace{position:relative;width:clamp(38px,11vw,60px);aspect-ratio:5/7;flex:none;
+  background:linear-gradient(160deg,#fffaf0,#efe4cc);border:3px solid #000;border-radius:14%;
+  rotate:5deg;box-shadow:3px 4px 0 rgba(0,0,0,.6)}
+/* The heart is a background image, not a clip-path. clip-path:path() measures
+   in pixels, not in the element's own units, so on a card that scales with the
+   screen it cropped a corner off the shape instead of scaling with it. */
+.fklogo .ace{--heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c8241f' d='M12 21.3s-9-5.9-9-12.3A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9 3c0 6.4-9 12.3-9 12.3z'/%3E%3C/svg%3E")}
+.fklogo .ace::before{content:"";position:absolute;left:50%;top:52%;translate:-50% -50%;
+  width:52%;aspect-ratio:1;background:var(--heart) center/contain no-repeat}
+.fklogo .ace::after{content:"";position:absolute;left:8%;top:6%;width:22%;aspect-ratio:1;
+  background:var(--heart) center/contain no-repeat}
+
+/* "same people made this" - quiet, small, never Farkle's own identity */
+.madeby{display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--f-num);font-weight:600;font-size:.72rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--parch-dim)}
+.madeby img{width:22px;height:22px;border-radius:5px;border:2px solid #000;flex:none}
+
 /* ---------- the bar across the top ---------- */
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
-.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-title);font-size:1.45rem;line-height:1;color:var(--gold)}
+.brand{display:flex;align-items:center;gap:8px;line-height:1;color:var(--gold);
+  font-family:var(--f-logo);font-size:1.02rem;letter-spacing:.015em;text-transform:uppercase;
+  text-shadow:2px 2px 0 #000,-1px 0 0 #000,0 -1px 0 #000}
 .brand img{flex:none;width:30px;height:30px;border-radius:7px;border:2px solid #000;box-shadow:2px 2px 0 #000}
 .tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .tool{background:var(--leather);border:2px solid #000;box-shadow:2px 2px 0 #000;border-radius:999px;
@@ -488,7 +529,7 @@ img{max-width:100%}
    dev/gen/harness.py, and check matchMedia('(max-width:560px)').matches at
    320 wide before trusting a single measurement. */
 @media (max-width:560px){
-  .brand{font-size:1.25rem}
+  .brand{font-size:.9rem}
   .brand img{width:26px;height:26px}
   .tool{padding:5px 9px;font-size:.72rem}
   .wind-num{font-size:1.9rem}
@@ -574,7 +615,7 @@ img{max-width:100%}
 
 <div id="app">
   <header class="top">
-    <div class="brand"><img src="img/emblem-64.webp" width="64" height="64" alt=""><span class="wide-only">Monster </span>Farkle</div>
+    <div class="brand"><img src="img/farkle-emblem.webp" width="88" height="88" alt=""><span class="wide-only">Monster </span>Farkle</div>
     <div class="tools">
       <button class="tool" data-act="menu">Menu</button>
       <button class="tool" data-act="guide">Scoring</button>
@@ -1043,10 +1084,40 @@ function slotLine(n){
            where:(WORLDS[(L.world || 0) % 10].areas[Math.min(3, Math.floor((L.idx || 0) / AREA_FIGHTS))] || {}).name || '',
            world:worldName(L.world || 0) };
 }
+/* ---------- the mark ----------
+   The gold is a gradient down the glyph, the black outline is painted behind
+   the fill, and a flat black copy sits under the whole thing for the hard
+   offset shadow the Axes & Aces plaque has. One function, so the start screen
+   and anything else that wants the title get the same thing. */
+function logoSVG(){
+  return `<svg class="words" viewBox="0 0 350 162" role="img" aria-label="Monster Farkle">
+    <defs>
+      <linearGradient id="fkgold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff8e0"/><stop offset=".2" stop-color="#ffd964"/>
+        <stop offset=".56" stop-color="#f2b632"/><stop offset="1" stop-color="#ab6d14"/>
+      </linearGradient>
+      <g id="fkwords" font-family="Alfa Slab One, Rockwell, Georgia, serif"
+         text-anchor="middle" font-size="64" letter-spacing="-1">
+        <text x="175" y="66">MONSTER</text><text x="175" y="142">FARKLE</text>
+      </g>
+    </defs>
+    <use href="#fkwords" fill="#000" opacity=".85" transform="translate(4,6)"/>
+    <use href="#fkwords" paint-order="stroke" stroke="#000" stroke-width="11"
+         stroke-linejoin="round" fill="url(#fkgold)"/>
+  </svg>`;
+}
+const logoHTML = () => `<div class="fklogo">
+    <img class="dice" src="img/farkle-dice.webp" alt="" draggable="false">
+    ${logoSVG()}
+    <span class="ace" aria-hidden="true"></span>
+  </div>`;
+const madeByHTML = () => `<div class="madeby">
+    <img src="img/emblem-64.webp" alt="" draggable="false">An Axes &amp; Aces game</div>`;
+
 function slotsPanel(){
   const rows = [1, 2, 3].map(slotLine);
   openPanel(`
-    <h2>Monster Farkle</h2>
+    ${logoHTML()}
     <p>Six dice. One monster. Wind up the blow, or lose the lot.</p>
     <div class="buys">${rows.map(r => r.empty
       ? `<button class="buy" data-act="newHero" data-slot="${r.n}">
@@ -1055,7 +1126,8 @@ function slotsPanel(){
       : `<button class="buy" data-act="loadHero" data-slot="${r.n}">
           <img class="ico" src="art/hero_t${Math.min(5, Math.floor(r.level / 3))}.webp" alt=""><b>${r.name}</b>
           <span>Level ${r.level} &middot; ${r.where}</span><span class="cost">Play</span></button>`).join('')}</div>
-    <button class="btn big ghost" data-act="cloud">Play on another device</button>`);
+    <button class="btn big ghost" data-act="cloud">Play on another device</button>
+    ${madeByHTML()}`);
 }
 
 /* ---------- the menu ---------- */
@@ -1225,7 +1297,11 @@ function imgLoad(src){
     i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
 }
 async function bragCard(o){
-  try{ await document.fonts.load('80px "Germania One"'); await document.fonts.load('700 40px Oswald'); }catch(e){}
+  try{
+    await document.fonts.load('80px "Germania One"');
+    await document.fonts.load('700 40px Oswald');
+    await document.fonts.load('38px "Alfa Slab One"');
+  }catch(e){}
   const c = document.createElement('canvas'); c.width = 1200; c.height = 630;
   const x = c.getContext('2d');
   const bg = await imgLoad(o.bg || 'art/bg_tavern.webp');
@@ -1240,10 +1316,18 @@ async function bragCard(o){
     x.save(); x.shadowColor = 'rgba(0,0,0,.85)'; x.shadowBlur = 30; x.drawImage(fig, 1180 - w, 610 - h, w, h); x.restore(); }
   x.fillStyle = '#000'; x.fillRect(0, 0, 1200, 12); x.fillRect(0, 618, 1200, 12);
   x.textBaseline = 'alphabetic';
-  x.font = '44px "Germania One", Georgia, serif'; x.fillStyle = '#f2b632';
-  x.fillText('Monster Farkle', 56, 92);
+  /* the mark, drawn the same way the plaque draws it: the painted dice, then
+     the gold slab capitals with the outline behind the fill */
+  const mark = await imgLoad('img/farkle-dice.webp');
+  if(mark) x.drawImage(mark, 48, 44, 74, 74);
+  const gold = x.createLinearGradient(0, 56, 0, 104);
+  gold.addColorStop(0, '#fff8e0'); gold.addColorStop(.2, '#ffd964');
+  gold.addColorStop(.56, '#f2b632'); gold.addColorStop(1, '#ab6d14');
+  x.font = '38px "Alfa Slab One", Rockwell, Georgia, serif';
+  x.lineJoin = 'round'; x.lineWidth = 8; x.strokeStyle = '#000'; x.fillStyle = gold;
+  x.strokeText('MONSTER FARKLE', 134, 98); x.fillText('MONSTER FARKLE', 134, 98);
   x.font = '700 22px Oswald, Arial'; x.fillStyle = '#e8d9bb';
-  x.fillText((o.eyebrow || '').toUpperCase(), 58, 132);
+  x.fillText((o.eyebrow || '').toUpperCase(), 136, 132);
   x.font = '74px "Germania One", Georgia, serif'; x.lineWidth = 10; x.strokeStyle = '#000';
   x.fillStyle = '#fff3d0'; x.lineJoin = 'round';
   const wrap = (t, w) => { const out = []; let l = '';
@@ -1262,6 +1346,8 @@ async function bragCard(o){
   x.strokeText('Play free at', 58, 540); x.fillText('Play free at', 58, 540);
   x.font = '64px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#ffffff';
   x.strokeText('AxesAndAces.com', 56, 600); x.fillText('AxesAndAces.com', 56, 600);
+  const em = await imgLoad('img/emblem-64.webp');
+  if(em){ x.globalAlpha = .9; x.drawImage(em, 1118, 46, 40, 40); x.globalAlpha = 1; }
   return c;
 }
 function bragInfo(kind){
