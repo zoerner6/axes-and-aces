@@ -71,9 +71,6 @@ When the game changes, also update the Claude preview artifact (section 1 link).
   Apple until the app exists there with bundle ID
   `io.github.zoerner6.axesandaces`. Only Josh can make it. Everything else is
   ready: the three API secrets are stored in the repo and the app compiles.
-- [ ] **support@axesandaces.com.** Forwarding at Porkbun. The Porkbun API has
-  no endpoint for email forwarding, so it has to be set on the Porkbun website.
-  The address is printed on `privacy.html`, which Apple's reviewer will click.
 - [ ] **One more publish needed.** The server functions now answer a
   cross-origin call, which the iPhone app needs for the leaderboard and cloud
   saves. That is committed but **not published**. Publish before testing the
@@ -86,6 +83,13 @@ When the game changes, also update the Claude preview artifact (section 1 link).
   the front page's comic captions and picture rows.
 - The iPhone app now carries the game, commit `cc91a19`. Not published, not
   sent to Apple yet.
+- **support@axesandaces.com works.** Josh set the forward at Porkbun himself:
+  support@axesandaces.com -> hello@goldstandardweb.com. The mail records were
+  already right. Not yet tested with a real message. The page is
+  `https://porkbun.com/account/emailhosting/axesandaces.com` - there is no link
+  to it anywhere obvious, and the Porkbun API cannot do email forwarding at all.
+  A free-trial hosted inbox shows there as "pending setup" until 2026-11-15 and
+  is then removed at no charge. Ignore it; it is not a subscription.
 - Google Play: Josh says the submission is in. Nobody here can see the Play
   Console, so that is his word and not checked.
 - Two things given up on purpose on phones: Old Bram's line after you die is
