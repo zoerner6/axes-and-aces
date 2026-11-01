@@ -24,7 +24,7 @@
   --parch:#f3e6c8; --parch-dim:#c7b28c;
   --gold:#f2b632; --gold-hi:#ffd35c;
   --hp:#c8241f; --heal:#3fae4a; --heal-hi:#7be38a; --teal:#7fe3d8; --boss:#a63de0;
-  --steel:#76a9db; --ink:#16100d;
+  --steel:#76a9db; --ink:#16100d; --red:#c8161d;
   --bubble:#f3e6c8; --bubble-ink:#16100d;
   --f-title:'Germania One','Palatino Linotype',Georgia,serif;
   --f-num:'Oswald','Trebuchet MS',system-ui,sans-serif;
@@ -55,14 +55,141 @@ img{max-width:100%}
 #app.shake{animation:shake .38s}
 @keyframes shake{20%{transform:translate(-7px,2px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,1px)}80%{transform:translate(3px,-1px)}}
 
-/* A phone is the default here, not the exception. This rule exists so the
-   build can be checked: at 320 wide matchMedia('(max-width:560px)') must be
-   true, and if it is not, the test page was built without the viewport meta
-   and no phone CSS in this file is live. See dev/gen/harness.py. */
+/* This rule exists so the build can be checked: at 320 wide
+   matchMedia('(max-width:560px)') must be true, and if it is not, the test
+   page was built without the viewport meta and no phone CSS in this file is
+   live at all. dev/gen/vpcheck.cjs reads --phone to say so out loud. */
 @media (max-width:560px){
   :root{ --phone:1; }
   #app{ padding-inline:max(9px, env(safe-area-inset-left, 0px)); }
 }
+
+/* ===================== the peaks =====================
+   Three overlapping peaks over a row of ten, the standard 28-card Tri-Peaks
+   tableau. The whole thing is laid out in one unit - the pitch, the distance
+   from one bottom-row card to the next - so it scales to any width without a
+   single number in JavaScript.
+
+   Across: ten bottom cards at one pitch apart, and each card 1.42 pitches
+   wide, so cards overlap sideways by about 30%. The last card's right edge
+   lands exactly on the container's: 9 pitches of travel plus 1.42 of card is
+   10.42, which is --span.
+
+   Down: a card is 1.4 times its width, so 1.988 pitches tall, and each row
+   steps exactly one pitch - just over half a card - so the row below covers a
+   card's bottom and never its top-left corner. That step is set by the corner,
+   not by taste: the rank and its suit stack about half a card tall, and at 320
+   wide a step any shorter clips the bottom of the suit pip. Four rows come to
+   4.988 pitches, which gives the container its aspect ratio, 10.42 by 4.988,
+   and every card can then be placed in plain percentages.
+
+   Why the overlap. At 320px wide there are ten cards across a 302px board,
+   which is 30px of pitch. Ten separate 44px cards would need 440px and the
+   phone does not have it - that is arithmetic, not a style choice. Overlapping
+   buys each card 41px of width for its rank corner, which is the part a player
+   actually reads, and the corner sits in the left-hand strip that is never
+   covered by its neighbour. */
+.peaks{
+  --span:10.42; --rows:4.988;
+  position:relative;width:calc(100% - 10px);aspect-ratio:var(--span)/var(--rows);
+  margin:0 auto;flex:0 0 auto;
+  /* a playable card grows 14% and lifts, so the ones at either end need
+     somewhere to grow into or they leave the screen */
+}
+.pk{
+  position:absolute;
+  left:calc(var(--x) / var(--span) * 100%);
+  top:calc(var(--row) * 1 / var(--rows) * 100%);
+  width:calc(1.42 / var(--span) * 100%);
+  height:calc(1.988 / var(--rows) * 100%);
+  border-radius:7px;border:2.5px solid #14100e;padding:0;
+  background:#fffaf0;color:var(--ink);
+  box-shadow:0 3px 0 rgba(0,0,0,.45);
+  display:flex;align-items:flex-start;justify-content:flex-start;
+  transition:transform .16s ease, box-shadow .16s ease, opacity .2s;
+  overflow:hidden;
+  /* the rank corner sizes off the card, not the screen, so it stays right
+     whether the board is 302px wide on a phone or 600 on a desktop */
+  container-type:inline-size;
+}
+.pk.red{color:var(--red)}
+
+/* The rank corner is the whole of what a player reads at this size, so it gets
+   the room. It sits in the left strip, which the card on top never covers. */
+.pk .cn{
+  position:absolute;top:2px;left:3px;
+  display:flex;flex-direction:column;align-items:center;line-height:.86;
+  font-family:var(--f-num);font-weight:700;letter-spacing:-.03em;
+  font-size:min(40cqw, 23px);
+}
+.pk .cn i{font-style:normal;font-size:.84em;margin-top:.04em}
+.pk .mid{
+  position:absolute;right:6%;bottom:4%;
+  font-size:min(42cqw, 30px);line-height:1;opacity:.92;
+}
+/* The painted jack, queen and king are lovely at the size dev/game.html shows
+   them and a smudge on a 41px phone card, where they read as a stain rather
+   than a face. So the art only appears once a card is wide enough to carry it,
+   and below that the suit does the job. The rank is what a player actually
+   reads either way. */
+.pk .mid img{display:none;width:min(46cqw,34px);border-radius:3px}
+.pk .mid em{font-style:normal}
+@container (min-width:72px){
+  .pk .mid img{display:block}
+  .pk .mid em{display:none}
+}
+
+/* face down: the deck back, which is the one thing per world that is allowed
+   to change. The faces never change - a face harder to read at 320px is wrong
+   whatever it looks like. */
+.pk.down{
+  background:
+    repeating-linear-gradient(45deg, rgba(0,0,0,.26) 0 3px, transparent 3px 7px),
+    linear-gradient(160deg, var(--back-a,#4a2d1d), var(--back-b,#2a160e));
+  box-shadow:inset 0 0 0 2px rgba(242,182,50,.28), 0 3px 0 rgba(0,0,0,.45);
+}
+.pk.down .cn,.pk.down .mid{display:none}
+
+/* A card you can play right now lifts and grows, which does two jobs: the
+   player is never hunting for the legal move, and the only cards worth tapping
+   are the ones with a big target. A card that cannot be played does nothing
+   when tapped, so it does not need 44px. */
+.pk.free{
+  z-index:30;transform:translateY(-5px) scale(1.14);
+  box-shadow:0 0 0 3px var(--gold), 0 0 14px rgba(242,182,50,.55), 0 5px 0 rgba(0,0,0,.45);
+}
+.pk.gone{opacity:0;transform:scale(.6) translateY(-30px);pointer-events:none}
+
+/* stacking: lower rows sit over the rows behind them, and within a row the
+   later card sits over its neighbour, so every rank corner stays uncovered */
+.pk[data-row="0"]{z-index:4}
+.pk[data-row="1"]{z-index:6}
+.pk[data-row="2"]{z-index:8}
+.pk[data-row="3"]{z-index:10}
+
+/* ===================== waste and stock ===================== */
+.table{
+  display:flex;align-items:center;justify-content:center;gap:clamp(14px,6vw,34px);
+  margin-top:clamp(6px,2vw,12px);
+}
+.slot{
+  width:clamp(52px,17vw,78px);aspect-ratio:5/7;position:relative;
+  border-radius:8px;flex:0 0 auto;
+}
+.slot .pk{position:absolute;inset:0;left:0;top:0;width:100%;height:100%;transform:none}
+.slot.empty{border:2.5px dashed rgba(242,182,50,.35);background:rgba(0,0,0,.25)}
+.stockn{
+  position:absolute;right:-6px;bottom:-6px;min-width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:.82rem;
+  background:var(--gold);color:#241607;border:2px solid #000;z-index:40;
+}
+.runbox{
+  text-align:center;font-family:var(--f-num);min-width:5.4em;
+}
+.runbox b{display:block;font-size:clamp(1.7rem,8vw,2.6rem);line-height:1;color:var(--gold-hi);
+  text-shadow:3px 3px 0 #000;transition:transform .14s}
+.runbox small{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--parch-dim)}
+.runbox.up b{transform:scale(1.22)}
 </style>
 
 <div id="app">
@@ -115,21 +242,32 @@ const ROUND_MED = 785;     /* the median, which is what the fight is tuned to */
    Ranks are 1..13 with 1 meaning ace. In Tri-Peaks an ace wraps both ways, so
    a king takes an ace and an ace takes a two, which is why this is a ring
    rather than a line. Boss rounds switch the wrap off, and that is the whole
-   of the difference - see the boss rule in dev/plans/solitaire.md. */
-const SUITS = ['s','h','d','c'];
-const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+   of the difference - and by the measurement above, the biggest single lever
+   in the game. */
+const SUITS = [
+  {k:'s', ch:'♠', red:false},
+  {k:'h', ch:'♥', red:true},
+  {k:'d', ch:'♦', red:true},
+  {k:'c', ch:'♣', red:false},
+];
+const RANKS = ['', 'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const FACE_ART = {11:'art/face_j.webp', 12:'art/face_q.webp', 13:'art/face_k.webp'};
+
+/* A card is worth its own number to a run, with the faces above ten and the
+   ace highest, because an ace is the most useful card on the board and should
+   pay like it. dev/gen/peakdeal.cjs measures with exactly this. */
+const valueOf = r => (r === 1 ? 14 : r);
 
 /* one above or one below, on a ring of 13 */
 function takes(a, b, wrap = true){
   if(a == null || b == null) return false;
   const d = Math.abs(a - b);
-  if(d === 1) return true;
-  return wrap && d === 12;      /* ace and king sit next to each other */
+  return d === 1 || (wrap && d === 12);
 }
 
 function freshDeck(){
   const d = [];
-  for(const s of SUITS) for(let r = 1; r <= 13; r++) d.push({r, s});
+  for(let s = 0; s < 4; s++) for(let r = 1; r <= 13; r++) d.push({r, s});
   return d;
 }
 
@@ -143,9 +281,128 @@ function shuffle(d, rnd = Math.random){
   return d;
 }
 
+/* ===================== the tableau =====================
+   28 cards: three peak tips, then six, then nine, then a face-up row of ten.
+   COVERS says which two cards sit on top of each card; a card is playable once
+   both of them are gone, and the bottom row is covered by nothing.
+
+   The slot positions are in pitch units across, matching the CSS above. Each
+   peak is symmetrical about its own tip: its three third-row cards sit at
+   x+0.5, x+1.5, x+2.5, its two second-row cards between them at x+1 and x+2,
+   and its tip above those at x+1.5. */
+const LAYOUT = (() => {
+  const covers = Array.from({length: 28}, () => []);
+  const pos = new Array(28);
+  const peak = new Array(28).fill(-1);
+
+  for(let k = 0; k < 3; k++){
+    const tip = k, r2 = 3 + k*2, r3 = 9 + k*3, base = k*3;
+    covers[tip] = [r2, r2+1];
+    covers[r2]  = [r3, r3+1];
+    covers[r2+1]= [r3+1, r3+2];
+    pos[tip] = {x: base + 1.5, row: 0};
+    pos[r2]  = {x: base + 1,   row: 1};
+    pos[r2+1]= {x: base + 2,   row: 1};
+    for(let i = 0; i < 3; i++) pos[r3+i] = {x: base + i + 0.5, row: 2};
+    peak[tip] = peak[r2] = peak[r2+1] = k;
+    peak[r3] = peak[r3+1] = peak[r3+2] = k;
+  }
+  for(let i = 0; i < 9; i++) covers[9+i] = [18+i, 18+i+1];
+  for(let i = 0; i < 10; i++) pos[18+i] = {x: i, row: 3};
+
+  return {covers, pos, peak};
+})();
+
 const $ = id => document.getElementById(id);
 
-$('stage').innerHTML = '<p style="text-align:center;padding:2em 0;color:var(--parch-dim)">Monster Solitaire</p>';
+/* ===================== the round ===================== */
+let R = null;        /* the round in play */
+
+function dealRound(opts = {}){
+  const wrap = opts.wrap !== false;
+  const stockSize = opts.stock || 24;
+  const d = shuffle(freshDeck(), opts.rnd);
+  const tableau = d.slice(0, 28).map((c, i) => ({...c, i, gone: false}));
+  const stock = d.slice(28, 28 + stockSize);
+  return {
+    wrap, tableau, stock,
+    si: 1,                        /* the first stock card starts the waste */
+    waste: [stock[0]],
+    run: 0, runVal: 0,
+    hidden: opts.hidden || [],    /* peaks dealt face down, for boss rules */
+  };
+}
+
+const isGone = i => R.tableau[i].gone;
+const isExposed = i => !isGone(i) && LAYOUT.covers[i].every(isGone);
+const wasteTop = () => R.waste[R.waste.length - 1];
+const canPlay = i => isExposed(i) && isFaceUp(i) && takes(R.tableau[i].r, wasteTop().r, R.wrap);
+
+/* A card is face up once nothing covers it. Boss rounds can deal a whole peak
+   face down, which only means its cards stay hidden until uncovered. */
+function isFaceUp(i){
+  if(!R.hidden.includes(LAYOUT.peak[i])) return true;
+  return LAYOUT.covers[i].every(isGone);
+}
+
+/* ===================== drawing ===================== */
+function cardFace(c){
+  const s = SUITS[c.s];
+  const art = FACE_ART[c.r];
+  /* both the suit and, for a face card, its painted art: the CSS above picks
+     whichever suits the card's width */
+  const mid = `<span class="mid"><em>${s.ch}</em>` +
+              (art ? `<img src="${art}" alt="">` : '') + `</span>`;
+  return `<span class="cn">${RANKS[c.r]}<i>${s.ch}</i></span>${mid}`;
+}
+
+function drawPeaks(){
+  const out = [];
+  for(let i = 0; i < 28; i++){
+    const c = R.tableau[i], p = LAYOUT.pos[i];
+    if(c.gone){ continue; }
+    const up = isFaceUp(i), free = canPlay(i);
+    const cls = ['pk'];
+    if(!up) cls.push('down');
+    else if(SUITS[c.s].red) cls.push('red');
+    if(free) cls.push('free');
+    out.push(
+      `<button class="${cls.join(' ')}" data-i="${i}" data-row="${p.row}" ` +
+      `style="--x:${p.x};--row:${p.row}" ${free ? '' : 'tabindex="-1" aria-disabled="true"'}>` +
+      (up ? cardFace(c) : '') + `</button>`
+    );
+  }
+  return out.join('');
+}
+
+function drawTable(){
+  const w = wasteTop();
+  return `<div class="table">
+    <div class="slot" id="stock">
+      ${R.si < R.stock.length ? `<button class="pk down" data-act="turn" style="--x:0"></button>` : '<div class="slot empty"></div>'}
+      ${R.si < R.stock.length ? `<span class="stockn">${R.stock.length - R.si}</span>` : ''}
+    </div>
+    <div class="runbox" id="runbox">
+      <b>${R.run}</b><small>Run</small>
+    </div>
+    <div class="slot">
+      <div class="pk ${SUITS[w.s].red ? 'red' : ''}" style="--x:0">${cardFace(w)}</div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  $('stage').innerHTML =
+    `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable();
+}
+
+/* ===================== a first dealt board ===================== */
+R = dealRound();
+render();
+
+/* exposed for the test harness and for dev/gen/slscan.cjs */
+Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT, takes, valueOf,
+  set R(v){ R = v; } } });
 
 })();
 </script>
