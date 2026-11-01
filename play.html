@@ -1883,13 +1883,25 @@ const knightDef = L => creep(EQUIP.shield.def[KIT_TIER(L)] + EQUIP.helm.def[KIT_
    own health and attack, so none of the 170-odd monsters needs retagging.
    Armour and attack trade against each other - a heavy shell costs you swing. */
 const temper = k => Math.max(0, Math.min(1, (((k && k.hp) || 1) / ((k && k.atk) || 1) - 0.6) / 1.1));
-const ARM_LO = .20, ARM_HI = .95;   /* share of the knight's armour a monster may wear */
-const ATK_LO = .40, ATK_HI = .95;   /* share of the knight's attack it may swing */
+const ATK_LO = .40, ATK_HI = .95;   /* share of the knight's attack a monster may swing */
+
+/* Armour is DERIVED from attack, not set beside it. Armour has far more
+   leverage than attack in these formulas - 1/(1+def/100) against a plain
+   (1+atk/100) - so picking both from independent bands made a shelled kind
+   flatly stronger than a fast one instead of a different trade. A monster's
+   threat is how long it survives times how hard it hits, and that stays
+   level across every kind: shell costs exactly the swing it is worth.
+   A monster's armour still stops at the knight's own, whatever the maths. */
+const MID_ATK = .675, MID_DEF = .5;
+const foeThreat = (L, boss) => (1 + knightDef(L)*MID_DEF/100) * (1 + knightAtk(L)*MID_ATK/100) * (boss ? 1.3 : 1);
 const foeAtkScore = (L, tp) => Math.round(knightAtk(L) * (ATK_HI - (ATK_HI-ATK_LO)*(tp==null?.5:tp)));
-const foeDefScore = (L, tp) => Math.round(knightDef(L) * (ARM_LO + (ARM_HI-ARM_LO)*(tp==null?.5:tp)));
+const foeDefScore = (L, tp, boss) => {
+  const want = 100 * (foeThreat(L, boss) / (1 + foeAtkScore(L, tp)/100) - 1);
+  return Math.max(FLOOR_DEF, Math.min(knightDef(L), Math.round(want)));
+};
 const FLOOR_DEF = 5;
 /* a boss sits at the top of the band, never past it */
-const foeArmorFor = (L, boss, tp) => Math.max(FLOOR_DEF, foeDefScore(L, boss ? .95 : tp));
+const foeArmorFor = (L, boss, tp) => foeDefScore(L, boss ? 0 : tp, boss);
 const foeArmor = d => d ? Math.max(FLOOR_DEF, d.def!=null ? d.def : foeArmorFor(d.lvl||1, d.boss, d.tp)) : 0;
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d)/100)));
 function genMonster(a, L, fixed){

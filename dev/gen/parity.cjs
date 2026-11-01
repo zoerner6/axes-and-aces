@@ -34,10 +34,11 @@ const KIT=L=>L<=2?1:L<=4?2:L<=6?3:L<=8?4:5;
 const creep=(v,L)=>L<=9?v:Math.round(v*(1+(L-9)*0.06));
 const knightAtk=L=>creep(EQ.sword[KIT(L)]+EQ.dagger[KIT(L)],L);
 const knightDef=L=>creep(EQ.shield[KIT(L)]+EQ.helm[KIT(L)]+EQ.armor[KIT(L)],L);
-const ARM_LO=.20,ARM_HI=.95,ATK_LO=.40,ATK_HI=.95;
+const ATK_LO=.40,ATK_HI=.95,MID_ATK=.675,MID_DEF=.5,FLOOR_DEF=5;
 const temper=k=>Math.max(0,Math.min(1,((k.hp/k.atk)-0.6)/1.1));
+const foeThreat=(L,b)=>(1+knightDef(L)*MID_DEF/100)*(1+knightAtk(L)*MID_ATK/100)*(b?1.3:1);
 const foeAtkScore=(L,tp)=>Math.round(knightAtk(L)*(ATK_HI-(ATK_HI-ATK_LO)*tp));
-const foeDefScore=(L,tp)=>Math.round(knightDef(L)*(ARM_LO+(ARM_HI-ARM_LO)*tp));
+const foeDefScore=(L,tp)=>Math.max(FLOOR_DEF,Math.min(knightDef(L),Math.round(100*(foeThreat(L)/(1+foeAtkScore(L,tp)/100)-1))));
 /* the hero is never fully kitted: about 70% of the cap he could own */
 const PL_ATK_REAL=L=>Math.round(knightAtk(L)*0.8);
 const PL_DEF_REAL=L=>Math.round(knightDef(L)*0.7);
