@@ -120,12 +120,14 @@ img{max-width:100%}
 .vbar span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:.9rem;
   color:#fff;text-shadow:1px 1px 0 #000,0 0 4px #000;line-height:1;z-index:1}
 .stage-foot{position:absolute;left:10px;right:40px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap;z-index:2}
-.banner{position:absolute;left:0;right:0;top:38%;text-align:center;font-family:var(--f-title);
+/* The shout sits high and the damage number comes out of the middle. They were
+   both near the centre and landed on each other on a big hit. */
+.banner{position:absolute;left:16px;right:16px;top:20%;text-align:center;font-family:var(--f-title);
   font-size:clamp(1.9rem,8.5vw,3rem);color:var(--gold);text-shadow:0 3px 0 #000,0 0 18px rgba(0,0,0,.85);
   opacity:0;pointer-events:none;z-index:3;text-transform:uppercase;line-height:1.05}
 .banner small{display:block;font-family:var(--f-num);font-weight:600;font-size:.42em;letter-spacing:.06em;color:var(--parch)}
 .banner.show{animation:bannerIn 1.4s ease forwards}
-@keyframes bannerIn{0%{opacity:0;transform:scale(.5)}18%{opacity:1;transform:scale(1.12)}72%{opacity:1;transform:scale(1)}100%{opacity:0}}
+@keyframes bannerIn{0%{opacity:0;transform:scale(.55)}18%{opacity:1;transform:scale(1.06)}72%{opacity:1;transform:scale(1)}100%{opacity:0}}
 
 /* ---------- you ---------- */
 .hero{display:flex;align-items:center;gap:9px;flex:none;
@@ -252,6 +254,48 @@ img{max-width:100%}
 
 /* ---------- things that fly across the screen ---------- */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+/* the axe going through it */
+.slash{position:fixed;z-index:62;border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fff 45%,#ffe9a8 55%,transparent);
+  filter:drop-shadow(0 0 7px var(--gold-hi));animation:slash .3s ease-out forwards}
+@keyframes slash{0%{transform:rotate(var(--a)) scaleX(0);opacity:0}28%{opacity:1}100%{transform:rotate(var(--a)) scaleX(1);opacity:0}}
+/* the comic star a big hit bursts out of */
+.boom{position:fixed;transform:translate(-50%,-50%);z-index:61;width:58px;height:58px;animation:boom .65s ease-out forwards}
+.boom::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,#ffe36b 0 30%,#ff8a1f 55%,#e2361f 100%);
+  clip-path:polygon(50% 0,61% 30%,95% 15%,72% 42%,100% 55%,68% 62%,82% 95%,52% 72%,30% 100%,32% 68%,0 72%,26% 50%,4% 25%,36% 32%);z-index:-1}
+@keyframes boom{0%{transform:translate(-50%,-50%) scale(.2) rotate(-20deg)}25%{transform:translate(-50%,-50%) scale(1.15) rotate(5deg)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
+/* The number that comes out of it, counting up. The outline is drawn behind
+   the fill and it is thick, because this lands in the same instant the monster
+   flashes white - a pale number with a thin shadow vanished into it. */
+.dmgnum{position:fixed;transform:translate(-50%,-50%);z-index:63;font-family:var(--f-title);
+  font-size:clamp(2.1rem,10vw,3.4rem);line-height:1;color:var(--gold-hi);
+  -webkit-text-stroke:6px #000;paint-order:stroke fill;
+  text-shadow:0 0 20px rgba(0,0,0,.95),0 5px 0 rgba(0,0,0,.55);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+.dmgnum.out{animation:dmgOut .6s ease-in forwards}
+@keyframes dmgOut{to{opacity:0;transform:translate(-50%,-150%) scale(.8)}}
+.hurtnum{position:fixed;transform:translate(-50%,-50%);z-index:62;font-family:var(--f-num);font-weight:700;font-size:1.7rem;
+  color:#fff;text-shadow:0 2px 0 #7e1410,0 0 7px #e2361f;animation:hurtrise 1.2s ease-out forwards}
+@keyframes hurtrise{0%{opacity:0;margin-top:0}15%{opacity:1}100%{opacity:0;margin-top:-70px}}
+/* being hit */
+.redflash{position:fixed;inset:0;z-index:59;background:radial-gradient(ellipse at 50% 120%,rgba(200,36,31,.55),transparent 62%);
+  animation:redout .45s ease-out forwards}
+@keyframes redout{to{opacity:0}}
+.claw{position:fixed;z-index:62;width:84px;height:5px;border-radius:999px;background:linear-gradient(90deg,transparent,#ff5a4a,#fff,transparent);
+  transform:rotate(-38deg);animation:clawcut .4s ease-out forwards}
+@keyframes clawcut{0%{opacity:0;transform:rotate(-38deg) scaleX(.2)}30%{opacity:1}100%{opacity:0;transform:rotate(-38deg) scaleX(1.3)}}
+.hero.flash{animation:heroFlash .45s}
+@keyframes heroFlash{30%{background:rgba(200,36,31,.4)}}
+.foe-pic.lunge{animation:lunge .45s}
+@keyframes lunge{40%{transform:scale(1.22) translateY(16px)}}
+#app.shake2{animation:shake2 .5s} #app.shake3{animation:shake3 .62s}
+@keyframes shake2{15%{transform:translate(-13px,5px)}32%{transform:translate(11px,-6px)}52%{transform:translate(-9px,3px)}72%{transform:translate(7px,-3px)}88%{transform:translate(-4px,1px)}}
+@keyframes shake3{10%{transform:translate(-20px,8px) rotate(-1deg)}26%{transform:translate(17px,-9px) rotate(1deg)}44%{transform:translate(-14px,6px) rotate(-.6deg)}62%{transform:translate(11px,-4px)}80%{transform:translate(-7px,2px)}}
+@media (prefers-reduced-motion: reduce){
+  #app.shake,#app.shake2,#app.shake3{animation:none}
+  .slash,.claw,.redflash{display:none}
+}
 .pop{position:fixed;transform:translate(-50%,-50%);font-family:var(--f-num);font-weight:700;font-size:1.05rem;
   padding:2px 9px;border-radius:8px;white-space:nowrap;animation:rise 1s ease-out forwards;color:var(--ink);border:2px solid #000}
 .pop.p{background:var(--gold)} .pop.h{background:var(--heal-hi)} .pop.b{background:var(--steel);color:#fff}
@@ -517,16 +561,28 @@ const WINDUP_AVG = 545;
    Both sides measured in the same units, so neither is stronger by default.
    The hero's output is a wind-up, which dev/gen/dieavg.cjs measured at 545 a
    turn. Everything else is built off that and off what a hero of a given level
-   can take, the way dev/game.html builds its numbers off HAND_AVG. */
+   can take, the way dev/game.html builds its numbers off HAND_AVG.
+
+   dev/gen/fkbalance.cjs lifts this block and runs whole fights through it, so
+   keep it free of the page: no DOM, nothing off S, nothing from outside. The
+   bits that do read S live below the end marker. */
 const LVL_STEP = 1.12;
 const lvlMult = L => Math.pow(LVL_STEP, Math.max(1, L | 0));
 const heroMaxHP = L => 400 + 100 * (Math.max(1, L | 0) - 1);
 const rnd = n => Math.random() * n | 0;
 
 /* How long an even fight should run. A Farkle turn is several rolls and a
-   decision, so a fight wants fewer turns than the card game wants hands. */
-const TURNS = 6;
-const monsterHP = L => Math.round(TURNS * WINDUP_AVG * lvlMult(L) / 50) * 50;
+   decision, so a fight wants fewer turns than the card game wants hands.
+   Armour stretches it by about 15%, so five lands near six real turns. */
+const TURNS = 5;
+
+/* What a turn delivers at this level, before the monster's armour. Guards and
+   heals are priced off THIS, not off the monster's own health. The card game
+   prices them off max health and gets away with it because one hand there is
+   nearly a third of a monster; a strike here is under a tenth, so the same 15%
+   heal would be worth more than a hit and the monster would never die. */
+const turnDamage = L => WINDUP_AVG * lvlMult(L);
+const HEAL_SHARE = .4, GUARD_SHARE = .3;
 
 /* A kind's temperament, 0 to 1: 1 is all shell and no bite, 0 is all bite and
    no shell. Read off the kind's own health and attack, the same trick
@@ -534,12 +590,24 @@ const monsterHP = L => Math.round(TURNS * WINDUP_AVG * lvlMult(L) / 50) * 50;
 const temper = k => Math.max(0, Math.min(1, ((k.hp || 1) / (k.atk || 1) - 0.6) / 1.1));
 
 /* Its ordinary hit is a share of what a hero of its level can take. Shell and
-   bite trade against each other: a heavy monster hits softer and lives longer. */
-const foeHit = (L, tp) => Math.round(heroMaxHP(L) / 9 * (1.3 - .6 * tp) / 5) * 5;
+   bite trade against each other: a heavy monster hits softer and lives longer.
+   The tenth is measured, not picked. dev/gen/fkbalance.cjs plays whole fights
+   with the real scoring: at a tenth, a bare hero with no gear and no potions
+   wins 88% of them and finishes on half health, and a greedy one who holds out
+   for 500 a turn wins 70%. A thirteenth made a careful player almost unable to
+   lose, which takes the gamble out of a push-your-luck game. */
+const foeHit = (L, tp) => Math.round(heroMaxHP(L) / 10 * (1.3 - .6 * tp) / 5) * 5;
 /* Armor soaks a share of every strike. The cap keeps it under half, always. */
 const foeArmorFor = (L, boss, tp) => Math.min(95, Math.round((10 + L * 5) * (.6 + .8 * tp) * (boss ? 1.25 : 1)));
 const foeArmor = d => d ? (d.def != null ? d.def : foeArmorFor(d.lvl || 1, d.boss, d.tp)) : 0;
 const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d) / 100)));
+
+/* Its health is the fight length you want, in strikes that actually land.
+   Armour is divided back out here on purpose: without that, a shelled monster
+   got the longer fight twice over - once from its armour and again from the
+   kind's own health - and a heavy kind took fifteen strikes instead of five. */
+const monsterHP = (L, kindHp, armor) =>
+  Math.round(TURNS * turnDamage(L) / (1 + armor / 100) * (kindHp || 1) / 50) * 50;
 
 /* A farkle is the punishment, so it costs more than an ordinary move. */
 const FARKLE_MULT = 1.5;
@@ -582,28 +650,34 @@ const POOLS = [[
 const AREA_BG = ['bg_tavern'];
 const AREA_LV = [[1, 3]];
 
-const VIDS = new Set(["abbot", "abyssbeast", "airelemental", "anglerfish", "ashghoul", "babydragon", "balrog", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "cerberus", "chaindemon", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "demonking", "demonknight", "demonmage", "djinn", "djinnwarrior", "dragon", "drowned", "dryad", "eel", "elfgeneral", "elfknight", "elfmage", "firedwarf", "firegiant", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gardenguard", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "griffon", "hagspawn", "harpy", "headless", "hellhound", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "imp2", "irongolem", "jackal", "jailer", "knight", "kobold", "kraken", "lavagolem", "lavaserpent", "leech", "lich", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "mushroomman", "octopus", "owlbear", "pharaoh", "phoenix", "pirate", "pixie", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rocbird", "rootbeast", "rootgolem", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "skyserpent", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "stormdrake", "stormgiant", "stormsoldier", "stormtitan", "stormwraith", "succubus", "sunlord", "templeguard", "thornbear", "thornbeast", "thornelf", "thornqueen", "thunderbird", "thunderknight", "toad", "tombguard", "treant", "troll", "unicorn", "vampire", "vampirebat", "vinesnake", "vulture", "warden", "werewolf", "wight", "willowisp", "windspirit", "witch", "wolf", "wolfpack", "wyrm", "yetichief", "zombie"]);
-/* when each attack clip lands its blow, in seconds */
-const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfish": 1.3, "ashghoul": 1.3, "babydragon": 1.65, "balrog": 1.2, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cerberus": 1.8, "chaindemon": 1.3, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.6, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "demonking": 1.0, "demonknight": 0.7, "demonmage": 2.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firegiant": 1.7, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "hellhound": 1.7, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "imp2": 2.2, "irongolem": 1.3, "jackal": 1.7, "jailer": 1.2, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "lavaserpent": 1.3, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "phoenix": 0.8, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.0, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rocbird": 1.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.3, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormgiant": 0.8, "stormsoldier": 1.5, "stormtitan": 1.6, "stormwraith": 1.0, "succubus": 1.1, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "thunderknight": 1.6, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vampirebat": 1.3, "vinesnake": 0.8, "vulture": 1.9, "warden": 1.1, "werewolf": 1.1, "wight": 0.8, "willowisp": 1.5, "windspirit": 1.8, "witch": 2.2, "wolf": 1.5, "wolfpack": 1.4, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
 
 function genMonster(area, L, boss){
   const pool = POOLS[area], t = pool[rnd(pool.length)], tp = temper(t);
-  const hp = Math.round(monsterHP(L) * t.hp / 50) * 50;
+  const def = foeArmorFor(L, boss, tp);
+  const hp = monsterHP(L, t.hp, def);
   const hit = foeHit(L, tp) * t.atk;
   const nums = t.pat.filter(v => typeof v === 'number');
   const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
   const moves = t.pat.map(v =>
-    v === 'B' ? { k:'blk',  n:Math.round(hp * .12) } :
-    v === 'H' ? { k:'heal', n:Math.round(hp * .14) } :
+    v === 'B' ? { k:'blk',  n:Math.round(turnDamage(L) * GUARD_SHARE / 5) * 5 } :
+    v === 'H' ? { k:'heal', n:Math.round(turnDamage(L) * HEAL_SHARE / 5) * 5 } :
                 { k:'atk',  n:Math.max(5, Math.round(hit * (v / mean) / 5) * 5) });
-  return { slug:t.slug, name:t.name, lvl:L, tp, boss:!!boss, hp, moves,
-           def:foeArmorFor(L, boss, tp),
+  return { slug:t.slug, name:t.name, lvl:L, tp, boss:!!boss, hp, moves, def,
            xp:Math.round((6 + 5 * L) * 1.8), gold:Math.ceil(L * .7) + 2 };
 }
+/* ===== END FIGHT MATHS ===== */
+const VIDS = new Set(["abbot", "abyssbeast", "airelemental", "anglerfish", "ashghoul", "babydragon", "balrog", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "cerberus", "chaindemon", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "demonking", "demonknight", "demonmage", "djinn", "djinnwarrior", "dragon", "drowned", "dryad", "eel", "elfgeneral", "elfknight", "elfmage", "firedwarf", "firegiant", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gardenguard", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "griffon", "hagspawn", "harpy", "headless", "hellhound", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "imp2", "irongolem", "jackal", "jailer", "knight", "kobold", "kraken", "lavagolem", "lavaserpent", "leech", "lich", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "mushroomman", "octopus", "owlbear", "pharaoh", "phoenix", "pirate", "pixie", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rocbird", "rootbeast", "rootgolem", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "skyserpent", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "stormdrake", "stormgiant", "stormsoldier", "stormtitan", "stormwraith", "succubus", "sunlord", "templeguard", "thornbear", "thornbeast", "thornelf", "thornqueen", "thunderbird", "thunderknight", "toad", "tombguard", "treant", "troll", "unicorn", "vampire", "vampirebat", "vinesnake", "vulture", "warden", "werewolf", "wight", "willowisp", "windspirit", "witch", "wolf", "wolfpack", "wyrm", "yetichief", "zombie"]);
+/* when each attack clip lands its blow, in seconds */
+const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfish": 1.3, "ashghoul": 1.3, "babydragon": 1.65, "balrog": 1.2, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cerberus": 1.8, "chaindemon": 1.3, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.6, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "demonking": 1.0, "demonknight": 0.7, "demonmage": 2.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firegiant": 1.7, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "hellhound": 1.7, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "imp2": 2.2, "irongolem": 1.3, "jackal": 1.7, "jailer": 1.2, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "lavaserpent": 1.3, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "phoenix": 0.8, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.0, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rocbird": 1.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.3, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormgiant": 0.8, "stormsoldier": 1.5, "stormtitan": 1.6, "stormwraith": 1.0, "succubus": 1.1, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "thunderknight": 1.6, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vampirebat": 1.3, "vinesnake": 0.8, "vulture": 1.9, "warden": 1.1, "werewolf": 1.1, "wight": 0.8, "willowisp": 1.5, "windspirit": 1.8, "witch": 2.2, "wolf": 1.5, "wolfpack": 1.4, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
+
 
 /* ---------- the state ---------- */
+/* the level ladder: what the next level costs, and what you have spent so far */
+const xpNeed = L => Math.round(40 * Math.pow(1.35, Math.max(1, L) - 1));
+const cumNeed = L => { let t = 0; for(let i = 1; i <= L; i++) t += xpNeed(i); return t; };
+
 let S = {
-  level:1, xp:0, gold:3, hp:400, maxHp:400, block:0,
+  level:1, xp:0, gold:3, hp:400, maxHp:400, block:0, pendingLv:0, wins:0, deaths:0,
   eq:{ main:null, off:null, shield:null, helm:null, armor:null },
   world:0, area:0, idx:0, fight:null
 };
@@ -730,6 +804,7 @@ const DICE = 6;
 let D = [];          /* the six dice */
 let wind = 0;        /* locked into this turn's wind-up, not counting the pick */
 let rolling = false; /* dice in the air: nothing is tappable */
+let busy = false;    /* a strike or a monster's move is playing out */
 let started = false; /* before the first roll the dice are blank, not showing six 1s */
 
 const liveIdx  = () => D.map((d, i) => i).filter(i => D[i].where === 'live');
@@ -817,9 +892,10 @@ function renderWind(){
   $('rollNote').textContent = !started ? 'six dice'
     : !add ? 'set aside first'
     : left === 0 ? 'hot dice - all six' : `${left} ${left === 1 ? 'die' : 'dice'} left`;
-  $('strikeNote').textContent = total ? `hit for ${fmt(total)}` : 'nothing yet';
-  $('rollBtn').disabled = rolling || (started && add === 0);
-  $('strikeBtn').disabled = rolling || !started || add === 0;
+  $('strikeNote').textContent = total ? `hit for ${fmt(strikeDamage(total))}` : 'nothing yet';
+  const stop = rolling || busy;
+  $('rollBtn').disabled = stop || (started && add === 0);
+  $('strikeBtn').disabled = stop || !started || add === 0;
 }
 
 function toggleDie(i){
@@ -876,15 +952,113 @@ document.addEventListener('click', e => {
   toast('Not built yet: ' + act);
 });
 
-/* ---------- the turn, so far ----------
-   Banking and farkling land in the next step; for now a roll that scores
-   nothing says so and starts again, so the tray can be driven and measured. */
+/* ---------- effects ---------- */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function anim(el, cls){
+  if(!el) return;
+  if(el === $('foePic') && $('stage').classList.contains('hasvid')) el = $('foeVidWrap');
+  el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), 1300);
+}
+function shake(t = 1){
+  if(reduced()) return;
+  const a = $('app');
+  a.classList.remove('shake', 'shake2', 'shake3'); void a.offsetWidth;
+  a.classList.add(t >= 3 ? 'shake3' : t >= 2 ? 'shake2' : 'shake');
+  setTimeout(() => a.classList.remove('shake', 'shake2', 'shake3'), 700);
+}
+function banner(t, small){
+  const b = $('banner');
+  b.innerHTML = small ? `${t}<small>${small}</small>` : t;
+  b.className = 'banner'; void b.offsetWidth; b.classList.add('show');
+}
+function pop(el, text, cls){
+  if(!el) return;
+  const r = el.getBoundingClientRect(), s = document.createElement('div');
+  s.className = 'pop ' + cls; s.textContent = text;
+  s.style.left = (r.left + r.width / 2 + (Math.random() * 18 - 9)) + 'px';
+  s.style.top = r.top + 'px';
+  $('fx').appendChild(s); setTimeout(() => s.remove(), 1050);
+}
+function swoosh(){
+  if(!soundOn || !audio()) return;
+  const t = ac.currentTime, n = noise(), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = 'bandpass'; f.frequency.setValueAtTime(2600, t); f.frequency.exponentialRampToValueAtTime(380, t + .22);
+  g.gain.setValueAtTime(.1, t); g.gain.exponentialRampToValueAtTime(.0001, t + .24);
+  n.connect(f); f.connect(g); g.connect(ac.destination); n.start(t); n.stop(t + .26);
+}
+const bigBoom = t => { tone(55, .5 + t * .1, 'sine', .17); tone(42, .7, 'sawtooth', .06, .03); if(t >= 3) tone(30, .9, 'sine', .13, .06); };
+function stageCentre(){
+  const r = $('stage').getBoundingClientRect();
+  return { x:r.left + r.width / 2, y:r.top + r.height * .55, r };
+}
+/* the axe going through it, once per tier of the hit */
+async function slashes(n){
+  const { x, y, r } = stageCentre();
+  for(let i = 0; i < n; i++){
+    if(!reduced()){
+      const el = document.createElement('div');
+      el.className = 'slash';
+      const a = (i % 2 ? 148 : 32) + (Math.random() * 34 - 17);
+      const w = Math.max(200, Math.min(900, Math.min(r.width, r.height * 1.6) * .8)), h = Math.max(6, Math.round(w / 38));
+      el.style.width = w + 'px'; el.style.height = h + 'px';
+      el.style.margin = `${-h / 2}px 0 0 ${-w / 2}px`;
+      el.style.left = (x + Math.random() * w / 5 - w / 10) + 'px';
+      el.style.top = (y + Math.random() * 60 - 30) + 'px';
+      el.style.setProperty('--a', a + 'deg');
+      $('fx').appendChild(el); setTimeout(() => el.remove(), 420);
+    }
+    swoosh(); anim($('foePic'), 'hit');
+    await wait(n > 3 ? 92 : 118);
+  }
+}
+/* the burst, and the number counting up out of it */
+function damageBurst(n, tier){
+  const { x, y } = stageCentre();
+  if(!reduced()){
+    const b = document.createElement('div');
+    /* big enough that the number sits inside the star, not beside it */
+    b.className = 'boom'; b.style.left = x + 'px'; b.style.top = y + 'px';
+    b.style.width = b.style.height = (120 + tier * 34) + 'px';
+    $('fx').appendChild(b); setTimeout(() => b.remove(), 700);
+  }
+  const t = document.createElement('div');
+  t.className = 'dmgnum'; t.style.left = x + 'px'; t.style.top = y + 'px';
+  t.textContent = '0'; $('fx').appendChild(t);
+  const ms = reduced() ? 1 : 420, t0 = performance.now();
+  (function step(now){
+    const k = Math.min(1, (now - t0) / ms);
+    t.textContent = fmt(Math.round(n * (1 - Math.pow(1 - k, 3))));
+    if(k < 1) requestAnimationFrame(step);
+    else { t.textContent = fmt(n); t.classList.add('out'); setTimeout(() => t.remove(), 700); }
+  })(t0);
+}
+function claws(){
+  if(reduced()) return;
+  const r = $('heroBox').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const fl = document.createElement('div'); fl.className = 'redflash';
+  $('fx').appendChild(fl); setTimeout(() => fl.remove(), 460);
+  [-1, 0, 1].forEach((k, i) => {
+    const c = document.createElement('div'); c.className = 'claw';
+    c.style.left = (cx + k * 32) + 'px'; c.style.top = (cy - 10 + k * 9) + 'px';
+    c.style.animationDelay = (i * 45) + 'ms';
+    $('fx').appendChild(c); setTimeout(() => c.remove(), 700);
+  });
+}
+
+/* ---------- the turn ---------- */
 async function doRoll(){
-  if(!started){ started = true; }
+  if(busy) return;
+  busy = true;
+  started = true;
   commitPick();
   if(!liveIdx().length) hotDice();
-  const ix = await rollDice();
-  afterRoll(ix);
+  await rollDice();
+  if(isFarkle(facesOf(rollIdx()))) await farkle();
+  else {
+    $('windNote').textContent = 'Set aside what scores, then roll or strike.';
+    busy = false; renderDice();
+  }
 }
 function commitPick(){
   const add = pickScore();
@@ -893,32 +1067,162 @@ function commitPick(){
   pickIdx().forEach(i => D[i].where = 'locked');
   placeDice();
 }
+/* all six scored, so all six come back and the wind-up carries on */
 function hotDice(){
   D.forEach(d => { d.where = 'live'; d.el.classList.add('hot'); });
   placeDice();
-  toast('Hot dice! All six come back.');
-  [0, 1, 2].forEach(k => tone(660 * Math.pow(1.26, k), .14, 'triangle', .06, k * .07));
+  banner('Hot dice!', 'All six come back');
+  [0, 1, 2, 3].forEach(k => tone(660 * Math.pow(1.26, k), .15, 'triangle', .06, k * .07));
 }
-function afterRoll(ix){
-  if(isFarkle(facesOf(rollIdx()))){
-    ix.forEach(i => D[i].el.classList.add('shiver'));
-    deadthud();
-    $('windNote').innerHTML = '<b>Farkle.</b> Nothing scored.';
-    setTimeout(newTurn, 1400);
-    return;
+
+/* ---------- a strike: the blow you wound up actually lands ---------- */
+const STRIKE_TIERS = [
+  [0,   'Hit!'],
+  [.6,  'Solid hit!'],
+  [1.2, 'Brutal!'],
+  [2,   'Devastating!'],
+  [4,   'Legendary!']
+];
+const strikeTier = w => {
+  let t = 0;
+  STRIKE_TIERS.forEach((x, i) => { if(w / WINDUP_AVG >= x[0]) t = i; });
+  return t;
+};
+function sweepDice(){
+  const set = D.filter(d => d.where !== 'live');
+  if(reduced() || !set.length) return wait(60);
+  const { x, y } = stageCentre();
+  set.forEach((d, k) => {
+    const r = d.el.getBoundingClientRect();
+    d.el.animate([
+      { transform:'none', opacity:1 },
+      { transform:`translate(${x - r.left - r.width / 2}px, ${y - r.top - r.height / 2}px) scale(.45) rotate(${160 + rnd(220)}deg)`, opacity:0 }
+    ], { duration:380, delay:k * 40, easing:'cubic-bezier(.5,0,.75,.2)', fill:'forwards' });
+  });
+  return wait(380 + set.length * 40);
+}
+async function doStrike(){
+  if(busy) return;
+  busy = true;
+  commitPick();
+  const w = wind, tier = strikeTier(w), dmg = strikeDamage(w);
+  $('rollBtn').disabled = $('strikeBtn').disabled = true;
+  $('windNote').textContent = '';
+  await sweepDice();
+  banner(STRIKE_TIERS[tier][1], `Wind-up ${fmt(w)}`);
+  await slashes(tier + 1);
+
+  const f = S.fight, absorbed = Math.min(f.block, dmg);
+  f.block -= absorbed; f.hp -= dmg - absorbed;
+  damageBurst(dmg - absorbed, tier);
+  if(absorbed) pop($('foeBlock'), `${fmt(absorbed)} blocked`, 'b');
+  knock(0, 1.3);
+  if(tier >= 2){ bigBoom(tier); shake(tier >= 3 ? 3 : 2); }
+  else if(dmg - absorbed >= f.max * .25) shake(1);
+  setFoeBars();
+  await wait(820);
+
+  if(f.hp <= 0) return won();
+  await foeTurn();
+  if(S.hp <= 0) return lost();
+  busy = false;
+  newTurn();
+}
+
+/* ---------- a farkle: your guard drops and it hits you ---------- */
+async function farkle(){
+  D.filter(d => d.where === 'live').forEach(d => d.el.classList.add('shiver'));
+  deadthud();
+  banner('Farkle!', wind ? `You lose ${fmt(wind)}` : 'Nothing scored');
+  $('windNote').innerHTML = '<b>Farkle.</b> The wind-up is gone.';
+  wind = 0; renderWind();
+  await wait(900);
+  await foeTurn(FARKLE_MULT);
+  if(S.hp <= 0) return lost();
+  busy = false;
+  newTurn();
+}
+
+/* ---------- the monster's move ----------
+   Exactly one a turn, either way: after a strike it takes its scheduled move,
+   and on a farkle it simply hits you, harder. */
+async function foeTurn(farkleMult){
+  const f = S.fight, d = f.d;
+  const mv = farkleMult ? { k:'atk', n:Math.round(d.moves.filter(m => m.k === 'atk')
+      .reduce((a, b) => a + b.n, 0) / Math.max(1, d.moves.filter(m => m.k === 'atk').length) * farkleMult) }
+    : d.moves[f.mv % d.moves.length];
+  await wait(220);
+  if(mv.k === 'atk'){
+    const hitMs = playFoeAttack();
+    if(!hitMs){ anim($('foePic'), 'lunge'); swoosh(); }
+    await wait(hitMs || 320);
+    swoosh(); claws();
+    const after = takeFrom(mv.n);
+    const absorbed = Math.min(S.block, after); S.block -= absorbed;
+    const dmg = Math.max(0, after - absorbed);
+    S.hp = Math.max(0, S.hp - dmg);
+    if(absorbed) pop($('myBlock'), `${fmt(absorbed)} blocked`, 'b');
+    if(dmg > 0){
+      setMyBars(); anim($('heroBox'), 'flash'); deadthud();
+      const r = $('heroBox').getBoundingClientRect();
+      const t = document.createElement('div');
+      t.className = 'hurtnum'; t.textContent = '-' + fmt(dmg);
+      t.style.left = (r.left + r.width / 2) + 'px'; t.style.top = (r.top + r.height / 2) + 'px';
+      $('fx').appendChild(t); setTimeout(() => t.remove(), 1300);
+      shake(farkleMult ? 2 : 1);
+    } else tone(900, .1, 'square', .04);
+  } else if(mv.k === 'blk'){
+    f.block += mv.n; anim($('foePic'), 'shieldglow');
+    banner('It raises its guard', `Blocks ${fmt(mv.n)} of your next strike`);
+    tone(500, .16, 'square', .04);
+  } else {
+    const before = f.hp; f.hp = Math.min(f.max, f.hp + mv.n);
+    anim($('foePic'), 'healglow');
+    banner('It heals itself', `+${fmt(f.hp - before)} health`);
+    tone(700, .2, 'sine', .05);
   }
-  $('windNote').textContent = 'Set aside the dice that score, then roll the rest.';
+  if(!farkleMult) f.mv++;
+  setFoeBars(); setMyBars();
+  await wait(520);
 }
+
 function newTurn(){
-  wind = 0; started = false;
-  D.forEach(d => { d.where = 'live'; d.el.classList.remove('shiver', 'hot'); });
+  wind = 0; started = false; busy = false;
+  D.forEach(d => {
+    d.where = 'live';
+    d.el.getAnimations().forEach(a => a.cancel());
+    d.el.classList.remove('shiver', 'hot');
+    d.el.style.opacity = ''; d.el.style.transform = '';
+  });
   placeDice();
   $('windNote').textContent = 'Tap Roll to start.';
 }
-function doStrike(){
-  commitPick();
-  toast(`Strike for ${fmt(wind)}! The fight comes next.`);
-  setTimeout(newTurn, 900);
+
+/* ---------- the end of a fight ----------
+   The full victory and fallen screens come with the next steps. */
+function won(){
+  busy = true;
+  const d = S.fight.d;
+  banner('Victory!', `The ${d.name} is down`);
+  anim($('foePic'), 'hit');
+  [0,1,2,3].forEach(k => tone([523.25,659.25,783.99,1046.5][k], k === 3 ? .6 : .14, 'triangle', .06, k * .13));
+  S.gold += d.gold; S.xp += d.xp; S.wins++;
+  while(S.xp >= cumNeed(S.level)) levelUp();
+  setMyBars();
+  setTimeout(() => { S.idx++; startFight(); }, 2400);
+}
+function levelUp(){
+  S.level++;
+  S.maxHp = heroMaxHP(S.level);
+  S.hp = S.maxHp;
+  S.pendingLv = (S.pendingLv || 0) + 1;
+}
+function lost(){
+  busy = true;
+  banner('You have fallen', `The ${S.fight.d.name} brought you down`);
+  deadthud();
+  S.deaths++;
+  setTimeout(() => { S.hp = S.maxHp; S.idx = 0; startFight(); }, 2600);
 }
 
 buildTray();
