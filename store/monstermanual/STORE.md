@@ -69,11 +69,14 @@ So the honest answer at upload is **yes, AI-generated, both text and images**.
 Unlike DriveThruRPG, declaring it is what makes the book allowed rather than
 refused, and Amazon's pages attach no AI-specific penalty to answering yes.
 
-Two things Amazon does **not** say, which are worth not inventing: it does not
-publish the wording of the form, so read what is on the screen rather than
-hunting for a predicted sentence; and it does not say whether the declaration
-is shown to customers. Blogs claim more certainty than Amazon's own pages
-support.
+The form itself, read off the live page on 2 November 2026, asks "Did you use
+AI tools in creating texts, images, and/or translations in your book?" and
+then wants a separate answer for texts, images and translations. `UPLOAD.md`
+has the exact options and which to pick.
+
+One thing Amazon does **not** say, which is worth not inventing: it does not
+say whether the declaration is shown to customers. Blogs claim more certainty
+than Amazon's own pages support.
 
 ### What it costs to print and what it can sell for
 

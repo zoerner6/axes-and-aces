@@ -112,13 +112,37 @@ holding back, spine and front, with the spine sized for 146 pages.
    what makes the book allowed. It is the same answer the coloring book gives,
    which matters because both books come from the same art.
 
-   Two honest caveats. **Amazon does not publish the wording of the form
-   anywhere**, so read what is actually on the screen rather than looking for
-   a sentence I have predicted. And Amazon does not say whether the
-   declaration is shown to customers — I previously wrote here that it stays
-   private, and I should not have, because their pages do not say so. What
-   their pages do say is that there is no AI-specific penalty attached to
-   answering yes.
+   **This is what the form actually says**, read off the live page on
+   2 November 2026. It sits near the bottom of the Content step, under a
+   heading "AI-Generated Content":
+
+   > Did you use AI tools in creating texts, images, and/or translations in
+   > your book?
+
+   Answer **Yes**. Three dropdowns then appear — Texts, Images and
+   Translations — each offering the same five choices: None; Some sections,
+   with minimal or no editing; Some sections, with extensive editing; Entire
+   work, with minimal or no editing; Entire work, with extensive editing.
+
+   Set them to:
+
+   | | |
+   |---|---|
+   | Texts | Entire work, with minimal or no editing |
+   | Images | Entire work, with minimal or no editing |
+   | Translations | None |
+
+   "Editing" here means editing **you** did by hand after the AI made it, and
+   you did none — the revisions this book went through were made by the same
+   AI that wrote it. Amazon's own rule is that content stays AI-generated
+   "even if you applied substantial edits afterwards", so the editing answer
+   is informational, not a way out. Saying "minimal or no editing" discloses
+   more rather than less, which is the safe direction on a declaration.
+
+   One thing Amazon still does not say: whether this declaration is shown to
+   customers. I previously wrote here that it stays private, and I should not
+   have, because their pages do not say so. What their pages do say is that
+   there is no AI-specific penalty attached to answering yes.
 
 5. **ISBN:** take the free KDP one unless you want to own the ISBN.
 
