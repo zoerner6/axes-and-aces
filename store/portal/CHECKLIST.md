@@ -74,6 +74,46 @@ It needs to find `index.html` at the top of what you give it, and it does.
 The zip is still worth having for sending the build somewhere or keeping a copy.
 It is just not what this box wants.
 
+### 4b. The QA step
+
+Pressing **Preview** uploads nothing new - it builds the game on CrazyGames and
+opens it in their QA player, with a panel of measurements down the right. Play
+until a fight actually starts, because two of their numbers only appear once the
+game sends its first gameplay event.
+
+What it measured on 2 November 2026, on their own instrumentation:
+
+| Their number | What came back | Their limit |
+|---|---|---|
+| Total size | 200.9 MB | 250 MB |
+| Load size | 5.4 MB cold, 1.7 MB on a revisit | 50 MB, or 20 MB for the mobile home page |
+| Load time | 6.4 seconds | 20 seconds |
+
+Load time is the gap between their Play button and the game's first gameplay
+event, so it counts the seconds you spend reading the opening story. Dawdle and
+it reads 60 seconds. That is you, not the game.
+
+**Do not close the QA tab when you press Continue.** It opens a second tab and
+then hands the results over. Close it too early and you get "Failed to retrieve
+QA results" and have to restart the preview.
+
+Then comes a checklist with Yes/No on each row, ending in "I confirm that these
+results are correct." Those are yours to mark. Two pass automatically. For the
+rest, here is what is actually true of the build:
+
+| Their check | Where it stands |
+|---|---|
+| Initial download size <50MB | Passes automatically |
+| First gameplay start | Passes automatically |
+| First gameplay start implemented correctly | It fires when a fight starts, not on the menus. |
+| Complies to Gameplay requirements | Your call. |
+| Runs on all CrazyGames domains | Nothing in the build is tied to a domain. |
+| Browser checks | Ran clean in Chrome. |
+| Device checks: Mobile | **Use their Show QR and play it on your phone.** Neither of us has run it on real hardware - only at phone sizes in a desktop browser. |
+| No external ads | Nothing but their own SDK. |
+| Does not offer external login options | There is no login of any kind. |
+| In-game mention of Terms & Conditions and/or Privacy Policy | **The game says neither, anywhere.** It also collects nothing, sends nothing off the page and has no accounts of its own; progress sits in CrazyGames' own storage under their policy. N/A is the honest mark, but read the row and decide. |
+
 ### 5. Fill in the text
 
 Open `SUBMISSION.md` in this folder and copy each block across:
