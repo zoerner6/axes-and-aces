@@ -51,12 +51,52 @@ a{color:inherit}
 .top .wrap{display:flex;align-items:center;gap:22px;height:74px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .brand img{width:44px;height:44px;border-radius:10px;border:2px solid #000;box-shadow:3px 3px 0 #000}
-.brand b{font-family:var(--f-title);font-weight:400;font-size:1.65rem;color:var(--gold2);-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;letter-spacing:.01em}
+.brand b{font-family:var(--f-title);font-weight:400;font-size:1.65rem;white-space:nowrap;color:var(--gold2);-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;letter-spacing:.01em}
 .top nav{display:flex;gap:26px;margin-left:auto}
 .top nav a{font-family:var(--f-num);font-weight:600;font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--parch);opacity:.85}
 .top nav a:hover{opacity:1;color:var(--gold2)}
 .top .btn{min-height:46px;padding:0 20px;font-size:.95rem;box-shadow:3px 3px 0 #000}
-@media (max-width:900px){ .top nav{display:none} .top .btn{margin-left:auto} .brand b{font-size:1.35rem} }
+/* the menu button, which only exists on the widths where the nav does not fit */
+.mbtn{display:none;width:50px;height:46px;flex:0 0 auto;padding:0;
+  border:3px solid #000;border-radius:10px;background:linear-gradient(180deg,#3a2a1d,#1e150f);
+  box-shadow:3px 3px 0 #000;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.mbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+.mbtn i{display:block;width:22px;height:3px;margin:4px auto;background:var(--gold2);
+  border-radius:2px;transition:transform .18s,opacity .14s}
+.top.open .mbtn i:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.top.open .mbtn i:nth-child(2){opacity:0}
+.top.open .mbtn i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* 1264px is measured, not chosen: below it the eight links no longer fit beside
+   the name and the Play free button, and they wrap into a mess. */
+@media (max-width:1264px){
+  .mbtn{display:block}
+  .top .btn{margin-left:auto}
+  /* the nav drops out of the bar and becomes a panel under it */
+  .top nav{position:absolute;top:100%;left:0;right:0;margin:0;
+    flex-direction:column;gap:0;padding:6px 0 10px;
+    background:rgba(20,16,13,.97);border-top:3px solid #000;box-shadow:0 5px 0 rgba(0,0,0,.5);
+    backdrop-filter:blur(6px);
+    max-height:0;overflow:hidden;visibility:hidden;
+    transition:max-height .22s ease,visibility .22s}
+  .top nav a{padding:14px var(--gut);font-size:1.02rem;letter-spacing:.1em;opacity:1;
+    border-bottom:1px solid rgba(242,182,50,.14)}
+  .top nav a:last-child{border-bottom:0}
+  /* tall enough for all eight links on a short phone, so the last one is not
+     left sliced in half; shorter screens than that get a real scroll */
+  .top.open nav{max-height:min(calc(100svh - 92px),620px);overflow:auto;visibility:visible}
+  /* the bar has to be opaque while the panel hangs off it, scrolled or not */
+  .top.open{background:rgba(20,16,13,.97)}
+}
+/* on a phone the bar itself has to get out of its own way: the name shrinks
+   with the screen rather than wrapping and making the bar two rows tall */
+@media (max-width:900px){
+  .top .wrap{gap:12px}
+  .top .btn{padding:0 16px}
+  .brand img{width:40px;height:40px}
+  .brand b{font-size:clamp(1rem,4.4vw,1.35rem)}
+}
+@media (max-width:360px){ .top .wrap{gap:9px} .top .btn{padding:0 12px;font-size:.85rem} }
 
 /* ---------- hero ---------- */
 .hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;border-bottom:4px solid #000}
@@ -124,6 +164,24 @@ a{color:inherit}
 .save b{display:block;font-family:var(--f-title);font-weight:400;font-size:1.25rem;color:var(--gold2);line-height:1.1}
 .save small{font-family:var(--f-num);letter-spacing:.1em;text-transform:uppercase;font-size:.75rem;color:var(--dim)}
 .saves-h{width:100%;font-family:var(--f-num);font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:.8rem;color:var(--dim)}
+
+/* the daily puzzle: its own way in, under the monsters */
+.daily-cta{max-width:44em;margin:clamp(34px,6vw,60px) auto 0;padding:clamp(20px,4vw,30px);
+  background:rgba(27,20,16,.92);border:3px solid #000;border-radius:14px;box-shadow:6px 6px 0 #000}
+.daily-cta h3{margin:0 0 .3em;font-size:clamp(1.7rem,5vw,2.3rem);color:var(--gold2);text-shadow:3px 3px 0 #000}
+.daily-cta p{margin:0 0 1.1em;color:var(--parch)}
+@media (max-width:700px){ .daily-cta .btn{width:100%} }
+.farkle-cta{display:grid;grid-template-columns:auto 1fr;gap:4px clamp(16px,3vw,26px);align-items:center}
+.farkle-cta .fk-mark{grid-row:span 3;width:clamp(84px,14vw,128px);height:auto;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.7))}
+.farkle-cta h3,.farkle-cta p,.farkle-cta .btn{grid-column:2;text-align:left}
+.farkle-cta .btn{justify-self:start}
+@media (max-width:700px){
+  .farkle-cta{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .farkle-cta .fk-mark{grid-row:auto;width:96px}
+  .farkle-cta h3,.farkle-cta p,.farkle-cta .btn{grid-column:1;text-align:center}
+  .farkle-cta .btn{justify-self:stretch}
+}
 
 /* ---------- sections ---------- */
 section{position:relative}
@@ -517,8 +575,9 @@ main.hit{animation:shk .5s}
 <header class="top" id="top">
   <div class="wrap">
     <a class="brand" href="#"><img src="img/emblem-64.webp" width="64" height="64" alt=""><b>Axes &amp; Aces</b></a>
-    <nav aria-label="Sections"><a href="#story">Story</a><a href="#how">How to play</a><a href="#try">Try a hand</a><a href="#monsters">Monsters</a><a href="#quests">Quests</a><a href="#app">Get the app</a></nav>
+    <nav id="menu" aria-label="Sections"><a href="#story">Story</a><a href="#how">How to play</a><a href="#try">Try a hand</a><a href="#monsters">Monsters</a><a href="daily.html">Daily puzzle</a><a href="farkle.html">Monster Farkle</a><a href="#quests">Quests</a><a href="#app">Get the app</a></nav>
     <a class="btn" href="play.html">Play free</a>
+    <button class="mbtn" id="mbtn" type="button" aria-label="Menu" aria-controls="menu" aria-expanded="false"><i></i><i></i><i></i></button>
   </div>
 </header>
 
@@ -642,6 +701,18 @@ main.hit{animation:shk .5s}
       <div class="vid rv" data-v="skeleton"><div class="lbl"><b>Rattling Skeleton</b><small class="w">Monster</small></div></div>
     </div>
     <div class="roster" aria-hidden="true"><div class="roster-track" id="roster"></div></div>
+    <div class="daily-cta rv">
+      <h3>Guess the Monster</h3>
+      <p>One monster a day, the same one for everybody. It starts as a shadow and gets clearer with every wrong guess. Five guesses, then post your row.</p>
+      <a class="btn" href="daily.html">Play today's puzzle</a>
+    </div>
+    <div class="daily-cta farkle-cta rv">
+      <img class="fk-mark" src="img/farkle-dice.webp" width="560" height="560" alt="" loading="lazy">
+      <h3>Monster Farkle</h3>
+      <p>The same monsters, six dice. Every die you keep winds the swing tighter, and the whole
+        thing lands when you strike. Push too far and your guard drops, and it hits you instead.</p>
+      <a class="btn" href="farkle.html">Play Monster Farkle</a>
+    </div>
   </div>
 </section>
 
@@ -759,6 +830,20 @@ function onScroll(){
   progI.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
 }
 addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+/* the phone menu. The nav is a panel hanging off the bar, so it has to close on
+   anything that takes you away from it: a link, Escape, a tap outside, or the
+   screen getting wide enough for the nav to sit in the bar again. */
+var mbtn=document.getElementById('mbtn'), menu=document.getElementById('menu');
+function setMenu(on){
+  top.classList.toggle('open', on);
+  mbtn.setAttribute('aria-expanded', on?'true':'false');
+}
+mbtn.addEventListener('click',function(e){ e.stopPropagation(); setMenu(!top.classList.contains('open')); });
+menu.addEventListener('click',function(e){ if(e.target.closest('a')) setMenu(false); });
+document.addEventListener('click',function(e){ if(!e.target.closest('#top')) setMenu(false); });
+addEventListener('keydown',function(e){ if(e.key==='Escape') setMenu(false); });
+matchMedia('(max-width:1264px)').addEventListener('change',function(m){ if(!m.matches) setMenu(false); });
 
 /* hero: a rotating reel of boss attacks.
    Two video buffers. The next boss is loaded and started behind the current one at full

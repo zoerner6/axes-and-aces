@@ -16,7 +16,22 @@
     Cache-Control = "no-cache"
 
 [[headers]]
+  for = "/daily.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
   for = "/"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/farkle.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/farkle.webmanifest"
   [headers.values]
     Cache-Control = "no-cache"
 

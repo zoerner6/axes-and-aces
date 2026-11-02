@@ -1,0 +1,671 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Guess the Monster: the Axes &amp; Aces daily puzzle</title>
+<meta name="description" content="One monster a day from Axes &amp; Aces. It starts as a shadow and gets clearer with every wrong guess. Five guesses. Share your row and keep your streak.">
+<meta name="theme-color" content="#14100d">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces">
+<meta property="og:title" content="Guess the Monster: a new one every day">
+<meta property="og:description" content="It starts as a shadow. Five guesses. Share your row and keep your streak.">
+<meta property="og:image" content="https://axesandaces.com/b/guess.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Guess the Monster: the Axes &amp; Aces daily puzzle">
+<meta property="og:url" content="https://axesandaces.com/daily.html"><meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://axesandaces.com/b/guess.jpg">
+<meta name="twitter:image:alt" content="Guess the Monster: the Axes &amp; Aces daily puzzle">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192"><link rel="icon" href="icons/icon-512.png" sizes="512x512">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Germania+One&family=Alegreya+Sans:wght@400;500;700;800&family=Oswald:wght@500;600;700&display=swap">
+<style>
+:root{
+  --soot:#14100d; --leather:#1b1410; --gold:#f2b632; --gold2:#ffd35c; --parch:#f3e6c8;
+  --red:#c8241f; --green:#3fae4a; --teal:#7fe3d8; --dim:#c9b48f;
+  --f-title:'Germania One',Georgia,serif; --f-num:'Oswald','Arial Narrow',sans-serif; --f-body:'Alegreya Sans',system-ui,sans-serif;
+  --gut:max(14px,env(safe-area-inset-left,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--soot);-webkit-text-size-adjust:100%}
+body{margin:0;background:none;color:var(--parch);
+  font-family:var(--f-body);font-size:17px;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+/* the cellar sits behind the whole page. It is a real element, not a fixed
+   background on the body: iOS Safari does not hold a fixed background still,
+   and a negative-z ::before would paint under the body's own background. */
+.scene{position:fixed;inset:0;z-index:-1;background:
+  linear-gradient(180deg,rgba(10,7,5,.90) 0%,rgba(10,7,5,.955) 55%,rgba(10,7,5,.985) 100%),
+  url(art/bg_cellar.webp) center/cover no-repeat;background-color:var(--soot)}
+img{display:block;max-width:100%}
+a{color:var(--gold2)}
+.wrap{width:min(560px,100% - 2*var(--gut));margin-inline:auto}
+
+/* ---------- top bar ---------- */
+.top{border-bottom:3px solid #000;background:rgba(20,16,13,.92)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.brand{min-height:44px}
+.brand img{width:38px;height:38px;border-radius:9px;border:2px solid #000;box-shadow:3px 3px 0 #000}
+.top a.go{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-family:var(--f-num);font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-decoration:none;white-space:nowrap}
+.top a.go:hover{color:var(--gold2)}
+
+/* ---------- head ---------- */
+header.hd{padding:16px 0 6px;text-align:center}
+/* the word logo is the title of the whole thing; the puzzle's own name sits
+   under it. Clear space all round, and never squeezed out of shape. */
+.wordmark{display:block;width:clamp(190px,46vw,280px);margin:0 auto}
+.wordmark img{width:100%;height:auto}
+h1{margin-top:clamp(22px,6vw,30px)}
+h1{margin:0;font-family:var(--f-title);font-weight:400;font-size:clamp(2.1rem,9vw,3rem);line-height:1;color:var(--gold2);
+  -webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000}
+.sub{margin:.5em 0 0;font-family:var(--f-num);font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:.78rem;color:var(--dim)}
+
+/* ---------- the picture ---------- */
+.panel{position:relative;margin:14px 0 0;border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;
+  background:radial-gradient(circle at 50% 42%,#3a2a1d,#120d0a 72%);overflow:hidden}
+.panel canvas{display:block;width:100%;height:auto}
+.panel::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(0,0,0,.5) 1.1px,transparent 1.4px);background-size:6px 6px;mix-blend-mode:multiply;opacity:.4}
+.tag{position:absolute;left:10px;top:10px;z-index:2;padding:4px 11px;background:var(--gold);color:#1a0f05;border:2.5px solid #000;border-radius:7px;
+  font-family:var(--f-num);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;transform:rotate(-2.5deg);box-shadow:3px 3px 0 #000}
+.pips{display:flex;gap:7px;justify-content:center;margin:12px 0 0}
+.pip{width:26px;height:26px;border:2.5px solid #000;border-radius:5px;background:#2a2019;box-shadow:2px 2px 0 #000}
+.pip.wrong{background:var(--red)} .pip.close{background:var(--gold)} .pip.hit{background:var(--green)}
+.rule{margin:11px 0 0;text-align:center;font-size:.98rem;color:var(--parch);opacity:.8;text-shadow:0 1px 4px #000}
+
+/* ---------- hints ---------- */
+.hints{margin:14px 0 0;display:grid;gap:8px}
+.hint{display:flex;gap:10px;align-items:baseline;padding:9px 12px;background:rgba(27,20,16,.9);border:2.5px solid #000;border-radius:9px;box-shadow:3px 3px 0 #000}
+.hint span{flex:0 0 auto;font-family:var(--f-num);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.7rem;color:var(--teal)}
+.hint b{font-weight:700;color:#fff}
+
+/* ---------- guesses ---------- */
+.rows{margin:14px 0 0;display:grid;gap:7px}
+.row{display:flex;align-items:center;gap:10px;padding:8px 12px;border:2.5px solid #000;border-radius:9px;background:rgba(27,20,16,.9);box-shadow:3px 3px 0 #000}
+.row i{flex:0 0 auto;width:16px;height:16px;border:2px solid #000;border-radius:4px;background:var(--red)}
+.row.close i{background:var(--gold)} .row.hit i{background:var(--green)}
+.row b{font-weight:700;color:#fff;font-size:1.02rem}
+.row em{margin-left:auto;font-style:normal;font-family:var(--f-num);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:.7rem;color:var(--dim);text-align:right}
+
+/* ---------- guessing ---------- */
+.ask{margin:16px 0 0}
+.ask label{display:block;font-family:var(--f-num);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.74rem;color:var(--dim);margin-bottom:7px}
+.field{display:flex;gap:9px}
+input[type=text]{flex:1 1 auto;min-width:0;min-height:54px;padding:0 14px;border:3px solid #000;border-radius:10px;background:var(--parch);color:#16100d;
+  font-family:var(--f-body);font-size:1.08rem;font-weight:600;box-shadow:4px 4px 0 #000}
+input[type=text]:focus{outline:none;box-shadow:4px 4px 0 #000,0 0 0 3px var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:54px;padding:0 22px;border:3px solid #000;border-radius:10px;
+  background:linear-gradient(180deg,var(--gold2),var(--gold) 55%,#d9931a);color:#1a0f05;cursor:pointer;
+  font-family:var(--f-num);font-weight:700;font-size:1.02rem;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;
+  box-shadow:4px 4px 0 #000;transition:transform .12s,box-shadow .12s}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.btn[disabled]{opacity:.45;cursor:default;transform:none}
+.btn.big{width:100%;min-height:62px;font-size:1.14rem}
+.btn.dark{background:linear-gradient(180deg,#3a2a1d,#1e150f);color:var(--gold2)}
+.list{margin:9px 0 0;display:grid;gap:6px}
+.list button{display:block;width:100%;text-align:left;padding:11px 13px;min-height:48px;border:2.5px solid #000;border-radius:9px;
+  background:rgba(243,230,200,.94);color:#16100d;font-family:var(--f-body);font-size:1.02rem;font-weight:600;cursor:pointer;box-shadow:3px 3px 0 #000}
+.list button.on{background:var(--gold2)}
+.note{margin:10px 0 0;font-size:.95rem;color:var(--parch);opacity:.85;text-shadow:0 1px 4px #000}
+
+/* ---------- the end ---------- */
+.done{margin:16px 0 0}
+.answer{text-align:center}
+.answer h2{margin:0;font-family:var(--f-title);font-weight:400;font-size:clamp(1.9rem,7.5vw,2.6rem);line-height:1.05;color:#fff;text-shadow:3px 3px 0 #000}
+.verdict{margin:.35em 0 0;font-family:var(--f-num);font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:.9rem;color:var(--gold2)}
+.verdict.miss{color:var(--red)}
+.fact{margin:12px 0 0;padding:13px 15px;background:var(--parch);color:#16100d;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;font-size:1.02rem}
+.fact p{margin:0} .fact p+p{margin-top:.5em}
+.grid{margin:14px 0 0;padding:13px 15px;background:rgba(10,7,5,.75);border:2.5px solid #000;border-radius:10px;box-shadow:3px 3px 0 #000;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.02rem;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:#fff;-webkit-user-select:all;user-select:all}
+.acts{margin:12px 0 0;display:grid;gap:10px}
+.stats{margin:14px 0 0;display:grid;grid-template-columns:repeat(3,1fr);gap:9px;text-align:center}
+.stat{padding:9px 4px;border:2.5px solid #000;border-radius:9px;background:rgba(27,20,16,.9);box-shadow:3px 3px 0 #000}
+.stat b{display:block;font-family:var(--f-num);font-weight:700;font-size:1.5rem;color:var(--gold2);line-height:1.1}
+.stat span{font-family:var(--f-num);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:.64rem;color:var(--dim)}
+.next{margin:14px 0 0;text-align:center;font-family:var(--f-num);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;color:var(--dim)}
+
+/* ---------- pitch + foot ---------- */
+.pitch{margin:22px 0 0;padding:16px;border:3px solid #000;border-radius:12px;box-shadow:5px 5px 0 #000;background:rgba(27,20,16,.92)}
+.pitch h3{margin:0 0 .35em;font-family:var(--f-title);font-weight:400;font-size:1.55rem;line-height:1.08;color:var(--gold2);text-shadow:2px 2px 0 #000}
+.pitch p{margin:0 0 14px;color:var(--parch)}
+footer{margin:26px 0;text-align:center;font-size:.9rem;color:var(--dim)}
+footer a{margin:0 8px;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(14px);z-index:90;padding:11px 20px;background:var(--gold);color:#1a0f05;
+  border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;font-family:var(--f-num);font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-size:.86rem;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:360px){
+  body{font-size:16px}
+  .btn{padding:0 15px;font-size:.94rem}
+  .pip{width:23px;height:23px}
+}
+</style>
+</head><body>
+<div class="scene"></div>
+
+<div class="top"><div class="wrap">
+  <a class="brand" href="index.html"><img src="img/emblem-64.webp" width="88" height="88" alt="Axes &amp; Aces"></a>
+  <a class="go" href="play.html">Play the game</a>
+</div></div>
+
+<div class="wrap">
+  <header class="hd">
+    <a class="wordmark" href="index.html"><img src="img/logo-wide.webp" width="1440" height="638" alt="Axes &amp; Aces"></a>
+    <h1>Guess the Monster</h1>
+    <p class="sub" id="sub">Loading</p>
+  </header>
+
+  <div class="panel"><div class="tag" id="tag">Shadow</div><canvas id="pic" width="560" height="470"></canvas></div>
+  <div class="pips" id="pips"></div>
+  <p class="rule" id="rule">Five guesses. The picture gets clearer every time you miss.</p>
+
+  <div class="hints" id="hints"></div>
+  <div class="rows" id="rows"></div>
+
+  <div class="ask" id="ask">
+    <label for="guess">Which monster is this? Type part of a name.</label>
+    <div class="field">
+      <input type="text" id="guess" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" placeholder="Start typing a name">
+      <button class="btn" id="go" disabled>Guess</button>
+    </div>
+    <div class="list" id="list"></div>
+    <p class="note" id="left"></p>
+  </div>
+
+  <div class="done" id="done" hidden></div>
+
+  <div class="pitch">
+    <h3>This monster is from a real game</h3>
+    <p>Axes &amp; Aces is a free dark comic card adventure. You fight all 168 of these monsters with poker hands. No sign-up, no download.</p>
+    <a class="btn big" href="play.html">Play free in your browser</a>
+  </div>
+
+  <footer>
+    <a href="index.html">AxesAndAces.com</a> ·
+    <a href="play.html">Play</a> ·
+    <a href="privacy.html">Privacy</a>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const MONSTERS = /*ROSTER*/[]/*ROSTER*/;
+const TRIES = 5;
+const EPOCH = [2026, 11, 1];          /* puzzle #1 */
+const KEY = 'aa_daily_guess';
+const SITE = 'AxesAndAces.com/daily';
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } },
+  set(v){ try{ localStorage.setItem(KEY, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ---------- which monster today ----------
+   The day number comes off the calendar date, so every player on a given day
+   lands on the same puzzle without asking a server. The order is a shuffle of
+   the whole roster seeded by the cycle, so nothing repeats until all 168 have
+   been through, and the run is the same for everyone forever. */
+const dayNumber = d => {
+  const a = Date.UTC(EPOCH[0], EPOCH[1] - 1, EPOCH[2]);
+  const b = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.floor((b - a) / 86400000) + 1;
+};
+function rng(seed){ let t = seed >>> 0; return () => {
+  t = (t + 0x6D2B79F5) >>> 0;
+  let x = Math.imul(t ^ (t >>> 15), 1 | t);
+  x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+  return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+}; }
+function cycleOrder(cycle){
+  const r = rng(0xC0FFEE11 ^ (cycle * 2654435761));
+  const a = MONSTERS.map((_, i) => i);
+  for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+const ORDERS = {};
+function monsterFor(day){
+  const n = MONSTERS.length, i = day - 1;
+  /* day 1 is the first of cycle 0; a clock set before launch runs backwards
+     through earlier cycles rather than falling off the end of the list */
+  const c = Math.floor(i / n), k = i - c * n;
+  let order = ORDERS[c] || (ORDERS[c] = cycleOrder(c));
+  /* never hand out the same monster two days running across a cycle seam */
+  if(k === 0 && c > 0){
+    const prev = ORDERS[c-1] || (ORDERS[c-1] = cycleOrder(c-1));
+    if(order[0] === prev[n-1]){ const t = order[0]; order[0] = order[1]; order[1] = t; }
+  }
+  return MONSTERS[order[k]];
+}
+
+/* ---------- the reveal ----------
+   Stage 0 is a flat black shadow cut from the picture's own outline: shape
+   only, no color. Each wrong guess puts more of the picture back, coarse
+   blocks first, so the last look is recognising a creature, not reading a
+   blur. The numbers are blocks across the picture. */
+const STAGES = [
+  {kind:'sil',                     tag:'Shadow'},
+  {kind:'px', n:10,                tag:'A little color'},
+  {kind:'px', n:19,                tag:'Clearer'},
+  {kind:'px', n:34,                tag:'Clearer still'},
+  {kind:'px', n:62,                tag:'Almost there'},
+  {kind:'full',                    tag:'The monster'}
+];
+
+const cv = $('pic'), cx = cv.getContext('2d');
+let art = null, artSlug = '';
+function sizeCanvas(){
+  const w = cv.clientWidth || 360, h = Math.round(w * 0.84);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  cv.style.height = h + 'px';
+}
+function fitBox(iw, ih, bw, bh){
+  const k = Math.min(bw / iw, bh / ih);
+  const w = iw * k, h = ih * k;
+  return [(bw - w) / 2, (bh - h) / 2, w, h];
+}
+function paint(stage){
+  const S = STAGES[Math.max(0, Math.min(STAGES.length - 1, stage))];
+  $('tag').textContent = S.tag;
+  const W = cv.width, H = cv.height;
+  cx.setTransform(1, 0, 0, 1, 0, 0);
+  cx.clearRect(0, 0, W, H);
+  if(!art) return;
+  const pad = Math.round(W * 0.055);
+  const [x, y, w, h] = fitBox(art.width, art.height, W - pad * 2, H - pad * 2);
+  cx.imageSmoothingEnabled = true;
+  if(S.kind === 'sil'){
+    const t = document.createElement('canvas'); t.width = Math.max(1, Math.round(w)); t.height = Math.max(1, Math.round(h));
+    const tc = t.getContext('2d');
+    tc.drawImage(art, 0, 0, t.width, t.height);
+    tc.globalCompositeOperation = 'source-in';
+    tc.fillStyle = '#050403'; tc.fillRect(0, 0, t.width, t.height);
+    cx.drawImage(t, pad + x, pad + y);
+    return;
+  }
+  if(S.kind === 'full'){ cx.drawImage(art, pad + x, pad + y, w, h); return; }
+  const nw = Math.max(2, S.n), nh = Math.max(2, Math.round(nw * art.height / art.width));
+  const t = document.createElement('canvas'); t.width = nw; t.height = nh;
+  t.getContext('2d').drawImage(art, 0, 0, nw, nh);
+  cx.imageSmoothingEnabled = false;
+  cx.drawImage(t, pad + x, pad + y, w, h);
+  cx.imageSmoothingEnabled = true;
+}
+function loadArt(slug){
+  return new Promise(res => {
+    if(artSlug === slug && art) return res(art);
+    const i = new Image();
+    i.onload = () => { art = i; artSlug = slug; res(i); };
+    i.onerror = () => { art = null; res(null); };
+    i.src = 'art/' + slug + '.webp';
+  });
+}
+
+/* ---------- the day's state ---------- */
+const today = new Date();
+const DAY = dayNumber(today);
+const ANSWER = monsterFor(DAY);
+const creatureWord = n => n.trim().split(/\s+/).slice(-1)[0].toLowerCase();
+const sameName = (a, b) => a.toLowerCase() === b.toLowerCase();
+
+let st = store.get();
+if(st.day !== DAY){
+  st = {day:DAY, guesses:[], done:false, won:false,
+        streak:st.streak || 0, lastWon:st.lastWon || 0, best:st.best || 0, played:st.played || 0, wins:st.wins || 0};
+  /* a missed day ends the run before you even play */
+  if(st.lastWon && st.lastWon < DAY - 1) st.streak = 0;
+}
+function save(){ store.set(st); }
+
+function mark(name){
+  if(sameName(name, ANSWER.name)) return 'hit';
+  const g = MONSTERS.find(m => sameName(m.name, name));
+  if(g && (creatureWord(g.name) === creatureWord(ANSWER.name) || g.world === ANSWER.world)) return 'close';
+  return 'wrong';
+}
+function why(name){
+  const g = MONSTERS.find(m => sameName(m.name, name));
+  if(!g) return '';
+  if(sameName(name, ANSWER.name)) return 'Got it';
+  const bits = [];
+  if(creatureWord(g.name) === creatureWord(ANSWER.name)) bits.push('Same creature');
+  if(g.world === ANSWER.world) bits.push('Same quest');
+  return bits.join(' · ');
+}
+
+/* ---------- hints: nothing for the first two guesses ---------- */
+function hintsNow(){
+  const n = st.guesses.length, out = [];
+  if(st.done) return out;
+  if(n >= 2) out.push(['Quest', ANSWER.world]);
+  if(n >= 3) out.push(['Where', ANSWER.area + (ANSWER.boss ? ' (it guards the way out)' : '')]);
+  if(n >= 4){
+    const words = ANSWER.name.split(/\s+/).length;
+    out.push(['Name', words + (words === 1 ? ' word' : ' words') + ', starts with ' + ANSWER.name[0].toUpperCase()]);
+  }
+  return out;
+}
+
+/* ---------- how it fights, read off its own move pattern ---------- */
+function styleLine(m){
+  const p = m.pat || [];
+  if(p.indexOf('H') >= 0) return 'It heals itself mid-fight, so finish it fast.';
+  if(p.indexOf('B') >= 0) return 'It throws up a block, so time your big hand for after it drops.';
+  const nums = p.filter(v => typeof v === 'number');
+  if(nums.length > 1){
+    const hi = Math.max.apply(null, nums), lo = Math.min.apply(null, nums);
+    if(hi / lo >= 1.6){
+      const at = nums.indexOf(hi) + 1;
+      const ord = ['first', 'second', 'third', 'fourth', 'fifth'][at - 1] || ('move ' + at);
+      return 'Its ' + ord + ' swing is the heavy one. Hold your shield for that turn.';
+    }
+  }
+  return 'It comes at you steadily, hit after hit.';
+}
+function factLines(m){
+  const where = m.boss ? 'It guards the way out of ' + m.area : 'You meet it in ' + m.area;
+  return [where + ', in ' + m.world + '.', m.place + '. ' + styleLine(m)];
+}
+
+/* ---------- the share row ---------- */
+const SQ = {wrong:'🟥', close:'🟨', hit:'🟩'};
+function shareText(){
+  const row = st.guesses.map(g => SQ[mark(g)]).join('');
+  const score = st.won ? st.guesses.length + '/' + TRIES : 'X/' + TRIES;
+  const lines = ['Guess the Monster #' + DAY + '  ' + score, row];
+  if(st.streak >= 2) lines.push('Streak ' + st.streak);
+  lines.push(SITE);
+  return lines.join('\n');
+}
+
+/* ---------- painting the page ---------- */
+function drawPips(){
+  const el = $('pips'); el.innerHTML = '';
+  for(let i = 0; i < TRIES; i++){
+    const d = document.createElement('div');
+    d.className = 'pip' + (st.guesses[i] ? ' ' + mark(st.guesses[i]) : '');
+    el.appendChild(d);
+  }
+}
+function drawHints(){
+  const el = $('hints'); el.innerHTML = '';
+  hintsNow().forEach(h => {
+    const d = document.createElement('div'); d.className = 'hint';
+    const s = document.createElement('span'); s.textContent = h[0];
+    const b = document.createElement('b'); b.textContent = h[1];
+    d.appendChild(s); d.appendChild(b); el.appendChild(d);
+  });
+}
+function drawRows(){
+  const el = $('rows'); el.innerHTML = '';
+  st.guesses.forEach(g => {
+    const m = mark(g);
+    const d = document.createElement('div'); d.className = 'row ' + m;
+    const i = document.createElement('i');
+    const b = document.createElement('b'); b.textContent = g;
+    d.appendChild(i); d.appendChild(b);
+    const w = why(g);
+    if(w){ const e = document.createElement('em'); e.textContent = w; d.appendChild(e); }
+    el.appendChild(d);
+  });
+}
+function drawLeft(){
+  const n = TRIES - st.guesses.length;
+  /* before the first guess the rule line above already says how many there are */
+  $('left').hidden = !st.guesses.length;
+  $('left').textContent = n === 1 ? 'Last guess. Make it count.' : n + ' guesses left.';
+}
+
+function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+
+function drawDone(){
+  const d = $('done'); d.hidden = false; d.innerHTML = '';
+  $('ask').hidden = true;
+
+  const a = el('div', 'answer');
+  a.appendChild(el('h2', null, ANSWER.name));
+  const v = el('p', 'verdict' + (st.won ? '' : ' miss'),
+    st.won ? (st.guesses.length === 1 ? 'First guess. Brutal.' : 'Got it in ' + st.guesses.length)
+           : 'Not this time');
+  a.appendChild(v);
+  d.appendChild(a);
+
+  const f = el('div', 'fact');
+  factLines(ANSWER).forEach(t => f.appendChild(el('p', null, t)));
+  d.appendChild(f);
+
+  d.appendChild(el('div', 'grid', shareText()));
+
+  const acts = el('div', 'acts');
+  const copy = el('button', 'btn big', 'Copy my result');
+  copy.id = 'copy';
+  acts.appendChild(copy);
+  if(navigator.share){
+    const sh = el('button', 'btn big dark', 'Share');
+    sh.id = 'share'; acts.appendChild(sh);
+  }
+  const card = el('button', 'btn big dark', 'Make a picture to post');
+  card.id = 'card'; acts.appendChild(card);
+  const play = el('a', 'btn big', 'Play Axes & Aces free');
+  play.href = 'play.html'; acts.appendChild(play);
+  d.appendChild(acts);
+  d.appendChild(el('p', 'note', ANSWER.name + ' is one of 168 monsters in Axes & Aces, a free card adventure. You fight them with poker hands.'));
+
+  const s = el('div', 'stats');
+  [[st.streak, 'Streak'], [st.best, 'Best streak'], [st.wins + '/' + st.played, 'Solved']].forEach(p => {
+    const b = el('div', 'stat'); b.appendChild(el('b', null, String(p[0]))); b.appendChild(el('span', null, p[1])); s.appendChild(b);
+  });
+  d.appendChild(s);
+  d.appendChild(el('p', 'next', ''));
+  tickClock();
+
+  const pitch = document.querySelector('.pitch'); if(pitch) pitch.hidden = true;
+
+  $('copy').addEventListener('click', onCopy);
+  if($('share')) $('share').addEventListener('click', onShare);
+  $('card').addEventListener('click', onCard);
+}
+
+function render(){
+  $('sub').textContent = 'Puzzle #' + DAY + ' · ' + MONSTERS.length + ' monsters · new one at midnight';
+  drawPips(); drawHints(); drawRows(); drawLeft();
+  $('rule').hidden = st.guesses.length > 0 || st.done;
+  paint(st.done ? STAGES.length - 1 : st.guesses.length);
+  if(st.done) drawDone();
+}
+
+/* ---------- guessing ---------- */
+let picked = '', matches = [];
+function searchNames(q){
+  q = q.trim().toLowerCase();
+  if(!q) return [];
+  const starts = [], has = [];
+  for(const m of MONSTERS){
+    const n = m.name.toLowerCase();
+    if(n.indexOf(q) === 0) starts.push(m.name);
+    else if(n.indexOf(q) > 0) has.push(m.name);
+    if(starts.length >= 6) break;
+  }
+  return starts.concat(has).slice(0, 6);
+}
+function drawList(){
+  const box = $('list'); box.innerHTML = '';
+  matches.forEach((n, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = n;
+    if(i === 0) b.className = 'on';
+    b.addEventListener('click', () => { picked = n; submit(); });
+    box.appendChild(b);
+  });
+}
+function onType(){
+  const v = $('guess').value;
+  matches = searchNames(v);
+  const exact = MONSTERS.find(m => sameName(m.name, v));
+  picked = exact ? exact.name : (matches[0] || '');
+  $('go').disabled = !picked;
+  drawList();
+}
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2200);
+}
+function submit(){
+  if(st.done || !picked) return;
+  const name = picked;
+  if(!MONSTERS.some(m => sameName(m.name, name))) return;
+  if(st.guesses.some(g => sameName(g, name))){ toast('You already tried that one'); return; }
+  st.guesses.push(name);
+  picked = ''; matches = [];
+  $('guess').value = ''; $('go').disabled = true; $('list').innerHTML = '';
+  if(sameName(name, ANSWER.name)){ finish(true); }
+  else if(st.guesses.length >= TRIES){ finish(false); }
+  else { save(); render(); }
+}
+function finish(won){
+  st.done = true; st.won = won;
+  st.played = (st.played || 0) + 1;
+  if(won){
+    st.wins = (st.wins || 0) + 1;
+    st.streak = (st.lastWon === DAY - 1 ? (st.streak || 0) : 0) + 1;
+    st.lastWon = DAY;
+    st.best = Math.max(st.best || 0, st.streak);
+  } else {
+    st.streak = 0;
+  }
+  save(); render();
+}
+
+/* ---------- sharing ---------- */
+function onCopy(){
+  const text = shareText();
+  let ok = false;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(() => toast('Copied. Paste it anywhere.'), () => legacyCopy(text));
+      return;
+    }
+  }catch(e){}
+  ok = legacyCopy(text);
+  if(!ok) toast('Press and hold the row above to copy it');
+}
+function legacyCopy(text){
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.contentEditable = 'true';
+    const r = document.createRange(); r.selectNodeContents(ta);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    ta.remove();
+    if(ok) toast('Copied. Paste it anywhere.');
+    return ok;
+  }catch(e){ return false; }
+}
+function onShare(){
+  const text = shareText();
+  navigator.share({text:text, url:'https://axesandaces.com/daily.html'}).catch(() => {});
+}
+
+/* a 1200x630 comic card, drawn the same way the game draws its brag cards */
+function wrapInto(x, t, left, top, width, lh, max){
+  const words = String(t).split(' ');
+  let line = '', y = top, n = 0;
+  for(const w of words){
+    const tt = line ? line + ' ' + w : w;
+    if(x.measureText(tt).width > width && line){
+      x.strokeText(line, left, y); x.fillText(line, left, y);
+      line = w; y += lh; if(++n >= max - 1) break;
+    } else line = tt;
+  }
+  if(line){ x.strokeText(line, left, y); x.fillText(line, left, y); y += lh; }
+  return y;
+}
+async function onCard(){
+  const btn = $('card'); btn.disabled = true; btn.textContent = 'Drawing...';
+  try{
+    try{ await document.fonts.load('80px "Germania One"'); await document.fonts.load('700 40px Oswald'); }catch(e){}
+    const c = document.createElement('canvas'); c.width = 1200; c.height = 630;
+    const x = c.getContext('2d');
+    const pic = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+    const [bg, logo, icon] = await Promise.all([pic('art/bg_cellar.webp'), pic('img/logo-wide.webp'), pic('icons/icon-512.png')]);
+    if(bg){ const sc = Math.max(1200 / bg.width, 630 / bg.height); x.drawImage(bg, (1200 - bg.width * sc) / 2, (630 - bg.height * sc) / 2, bg.width * sc, bg.height * sc); }
+    else { x.fillStyle = '#2a1608'; x.fillRect(0, 0, 1200, 630); }
+    const gr = x.createLinearGradient(0, 0, 1200, 0);
+    gr.addColorStop(0, 'rgba(10,5,3,.94)'); gr.addColorStop(.55, 'rgba(10,5,3,.78)'); gr.addColorStop(1, 'rgba(10,5,3,.15)');
+    x.fillStyle = gr; x.fillRect(0, 0, 1200, 630);
+    /* the monster stops short of the top right so the icon badge stays clear */
+    if(art){
+      const k = Math.min(440 / art.width, 460 / art.height), w = art.width * k, h = art.height * k;
+      x.save(); x.shadowColor = 'rgba(0,0,0,.85)'; x.shadowBlur = 30; x.drawImage(art, 1160 - w, 600 - h, w, h); x.restore();
+    }
+    x.fillStyle = '#000'; x.fillRect(0, 0, 1200, 12); x.fillRect(0, 618, 1200, 12);
+    x.textBaseline = 'alphabetic'; x.lineJoin = 'round'; x.strokeStyle = '#000';
+    /* the word logo is the title: never retyped, never stretched */
+    if(logo){ const lw = 230, lh = logo.height * lw / logo.width; x.drawImage(logo, 56, 40, lw, lh); }
+    /* the icon sits in the corner so a thumbnail is still recognisable */
+    if(icon){ x.save(); x.beginPath(); const r = 14, bx = 1078, by = 30, bs = 82;
+      x.moveTo(bx + r, by); x.arcTo(bx + bs, by, bx + bs, by + bs, r); x.arcTo(bx + bs, by + bs, bx, by + bs, r);
+      x.arcTo(bx, by + bs, bx, by, r); x.arcTo(bx, by, bx + bs, by, r); x.closePath();
+      x.fillStyle = '#000'; x.fill(); x.clip(); x.drawImage(icon, bx + 4, by + 4, bs - 8, bs - 8); x.restore(); }
+    x.font = '700 22px Oswald, Arial'; x.fillStyle = '#e8d9bb';
+    x.fillText(('Guess the Monster  ·  #' + DAY).toUpperCase(), 58, 186);
+    x.font = '68px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#fff3d0';
+    let y = wrapInto(x, st.won ? 'I got it in ' + st.guesses.length : 'It beat me today', 56, 254, 600, 74, 2);
+    x.font = '700 72px Oswald, Arial'; x.lineWidth = 9; x.fillStyle = st.won ? '#ffd35c' : '#c8241f';
+    x.strokeText(ANSWER.name, 56, y + 26); x.fillText(ANSWER.name, 56, y + 26);
+    x.font = '500 28px "Alegreya Sans", Georgia, serif'; x.lineWidth = 5; x.fillStyle = '#e8d9bb';
+    wrapInto(x, 'A new monster every day. Five guesses.', 58, y + 80, 580, 36, 1);
+    x.font = '34px "Germania One", Georgia, serif'; x.lineWidth = 7; x.fillStyle = '#ffd35c';
+    x.strokeText('Play free at', 58, 540); x.fillText('Play free at', 58, 540);
+    x.font = '64px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#ffffff';
+    x.strokeText('AxesAndAces.com', 56, 600); x.fillText('AxesAndAces.com', 56, 600);
+
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9));
+    const file = blob ? new File([blob], 'guess-the-monster-' + DAY + '.jpg', {type:'image/jpeg'}) : null;
+    if(file && navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], text:shareText()});
+    } else if(blob){
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'guess-the-monster-' + DAY + '.jpg';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast('Picture saved to your downloads');
+    }
+  }catch(e){ toast('Could not make the picture'); }
+  btn.disabled = false; btn.textContent = 'Make a picture to post';
+}
+
+/* ---------- countdown ---------- */
+function tickClock(){
+  const p = document.querySelector('.next'); if(!p) return;
+  const n = new Date(), m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1);
+  let s = Math.max(0, Math.floor((m - n) / 1000));
+  const h = Math.floor(s / 3600), mi = Math.floor(s / 60) % 60; s = s % 60;
+  const pad = v => String(v).padStart(2, '0');
+  p.textContent = 'Next monster in ' + pad(h) + ':' + pad(mi) + ':' + pad(s);
+  clearTimeout(tickClock._t); tickClock._t = setTimeout(tickClock, 1000);
+}
+
+/* ---------- go ---------- */
+$('guess').addEventListener('input', onType);
+$('guess').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); submit(); } });
+$('go').addEventListener('click', submit);
+window.addEventListener('resize', () => { sizeCanvas(); paint(st.done ? STAGES.length - 1 : st.guesses.length); });
+
+sizeCanvas();
+render();
+loadArt(ANSWER.slug).then(() => { sizeCanvas(); paint(st.done ? STAGES.length - 1 : st.guesses.length); });
+/* left here so the harness can move the date and walk the puzzle run */
+window.__DAILY = {day:DAY, answer:ANSWER, monsterFor:monsterFor, shareText:shareText, state:() => st,
+  paint:paint, stages:STAGES, show:(slug, stage) => loadArt(slug).then(() => paint(stage))};
+})();
+</script>
+</body></html>
