@@ -44,6 +44,13 @@
   --f-logo:'Alfa Slab One', Rockwell, Georgia, serif;
   color-scheme:dark;
 }
+/* clip, on the html element and not only on body: the screen shake moves
+   #app by up to twenty pixels, and with the overflow contained only on body
+   the document itself could still be scrolled sideways for the third of a
+   second a big hit lasts. It showed up as an intermittent sideways scroll
+   that depended on whether a blow happened to be landing when the page was
+   measured. */
+html{overflow-x:clip}
 html,body{height:100%}
 body{
   margin:0;background:var(--soot);

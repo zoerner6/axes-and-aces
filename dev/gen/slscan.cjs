@@ -126,6 +126,19 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
         smallTaps: taps.filter(t => t.min < 44),
         clipCut: cut,
         sideways: document.documentElement.scrollWidth > innerWidth + 1,
+        /* naming the culprit, because "scrolls sideways" on its own sends you
+           hunting through every box on the screen */
+        widest: (() => {
+          const out = [];
+          document.querySelectorAll('body *').forEach(e => {
+            const r = e.getBoundingClientRect();
+            if (r.width < 1 || r.height < 1) return;
+            if (r.right > innerWidth + 1 || r.left < -1)
+              out.push(`${(e.id || e.className || e.tagName).toString().slice(0, 30)} ` +
+                       `${Math.round(r.left)}..${Math.round(r.right)}`);
+          });
+          return out.slice(0, 5);
+        })(),
         tall: document.documentElement.scrollHeight > innerHeight + 1,
         foe: (document.querySelector('#foeName') || {}).textContent,
         audit: window.__AUDIT('solitaire'),
@@ -136,7 +149,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     const notes = [];
     if (!m.stage || m.stage.h < 100) { notes.push(`monster band only ${m.stage ? m.stage.h : 0}px`); bad++; }
     if (!m.peaks || m.peaks.h < 90) { notes.push(`peaks only ${m.peaks ? m.peaks.h : 0}px`); bad++; }
-    if (m.sideways) { notes.push('scrolls sideways'); bad++; }
+    if (m.sideways) { notes.push('scrolls sideways: ' + (m.widest.join(' | ') || 'nothing sticks out, so it is a margin')); bad++; }
     if (m.tall) { notes.push(`page is ${document ? '' : ''}taller than the screen`); bad++; }
     if (m.headOver.length) { notes.push('over the monster head: ' + m.headOver.join(' | ')); bad++; }
     if (m.smallTaps.length) { notes.push('under 44px: ' + m.smallTaps.map(t => `${t.what} ${t.min}`).join(', ')); bad++; }
