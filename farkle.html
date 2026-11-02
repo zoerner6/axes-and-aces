@@ -703,7 +703,14 @@ function toast(msg){
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
   document.body.appendChild(t); setTimeout(()=>t.remove(),2400);
 }
-function openPanel(html){ $('panel').innerHTML=html; $('overlay').hidden=false; $('panel').scrollTop=0; }
+/* Opening a panel cancels whatever the one before it still had pending.
+   Without this a fight intro's typing lands in the panel that replaced it,
+   so a monster blocking your path announces it has not seen you. Both
+   names are declared further down the file and only read at call time. */
+function openPanel(html){
+  clearInterval(typer); clearPanelTimers();
+  $('panel').innerHTML=html; $('overlay').hidden=false; $('panel').scrollTop=0;
+}
 function closePanel(){ $('overlay').hidden=true; }
 
 /* ===== SCORING =====================================================
