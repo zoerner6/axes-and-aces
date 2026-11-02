@@ -39,6 +39,12 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
     if (/ERR_FAILED|ERR_ABORTED|vid\//.test(t)) return;   /* the clips we blocked ourselves */
     errs.push(t.replace(/\s+/g, ' ').slice(0, 160));
   });
+  /* An unhandled promise rejection is not an uncaught exception, so pageerror
+     never sees it. Every sequence in this game is a promise. */
+  await p.addInitScript(() => {
+    addEventListener('unhandledrejection', e =>
+      console.error('UNHANDLED REJECTION: ' + ((e.reason && e.reason.stack) || e.reason)));
+  });
   await p.goto('file://' + file, { waitUntil: 'load' });
   await p.waitForTimeout(500);
 

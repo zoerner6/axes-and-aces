@@ -1683,6 +1683,21 @@ async function lost(){
    so it stays right at any screen size without a number in here. */
 let busy = false;
 
+/* A tap starts a sequence that runs for seconds: a strike, the monster's
+   answer, maybe a peak coming down. If anything in it throws, the board is
+   left with busy still true and nothing to press - and because an unhandled
+   promise rejection is not an uncaught exception, it does it silently, with
+   nothing in the console to say what happened. So every sequence a tap starts
+   goes through here: it says what failed, loudly, and hands the board back so
+   a player is never stranded by it. */
+function guard(work){
+  return Promise.resolve(work).catch(err => {
+    console.error('Monster Solitaire: a move failed, handing the board back.', err);
+    busy = false;
+    try{ render(); }catch(e){}
+  });
+}
+
 function flyToWaste(el, done){
   const slot = document.querySelector('#wasteslot');
   if(!slot || !el){ done(); return; }
@@ -1707,7 +1722,7 @@ function playCard(i){
   if(busy || !canPlay(i)) return;
   busy = true;
   const el = document.querySelector(`.pk[data-i="${i}"]`);
-  flyToWaste(el, async () => {
+  flyToWaste(el, () => guard((async () => {
     const c = R.tableau[i];
     if(R.wild && !takes(c.r, wasteTop().r, R.wrap)){
       R.wild = false;                       /* that was the Wild Ace, spent */
@@ -1742,7 +1757,7 @@ function playCard(i){
     }
     busy = false;
     afterMove();
-  });
+  })()));
 }
 
 /* ===================== a peak coming down =====================
@@ -1824,8 +1839,8 @@ const anyLegal = () => R.tableau.some((c, i) => canPlay(i));
 const cleared  = () => R.tableau.every(c => c.gone);
 
 function afterMove(){
-  if(cleared()){ onClear(); return; }
-  if(!anyLegal() && R.si >= R.stock.length) onDry();
+  if(cleared()){ guard(onClear()); return; }
+  if(!anyLegal() && R.si >= R.stock.length) guard(onDry());
 }
 
 /* The finisher. The run it ended on lands first - unanswered, because clearing
@@ -1899,7 +1914,7 @@ $('overlay').addEventListener('click', e => {
 
 $('board').addEventListener('click', e => {
   const t = e.target.closest('[data-act="turn"]');
-  if(t){ turnStock(); return; }
+  if(t){ guard(turnStock()); return; }
   const card = e.target.closest('.pk[data-i]');
   if(card) playCard(+card.dataset.i);
 });
