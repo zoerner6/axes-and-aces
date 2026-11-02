@@ -85,6 +85,20 @@ async function head(path, want) {
     ok('the dice roll', faces > 0, `${faces} dice showing`);
   } else ok('the dice roll', false, 'Roll never became available');
   ok('no script errors on the live page', errs.length === 0, errs.slice(0, 2).join(' | '));
+
+  /* Can you get back out? Clicked, not grepped. Netlify rewrites the markup on
+     the way out - href="index.html" becomes href='/', attributes get reordered
+     and requoted - so matching strings against the served HTML reports a
+     missing link that is right there and working. Behaviour is the only thing
+     worth asserting about a deployed page. */
+  const isHome = u => /axesandaces\.com\/(index\.html)?$/.test(u);
+  const brand = await p.$('a.brand');
+  if (brand) {
+    const box = await brand.boundingBox();
+    await brand.click(); await p.waitForTimeout(1800);
+    ok('the mark in the bar goes home', isHome(p.url()), p.url());
+    ok('and it is a real tap target', !!box && box.height >= 44, box ? Math.round(box.height) + 'px' : 'no box');
+  } else ok('the mark in the bar goes home', false, 'no mark found');
   await p.screenshot({ path: 'dev/gen/out/fk/live.png' });
   await b.close();
 
