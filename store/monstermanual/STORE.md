@@ -34,7 +34,7 @@ upload and allows the book on that basis.
 
 To be clear about which earns more: the **PDF earns more per sale**. At
 $14.99 on itch, with itch's default 10% share, that is about $13.49 a copy
-against the paperback's $8.12 at $24.99, because a printed book costs $6.87
+against the paperback's $11.12 at $29.99, because a printed book costs $6.87
 to manufacture. The paperback is worth doing for reach, not margin — Amazon
 is where people who have never heard of the game will find it, and a physical
 book is a different purchase from a PDF. Details and the print arithmetic are
@@ -83,21 +83,21 @@ than Amazon's own pages support.
 8.5 x 11 counts as a **large trim size** at KDP (anything over 6.12 inches
 wide). At 146 pages, on Amazon.com:
 
-| Ink | Printing cost a copy | Lowest list price allowed | Royalty at $24.99 |
+| Ink | Printing cost a copy | Lowest list price allowed | Royalty at $29.99 |
 |---|---|---|---|
-| **Standard colour** | $6.87 | $11.45 | **$8.12** |
-| Premium colour | $12.68 | $21.13 | $2.31 |
+| **Standard colour** | $6.87 | $11.45 | **$11.12** |
+| Premium colour | $12.68 | $21.13 | $5.31 |
 
 Printing cost is `fixed + pages x per-page`: $1.00 + 146 x $0.0402 for
 standard, $1.00 + 146 x $0.080 for premium. Royalty is 60% of list minus
 printing cost.
 
-**Sell it at $24.99 in standard colour.** That earns about $8.12 a copy,
+**Sell it at $29.99 in standard colour.** That earns about $11.12 a copy,
 against $4.93 at the $19.99 the itch research suggested for a PDF. A
 146-page full-colour large-format book is not priced like a novel; print RPG
 books routinely sit above this.
 
-Premium colour is the better-looking option and makes a third of the money.
+Premium colour is the better-looking option and makes under half the money.
 It is only worth it if the proof shows standard colour cannot handle the dark
 pages — and **the ink type locks to the ISBN once the book is published**, so
 that decision has to be made before, not after.
@@ -138,7 +138,7 @@ before publishing.
 ## Price of the PDF on itch.io
 
 **Launch at $14.99.** The paperback is priced separately in the KDP section
-above, at $24.99 — a printed book costing $6.87 to manufacture cannot sit at
+above, at $29.99 — a printed book costing $6.87 to manufacture cannot sit at
 the PDF's price.
 
 Comparable bestiaries, checked 1 November 2026:

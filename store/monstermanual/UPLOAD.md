@@ -7,7 +7,7 @@ There are two editions, built from the same source:
 | Edition | Where | Price | File |
 |---|---|---|---|
 | PDF | itch.io | $14.99 | `dist/Axes-and-Aces-Monster-Manual.pdf` |
-| Paperback | Amazon KDP | $24.99 | `dist/Axes-and-Aces-Monster-Manual-KDP-interior.pdf` + `-KDP-cover.pdf` |
+| Paperback | Amazon KDP | $29.99 | `dist/Axes-and-Aces-Monster-Manual-KDP-interior.pdf` + `-KDP-cover.pdf` |
 
 Do the itch.io one first. It takes fifteen minutes and needs no decisions.
 The paperback is worth more money but has one choice in it you cannot undo.
@@ -181,7 +181,7 @@ holding back, spine and front, with the spine sized for 146 pages.
    banded, go back to step 6 and switch to premium colour *before* you
    publish, because after publishing you cannot.
 
-10. **Pricing:** list at **$24.99** on Amazon.com. That earns about **$8.12 a
+10. **Pricing:** list at **$29.99** on Amazon.com. That earns about **$11.12 a
     copy** after printing. The floor Amazon will allow is $11.45; do not go
     near it, print RPG books are not priced like novels.
 

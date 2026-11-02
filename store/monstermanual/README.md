@@ -28,7 +28,7 @@ was chosen — but the AI-written text rules it out, and no amount of editing
 changes where the words came from.
 
 **Two stores are open.** itch.io takes the PDF at $14.99 with its AI
-disclosure tag set. Amazon KDP takes a 146-page paperback at $24.99, which
+disclosure tag set. Amazon KDP takes a 146-page paperback at $29.99, which
 requires an AI-content disclosure at upload and allows the book on that
 basis; print-ready interior and wraparound cover are both built. Foundry
 VTT's package browser is closed to it for the same reason as DriveThruRPG,
