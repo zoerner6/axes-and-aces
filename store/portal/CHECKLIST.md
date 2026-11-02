@@ -19,14 +19,15 @@ the first time, because it shrinks all 413 monster videos.
 python dev/portal/encvid.py --out .vid-small
 ```
 
-Then this, which takes under a minute and makes the zip:
+Then this, which takes under a minute:
 
 ```bash
 python dev/portal/build_portal.py crazygames --vid .vid-small --zip
 ```
 
-You now have `dist/axes-and-aces-crazygames.zip`. It should be about 190 MB.
-If the numbers it prints are over 250 MB or over 1,500 files, stop and say so.
+That writes the folder `dist/crazygames`, which is what you upload, and a zip
+beside it for keeping or sending. It should print about 200 MB and 1,022 files.
+If it prints over 250 MB or over 1,500 files, stop and say so.
 
 ### 2. Make an account
 
@@ -52,18 +53,26 @@ are yours to tick, not mine. Three are plain fact and three are your judgment:
 - **Game engine** - HTML5. Not "Externally hosted (iframe)": that one points at
   axesandaces.com, and the whole point is that the package carries its own files.
 - **Does your game save progress?** - **Yes, using the Data Module from the
-  CrazyGames SDK.** Get this one right. The build saves through their data
-  module so a player's progress follows their CrazyGames account across
-  devices, and their own documentation says the module is switched off unless
-  this answer matches. Pick either other answer and every save is lost.
+  CrazyGames SDK.** There are four answers and this is the only one that matches
+  the build. Their own documentation says the data module stays switched off
+  unless this answer names it, so any other choice here loses every save.
+- **Mobile orientation** - this appears once you tick mobile. **BOTH.** The game
+  plays upright on a phone and wide on a desktop.
 - **Game options** - tick *The game supports mobile devices*. Leave the
   multiplayer and audio-muting boxes alone: the game is single-player and it
   handles its own sound during an ad.
 
-### 4. Upload the zip
+### 4. Upload the folder, not the zip
 
-Upload `dist/axes-and-aces-crazygames.zip`. Their tool unpacks it and runs its own
-checks. It should find `index.html` on its own.
+**CrazyGames do not accept a zip.** Drop one in and it answers "Archive files are
+not supported, please drag and drop the files directly in the upload zone."
+
+Drag the folder `dist/crazygames` onto the upload box, or use its **Select
+folder** button and pick that folder. All 1,022 files go up, which takes a while.
+It needs to find `index.html` at the top of what you give it, and it does.
+
+The zip is still worth having for sending the build somewhere or keeping a copy.
+It is just not what this box wants.
 
 ### 5. Fill in the text
 

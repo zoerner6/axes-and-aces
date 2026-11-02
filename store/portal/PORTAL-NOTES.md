@@ -135,6 +135,15 @@ CrazyGames do not treat progress save as optional: "unless progress is not
 applicable for your game, we require you to implement one of these methods."
 A game with three save slots and ten quests does not get to answer no.
 
+Their form offers four answers, and two of them were honestly available. One is
+their Automatic Progress Save, which syncs the browser's own storage to the
+cloud and needs no code at all. The other is their data module, which they
+themselves call the preferred one, because it saves to the player's CrazyGames
+account rather than syncing a copy of local data - and their own page warns that
+the automatic system "relies on local data" and is barred from games with
+in-game purchases, which is a door worth leaving open. The data module is the
+one that got built.
+
 So the game's saves go through their data module instead of the browser. It
 takes the same four calls as the browser's own storage, so the swap is one for
 one across the 29 places the game reads or writes a save. The catch was the
