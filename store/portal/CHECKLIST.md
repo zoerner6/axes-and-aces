@@ -229,6 +229,11 @@ Go to **developers.poki.com/guide/share**. Copy the answers from `SUBMISSION.md`
   `screenshot-3-reward.png` (they take PNG, JPEG or WebP up to 5 MiB each)
 - Why it is a good fit
 - **Has this game already been released on other platforms? Answer Yes.**
+  Answering Yes adds a required box, **Where is it currently available?**, which
+  does not appear until you do. Submitting without it fails with "Please enter
+  where your game is available". What went in on 2026-11-02: "On its own site at
+  axesandaces.com. It has also been submitted to CrazyGames and is awaiting
+  review there; it is not live on any other portal."
 - A checkbox saying you have read their Content & Brand Guidelines
 
 The form has **no thumbnail field**, whatever older notes say.
