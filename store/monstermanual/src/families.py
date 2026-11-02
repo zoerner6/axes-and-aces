@@ -221,13 +221,13 @@ GUARDS = {
 # What a turn spent healing ('H' in the attack pattern) becomes at the table.
 HEALS = {
     'drain': ('Life Drain', 'action',
-              "Melee Weapon Attack: {atk} to hit, reach 5 ft., one creature. Hit: {x} "
+              "Melee Weapon Attack: {atk} to hit, reach 5 ft., one creature. Hit: {xd} "
               "necrotic damage. The target must succeed on a DC {dc} Constitution saving "
               "throw or its hit point maximum is reduced by an amount equal to the damage "
               "taken. This reduction lasts until the creature finishes a long rest. The {n} "
               "regains hit points equal to the damage dealt."),
     'feed': ('Feed', 'action',
-             "The {n} bites one creature it is grappling. The target takes {x} piercing "
+             "The {n} bites one creature it is grappling. The target takes {xd} piercing "
              "damage and the {n} regains that many hit points."),
     'regen': ('regen', None, None),           # use the Regeneration trait instead
     'regen_plain': ('regen_plain', None, None),
@@ -238,7 +238,7 @@ HEALS = {
                "regains that many instead."),
     'siphon': ('Siphon', 'bonus action',
                "One creature the {n} can see within 30 feet must succeed on a DC {dc} "
-               "Constitution saving throw or take {x} necrotic damage. The {n} regains hit "
+               "Constitution saving throw or take {xd} necrotic damage. The {n} regains hit "
                "points equal to the damage dealt."),
     'bloom': ('Bloom', 'bonus action',
               "Roots and new growth close the {n}'s wounds. It regains {x} hit points."),
@@ -334,7 +334,7 @@ FAMILIES = {
     'elemental': dict(
         size='Large', type='elemental', align='neutral', prime='dex', atk_abil='dex',
         atk_name='Slam', dmg_type='bludgeoning', die=8, speed={'walk': 0, 'fly': 90},
-        imm=['poison'],
+        senses=['darkvision 60 ft.'], imm=['poison'],
         cond_imm=['exhaustion', 'grappled', 'paralyzed', 'petrified', 'poisoned',
                   'prone', 'restrained', 'unconscious'],
         res=['bludgeoning, piercing, and slashing from nonmagical attacks'],
@@ -395,6 +395,12 @@ def family(name, **over):
     """A family, with this creature's own changes laid over it."""
     out = {k: (list(v) if isinstance(v, list) else dict(v) if isinstance(v, dict) else v)
            for k, v in FAMILIES[name].items()}
+    # Plain overrides first, then the _add kwargs, whatever order they were
+    # written in. A creature that both replaces a list and adds to it means
+    # "this list, plus these" — not "these, then throw them away".
+    adds = {'traits_add', 'res_add', 'imm_add', 'skills_add', 'speed_add',
+            'cond_add'}
+    over = dict(sorted(over.items(), key=lambda kv: kv[0] in adds))
     for k, v in over.items():
         if k == 'traits_add':
             out.setdefault('traits', []).extend(v)

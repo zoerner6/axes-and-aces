@@ -165,7 +165,7 @@ KINDS.update({
                desc="It nests under the cloud bridges and sings at whoever is "
                     "crossing. The storm covers the noise of the rest of them.",
                tactics="Sings from below the bridge and takes whoever leans over."),
-    'cloudgiant': F('giant', size='Large', align='neutral evil',
+    'cloudgiant': F('giant', traits_add=['standing_leap'], size='Large', align='neutral evil',
                     atk_name='Fist', die=10, res_add=['lightning', 'thunder'],
                     ac=0, ac_note='hide', guard='harden',
                     desc="Not a proper cloud giant, just big and bad-tempered and up "
@@ -186,7 +186,7 @@ KINDS.update({
                       "between the bridges. The nests up here are all his family.",
                  tactics="Never lands. Takes one of you off the bridge and drops them."),
 
-    'skyserpent': F('dragonkin', size='Large', atk_name='Bite', die=10,
+    'skyserpent': F('dragonkin', traits_add=['flyby'], size='Large', atk_name='Bite', die=10,
                     speed={'walk': 10, 'fly': 70}, ac=1, ac_note='natural armor',
                     res_add=['lightning'], breath='lightning', heavy_die=8,
                     desc="It swims through the air between the gardens and is longer "
@@ -218,7 +218,7 @@ KINDS.update({
                     tactics="Hovers, empties its lungs down the length of the garden, "
                             "and feeds on anyone who answers with lightning."),
 
-    'stormsoldier': F('humanoid_soldier', align='lawful evil', atk_name='Storm Pike',
+    'stormsoldier': F('humanoid_soldier', traits_add=['nimble'], align='lawful evil', atk_name='Storm Pike',
                       dmg_type='piercing', die=8, ac=3, ac_note='plate, shield',
                       reach='10 ft.', res_add=['lightning'], rider='lightning',
                       guard='shield', langs='Common, Primordial',
@@ -252,7 +252,7 @@ KINDS.update({
                     tactics="Two swings and a third that takes the parapet with it. "
                             "Lightning only makes him stronger."),
 
-    'thunderknight': F('humanoid_soldier', align='lawful evil',
+    'thunderknight': F('humanoid_soldier', traits_add=['relentless'], align='lawful evil',
                        atk_name='Thunder Maul', dmg_type='bludgeoning', die=10,
                        ac=4, ac_note='plate, shield', imm=['lightning'],
                        res_add=['thunder'], rider='thunder', guard='shield',

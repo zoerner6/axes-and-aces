@@ -35,7 +35,7 @@ KINDS.update({
                    tactics="Takes one person in his jaws and rolls. Everything else can "
                            "wait."),
 
-    'plaguedoctor': F('humanoid_caster', align='neutral evil', prime='int',
+    'plaguedoctor': F('humanoid_caster', traits_add=['stench'], align='neutral evil', prime='int',
                       atk_abil='dex', atk_name='Bone Saw',
                       atk_kind='Melee Weapon Attack', dmg_type='slashing', die=6,
                       abil={'int': 5}, save_abil='int', imm=['poison'],
@@ -153,7 +153,7 @@ KINDS.update({
                  desc="The whole roof of the shaft moves when the lantern goes near it. "
                       "Then it comes down.",
                  tactics="Fills the tunnel and puts out your light."),
-    'foreman': F('humanoid_soldier', size='Small', tag='goblinoid', align='lawful evil',
+    'foreman': F('humanoid_soldier', traits_add=['pack'], size='Small', tag='goblinoid', align='lawful evil',
                  atk_name='Iron Lash', dmg_type='slashing', die=8, ac=2,
                  ac_note='scavenged plate', langs='Common, Goblin',
                  senses=['darkvision 60 ft.'], skills_add=['Intimidation'],
@@ -170,7 +170,7 @@ KINDS.update({
                            "walks. It rings when you hit it and that is about all.",
                       tactics="Sets itself in the narrow part of the cavern and waits for "
                               "you to tire."),
-    'basilisk': F('monstrosity', size='Medium', atk_name='Bite', die=10,
+    'basilisk': F('monstrosity', traits_add=['stone_camo'], size='Medium', atk_name='Bite', die=10,
                   speed={'walk': 20}, ac=3, ac_note='natural armor',
                   senses=['darkvision 60 ft.'], guard='harden',
                   desc="Eight legs, bad breath, and a look that turns people into part of "
@@ -208,7 +208,7 @@ KINDS.update({
                     desc="It lives in the lava the way a fish lives in a river and comes "
                          "out for company. Touching it is a mistake.",
                     tactics="Closes in and stays close. Cold is the quick way."),
-    'firedwarf': F('humanoid_soldier', align='chaotic evil', tag='dwarf',
+    'firedwarf': F('humanoid_soldier', traits_add=['stone_camo'], align='chaotic evil', tag='dwarf',
                    atk_name='Forge Hammer', dmg_type='bludgeoning', die=8, ac=2,
                    ac_note='scorched mail', res_add=['fire'],
                    senses=['darkvision 60 ft.'], langs='Common, Dwarvish',
@@ -364,7 +364,7 @@ KINDS.update({
                     tactics="Fills the catacomb with grave air, then bites twice from the "
                             "dark."),
 
-    'darkpriest': F('humanoid_caster', align='neutral evil', prime='wis',
+    'darkpriest': F('humanoid_caster', traits_add=['devils_sight'], align='neutral evil', prime='wis',
                     atk_abil='wis', atk_name='Shadow Bolt',
                     atk_kind='Ranged Spell Attack', range='60/120 ft.',
                     dmg_type='necrotic', die=6, abil={'wis': 4}, save_abil='wis',

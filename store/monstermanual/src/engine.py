@@ -81,34 +81,155 @@ def challenge(mon):
 
 
 # ---- what a creature of a given rating is expected to carry ----
-# Our own curve, fitted to the SRD's own creatures rather than copied from any
-# table: it only has to be smooth, and the same for every monster in the book.
+#
+# These are the Dungeon Master's Guide's own Monster Statistics by Challenge
+# Rating figures, midpoint of each band. They are not a style choice. A
+# challenge rating is only worth printing if it means the same thing here as
+# it does in every other book at the table: a DM spends an XP budget to build
+# an encounter, and the XP comes from the rating. A creature carrying CR 18
+# numbers under a CR 22 label makes that arithmetic lie.
+#
+# cr -> (hit points, armor class, attack bonus, damage a round)
+DMG_TABLE = {
+    0: (3, 13, 3, 1), 0.125: (21, 13, 3, 2.5), 0.25: (42, 13, 3, 4.5),
+    0.5: (60, 13, 3, 7), 1: (78, 13, 3, 11.5), 2: (93, 13, 3, 17.5),
+    3: (108, 13, 4, 23.5), 4: (123, 14, 5, 29.5), 5: (138, 15, 6, 35.5),
+    6: (153, 15, 6, 41.5), 7: (168, 15, 6, 47.5), 8: (183, 16, 7, 53.5),
+    9: (198, 16, 7, 59.5), 10: (213, 17, 7, 65.5), 11: (228, 17, 8, 71.5),
+    12: (243, 17, 8, 77.5), 13: (258, 18, 8, 83.5), 14: (273, 18, 8, 89.5),
+    15: (288, 18, 8, 95.5), 16: (303, 18, 9, 101.5), 17: (318, 19, 10, 107.5),
+    18: (333, 19, 10, 113.5), 19: (348, 19, 10, 119.5), 20: (378, 19, 10, 131.5),
+    21: (423, 19, 11, 149.5), 22: (468, 19, 11, 167.5), 23: (513, 19, 11, 185.5),
+    24: (558, 19, 12, 203.5), 25: (603, 19, 12, 221.5), 26: (648, 19, 12, 239.5),
+    27: (693, 19, 13, 257.5), 28: (738, 19, 13, 275.5), 29: (783, 19, 13, 293.5),
+    30: (828, 19, 14, 311.5),
+}
+
+
+def _row(cr):
+    return DMG_TABLE[cr if cr in DMG_TABLE else snap_cr(cr)]
+
+
+# Hit points are the one column of that table not taken at face value.
+#
+# At the top it describes published creatures well: the DMG wants 446-490 at
+# CR 22 and the SRD's ancient blue dragon has 481. At the bottom it does not
+# come close. It wants 50-70 at CR 1/2, where the SRD's orc has 15, its black
+# bear 19 and its worg 26 — the table's low rows count armor and resistances
+# as though they were hit points, and taken literally they produce a 67-point
+# zombie that a 1st-level party needs four rounds to put down, ten times over
+# in a single room.
+#
+# So this column follows published creatures where the two disagree and the
+# table where they agree, converging on it from CR 13 up. Armor class, attack
+# bonus and damage are the DMG's own.
+HP_TARGET = {
+    0: 4, 0.125: 10, 0.25: 18, 0.5: 28, 1: 42, 2: 60, 3: 78, 4: 96, 5: 114,
+    6: 132, 7: 150, 8: 168, 9: 186, 10: 204, 11: 222, 12: 240, 13: 256,
+    14: 272, 15: 288, 16: 303, 17: 318, 18: 333, 19: 348, 20: 378, 21: 423,
+    22: 468, 23: 513, 24: 558, 25: 603, 26: 648, 27: 693, 28: 738, 29: 783,
+    30: 828,
+}
+
 
 def hp_target(cr):
-    if cr <= 0:
-        return 4
-    if cr < 1:
-        return round(8 + (cr - 0.125) * 32)       # 8 at 1/8, 22 at 1/2
-    return round(15 * cr + 18)
+    return HP_TARGET[cr if cr in HP_TARGET else snap_cr(cr)]
 
 
 def ac_target(cr):
-    return max(11, min(21, 12 + round(cr / 3)))
+    return _row(cr)[1]
 
 
 def atk_target(cr):
-    return max(3, min(16, 4 + round(cr * 0.45)))
+    return _row(cr)[2]
 
 
 def dpr_target(cr):
-    """Damage a round, averaged over the fight."""
-    if cr < 1:
-        return max(2, round(2 + cr * 8))
-    return round(6 * cr + 3)
+    """Damage a round, averaged over the first three rounds of the fight."""
+    return _row(cr)[3]
+
+
+# How much of a round's damage each thing actually delivers.
+#
+# A Recharge 5-6 blow is not free: used on the first round and then recharging
+# on a 5 or 6, it lands about four rounds in seven, so a blow written to be
+# worth a third of the budget only pays out a fifth of it. Sizing it as though
+# it fired every round is what left the old numbers short.
+RECHARGE_RATE = 0.57
+
+# A boss's three legendary actions a round are damage too, and the DMG counts
+# them. One of the three options is an attack, so a fifth of the budget is set
+# aside for it rather than being spent twice.
+LEGENDARY_SHARE = 0.20
 
 
 def proficiency(cr):
     return 2 + max(0, (max(1, int(cr + 0.999)) - 1) // 4)
+
+
+# Which saving throws a creature of each kind is proficient in, best first.
+# Taken from how the SRD's own creatures of that type are written: an undead
+# guards its will and its unlife, a construct its body, a dragon nearly
+# everything.
+SAVE_BY_TYPE = {
+    'aberration': ['con', 'int', 'wis'],
+    'beast': ['con', 'str', 'dex'],
+    'celestial': ['wis', 'cha', 'con'],
+    'construct': ['con', 'str', 'dex'],
+    'dragon': ['dex', 'con', 'wis', 'cha'],
+    'elemental': ['con', 'dex', 'str'],
+    'fey': ['wis', 'cha', 'dex'],
+    'fiend': ['cha', 'con', 'wis', 'dex'],
+    'giant': ['con', 'str', 'wis'],
+    'humanoid': ['con', 'wis', 'dex'],
+    'monstrosity': ['con', 'dex', 'wis'],
+    'ooze': ['con'],
+    'plant': ['con', 'wis'],
+    'undead': ['wis', 'cha', 'con'],
+}
+
+SAVE_LABEL = {'str': 'Str', 'dex': 'Dex', 'con': 'Con', 'int': 'Int',
+              'wis': 'Wis', 'cha': 'Cha'}
+
+
+def save_count(cr, boss):
+    """How many saving throws this creature is proficient in.
+
+    The SRD gives its weakest creatures none at all, and its legendary ones
+    three or four. A boss here is fought alone against a whole party, so it
+    needs its will guarded well before the rank and file do.
+    """
+    if boss:
+        return 2 if cr < 5 else 3 if cr < 11 else 4
+    if cr < 5:
+        return 0
+    return 2 if cr < 11 else 3
+
+
+def saving_throws(cr, ctype, boss, prime, scores, prof):
+    """The creature's saving throw line, already worked out.
+
+    A boss always guards Wisdom and Constitution whatever its kind: without
+    them it is banished or dominated on the first round and the fight that
+    the whole area builds up to never happens.
+    """
+    n = save_count(cr, boss)
+    if not n:
+        return []
+    order = list(SAVE_BY_TYPE.get(ctype, ['con', 'wis', 'dex']))
+    if boss:
+        for must in ('wis', 'con'):
+            if must in order:
+                order.remove(must)
+            order.insert(0, must)
+    if prime in order:
+        order.remove(prime)
+        order.insert(1 if boss else 0, prime)
+    chosen = order[:n]
+    # Print them in the usual Str-Dex-Con-Int-Wis-Cha order, not pick order.
+    chosen.sort(key=['str', 'dex', 'con', 'int', 'wis', 'cha'].index)
+    return ['%s %s' % (SAVE_LABEL[k], mod_str(prof + ability_mod(scores[k])))
+            for k in chosen]
 
 
 def ability_mod(score):
@@ -229,13 +350,23 @@ def build(mon, kind):
     dmg_die = kind.get('die', 6)
     # A monster whose pattern ends on a much bigger number has a heavy blow.
     # Every boss gets one: it is fought alone and needs something that changes
-    # the shape of the fight.
-    has_heavy = pa['spike'] >= 1.3 or mon['boss']
+    # the shape of the fight. So does anything with a breath weapon declared —
+    # a dragon that cannot breathe is not a dragon.
+    has_heavy = pa['spike'] >= 1.3 or mon['boss'] or kind.get('breath')
 
-    # Published creatures put well under half their rated damage into ordinary
-    # attacks and let the recharging blast carry the rest. Matching that is
-    # what keeps these blocks looking like the real thing.
-    melee_budget = dpr * (0.45 if has_heavy else 0.85)
+    # Split the round's damage between the ordinary attacks, the recharging
+    # blow and (for a boss) its legendary attack, so that what the creature
+    # actually delivers over three rounds adds up to what its rating promises.
+    # Published creatures put well under half the total into ordinary attacks
+    # and let the big blow carry the rest, which is what this keeps.
+    left = dpr
+    if mon['boss']:
+        left -= dpr * LEGENDARY_SHARE
+    if has_heavy:
+        heavy_delivers = left * 0.42
+        melee_budget = left - heavy_delivers
+    else:
+        melee_budget = left
 
     # A creature can only afford as many attacks as its damage will stretch to.
     # Three little hits that each add a big ability bonus would far outrun the
@@ -254,11 +385,19 @@ def build(mon, kind):
     heavy = None
     if has_heavy:
         hv_die = kind.get('heavy_die', 6)
-        # It recharges, so it lands about a third of the time. Sized to make up
-        # the part of the round's damage the ordinary attacks did not cover.
-        hv_n, hv_die = area_dice(dpr * 0.65, hv_die)
+        # Sized so that what it pays out across the fight, once the recharge
+        # is accounted for, is the share of the round the ordinary attacks
+        # were not given.
+        hv_n, hv_die = area_dice(heavy_delivers / RECHARGE_RATE, hv_die)
         heavy = {'die': hv_die, 'n': hv_n, 'breath': kind.get('breath'),
                  'dc': 8 + prof + ability_mod(scores[kind.get('save_abil', 'con')])}
+
+    # ---- saving throws ----
+    # Worked out last, because the attack above nudges the governing ability
+    # score and a saving throw written before that would print the wrong
+    # number. A creature may still name its own saves and keep them.
+    saves = kind.get('saves') or saving_throws(
+        cr, kind['type'], mon['boss'], prime, scores, prof)
 
     return {
         'slug': mon['slug'], 'name': mon['name'],
@@ -275,9 +414,9 @@ def build(mon, kind):
         'speed': kind.get('speed', {'walk': 30}),
         'scores': scores,
         'prof': prof,
-        'saves': kind.get('saves', []),
-        'skills': kind.get('skills', []),
-        'senses': kind.get('senses', []),
+        'saves': saves,
+        'skills': dedupe(kind.get('skills', [])),
+        'senses': dedupe(kind.get('senses', [])),
         'languages': kind.get('langs', '—'),
         'vuln': dedupe(kind.get('vuln', [])), 'res': dedupe(kind.get('res', [])),
         'imm': dedupe(kind.get('imm', [])),
@@ -297,3 +436,87 @@ def build(mon, kind):
         'desc': kind.get('desc', ''),
         'tactics': kind.get('tactics'),
     }
+
+
+# ---------------------------------------------------------------------------
+# Encounter building.
+#
+# The book gives every creature a party level and a rating and then has to say
+# how to spend them, or the ratings are decoration. These are the DMG's own
+# adventuring-day numbers: the XP a single character of each level can absorb
+# at each difficulty, and the multiplier that makes a crowd worse than the sum
+# of its parts.
+# ---------------------------------------------------------------------------
+
+# level -> (easy, medium, hard, deadly) XP, per character
+THRESHOLDS = {
+    1: (25, 50, 75, 100), 2: (50, 100, 150, 200), 3: (75, 150, 225, 400),
+    4: (125, 250, 375, 500), 5: (250, 500, 750, 1100),
+    6: (300, 600, 900, 1400), 7: (350, 750, 1100, 1700),
+    8: (450, 900, 1400, 2100), 9: (550, 1100, 1600, 2400),
+    10: (600, 1200, 1900, 2800), 11: (800, 1600, 2400, 3600),
+    12: (1000, 2000, 3000, 4500), 13: (1100, 2200, 3400, 5100),
+    14: (1250, 2500, 3800, 5700), 15: (1400, 2800, 4300, 6400),
+    16: (1600, 3200, 4800, 7200), 17: (2000, 3900, 5900, 8800),
+    18: (2100, 4200, 6300, 9500), 19: (2400, 4900, 7300, 10900),
+    20: (2800, 5700, 8500, 12700),
+}
+
+DIFFICULTY = ('easy', 'medium', 'hard', 'deadly')
+
+
+def crowd_multiplier(n):
+    """A crowd hits harder than its XP says. DMG encounter multipliers."""
+    if n <= 1:
+        return 1.0
+    if n == 2:
+        return 1.5
+    if n <= 6:
+        return 2.0
+    if n <= 10:
+        return 2.5
+    if n <= 14:
+        return 3.0
+    return 4.0
+
+
+def rate_encounter(members, party_level, party_size=4):
+    """(adjusted XP, difficulty word) for a list of stat blocks."""
+    raw = sum(b['xp'] for b in members)
+    adj = raw * crowd_multiplier(len(members))
+    lo, med, hard, deadly = THRESHOLDS[max(1, min(20, party_level))]
+    budget = [lo * party_size, med * party_size, hard * party_size,
+              deadly * party_size]
+    word = 'trivial'
+    for i, cut in enumerate(budget):
+        if adj >= cut:
+            word = DIFFICULTY[i]
+    return int(adj), word
+
+
+def suggest_encounters(mobs, boss, party_level, party_size=4):
+    """Two encounters for one area: a patrol, and the boss fight.
+
+    The patrol is grown one creature at a time until it reaches hard, which
+    is where a fight stops being a speed bump. The boss is given company only
+    if it is too soft on its own.
+    """
+    out = []
+    if mobs:
+        pick, i = [], 0
+        while len(pick) < 12:
+            cand = pick + [mobs[i % len(mobs)]]
+            adj, word = rate_encounter(cand, party_level, party_size)
+            pick = cand
+            i += 1
+            if word in ('hard', 'deadly'):
+                break
+        out.append(('Patrol', pick) + rate_encounter(pick, party_level, party_size))
+    if boss:
+        group = [boss]
+        adj, word = rate_encounter(group, party_level, party_size)
+        if word not in ('hard', 'deadly') and mobs:
+            group = [boss, mobs[0], mobs[0]]
+        out.append(('Boss fight', group) + rate_encounter(group, party_level,
+                                                          party_size))
+    return out

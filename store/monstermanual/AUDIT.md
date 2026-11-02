@@ -1,5 +1,17 @@
 # Audit of the Monster Manual, 2 November 2026
 
+> **A correction to finding A1, written while fixing it.** The first version
+> of this audit measured every creature against the Dungeon Master's Guide's
+> Monster Statistics by Challenge Rating table and reported a mean error of
+> +1.78. That number is right at mid and high ratings and overstated at the
+> bottom, because the DMG's low hit point rows do not describe published
+> creatures either: the table asks for 50-70 hit points at challenge 1/2,
+> where the SRD's own orc has 15, its black bear 19 and its worg 26. Taking
+> the table literally produced a 67-point zombie. The finding stands —
+> the top of the book really was wearing ratings it had not earned — but the
+> remedy had to follow published creatures at the bottom and the table at the
+> top. See **What was done** at the end.
+
 Everything below was measured against the built PDF and `build/blocks.json`,
 not guessed. Counts are exact.
 
@@ -216,3 +228,41 @@ In this order, because each depends on the one before it:
 Page count will grow — probably 146 to somewhere near 175. That changes the
 spine width, so the KDP cover gets rebuilt too, and the interior has to be
 re-uploaded.
+
+---
+
+## What was done
+
+All fourteen findings, plus two more that only turned up once the first ones
+were fixed.
+
+| | Finding | Fix |
+|---|---|---|
+| A1 | Challenge ratings inflated | Armor class, attack bonus and damage a round now come from the DMG's table. Damage is counted as it actually arrives: a Recharge 5-6 blow lands about four rounds in seven, not every round, and a boss's legendary attack is counted. Hit points follow published creatures at the bottom and the table from challenge 13 up |
+| A2 | No saving throws | Chosen by creature type and rating, SRD-style. Bosses always guard Wisdom and Constitution |
+| A3 | Duplicate skills on 13 | The family merge now de-duplicates skills and senses |
+| A4 | Six attacks with no dice | Life Drain, Feed and Siphon roll damage like everything else |
+| A5 | Sky Serpent had no breath | Anything with a breath weapon declared now gets a heavy blow, boss or not |
+| A6 | Six elementals missing darkvision | Added to the elemental family |
+| B1 | No legendary actions | All forty bosses: a cheap option, an attack for two, and a board-changing option for three chosen by creature type |
+| B2 | No lair actions | The ten world bosses, each tied to its own named place |
+| B3 | No spellcasters | The nine named casters, SRD spells only, lists kept to what they will actually cast |
+| B4 | Sixteen with no traits | One fitting SRD trait each |
+| C1 | Indexes had no page numbers | Both carry them now |
+| C2 | No index by kind | Added |
+| C3 | No index by terrain | Added, mapping the ten worlds onto ordinary D&D terrain |
+| C4 | No at-a-glance table | Added: all 168 with rating, armor class, hit points and page, on two pages |
+| D1 | No encounter guidance | A chapter: XP thresholds for every party level, the crowd multiplier, and what the words mean |
+| D2 | No ready-made encounters | Forty: a patrol and a boss fight for every area, costed against the party level that area was written for |
+
+Two more, found while fixing the above:
+
+| | Finding | Fix |
+|---|---|---|
+| E1 | **"The the flame fiend"** | Thirty-one creatures are named "The Something" and every piece of SRD wording supplies its own article. The name is now stripped of a leading "The" wherever it is dropped into a sentence. This was in the first build too, on all 31, and the audit missed it |
+| E2 | **Every boss filed under T** | The indexes sorted "The Bog Hag" under T. They now ignore a leading article, so she is under B where someone looking for her will be |
+
+And one latent bug in the family merge: a creature that both replaced a list
+and added to it got whichever was written last in the source. The merge now
+applies plain overrides first and additions second, whatever order they are
+written in.

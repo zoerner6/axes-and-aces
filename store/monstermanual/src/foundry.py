@@ -117,7 +117,7 @@ def actor(b):
     if b['swings'] > 1:
         word = {2: 'two', 3: 'three'}[b['swings']]
         items.append(feat('Multiattack', 'The %s makes %s %s attacks.'
-                          % (b['name'].lower(), word, b['attack']['name'].lower())))
+                          % (SB.bare(b["name"]), word, b["attack"]["name"].lower())))
     items.append(weapon(b, b['attack'], dc))
     if b['heavy']:
         hname, htext = SB.heavy_text(b, b['heavy'], dc)

@@ -27,6 +27,15 @@ if missing or extra:
 
 blocks = [build(m, KINDS[m['slug']]) for m in roster]
 
+# The last boss of each world is the thing the whole world builds up to, and
+# the only one that gets lair actions. Its world is a named, described place.
+for w in worlds:
+    bosses = [b for b in blocks if b['world_i'] == w['i'] and b['boss']]
+    if bosses:
+        bosses[-1]['world_boss'] = True
+for b in blocks:
+    b.setdefault('world_boss', False)
+
 # ---- sanity checks ----
 problems = []
 for b in blocks:

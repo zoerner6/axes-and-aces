@@ -50,7 +50,7 @@ KINDS.update({
                 tactics="Keeps a table between himself and you, lets his men tire you "
                         "out, then opens up with everything at once."),
 
-    'skeleton': F('undead_shambler', atk_name='Rusted Shortsword', dmg_type='piercing',
+    'skeleton': F('undead_shambler', traits_add=['false_app'], atk_name='Rusted Shortsword', dmg_type='piercing',
                   die=6, ac=1, ac_note='armor scraps', vuln=['bludgeoning'],
                   cond_add=['exhaustion'], traits=[], guard='parry', heal='mend',
                   desc="Held together by old string and worse magic. It rattles when "
@@ -97,7 +97,7 @@ KINDS.update({
                    "people on it. It is not working alone.",
               tactics="Circles for position and only commits once something else has "
                       "your attention."),
-    'witch': F('humanoid_caster', align='neutral evil', atk_name='Hex Bolt',
+    'witch': F('humanoid_caster', traits_add=['swamp_camo'], align='neutral evil', atk_name='Hex Bolt',
                atk_kind='Ranged Spell Attack', range='60/120 ft.', dmg_type='necrotic',
                die=8, skills=['Arcana', 'Deception'], heal='prayer',
                desc="She lives where the trees close over the path and charges a "
@@ -128,7 +128,7 @@ KINDS.update({
                     "troubled him. Cut him and it closes over while you watch.",
                tactics="Wades in, takes the hits, and waits for your fire to run out."),
 
-    'knight': F('humanoid_soldier', align='lawful evil', atk_name='Greatsword',
+    'knight': F('humanoid_soldier', traits_add=['relentless'], align='lawful evil', atk_name='Greatsword',
                 die=10, ac=3, ac_note='plate',
                 skills_add=['Perception'], guard='parry',
                 desc="Grimstone's man at arms, in armor nobody has polished in "
@@ -164,7 +164,7 @@ KINDS.update({
                       "never tires.",
                  tactics="Grapples the weakest of you and feeds. Will not follow you "
                          "into daylight."),
-    'babydragon': F('dragonkin', size='Medium', atk_name='Bite', die=8,
+    'babydragon': F('dragonkin', traits_add=['keen_smell'], size='Medium', atk_name='Bite', die=8,
                     ac=2, ac_note='natural armor',
                     res_add=['fire'], heavy_die=6, breath='fire',
                     desc="Dog-sized, bad-tempered, and already convinced the castle "
@@ -282,7 +282,7 @@ KINDS.update({
               tactics="Surfaces beneath the group, bites, and goes back under before "
                       "you can answer."),
 
-    'frostknight': F('humanoid_soldier', align='lawful evil', atk_name='Frostbrand',
+    'frostknight': F('humanoid_soldier', traits_add=['ice_walk'], align='lawful evil', atk_name='Frostbrand',
                      die=8, ac=3, ac_note='plate', res_add=['cold'],
                      rider='cold', guard='parry', langs='Common, Giant',
                      desc="Sworn to the Frost Giant and frozen into the job. The "
@@ -295,7 +295,7 @@ KINDS.update({
                     desc="The Frost Giant keeps dogs, and they are sized to match. "
                          "It has been fed just enough to stay interested.",
                     tactics="Goes for whoever is standing apart from the group."),
-    'frostmage': F('humanoid_caster', align='neutral evil', atk_name='Hailstone',
+    'frostmage': F('humanoid_caster', traits_add=['ice_walk'], align='neutral evil', atk_name='Hailstone',
                    atk_kind='Ranged Spell Attack', range='60/120 ft.',
                    dmg_type='cold', die=6, res_add=['cold'],
                    skills=['Arcana', 'Nature'], heal='prayer', langs='Common, Giant',
@@ -435,7 +435,7 @@ KINDS.update({
                      "will fight. Answer wrong and it does not ask twice.",
                 tactics="Opens with a question. Fights from the air once the "
                         "conversation is over."),
-    'priest': F('humanoid_caster', align='lawful evil', prime='wis', atk_abil='wis',
+    'priest': F('humanoid_caster', traits_add=['horrify'], align='lawful evil', prime='wis', atk_abil='wis',
                 atk_name='Sunburn', atk_kind='Ranged Spell Attack',
                 range='60 ft.', dmg_type='radiant', die=6,
                 abil={'wis': 4}, save_abil='wis', skills=['Religion', 'Persuasion'],

@@ -7,7 +7,8 @@ it is drawn.
 from reportlab.pdfbase import pdfmetrics
 
 from families import TRAITS, GUARDS, HEALS
-from engine import mod_str, ability_mod, SUIT_RULE
+import legendary as LEG
+from engine import mod_str, ability_mod, dice_for, SUIT_RULE
 from layout import (BODY_F, BODY_I, BODY_B, BODY_BI, LABEL_F, TITLE_F,
                     CRIMSON, INK, MUTED, PARCH_D, wrap, rich_height,
                     draw_rich, draw_para)
@@ -137,6 +138,30 @@ def parts_for(b):
                 (fill(gtext, b, dc_default), BODY_F)]
         add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
 
+    # --- spellcasting ---
+    # Nine creatures here are named and described as spellcasters. A lich that
+    # cannot cast a spell is not a lich. Every spell is SRD 5.1, and the lists
+    # are short on purpose: what it will actually cast, not its whole book.
+    spells = LEG.SPELLCASTERS.get(b['slug'])
+    if spells:
+        word, abil, lvl, book = spells
+        sm = ability_mod(b['scores'][abil])
+        save_dc = 8 + b['prof'] + sm
+        runs = [('Spellcasting. ', BODY_BI),
+                ('The %s is %s. Its spellcasting ability is %s (spell save DC %d, '
+                 '%s to hit with spell attacks). It has the following spells '
+                 'prepared:' % (bare(name), word, ABIL_WORD[abil], save_dc,
+                                mod_str(b['prof'] + sm)), BODY_F)]
+        add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
+        slots = LEG.SLOTS[lvl]
+        for sl in sorted(book):
+            if sl == 0:
+                head = 'Cantrips (at will): '
+            else:
+                head = '%s level (%d slots): ' % (LEG.ORDINAL[sl], slots.get(sl, 1))
+            runs = [(head, BODY_B), (', '.join(book[sl]), BODY_I)]
+            add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs, indent=10)
+
     # a turn spent healing, when it is regeneration
     heal = HEALS.get(b['heal_key']) if b['heals'] else None
     if heal and heal[0] in ('regen', 'regen_plain'):
@@ -149,7 +174,7 @@ def parts_for(b):
     add('head', LEAD + 5, text='Actions')
     if b['swings'] > 1:
         word = {2: 'two', 3: 'three'}[b['swings']]
-        txt = 'The %s makes %s %s attacks.' % (name.lower(), word,
+        txt = 'The %s makes %s %s attacks.' % (bare(name), word,
                                                b['attack']['name'].lower())
         runs = [('Multiattack. ', BODY_BI), (txt, BODY_F)]
         add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
@@ -189,7 +214,47 @@ def parts_for(b):
         runs = [(gname + '. ', BODY_BI), (fill(gtext, b, dc_default), BODY_F)]
         add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
 
+    # --- legendary actions ---
+    # Only bosses, and every boss. One of these fought alone against a party
+    # of four otherwise spends the whole fight watching.
+    if b['boss']:
+        add('head', LEAD + 5, text='Legendary Actions')
+        runs = [(fill(LEG.LEGENDARY_INTRO, b, dc_default), BODY_F)]
+        add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
+        for lname, cost, ltext in LEG.actions_for(b):
+            head = lname if cost == 1 else '%s (Costs %d Actions)' % (lname, cost)
+            runs = [(head + '. ', BODY_BI), (fill(ltext, b, dc_default), BODY_F)]
+            add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs, indent=10)
+
+    # --- lair actions ---
+    # The creature that ends a world, fought where it lives.
+    lair = LEG.lair_for(b)
+    if lair:
+        place, ldc, effects = lair
+        add('head', LEAD + 5, text='Lair Actions')
+        intro = ('When fighting inside %s, the %s can take a lair action on '
+                 'initiative count 20 (losing ties). It cannot do so two rounds '
+                 'in a row. Choose one:' % (place, bare(name)))
+        add('rich', rich_height([(intro, BODY_F)], SZ, 0, LEAD),
+            runs=[(intro, BODY_F)])
+        for e in effects:
+            txt = fill(e, b, dc_default).replace('{ld}', str(ldc))
+            add('rich', rich_height([(txt, BODY_F)], SZ, 0, LEAD),
+                runs=[('• ', BODY_B), (txt, BODY_F)], indent=10)
+
     return P
+
+
+def bare(name):
+    """The creature's name as it reads inside a sentence.
+
+    Thirty-one creatures here are called "The Something", and every piece of
+    SRD trait wording already supplies its own article: "The {n} has
+    advantage..." So the article is dropped on the way in, or the page reads
+    "The the flame fiend".
+    """
+    low = name.lower()
+    return low[4:] if low.startswith('the ') else low
 
 
 SKILL_ABIL = {
@@ -211,9 +276,19 @@ def fill(text, b, dc):
     }
     small = max(2, round(hp * 0.07))
     aura = max(2, round(b['cr'] * 0.8) if b['cr'] >= 1 else 2)
-    return (text.replace('{n}', b['name'].lower())
+    # {xd} is the same quantity as {x}, written as dice. Anything that deals
+    # damage uses it: every other attack in the book rolls for damage and a
+    # bare number next to them reads as a mistake.
+    dn, dd = dice_for(small, b['attack']['die'])
+    # {xl} is what a legendary action costing three of them is worth: about
+    # what the creature's ordinary attack does, which is where the SRD puts it.
+    a = b['attack']
+    ln, ld = dice_for(avg_dice(a['n'], a['die'], a['mod']), a['die'])
+    return (text.replace('{n}', bare(b['name']))
                 .replace('{dc}', str(dc))
-                .replace('{atk}', mod_str(b['attack']['bonus']))
+                .replace('{atk}', mod_str(a['bonus']))
+                .replace('{xd}', dmg(dn, dd))
+                .replace('{xl}', dmg(ln, ld))
                 .replace('{x}', str(small if '{x} hit points' in text or
                                     'regains' in text else
                                     aura if 'fire damage' in text or
@@ -231,7 +306,7 @@ def heavy_text(b, h, dc):
         txt = ('The %s exhales %s in a %d-foot cone. Each creature in that '
                'area must make a DC %d Dexterity saving throw, taking %d '
                '(%dd%d) %s damage on a failed save, or half as much damage on '
-               'a successful one.' % (b['name'].lower(), BREATH_WORD[breath],
+               'a successful one.' % (bare(b['name']), BREATH_WORD[breath],
                                       size, dc, total, h['n'], h['die'], breath))
     else:
         name = 'Savage Blow (Recharge 5-6).'
@@ -239,9 +314,13 @@ def heavy_text(b, h, dc):
                '%d feet of it must make a DC %d Dexterity saving throw, taking '
                '%d (%dd%d) %s damage on a failed save, or half as much damage '
                'on a successful one.'
-               % (b['name'].lower(), max(10, size // 2), dc, total, h['n'],
+               % (bare(b['name']), max(10, size // 2), dc, total, h['n'],
                   h['die'], b['attack']['dmg_type']))
     return name, txt
+
+
+ABIL_WORD = {'str': 'Strength', 'dex': 'Dexterity', 'con': 'Constitution',
+             'int': 'Intelligence', 'wis': 'Wisdom', 'cha': 'Charisma'}
 
 
 BREATH_WORD = {
@@ -256,7 +335,7 @@ def height(parts, width):
     total = 0.0
     for p in parts:
         if p['kind'] == 'rich':
-            total += rich_height(p['runs'], SZ, width, LEAD)
+            total += rich_height(p['runs'], SZ, width - p.get('indent', 0), LEAD)
         elif p['kind'] == 'kv':
             runs = [(p['label'] + ' ', BODY_B), (p['value'], BODY_F)]
             total += rich_height(runs, SZ, width, LEAD)
@@ -297,7 +376,8 @@ def draw(c, parts, b, x, y, width):
             runs = [(p['label'] + ' ', BODY_B), (p['value'], BODY_F)]
             y = draw_rich(c, runs, x, y, SZ, width, LEAD)
         elif k == 'rich':
-            y = draw_rich(c, p['runs'], x, y, SZ, width, LEAD)
+            ind = p.get('indent', 0)
+            y = draw_rich(c, p['runs'], x + ind, y, SZ, width - ind, LEAD)
         elif k == 'abils':
             y = draw_abils(c, b, x, y, width)
     return y

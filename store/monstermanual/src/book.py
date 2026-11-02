@@ -12,6 +12,7 @@ import brand
 import layout as L
 import statblock as SB
 import text as T
+import engine as ENG
 from engine import cr_name
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -274,8 +275,12 @@ def contents(bk, worlds):
     bk.y -= 4
     rows = [('Introduction', 'intro')]
     rows += [(w['name'], 'world_%s' % w['id']) for w in worlds]
-    rows += [('Monsters by challenge rating', 'app_cr'),
-             ('Monsters by name', 'app_az')]
+    rows += [('Encounters', 'app_enc'),
+             ('Monsters by challenge rating', 'app_cr'),
+             ('Monsters by kind', 'app_type'),
+             ('Monsters by terrain', 'app_terrain'),
+             ('Monsters by name', 'app_az'),
+             ('All 168 at a glance', 'app_glance')]
     for i, (label, key) in enumerate(rows):
         bk.space(19)
         bk.y -= 18
@@ -422,6 +427,7 @@ def mob_entry(bk, b):
     # tall entry pushes the next one over and leaves most of a page blank.
     need = max(bh, lh, MIN_SLOT) + 14
     bk.space(need)
+    bk.mark('mon_%s' % b['slug'])
     top = bk.y
     bk.panel_img(b['slug'], False, M, top, PANEL_W)
     ly = provenance(bk, b, M, top - PANEL_H - 6, PANEL_W)
@@ -436,6 +442,7 @@ def mob_entry(bk, b):
 def boss_entry(bk, b):
     if bk.y < TOP - 2:
         bk.new_page()
+    bk.mark('mon_%s' % b['slug'])
     c = bk.c
     top = bk.y
     ph = bk.panel_img(b['slug'], True, M, top, CW)
@@ -471,7 +478,7 @@ def appendix_cr(bk, blocks):
     bk.body(T.APPENDIX_CR, 10, 13.4)
     bk.y -= 6
     for cr in sorted({b['cr'] for b in blocks}):
-        rows = sorted((b for b in blocks if b['cr'] == cr), key=lambda b: b['name'])
+        rows = sorted((b for b in blocks if b['cr'] == cr), key=alpha_key)
         bk.space(26)
         bk.y -= 17
         bk.c.setFont(L.TITLE_F, 13)
@@ -486,8 +493,34 @@ def appendix_cr(bk, blocks):
             bk.c.drawString(M + 14, bk.y, b['name'])
             bk.c.setFont(L.BODY_F, 9)
             bk.c.setFillColor(L.MUTED)
-            bk.c.drawRightString(PW - M, bk.y, '%s · %s' % (b['world'], b['size']))
+            bk.c.drawRightString(PW - M - 26, bk.y,
+                                 '%s · %s' % (b['world'], b['size']))
+            page_no(bk, b)
     bk.new_page()
+
+
+def alpha_key(b):
+    """Sort key for the indexes: ignore a leading article.
+
+    Thirty-one creatures here are called "The Something". Filing them all
+    under T means nobody looking for the Bog Hag ever finds her.
+    """
+    low = b['name'].lower()
+    return low[4:] if low.startswith('the ') else low
+
+
+def page_no(bk, b):
+    """The page this creature is on, right-aligned in the margin.
+
+    An index without page numbers makes the reader hunt, which is the one
+    thing an index exists to prevent.
+    """
+    pg = bk.toc.get('mon_%s' % b['slug'])
+    if not pg:
+        return
+    bk.c.setFont(L.LABEL_F, 9)
+    bk.c.setFillColor(L.CRIMSON)
+    bk.c.drawRightString(PW - M, bk.y, str(pg))
 
 
 def appendix_az(bk, blocks):
@@ -497,7 +530,7 @@ def appendix_az(bk, blocks):
     bk.y -= 6
 
     colw = (CW - 20) / 2
-    rows = sorted(blocks, key=lambda b: b['name'].lower())
+    rows = sorted(blocks, key=alpha_key)
     col_top = bk.y               # where a column starts on this page
     col, y = 0, bk.y
     for b in rows:
@@ -512,10 +545,231 @@ def appendix_az(bk, blocks):
         y -= 11.6
         bk.c.setFont(L.BODY_F, 9)
         bk.c.setFillColor(L.INK)
-        bk.c.drawString(x, y, (b['name'] + (' (boss)' if b['boss'] else ''))[:40])
+        bk.c.drawString(x, y, (b['name'] + (' (boss)' if b['boss'] else ''))[:34])
         bk.c.setFont(L.LABEL_F, 8)
         bk.c.setFillColor(L.MUTED)
-        bk.c.drawRightString(x + colw, y, 'CR %s' % b['cr_name'])
+        bk.c.drawRightString(x + colw - 24, y, 'CR %s' % b['cr_name'])
+        pg = bk.toc.get('mon_%s' % b['slug'])
+        if pg:
+            bk.c.setFont(L.LABEL_F, 8.5)
+            bk.c.setFillColor(L.CRIMSON)
+            bk.c.drawRightString(x + colw, y, str(pg))
+    bk.y = BOT
+    bk.new_page()
+
+
+def two_col_index(bk, key, title, blurb, groups):
+    """A grouped two-column list: heading, then name / CR / page per row.
+
+    `groups` is a list of (group title, [creatures]).
+    """
+    bk.mark(key)
+    bk.heading(title, 22)
+    bk.body(blurb, 10, 13.4)
+    bk.y -= 6
+    colw = (CW - 20) / 2
+    col_top, col, y = bk.y, 0, bk.y
+
+    def nextline(h):
+        nonlocal col, y, col_top
+        if y - h < BOT:
+            col += 1
+            if col > 1:
+                bk.y = BOT
+                bk.new_page()
+                col, col_top = 0, TOP
+            y = col_top
+        y -= h
+        return M + col * (colw + 20)
+
+    for gtitle, rows in groups:
+        if not rows:
+            continue
+        x = nextline(20)
+        bk.c.setFont(L.TITLE_F, 12)
+        bk.c.setFillColor(L.CRIMSON)
+        bk.c.drawString(x, y, gtitle)
+        for b in sorted(rows, key=alpha_key):
+            x = nextline(11.6)
+            bk.c.setFont(L.BODY_F, 9)
+            bk.c.setFillColor(L.INK)
+            bk.c.drawString(x + 8, y, b['name'][:30])
+            bk.c.setFont(L.LABEL_F, 8)
+            bk.c.setFillColor(L.MUTED)
+            bk.c.drawRightString(x + colw - 24, y, 'CR %s' % b['cr_name'])
+            pg = bk.toc.get('mon_%s' % b['slug'])
+            if pg:
+                bk.c.setFont(L.LABEL_F, 8.5)
+                bk.c.setFillColor(L.CRIMSON)
+                bk.c.drawRightString(x + colw, y, str(pg))
+    bk.y = BOT
+    bk.new_page()
+
+
+def appendix_type(bk, blocks):
+    """By creature kind. What a cleric turns, what a ranger hunts."""
+    order = ['aberration', 'beast', 'celestial', 'construct', 'dragon',
+             'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity',
+             'ooze', 'plant', 'undead']
+    groups = [(t.capitalize() + 's', [b for b in blocks if b['type'] == t])
+              for t in order]
+    two_col_index(bk, 'app_type', 'Monsters by kind', T.APPENDIX_TYPE, groups)
+
+
+# Each world of the game, named as the terrain a DM running their own
+# campaign would actually look under.
+TERRAIN = [
+    ('Underground and urban', ['w1', 'w6']),
+    ('Arctic', ['w2']),
+    ('Desert', ['w3']),
+    ('Coast and underwater', ['w4']),
+    ('Swamp and marsh', ['w5']),
+    ('Ruins and haunted places', ['w7']),
+    ('Forest', ['w8']),
+    ('Mountain and sky', ['w9']),
+    ('The lower planes', ['w10']),
+]
+
+
+def appendix_terrain(bk, blocks):
+    groups = [(name, [b for b in blocks if b['world_id'] in ids])
+              for name, ids in TERRAIN]
+    two_col_index(bk, 'app_terrain', 'Monsters by terrain', T.APPENDIX_TERRAIN,
+                  groups)
+
+
+def appendix_encounters(bk, worlds, blocks):
+    """Forty ready-made fights, one for each area, plus the XP arithmetic.
+
+    The book already sorts its creatures into forty areas and tells you what
+    party level each was written for. That is an encounter table that was
+    never written down.
+    """
+    bk.chapter = 'Appendix'
+    bk.mark('app_enc')
+    bk.heading('Encounters', 22)
+    bk.body(T.ENCOUNTERS, 10, 13.4)
+    bk.y -= 4
+
+    # the threshold table
+    bk.space(30)
+    bk.y -= 16
+    bk.c.setFont(L.TITLE_F, 13)
+    bk.c.setFillColor(L.CRIMSON)
+    bk.c.drawString(M, bk.y, 'What a party can take')
+    bk.y -= 6
+    cols = [0.0, 0.34, 0.51, 0.68, 0.85]
+    bk.space(16)
+    bk.y -= 12
+    bk.c.setFont(L.LABEL_F, 8)
+    bk.c.setFillColor(L.MUTED)
+    bk.c.drawString(M, bk.y, 'PARTY LEVEL')
+    for lbl, f in zip(('EASY', 'MEDIUM', 'HARD', 'DEADLY'), cols[1:]):
+        bk.c.drawRightString(M + CW * f + CW * 0.12, bk.y, lbl)
+    for lv in range(1, 21):
+        lo, med, hard, dead = ENG.THRESHOLDS[lv]
+        bk.space(12)
+        bk.y -= 11
+        bk.c.setFont(L.BODY_F, 9)
+        bk.c.setFillColor(L.INK)
+        bk.c.drawString(M, bk.y, 'Level %d' % lv)
+        bk.c.setFont(L.LABEL_F, 8.5)
+        bk.c.setFillColor(L.MUTED)
+        for v, f in zip((lo, med, hard, dead), cols[1:]):
+            bk.c.drawRightString(M + CW * f + CW * 0.12, bk.y,
+                                 '{:,}'.format(v * 4))
+    bk.y -= 4
+    bk.body(T.ENCOUNTERS_NOTE, 9.5, 12.8)
+    bk.new_page()
+
+    # the forty areas
+    bk.heading('Forty fights, ready to run', 20)
+    bk.body(T.ENCOUNTERS_AREAS, 10, 13.4)
+    bk.y -= 4
+    for w in worlds:
+        bk.space(34)
+        bk.y -= 18
+        bk.c.setFont(L.TITLE_F, 14)
+        bk.c.setFillColor(L.CRIMSON)
+        bk.c.drawString(M, bk.y, w['name'])
+        bk.y -= 4
+        for a_i in range(4):
+            inarea = [b for b in blocks
+                      if b['world_i'] == w['i'] and b['area_i'] == a_i]
+            if not inarea:
+                continue
+            mobs = [b for b in inarea if not b['boss']]
+            bosses = [b for b in inarea if b['boss']]
+            pl = inarea[0]['party_level']
+            bk.space(30)
+            bk.y -= 14
+            bk.c.setFont(L.BODY_B, 10)
+            bk.c.setFillColor(L.INK)
+            bk.c.drawString(M, bk.y, w['areas'][a_i]['name'])
+            bk.c.setFont(L.LABEL_F, 8)
+            bk.c.setFillColor(L.MUTED)
+            bk.c.drawRightString(PW - M, bk.y, 'LEVEL %d PARTY OF FOUR' % pl)
+            for label, group, adj, word in ENG.suggest_encounters(
+                    mobs, bosses[-1] if bosses else None, pl):
+                counts = {}
+                for b in group:
+                    counts[b['name']] = counts.get(b['name'], 0) + 1
+                txt = ', '.join('%d %s' % (n, nm) if n > 1 else nm
+                                for nm, n in counts.items())
+                bk.space(14)
+                bk.y -= 12
+                runs = [('%s. ' % label, L.BODY_BI), (txt, L.BODY_F),
+                        ('  —  %s, %s XP' % (word, '{:,}'.format(adj)),
+                         L.BODY_I)]
+                L.draw_rich(bk.c, runs, M + 10, bk.y + 9, 9, CW - 10, 11.6)
+    bk.new_page()
+
+
+def appendix_glance(bk, blocks):
+    """Everything on as few pages as possible: CR, AC, HP, page.
+
+    This is the one a DM photocopies and tapes inside the screen.
+    """
+    bk.mark('app_glance')
+    bk.heading('All 168 at a glance', 22)
+    bk.body(T.APPENDIX_GLANCE, 10, 13.4)
+    bk.y -= 6
+    colw = (CW - 18) / 2
+    rows = sorted(blocks, key=alpha_key)
+    col_top, col, y = bk.y, 0, bk.y
+    heads_drawn = set()
+
+    def head(x, yy):
+        bk.c.setFont(L.LABEL_F, 7.5)
+        bk.c.setFillColor(L.MUTED)
+        for lbl, off in (('CR', 0.60), ('AC', 0.73), ('HP', 0.86), ('PG', 1.0)):
+            bk.c.drawRightString(x + colw * off, yy, lbl)
+
+    y -= 10
+    head(M, y)
+    heads_drawn.add((0, bk.page))
+    for b in rows:
+        if y - 10.4 < BOT:
+            col += 1
+            if col > 1:
+                bk.y = BOT
+                bk.new_page()
+                col, col_top = 0, TOP
+            y = col_top - 10
+            head(M + col * (colw + 18), y)
+        x = M + col * (colw + 18)
+        y -= 10.4
+        bk.c.setFont(L.BODY_F, 8.5)
+        bk.c.setFillColor(L.CRIMSON if b['boss'] else L.INK)
+        bk.c.drawString(x, y, b['name'][:26])
+        bk.c.setFont(L.LABEL_F, 8)
+        bk.c.setFillColor(L.MUTED)
+        bk.c.drawRightString(x + colw * 0.60, y, b['cr_name'])
+        bk.c.drawRightString(x + colw * 0.73, y, str(b['ac']))
+        bk.c.drawRightString(x + colw * 0.86, y, str(b['hp']))
+        pg = bk.toc.get('mon_%s' % b['slug'])
+        bk.c.setFillColor(L.CRIMSON)
+        bk.c.drawRightString(x + colw, y, str(pg) if pg else '')
     bk.y = BOT
 
 
@@ -554,8 +808,12 @@ def build(path, toc=None, kdp=False):
                 mob_entry(bk, b)
             for b in bosses:
                 boss_entry(bk, b)
+    appendix_encounters(bk, worlds, blocks)
     appendix_cr(bk, blocks)
+    appendix_type(bk, blocks)
+    appendix_terrain(bk, blocks)
     appendix_az(bk, blocks)
+    appendix_glance(bk, blocks)
     bk.folio()
     if kdp and bk.page % 2:
         # A printed book has to end on a left-hand page.

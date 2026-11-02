@@ -1,6 +1,6 @@
 # Axes & Aces Monster Manual
 
-A 146-page, 5E-compatible bestiary of all 168 monsters in the card game, built
+A 5E-compatible bestiary of all 168 monsters in the card game, built
 entirely from the game's own art and data. Nothing here is published. The
 files are ready to upload and the steps are in `UPLOAD.md`.
 
@@ -13,6 +13,7 @@ sends `/store/*` to a 404.
 |---|---|
 | `UPLOAD.md` | The numbered steps to put the book up for sale |
 | `STORE.md` | The listing copy, the price, and which stores will take it |
+| `AUDIT.md` | What was wrong with the first build and what was done about it |
 
 ## The short version of the store problem
 
@@ -28,7 +29,7 @@ was chosen — but the AI-written text rules it out, and no amount of editing
 changes where the words came from.
 
 **Two stores are open.** itch.io takes the PDF at $14.99 with its AI
-disclosure tag set. Amazon KDP takes a 146-page paperback at $29.99, which
+disclosure tag set. Amazon KDP takes a 156-page paperback at $29.99, which
 requires an AI-content disclosure at upload and allows the book on that
 basis; print-ready interior and wraparound cover are both built. Foundry
 VTT's package browser is closed to it for the same reason as DriveThruRPG,
@@ -82,6 +83,7 @@ It only ever reads `dev/game.html` and `art/`. It does not write to either.
 | `src/book.py` | Lays out the whole PDF, two passes so the contents can carry page numbers |
 | `src/panels.py` | Composites each monster into its own scene |
 | `src/foundry.py` | The free Foundry VTT module |
+| `src/legendary.py` | Legendary actions, lair actions and the nine spellcasters |
 | `src/text.py` | The book's written content |
 
 ## Things worth knowing
@@ -108,9 +110,14 @@ top is his raised flame, not his head. If you change the panel style, re-check
 these; `build/edges.json` has the per-monster measurements.
 
 **The challenge ratings are derived, not playtested.** They are consistent
-with each other, which is what matters for picking a monster, and the method
-is written out in the introduction so a GM can judge it. That is stated in the
-book rather than glossed over.
+with each other and they are checked against the Dungeon Master's Guide's own
+figures for armor class, attack bonus and damage a round, so a rating here
+buys the same thing it buys in any other book when you spend an XP budget.
+Hit points are the exception: the DMG's low rows ask for fifty to seventy at
+challenge 1/2, where published creatures carry fifteen to twenty-six, so that
+column follows published creatures at the bottom and the table from challenge
+13 up. `AUDIT.md` has the measurements and `src/engine.py` the tables. None of
+it is playtested, and the introduction says so.
 
 **The Foundry module has never been loaded into Foundry.** It is built to the
 dnd5e schema and the JSON is valid, but nobody has run it. Install it once

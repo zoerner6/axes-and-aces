@@ -103,7 +103,23 @@ INTRO = [
      "The ordinary attacks deliberately carry well under half of what the "
      "rating allows, with the recharging blow making up the rest. That is how "
      "published creatures are built, and matching it is what keeps these "
-     "blocks feeling like the real thing instead of arithmetic."),
+     "blocks feeling like the real thing instead of arithmetic.\n\n"
+     "FIFTH, THE RATING IS CHECKED AGAINST THE PUBLISHED ONE. A challenge "
+     "rating is only worth printing if it means here what it means in every "
+     "other book at your table, because that is what you spend when you build "
+     "an encounter. So every creature's armor class, attack bonus and damage "
+     "a round are set to the figures the Dungeon Master's Guide gives for its "
+     "rating, and the damage is counted the way it actually arrives: a blow "
+     "that recharges on a 5 or 6 lands about four rounds in seven, not every "
+     "round, and a boss's legendary attack is counted too.\n\n"
+     "Hit points are the one figure not taken from that table at face value. "
+     "At the top the table describes published creatures well. At the bottom "
+     "it does not: it asks for fifty to seventy hit points at challenge 1/2, "
+     "where the published orc has fifteen and the black bear nineteen. Taken "
+     "literally it produces a zombie a first-level party needs four rounds to "
+     "put down, and the first room of this book has ten of them. So hit "
+     "points follow published creatures where the two disagree and the table "
+     "where they agree, meeting it from challenge 13 upward."),
 
     ('What this means for you at the table',
      "A boss sits two ratings above its party level, which at low levels is a "
@@ -111,12 +127,19 @@ INTRO = [
      "but go in knowing it. If you want it survivable, send the area's "
      "ordinary monsters in first and let the party spend resources on them, or "
      "run the boss with half its hit points and keep everything else.\n\n"
-     "The challenge ratings here were derived by formula, not playtested "
-     "against a hundred tables. They are consistent with each other, which is "
-     "the thing that matters most when you are picking a monster: if one "
-     "creature in this book is a harder fight than another, the number says "
-     "so. Treat them the way you would treat any rating, as a starting point "
-     "you adjust for your own group."),
+     "Every boss has legendary actions, and the ten that end a world have "
+     "lair actions as well. That is not decoration. A single creature taking "
+     "one turn against four or five characters loses on action economy long "
+     "before its hit points matter, and these are all written to be fought "
+     "alone.\n\n"
+     "The challenge ratings here were derived by formula and checked against "
+     "the published numbers, but they were not playtested against a hundred "
+     "tables. They are consistent with each other and they line up with the "
+     "ratings you already know, which together are the thing that matters "
+     "when you are picking a monster. Treat them the way you would treat any "
+     "rating, as a starting point you adjust for your own group. The "
+     "Encounters chapter at the back has the arithmetic, and forty fights "
+     "already costed."),
 
     ('Bosses and their one trick',
      "In the card game every boss ignores one suit. Play a heart against a "
@@ -242,7 +265,63 @@ APPENDIX_CR = (
     'hard a fight you want and do not mind what shows up.'
 )
 
-APPENDIX_AZ = 'Every creature in the book by name.'
+APPENDIX_AZ = ('Every creature in the book by name, with its challenge '
+               'rating and the page it is on.')
+
+APPENDIX_TYPE = (
+    'Every creature by what it is. Use this when the question is what a '
+    'cleric can turn, what a ranger has as a favoured enemy, what a spell '
+    'that only touches beasts will catch, or simply when you want a room '
+    'full of one kind of thing.'
+)
+
+APPENDIX_TERRAIN = (
+    'The same creatures sorted by the ground they stand on rather than by '
+    'the world they come from, for running them in a campaign of your own. '
+    'The ten worlds of the game map onto ordinary terrain almost one to '
+    'one, and this is that mapping. A creature appears once, under the '
+    'terrain its world is.'
+)
+
+APPENDIX_GLANCE = (
+    'Everything in the book on two pages: challenge rating, armor '
+    'class, hit points and where to find the full entry. Bosses are in red. '
+    'This is the part to photocopy and keep behind the screen.'
+)
+
+ENCOUNTERS = (
+    'A challenge rating on its own does not tell you how many to use. This '
+    'is the arithmetic that turns the ratings in this book into a fight, '
+    'and then forty fights already worked out.\n\n'
+    'Every character in the party can absorb a certain amount of experience '
+    'in one encounter before it stops being a nuisance and starts being '
+    'dangerous. Add those allowances up across the party and you have a '
+    'budget. Add up the experience of the monsters you are thinking of '
+    'using, multiply it for how many of them there are, and compare the two '
+    'numbers. The table below is for a party of four; for a different size, '
+    'divide by four and multiply by what you have.'
+)
+
+ENCOUNTERS_NOTE = (
+    'Numbers crowd. Two monsters count as one and a half times their '
+    'experience, three to six count double, seven to ten two and a half '
+    'times, eleven to fourteen triple, and fifteen or more quadruple. That '
+    'is not a fudge: four creatures acting four times a round against a '
+    'party that acts four times is a harder fight than one creature worth '
+    'the same experience, and the multiplier is what accounts for it.\n\n'
+    'A deadly encounter is not a promise that anybody dies. It means the '
+    'party should expect to spend real resources and that a run of bad '
+    'rolls could kill someone. Most fights in a session should sit at '
+    'medium or hard.'
+)
+
+ENCOUNTERS_AREAS = (
+    'One patrol and one boss fight for every area of every world, built '
+    'from that area\'s own creatures and costed against the party level the '
+    'area was written for. The patrol is grown until it reaches hard, '
+    'because a fight below that is a speed bump. Take them as written or as '
+    'a starting point.'
+)
 
 STORE_BLURB_HEAD = 'A bestiary of 168 monsters, in ten worlds, from a free card game.'
 
