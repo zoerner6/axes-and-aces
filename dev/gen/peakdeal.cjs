@@ -113,7 +113,10 @@ function solvable(t, stock, wrap, cap = 300000) {
    leaning towards the peaks when that ties. A real person plays roughly this
    well and no better; building the damage on the solver's play would make
    every fight too easy for everybody who is not a solver. */
-function greedy(t, stock, wrap) {
+/* cap: a boss rule that breaks the run once it reaches a given length,
+   however good the board looks. Exact rather than estimated, because a run's
+   value cannot be split after the fact from its length and total alone. */
+function greedy(t, stock, wrap, cap = 0) {
   let mask = 0, si = 1, top = stock[0];
   let run = 0, best = 0, runVal = 0, bestVal = 0, turns = 0;
   const runs = [];
@@ -131,6 +134,11 @@ function greedy(t, stock, wrap) {
       mask |= (1 << pick); top = t[pick];
       run++; runVal += VALUE(t[pick]);
       if (mask === FULL) break;
+      if (cap && run >= cap) {
+        runs.push([run, runVal]);
+        if (run > best) { best = run; bestVal = runVal; }
+        run = 0; runVal = 0;
+      }
       continue;
     }
     if (run) { runs.push([run, runVal]); if (run > best) { best = run; bestVal = runVal; } }

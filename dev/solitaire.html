@@ -317,6 +317,85 @@ img{max-width:100%}
 @keyframes bannerIn{0%{opacity:0;transform:scale(.55)}18%{opacity:1;transform:scale(1.06)}72%{opacity:1;transform:scale(1)}100%{opacity:0}}
 @media (min-width:820px){ .banner{font-size:clamp(1.9rem,3.4vw,3rem)} }
 
+/* ===================== buttons and popups =====================
+   Taken from dev/farkle.html so a popup in one game is a popup in the other.
+   The hard rule from dev/plans/solitaire.md is that no popup ever needs
+   scrolling to reach its main button, which at 320x568 is a real constraint
+   and not a nicety - dev/gen/slpanels.cjs measures it. */
+.btn{border:3px solid #000;border-radius:12px;box-shadow:3px 3px 0 #000;background:var(--leather);color:var(--parch);
+  font-family:var(--f-num);font-weight:600;font-size:1rem;letter-spacing:.04em;padding:12px 10px;min-height:52px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1}
+.btn small{font-size:.68rem;font-weight:500;letter-spacing:.03em;opacity:.78}
+.btn:disabled{opacity:.36;cursor:not-allowed;box-shadow:1px 1px 0 #000}
+.btn.big{background:var(--gold);color:#000;width:100%;font-family:var(--f-title);font-weight:400;
+  font-size:1.3rem;letter-spacing:0;box-shadow:4px 4px 0 #000}
+.btn.ghost{background:var(--leather);font-size:.84rem;padding:9px 10px;min-height:44px}
+
+#overlay{position:fixed;inset:0;background:rgba(15,9,6,.8);display:grid;place-items:center;z-index:50;
+  padding:max(14px, env(safe-area-inset-top,0px)) max(14px, env(safe-area-inset-right,0px))
+          max(14px, env(safe-area-inset-bottom,0px)) max(14px, env(safe-area-inset-left,0px))}
+.panel{background-color:var(--leather);background-image:radial-gradient(rgba(255,255,255,.03) 1px,transparent 1.3px);
+  background-size:6px 6px;border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:14px;
+  width:100%;max-width:520px;max-height:100%;overflow:auto;padding:16px;
+  display:flex;flex-direction:column;gap:11px;animation:pop .22s ease}
+@keyframes pop{from{transform:scale(.94);opacity:.4}}
+.panel h2{margin:0;font-family:var(--f-title);font-weight:400;font-size:1.7rem;line-height:1.1;
+  color:var(--gold);text-shadow:2px 2px 0 #000;text-wrap:balance}
+.panel p{margin:0;line-height:1.5;color:var(--parch-dim);font-size:1rem}
+.panel p b{color:var(--parch)}
+.eyebrow{font-family:var(--f-num);font-weight:600;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--parch-dim)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1}
+.tipbox{background:var(--bubble);color:var(--bubble-ink);border:3px solid #000;box-shadow:4px 4px 0 #000;
+  border-radius:12px;padding:9px 11px;font-size:.95rem;line-height:1.4}
+.tipbox b{color:#000}
+.tipbox::before{content:"Old Bram says";display:block;font-family:var(--f-num);font-size:.64rem;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:700;color:#8a5a20;margin-bottom:2px}
+
+/* a scene at the top of a popup */
+.scene{position:relative;width:100%;aspect-ratio:16/9;border-radius:11px;border:3px solid #000;
+  box-shadow:3px 3px 0 #000;overflow:hidden;background:#0d0906;flex:none}
+.scene>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scene .foe{position:absolute;left:50%;bottom:0;translate:-50% 0;height:92%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.8))}
+.scene .tag{position:absolute;left:8px;top:8px;background:var(--gold);color:#000;border:3px solid #000;
+  box-shadow:3px 3px 0 #000;border-radius:7px;padding:3px 10px;rotate:-2.5deg;
+  font-family:var(--f-title);font-size:1.05rem;line-height:1.2;max-width:72%}
+.scene .mark{position:absolute;right:12px;top:14%;font-family:var(--f-title);font-size:2rem;color:var(--gold-hi);
+  text-shadow:0 3px 0 #000;animation:markpop .5s ease both}
+@keyframes markpop{0%{opacity:0;scale:.3}60%{scale:1.2}100%{opacity:1;scale:1}}
+.say{position:relative;background:var(--bubble);color:var(--bubble-ink);
+  border:3px solid #000;box-shadow:3px 3px 0 #000;border-radius:10px;padding:7px 11px;margin-top:9px;
+  font-size:.95rem;line-height:1.3;font-weight:500;min-height:1.3em}
+.say::before{content:"";position:absolute;left:22px;top:-9px;width:0;height:0;
+  border:7px solid transparent;border-bottom-color:#000;border-top:0}
+.say::after{content:"";position:absolute;left:25px;top:-4px;width:0;height:0;
+  border:5px solid transparent;border-bottom-color:var(--bubble);border-top:0}
+.say.you{background:#dbe9f7}
+.say:empty{display:none}
+
+/* you against it, side by side */
+.tape{display:grid;grid-template-columns:1fr auto 1fr;gap:3px 8px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:10px;padding:8px 10px}
+.tape .who{font-family:var(--f-num);font-weight:700;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim)}
+.tape .who.r{text-align:right}
+.tape .mid{font-family:var(--f-num);font-weight:600;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--parch-dim);text-align:center}
+.tape b{font-family:var(--f-num);font-weight:700;font-size:1.02rem;font-variant-numeric:tabular-nums}
+.tape .mine{color:var(--heal-hi)} .tape .theirs{color:#ff9f90;text-align:right}
+
+/* A short screen gets the room back from the picture, which is the only part
+   of an intro that can give any up: the tape and the Fight button cannot.
+   2.1/1 and no shorter - the area art is 16:9, so a 2.3:1 window threw away
+   24% of its height, over the 22% that dev/gen/audit.js calls a sliced
+   picture. At 2.1 it loses 15% and the boss intro, the tallest of the four,
+   still finishes 48px clear of the bottom of a 568-tall screen. */
+@media (max-height:620px){
+  .panel{padding:12px;gap:8px}
+  .scene{aspect-ratio:2.1/1}
+  .tape{padding:6px 9px}
+  .say{margin-top:7px;padding:6px 10px;font-size:.9rem}
+}
+
 /* ===================== things that fly across the screen =====================
    The same set dev/farkle.html uses, so a blow in one game reads like a blow
    in the other: the axe through it, the comic star, the number counting up out
@@ -459,6 +538,8 @@ img{max-width:100%}
 
   <div id="board"></div>
 </div>
+
+<div id="overlay" hidden><div class="panel" id="panel" role="dialog" aria-modal="true"></div></div>
 
 <div id="fx" aria-hidden="true"></div>
 
@@ -775,11 +856,20 @@ const rndInt = n => Math.random() * n | 0;
    felt: dev/gen/peakdeal.cjs says turning the ace wrap off drops an ordinary
    player's clear rate from 47% to 18% and their damage by a fifth, which is
    more than the other three together. So it is the last one, the rule the
-   quest boss fights by. */
+   quest boss fights by.
+
+   dev/plans/solitaire.md, step 9, lists a fifth: four peaks instead of three.
+   That one is arithmetic, not taste. A fourth peak needs a bottom row of
+   thirteen, and at 320px wide the board is 302px, which is 23px a card before
+   any overlap - narrower than the rank corner this layout is built around.
+   The four that are left are ordered by what dev/gen/slbalance.cjs says they
+   cost a player at the same level with the same gear and the same monster:
+   an ordinary deal 89%, a short stock 85%, a run capped at five 80%, aces not
+   wrapping 60%. */
 const BOSS_RULES = [
   {text:'One peak is dealt face down',  deal:{hidden:[1]}},
   {text:'The stock runs short',         deal:{stock:18}},
-  {text:'Two peaks are dealt face down',deal:{hidden:[0,2]}},
+  {text:'A run cannot pass five',       deal:{cap:5}},
   {text:'Aces no longer wrap',          deal:{wrap:false}},
 ];
 const bossRule = () => BOSS_RULES[areaOf()];
@@ -838,6 +928,106 @@ function setMyBars(){
   $('mePic').src = `art/hero_t${heroTier()}.webp`;
 }
 
+/* ===================== popups ===================== */
+function openPanel(html){ $('panel').innerHTML = html; $('overlay').hidden = false; $('panel').scrollTop = 0; }
+function closePanel(){ $('overlay').hidden = true; }
+
+/* ===================== how a fight starts =====================
+   Four kinds of meeting, as in dev/game.html and dev/farkle.html, with the
+   words changed to suit a reading rather than a hand of cards or a set of
+   dice: Old Bram's deck tells you what is coming, so "you spot it first" is
+   the cards warning you. */
+const ENC = {
+  ambush:{ title:'Ambush!',            text:'It was on you before the cards were down.' },
+  spot:  { title:'The cards warn you', text:'It has not seen you yet.' },
+  path:  { title:'Blocked',            text:'It will not let you past.' },
+  boss:  { title:'',                   text:'It guards the way forward.' }
+};
+const SAY = {
+  ambush:['Gotcha!', 'Fresh meat!', 'Surprise, hero!'],
+  path:['You shall not pass.', 'Turn back, little hero.', 'This path is mine.'],
+  boss:['Your quest ends here.', 'You will go no further.', 'Turn back, or fall like the others.']
+};
+const pickOne = a => a[rndInt(a.length)];
+
+/* A typed line, so it arrives rather than just being there. The timers are
+   held because an intro schedules its lines a second into the future, and a
+   panel replaced before then had the old intro's words typed into it - which
+   showed up as a monster that spots you saying "You shall not pass." */
+let typer = null, introTimers = [];
+function clearIntroTimers(){ introTimers.forEach(clearTimeout); introTimers = []; clearInterval(typer); }
+const laterInIntro = (fn, ms) => introTimers.push(setTimeout(fn, ms));
+function typeInto(el, text, speed = 26){
+  clearInterval(typer);
+  if(!el) return;
+  if(reduced()){ el.textContent = text; return; }
+  let n = 0;
+  el.textContent = '';
+  typer = setInterval(() => {
+    if(!document.body.contains(el)){ clearInterval(typer); return; }
+    el.textContent = text.slice(0, ++n);
+    if(n >= text.length) clearInterval(typer);
+  }, speed);
+}
+
+/* The tape compares whole boards, not single blows, and the first version of
+   it compared single blows and lied.
+
+   dev/farkle.html can put one blow against one hit because a turn there is
+   exactly that: you wind up, you strike, it answers. Here a board is eleven
+   strikes, most of them a scratch - the measured median run is worth 21 and
+   the mean 75 - and a third of a board's damage arrives as peak and clear
+   bonuses that are not strikes at all. Against the first area boss, the
+   per-blow tape read "you 19, it 35", which a player would correctly take to
+   mean they lose. dev/gen/slbalance.cjs says they win that fight 68% of the
+   time. Any per-blow number here, median or mean, tells the same lie.
+
+   So the row is a whole board, which is also the unit the fight is fought in:
+   one reading per monster. */
+function tapeHTML(d){
+  const board = Math.round((ROUND_AVG + BONUS_AVG) * lvlMult(S.level) * atkMult());
+  const theirs = d.moves.filter(m => m.k === 'atk');
+  const hit = theirs.length ? theirs.reduce((a, b) => a + b.n, 0) / theirs.length : 0;
+  /* what it lands over the same board: one answer per strike, and only the
+     attacking moves in its pattern actually land */
+  const back = takeFrom(hit) * STRIKES * (theirs.length / d.moves.length);
+  return `<div class="tape">
+    <span class="who">You</span><span class="mid"></span><span class="who r">It</span>
+    <b class="mine">${fmt(S.hp)}</b><span class="mid">Health</span><b class="theirs">${fmt(d.hp)}</b>
+    <b class="mine">${fmt(armored(board, d))}</b><span class="mid">A whole board</span><b class="theirs">${fmt(back)}</b>
+    <b class="mine">+${defense()}</b><span class="mid">Armor</span><b class="theirs">+${foeArmor(d)}</b>
+  </div>`;
+}
+
+/* force lets dev/gen/slpanels.cjs open each of the four without playing until
+   the right one happens to come up */
+function fightIntro(force){
+  clearIntroTimers();
+  const d = S.fight;
+  const kind = force || (d.boss ? 'boss' : ['ambush', 'spot', 'path'][rndInt(3)]);
+  S.enc = kind;
+  const t = ENC[kind];
+  const title = kind === 'boss' ? `The ${d.name}!` : t.title;
+  const line = kind === 'spot' ? 'The cards came up black.' : pickOne(SAY[kind] || SAY.path);
+  openPanel(`
+    <div class="scene">
+      <img class="bg" src="art/${bgOf()}.webp" alt="">
+      <img class="foe" src="art/${d.slug}.webp" alt="${d.name}">
+      <span class="tag">${title}</span>
+      ${kind === 'spot' ? '<span class="mark">?</span>' : ''}
+    </div>
+    <div class="say ${kind === 'spot' ? 'you' : ''}" id="encSay"></div>
+    ${tapeHTML(d)}
+    ${d.boss ? `<div class="tipbox"><b>${d.name}</b> fights by its own rule: ${d.rule.text}</div>` : ''}
+    <p id="encCap"></p>
+    <button class="btn big" data-act="fight">Fight!</button>`);
+  laterInIntro(() => typeInto($('encSay'), line), kind === 'spot' ? 350 : 700);
+  laterInIntro(() => typeInto($('encCap'), t.text, 18), 1100);
+  if(kind === 'ambush') laterInIntro(() => { deadthud(); shake(); }, 300);
+  if(kind === 'boss') laterInIntro(() => shake(2), 450);
+  if(kind === 'spot') laterInIntro(() => { tone(880, .12, 'square', .05); tone(1320, .12, 'square', .05, .08); }, 1500);
+}
+
 /* ---------- starting one ---------- */
 function startFight(){
   const a = curArea(), [lo, hi] = AREA_LV(), boss = isBossStep();
@@ -865,6 +1055,8 @@ function startFight(){
   /* the board this fight is read on, bent by the boss rule if there is one */
   R = dealRound(boss ? f.rule.deal : {});
   render();
+  busy = true;                 /* the board waits behind the intro */
+  fightIntro();
 }
 
 
@@ -884,6 +1076,7 @@ function dealRound(opts = {}){
     run: 0, runVal: 0,
     down: [],                     /* peaks already taken down, so each lands once */
     hidden: opts.hidden || [],    /* peaks dealt face down, for boss rules */
+    cap: opts.cap || 0,           /* a boss rule that breaks the run at a length */
   };
 }
 
@@ -1299,6 +1492,16 @@ function playCard(i){
       await peakDown(k);
       if(S.fight.hp <= 0){ await won(); return; }
     }
+
+    /* a boss rule: the run breaks itself at a length, however good the board
+       looks. It is a strike like any other, so the monster answers it. */
+    if(R.cap && R.run >= R.cap && !cleared()){
+      banner('The reading breaks', `A run cannot pass ${R.cap}`);
+      await wait(520);
+      await doStrike();
+      if(S.fight.hp <= 0){ await won(); return; }
+      if(S.hp <= 0){ await lost(); return; }
+    }
     busy = false;
     afterMove();
   });
@@ -1335,9 +1538,14 @@ function goldBurst(x, y, size){
    multiple of anything the player was holding */
 async function bonusBlow(raw, tier){
   const dmg = armored(Math.round(raw * lvlMult(S.level) * atkMult()), S.fight);
+  /* the axe falls BEFORE the health comes off, the same order doStrike uses.
+     Taking the health first and animating afterwards left the bar reading
+     nearly five points higher than the monster's real health for most of half
+     a second, which dev/gen/slplay.cjs caught as the bar disagreeing with the
+     game - and it was the game that was ahead, not the bar that was wrong. */
+  await slashes(tier);
   const f = S.fight, absorbed = Math.min(f.block, dmg);
   f.block -= absorbed; f.hp -= dmg - absorbed;
-  await slashes(tier);
   damageBurst(dmg - absorbed, tier);
   bigBoom(tier); shake(tier >= 3 ? 3 : 2);
   setFoeBars();
@@ -1439,6 +1647,12 @@ function redeal(){
   busy = false;
 }
 
+$('overlay').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if(!b) return;
+  if(b.dataset.act === 'fight'){ closePanel(); busy = false; }
+});
+
 $('board').addEventListener('click', e => {
   const t = e.target.closest('[data-act="turn"]');
   if(t){ turnStock(); return; }
@@ -1451,7 +1665,8 @@ startFight();
 
 /* exposed for the test harness and for dev/gen/slscan.cjs */
 Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT, takes, valueOf,
-  set R(v){ R = v; }, S, startFight, makeFoe, WORLDS, BOSS_RULES } });
+  set R(v){ R = v; }, S, startFight, makeFoe, WORLDS, BOSS_RULES,
+  fightIntro, openPanel, closePanel } });
 
 })();
 </script>

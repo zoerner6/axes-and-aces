@@ -40,7 +40,7 @@ const FIGHTS = +(process.argv[2] || 4000);
 const CAP = 12;                              /* boards before calling it a draw */
 
 /* One whole fight. Gear is flat Attack and Defense points, as in fkbalance. */
-function fight(L, atkPts, defPts, boss, area, wrap = true, stockN = 24) {
+function fight(L, atkPts, defPts, boss, area, wrap = true, stockN = 24, cap = 0) {
   const a = F.WORLDS[0].areas[area];
   const kind = boss ? a.boss : a.pool[Math.random() * a.pool.length | 0];
   const d = F.makeFoe(kind, L, boss);
@@ -62,7 +62,7 @@ function fight(L, atkPts, defPts, boss, area, wrap = true, stockN = 24) {
   while (fhp > 0 && hp > 0 && boards < CAP) {
     boards++;
     const { tableau, stock } = P.deal(Math.random);
-    const g = P.greedy(tableau, stock.slice(0, stockN), wrap);
+    const g = P.greedy(tableau, stock.slice(0, stockN), wrap, cap);
     for (let i = 0; i < g.runs.length; i++) {
       const [len, val] = g.runs[i];
       const dmg = F.armored(Math.round(val * len * lm * am), d);
@@ -129,6 +129,7 @@ run('level 12, steel axe and steel kit', FIGHTS, 12, 75, 190, false, 3);
 console.log('\nwhat each boss rule costs, level 6, same gear, same monster:');
 run('an ordinary deal', FIGHTS, 6, 20, 20, true, 1);
 run('the stock runs short (18)', FIGHTS, 6, 20, 20, true, 1, true, 18);
+run('a run resets at five', FIGHTS, 6, 20, 20, true, 1, true, 24, 5);
 run('aces do not wrap', FIGHTS, 6, 20, 20, true, 1, false);
 console.log('  (the two face-down rules change only what a player can see,');
 console.log('   which a bot never used, so they cannot be measured here)');

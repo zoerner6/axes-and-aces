@@ -97,8 +97,16 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
     if (st.run > maxRun) maxRun = st.run;
 
     if (st.free.length) {
-      await p.click(`.peaks .pk[data-i="${st.free[0]}"]`);
+      /* A card can stop being legal between reading the board and tapping it,
+         and a card that is not legal carries aria-disabled, which Playwright
+         waits on for thirty seconds. Fail fast and read the board again. */
+      try {
+        await p.click(`.peaks .pk[data-i="${st.free[0]}"].free`, { timeout: 2500 });
+      } catch { st = await read(); continue; }
       await p.waitForTimeout(330);
+      /* a card can bring a peak down, which is a whole blow of its own, so
+         the board is not ready again just because the card flew */
+      await settle();
     } else if (st.stockLeft > 0) {
       const before = { hp: st.foeHp, run: st.run };
       await p.click('[data-act="turn"]');
@@ -111,9 +119,14 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
             const n = document.querySelector('.dmgnum');
             return n && n.classList.contains('out');
           }, null, { timeout: 8000 });
+          /* Read the health in the SAME breath as the number. The monster's
+             answer comes a beat later and a third of the pool heals itself,
+             so comparing against the health after the answer reported the
+             heal as the bar disagreeing with the game. */
           shown = await p.evaluate(() => {
             const n = document.querySelector('.dmgnum');
-            return n ? +n.textContent.replace(/[^0-9]/g, '') : null;
+            return n ? { n: +n.textContent.replace(/[^0-9]/g, ''),
+                         hp: window.__SOL.S.fight.hp } : null;
           });
         } catch { /* the monster may have died before the number settled */ }
         strikes++;
@@ -123,13 +136,10 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
         });
         if (t) tiers[t] = (tiers[t] || 0) + 1;
         await settle();
-        const after = await read();
-        /* the monster may have healed or guarded straight after, so this only
-           checks the drop was at least what the number said */
-        if (shown != null && after.foeHp > 0 && before.hp - after.foeHp < shown - 1) {
+        if (shown && Math.abs((before.hp - shown.hp) - shown.n) > 1) {
           barMismatch++;
-          if (barMismatch < 5) console.log(`      ** said ${shown} damage, health fell ` +
-            `${before.hp - after.foeHp} (${before.hp} to ${after.foeHp})`);
+          if (barMismatch < 5) console.log(`      ** said ${shown.n} damage, health fell ` +
+            `${before.hp - shown.hp} (${before.hp} to ${shown.hp})`);
         }
       } else {
         await p.waitForTimeout(200);
