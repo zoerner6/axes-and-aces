@@ -64,6 +64,11 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     await p.goto('file://' + out.replace(/\\/g, '/'), { waitUntil: 'load' });
     await p.evaluate(() => document.fonts.ready);
     await p.waitForTimeout(500);
+    /* A fight opens behind its intro and the board is what is being measured,
+       so press the button rather than hiding the panel: the button also hands
+       the board back, and hiding the panel alone leaves it frozen. */
+    await p.click('[data-act="fight"]', { timeout: 4000 }).catch(() => {});
+    await p.waitForTimeout(160);
 
     const m = await p.evaluate(() => {
       const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();   /* the page has its own copy */

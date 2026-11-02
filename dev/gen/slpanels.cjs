@@ -42,22 +42,39 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     await p.evaluate(() => document.fonts.ready);
     await p.waitForTimeout(400);
 
-    for (const kind of ['ambush', 'spot', 'path', 'boss']) {
+    /* The four intros, then the screens a fight ends on. The level-up has no
+       one big button - its main control is the list of perks - so what has to
+       be reachable there is the LAST perk, not a button. */
+    const SCREENS = ['ambush', 'spot', 'path', 'boss', 'victory', 'flawless', 'clean', 'level', 'fallen'];
+    for (const kind of SCREENS) {
       await p.evaluate(k => {
         const SOL = window.__SOL, S = SOL.S;
-        /* a boss intro needs an actual boss, with its rule line */
         S.step = k === 'boss' ? 2 : 0;
         S.area = 0;
+        S.perks = []; S.bonusHp = 0; S.pendingLv = 0;
+        S.level = k === 'level' ? 4 : 1;
+        S.maxHp = 400 + 100 * (S.level - 1); S.hp = Math.round(S.maxHp * .4);
+        S.gold = 37; S.xp = 0;
         SOL.startFight();
         SOL.closePanel();
-        SOL.fightIntro(k);
+        if (['ambush', 'spot', 'path', 'boss'].includes(k)) return SOL.fightIntro(k);
+        if (k === 'level') { S.pendingLv = 1; return SOL.levelPanel(); }
+        if (k === 'fallen') return SOL.lost();
+        const d = S.fight;
+        const mood = { flawless: k === 'flawless', clean: k === 'clean', clutch: false };
+        mood.bonus = mood.flawless ? d.gold : 0;
+        S.gold += d.gold + mood.bonus;
+        S.xp += d.xp;
+        SOL.victoryPanel(d, mood);
       }, kind);
-      await p.waitForTimeout(1600);          /* let the typed lines finish */
+      await p.waitForTimeout(kind === 'fallen' ? 2400 : 1700);   /* typed lines, counters */
 
       const m = await p.evaluate(() => {
         const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();   /* the page needs its own */
         const panel = document.querySelector('#panel');
-        const btn = panel.querySelector('.btn.big');
+        /* the main control: one big button, or the last perk on a level-up */
+        const perks = [...panel.querySelectorAll('.perk')];
+        const btn = panel.querySelector('.btn.big') || perks[perks.length - 1] || null;
         const pr = panel.getBoundingClientRect();
         const br = btn ? btn.getBoundingClientRect() : null;
         return {
@@ -77,13 +94,13 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
 
       const a = m.audit, notes = [];
       if (m.scrolls) { notes.push(`panel scrolls: ${m.scrollH}px of content in ${m.clientH}px`); bad++; }
-      if (!m.btn) { notes.push('no Fight button'); bad++; }
+      if (!m.btn) { notes.push('nothing to press'); bad++; }
       else {
-        if (!m.btn.inView) { notes.push(`Fight button sits ${m.btn.bottom - h}px below the screen`); bad++; }
-        if (m.btn.h < 44) { notes.push(`Fight button only ${m.btn.h}px tall`); bad++; }
+        if (!m.btn.inView) { notes.push(`the main control sits ${m.btn.bottom - h}px below the screen`); bad++; }
+        if (m.btn.h < 44) { notes.push(`the main control is only ${m.btn.h}px tall`); bad++; }
       }
       if (kind === 'boss' && !m.rule) { notes.push('boss intro shows no rule'); bad++; }
-      if (!m.say) { notes.push('nothing was said'); bad++; }
+      if (['ambush', 'spot', 'path', 'boss'].includes(kind) && !m.say) { notes.push('nothing was said'); bad++; }
       if (a.overlaps.length) { notes.push('text on text: ' + a.overlaps.map(o => `"${o.a}" x "${o.b}"`).join(' | ')); bad++; }
       if (a.cropped.length) { notes.push('art sliced: ' + a.cropped.map(c => `${c.src} sides ${c.cutSides} topbottom ${c.cutTopBottom}`).join(' | ')); bad++; }
       if (a.broken.length) { notes.push('missing art: ' + a.broken.join(', ')); bad++; }

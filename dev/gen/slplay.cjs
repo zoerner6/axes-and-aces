@@ -57,6 +57,10 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
       myPc: parseFloat(mine.style.width) || 0,
       shownRun: +(document.querySelector('#runbox b') || {}).textContent,
       busyish: !!document.querySelector('.dmgnum, .boom, .slash'),
+      busy: window.__SOL.busy,
+      panel: document.getElementById('overlay').hidden ? '' :
+        [...document.querySelectorAll('#panel [data-act]')].map(e => e.dataset.act).join(','),
+      cleared: window.__SOL.cleared(), anyLegal: window.__SOL.anyLegal(),
     };
   });
 
@@ -69,9 +73,36 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
     await p.waitForTimeout(140);
   };
 
+  /* Every fight now opens behind an intro panel, so a bot has to walk through
+     the door like a person does. It is also the only thing standing between a
+     stray click and a thirty-second Playwright timeout. */
+  /* A fight is bracketed by panels now, not just opened by one: the intro,
+     then victory, then a level-up with a perk to pick, or the fallen screen.
+     Clicking the board while any of them is up is a thirty-second Playwright
+     timeout, so the bot walks through whatever door is in front of it. */
+  const DOORS = ['fight', 'onward', 'perk', 'again'];
+  const walkPanels = async () => {
+    for (let i = 0; i < 8; i++) {
+      const act = await p.evaluate(doors => {
+        if (document.getElementById('overlay').hidden) return null;
+        for (const d of doors) if (document.querySelector(`[data-act="${d}"]`)) return d;
+        return 'unknown';
+      }, DOORS);
+      if (!act) return;
+      if (act === 'unknown') {
+        console.log('      ** a panel with no way out of it');
+        return;
+      }
+      await p.click(`[data-act="${act}"]`, { timeout: 5000 }).catch(() => {});
+      await p.waitForTimeout(260);
+    }
+  };
+  const dismissIntro = walkPanels;
+
   let barMismatch = 0, runMismatch = 0, wedged = 0, fights = 0, strikes = 0;
   const tiers = {};
   let maxRun = 0, totalBoards = 0;
+  await dismissIntro();
   let st = await read();
   let fightKey = st.foeName + st.lvl + st.step;
   let guard = 0;
@@ -82,6 +113,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
 
   while (fights < FIGHTS && guard < 4000) {
     guard++;
+    await dismissIntro();
 
     /* the bar on screen has to agree with the health in the game */
     const want = Math.max(0, st.foeHp / st.foeMax * 100);
@@ -166,7 +198,9 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
         wedged++;
         const st2 = await read();
         console.log(`      ** the board will not move and nothing redealt it ` +
-          `(${st2.left} cards left, stock ${st2.stockLeft}, run ${st2.run})`);
+          `(${st2.left} cards left, stock ${st2.stockLeft}, run ${st2.run}, ` +
+          `busy ${st2.busy}, cleared ${st2.cleared}, anyLegal ${st2.anyLegal}, ` +
+          `panel "${st2.panel}")`);
         break;
       }
       totalBoards++;
