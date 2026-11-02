@@ -574,6 +574,11 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
   .buy b{font-size:1rem}
   .buy span:not(.cost){font-size:.82rem}
   .buys{gap:6px}
+  /* The menu is seven rows deep and every description wraps to two lines at
+     320 wide, which put 592px of content in 534px and the button 29px off the
+     bottom of the screen. The names and the values carry it on their own. */
+  .menu-list .buy{min-height:44px}
+  .menu-list .buy span:not(.cost){display:none}
 }
 
 /* ===================== things that fly across the screen =====================
@@ -1653,6 +1658,7 @@ async function doStrike(opts = {}){
   if(!w) return;
   const tier = strikeTier(w), dmg = strikeDamage(w);
   const len = R.run;
+  if(len > (S.bestRun || 0)) S.bestRun = len;     /* the thing worth bragging about */
   R.run = 0; R.runVal = 0;
   /* drawn straight away, before the cards start flying: the run is spent the
      moment the blow begins, and leaving the old count on screen through the
@@ -1965,6 +1971,150 @@ async function postLevel(){
   }catch(e){ toast(e.message); }
 }
 
+/* ===================== brag pictures =====================
+   The card game's 1200x630 comic card, drawn for the reading: scene behind, a
+   figure on the right, a gold headline, and the address spelled the one way
+   it is ever spelled. The mark is three little cards drawn on the canvas
+   rather than a picture, so this needs no art of its own. */
+const SITE = 'https://axesandaces.com/';
+/* The art is same-origin in every place this actually runs - the website and
+   both phone apps bundle it - so asking for CORS costs nothing and keeps the
+   canvas clean. Under file:// neither setting works: with it the images do
+   not load, without it they taint the canvas and toDataURL throws, because
+   file:// has an opaque origin. That is why dev/gen/slbrag.cjs serves the
+   page over http to check these rather than opening it off disk. */
+function imgLoad(src){
+  return new Promise(r => { const i = new Image(); i.crossOrigin = 'anonymous';
+    i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+}
+/* The mark: three little cards in a peak, drawn on the canvas rather than
+   loaded, so a brag picture needs no art of its own. */
+function drawMark(x, left, top, size){
+  const w = size * .42, h = size * .62;
+  [[0, size * .32], [size * .29, 0], [size * .58, size * .32]].forEach(([dx, dy]) => {
+    x.save();
+    x.fillStyle = '#fffaf0'; x.strokeStyle = '#000'; x.lineWidth = size * .07;
+    x.beginPath();
+    const r = size * .07, X = left + dx, Y = top + dy;
+    if(x.roundRect) x.roundRect(X, Y, w, h, r); else x.rect(X, Y, w, h);
+    x.fill(); x.stroke();
+    x.restore();
+  });
+}
+async function bragCard(o){
+  try{
+    await document.fonts.load('80px "Germania One"');
+    await document.fonts.load('700 40px Oswald');
+    await document.fonts.load('38px "Alfa Slab One"');
+  }catch(e){}
+  const c = document.createElement('canvas'); c.width = 1200; c.height = 630;
+  const x = c.getContext('2d');
+  const bg = await imgLoad(o.bg || 'art/bg_tavern.webp');
+  if(bg){ const sc = Math.max(1200 / bg.width, 630 / bg.height);
+    x.drawImage(bg, (1200 - bg.width * sc) / 2, (630 - bg.height * sc) / 2, bg.width * sc, bg.height * sc); }
+  else { x.fillStyle = '#2a1608'; x.fillRect(0, 0, 1200, 630); }
+  const gr = x.createLinearGradient(0, 0, 1200, 0);
+  gr.addColorStop(0, 'rgba(10,5,3,.94)'); gr.addColorStop(.55, 'rgba(10,5,3,.78)'); gr.addColorStop(1, 'rgba(10,5,3,.15)');
+  x.fillStyle = gr; x.fillRect(0, 0, 1200, 630);
+  const fig = o.fig ? await imgLoad(o.fig) : null;
+  if(fig){ const k = Math.min(500 / fig.width, 520 / fig.height), w = fig.width * k, h = fig.height * k;
+    x.save(); x.shadowColor = 'rgba(0,0,0,.85)'; x.shadowBlur = 30; x.drawImage(fig, 1180 - w, 610 - h, w, h); x.restore(); }
+  x.fillStyle = '#000'; x.fillRect(0, 0, 1200, 12); x.fillRect(0, 618, 1200, 12);
+  x.textBaseline = 'alphabetic';
+  drawMark(x, 48, 44, 78);
+  const gold = x.createLinearGradient(0, 56, 0, 104);
+  gold.addColorStop(0, '#fff8e0'); gold.addColorStop(.2, '#ffd964');
+  gold.addColorStop(.56, '#f2b632'); gold.addColorStop(1, '#ab6d14');
+  x.font = '38px "Alfa Slab One", Rockwell, Georgia, serif';
+  x.lineJoin = 'round'; x.lineWidth = 8; x.strokeStyle = '#000'; x.fillStyle = gold;
+  x.strokeText('MONSTER SOLITAIRE', 146, 98); x.fillText('MONSTER SOLITAIRE', 146, 98);
+  x.font = '700 22px Oswald, Arial'; x.fillStyle = '#e8d9bb';
+  x.fillText((o.eyebrow || '').toUpperCase(), 148, 132);
+  x.font = '74px "Germania One", Georgia, serif'; x.lineWidth = 10; x.strokeStyle = '#000';
+  x.fillStyle = '#fff3d0'; x.lineJoin = 'round';
+  const wrap = (t, w) => { const out = []; let l = '';
+    for(const word of String(t).split(' ')){ const n = l ? l + ' ' + word : word;
+      if(x.measureText(n).width > w && l){ out.push(l); l = word; } else l = n; }
+    if(l) out.push(l); return out; };
+  let y = 212;
+  for(const l of wrap(o.title, 640).slice(0, 2)){ x.strokeText(l, 56, y); x.fillText(l, 56, y); y += 80; }
+  if(o.big){ x.font = '700 84px Oswald, Arial'; x.fillStyle = '#f2b632';
+    x.strokeText(o.big, 56, y + 22); x.fillText(o.big, 56, y + 22); y += 86; }
+  x.font = '500 28px "Alegreya Sans", Arial, sans-serif'; x.fillStyle = '#e8d9bb'; x.lineWidth = 5;
+  wrap(o.sub || '', 620).slice(0, Math.max(1, Math.floor((480 - (y + 10)) / 34) + 1))
+    .forEach((l, i) => { x.strokeText(l, 58, y + 10 + i * 34); x.fillText(l, 58, y + 10 + i * 34); });
+  x.lineJoin = 'round'; x.strokeStyle = '#000';
+  x.font = '34px "Germania One", Georgia, serif'; x.lineWidth = 7; x.fillStyle = '#ffd35c';
+  x.strokeText('Play free at', 58, 540); x.fillText('Play free at', 58, 540);
+  x.font = '64px "Germania One", Georgia, serif'; x.lineWidth = 10; x.fillStyle = '#ffffff';
+  x.strokeText('AxesAndAces.com', 56, 600); x.fillText('AxesAndAces.com', 56, 600);
+  const em = await imgLoad('img/emblem-64.webp');
+  if(em){ x.globalAlpha = .9; x.drawImage(em, 1118, 46, 40, 40); x.globalAlpha = 1; }
+  return c;
+}
+function bragInfo(kind){
+  const who = heroName(), bgA = `art/${bgOf()}.webp`;
+  if(kind === 'boss'){ const d = S.lastWin || {};
+    return { key:'sol_boss', eyebrow:worldName(), title:`I brought down the ${d.name || 'boss'}!`,
+             big:`${fmt(S.bestRun || 0)} in a row`,
+             sub:`${who} read the peaks and cut straight through it.`,
+             fig:d.slug ? `art/dead_${d.slug}.webp` : null, bg:bgA }; }
+  if(kind === 'run'){
+    return { key:'sol_run', eyebrow:'One chain', title:'My longest run yet',
+             big:`${fmt(S.bestRun || 0)} cards`,
+             sub:'One above or one below, over and over, and the blow gets heavier every time.',
+             fig:`art/hero_t${heroTier()}.webp`, bg:bgA }; }
+  if(kind === 'daily'){ const r = S.dailyResult || { score:0, wins:0 };
+    return { key:'sol_daily', eyebrow:`Today's reading`, title:`I scored ${fmt(r.score)} on today's cards`,
+             big:`${r.wins} of ${DAILY_FIGHTS}`,
+             sub:'Everybody gets the same cards today. See how far you get.',
+             fig:`art/hero_t${heroTier()}.webp`, bg:bgA }; }
+  if(kind === 'death'){
+    return { key:'sol_fallen', eyebrow:worldName(), title:`I reached level ${S.level}`,
+             big:`${fmt(S.wins || 0)} ${S.wins === 1 ? 'win' : 'wins'}`,
+             sub:`Before the ${(S.fight && S.fight.name) || 'monsters'} took ${who} down.`,
+             fig:`art/hero_t${heroTier()}.webp`, bg:bgA }; }
+  return { key:'sol_level', eyebrow:'Level up', title:`I reached level ${S.level}!`,
+           big:`&times;${lvlMult(S.level).toFixed(2)} damage`.replace('&times;', 'x'),
+           sub:'Every blow lands harder now.',
+           fig:`art/hero_t${heroTier()}.webp`, bg:bgA };
+}
+let bragCanvas = null, bragNow = null;
+const bragUrl = () => SITE + 'b/' + (bragNow ? bragNow.key : 'sol') + '.html';
+const bragText = () => bragNow
+  ? `${bragNow.title}${bragNow.big ? ' (' + bragNow.big + ')' : ''} Play Monster Solitaire free:`
+  : 'Play Monster Solitaire free:';
+async function bragPanel(kind){
+  const info = bragInfo(kind); bragNow = info;
+  openPanel(`<div class="eyebrow">Share it</div><h2>Brag about it</h2>
+    <div class="brag-img" id="bragImg"><span>Making your picture&hellip;</span></div>
+    <div class="row"><button class="btn ghost" data-act="bragShare">Share</button>
+      <button class="btn ghost" data-act="bragSave">Save</button></div>
+    <button class="btn big" data-act="closeMenu">Done</button>`);
+  bragCanvas = await bragCard(info);
+  const im = $('bragImg');
+  if(im){ im.innerHTML = ''; const i = new Image();
+    i.src = bragCanvas.toDataURL('image/jpeg', .9); i.alt = info.title; im.appendChild(i); }
+}
+const bragBlob = () => new Promise(r => bragCanvas ? bragCanvas.toBlob(b => r(b), 'image/jpeg', .9) : r(null));
+async function bragShare(){
+  const blob = await bragBlob();
+  const file = blob ? new File([blob], 'monster-solitaire.jpg', { type:'image/jpeg' }) : null;
+  if(file && navigator.canShare && navigator.canShare({ files:[file] })){
+    try{ await navigator.share({ files:[file], text:bragText(), url:bragUrl() }); return; }catch(e){ return; }
+  }
+  if(navigator.share){ try{ await navigator.share({ text:bragText(), url:bragUrl() }); return; }catch(e){ return; } }
+  bragSave();
+}
+function bragSave(){
+  if(!bragCanvas) return;
+  const a = document.createElement('a');
+  a.href = bragCanvas.toDataURL('image/jpeg', .9);
+  a.download = 'monster-solitaire.jpg';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Picture saved to your downloads');
+}
+
 /* ===================== the daily challenge =====================
    Five fights, and everybody who plays today gets the same monsters and the
    same deals. That only works if every shuffle comes from a seed instead of
@@ -2041,6 +2191,7 @@ function dailyDone(){
     ${nameRow()}
     <div id="lbList"></div>
     <button class="btn big" data-act="postDaily">Post my score</button>
+    <button class="btn big ghost" data-act="brag" data-kind="daily">Brag about it</button>
     <button class="btn big ghost" data-act="dailyQuit">Back to your hero</button>`);
 }
 async function postDaily(btn){
@@ -2070,7 +2221,7 @@ function dailyQuit(){
 function menuPanel(){
   openPanel(`
     <h2>Monster Solitaire</h2>
-    <div class="buys">
+    <div class="buys menu-list">
       <button class="buy" data-act="togMusic">
         <img class="ico" src="art/i_bolt.webp" alt=""><b>Music</b>
         <span>A song for each world, and one for a boss.</span>
@@ -2083,6 +2234,10 @@ function menuPanel(){
         <img class="ico" src="art/i_map.webp" alt=""><b>How to play</b>
         <span>What a run is and why it matters.</span>
         <span class="cost">Read</span></button>
+      <button class="buy" data-act="brag" data-kind="run">
+        <img class="ico" src="art/i_attack.webp" alt=""><b>Brag about your longest run</b>
+        <span>${S.bestRun ? `${S.bestRun} cards in a row so far.` : 'Once you have one worth showing.'}</span>
+        <span class="cost">Share</span></button>
       <button class="buy" data-act="daily">
         <img class="ico" src="art/i_trap.webp" alt=""><b>Daily challenge</b>
         <span>The same cards for everybody today.</span>
@@ -2289,6 +2444,7 @@ function victoryPanel(d, mood){
       </div>
     </div>
     <div class="hpbar" style="height:20px"><i style="width:${Math.max(0, S.hp / S.maxHp * 100)}%"></i><span>HP ${fmt(S.hp)} / ${fmt(S.maxHp)}</span></div>
+    ${d.boss ? `<button class="btn big ghost" data-act="brag" data-kind="boss">Brag about this win</button>` : ''}
     <button class="btn big" data-act="onward">${S.pendingLv ? 'Level up!' : 'Onward'}</button>
   </div>`);
   countTo($('vGold'), S.gold - d.gold - mood.bonus, S.gold, 900, 300);
@@ -2312,6 +2468,7 @@ async function won(){
   S.gold += d.gold + mood.bonus;
   S.xp += Math.round(d.xp * (hasPerk('study') ? 1.25 : 1));
   S.wins = (S.wins || 0) + 1;
+  S.lastWin = { name:d.name, slug:d.slug, boss:d.boss };
   banner('Victory!', `The ${d.name} is down`);
   if(S.daily){
     anim($('foePic'), 'hit');
@@ -2467,6 +2624,7 @@ async function lost(){
     <div class="scene"><img class="bg" src="art/${bgOf()}.webp" alt="">
       <img class="foe" src="art/${d.slug}.webp" alt="${d.name}"></div>
     <p>The <b>${d.name}</b> is still standing. Old Bram lays the cards out again.</p>
+    <button class="btn big ghost" data-act="brag" data-kind="death">Brag about how far you got</button>
     <button class="btn big" data-act="again">Try again</button>`);
 }
 
@@ -2763,6 +2921,9 @@ $('overlay').addEventListener('click', e => {
     catch(e){ toast('Write it down instead'); }
     return;
   }
+  if(act === 'brag'){ bragPanel(b.dataset.kind); return; }
+  if(act === 'bragShare'){ bragShare(); return; }
+  if(act === 'bragSave'){ bragSave(); return; }
   if(act === 'daily'){ return startDaily(); }
   if(act === 'dailyGo'){ closePanel(); S.daily.n = 0; dailyStep(); startFight(); return; }
   if(act === 'postDaily'){ postDaily(b); return; }
@@ -2860,6 +3021,7 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   storyPanel, storyNext, updateMusic, songWant, menuPanel, helpPanel,
   slotsPanel, cloudPanel, lbPanel, saveGame, loadSave, freshHero, SK, cloudCode,
   startDaily, dailyNext, dailyDone, dailyStep, seeded, dayNumber, todayKey, DAILY_FIGHTS,
+  bragPanel, bragInfo, bragCard,
   get musicOn(){ return musicOn; }, set musicOn(v){ musicOn = v; },
   get busy(){ return busy; }, afterMove, anyLegal, cleared } });
 
