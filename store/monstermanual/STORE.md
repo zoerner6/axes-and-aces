@@ -192,25 +192,38 @@ with a picture, a stat block, and a line telling you how it actually fights.
 
 - **168 monsters**, from a goblin in a tavern to the Demon King on his throne.
 - **Full 5E-compatible stat blocks.** Armor class, hit points, speeds, ability
-  scores, resistances, traits, actions, challenge rating. Nothing left for you
-  to fill in.
-- **Forty bosses**, each on a page of its own, each with the one trick that
-  makes it different.
+  scores, saving throws, resistances, senses, traits, actions, reactions,
+  challenge rating. Nothing left for you to fill in.
+- **Forty bosses, every one with legendary actions.** A solo monster that only
+  acts once a round gets swarmed and dies before its hit points matter. These
+  do not.
+- **Lair actions for the ten worlds' end bosses**, written for the place you
+  fight them in.
+- **Nine spellcasters who actually cast.** The lich has spells. So do the
+  witches, the priests and the demon sorcerer.
 - **Ten worlds** to pull from: a tavern cellar, frozen peaks, burning sands, a
   sunken coast, a plague marsh, iron mines, a haunted abbey, elven wilds, a sky
   fortress, and the Abyss.
 - **Challenge 1/2 up to 22**, laid out so the book runs easy to hard front to
   back. World one is for a 1st-level party. World ten is for a 20th.
+- **Forty encounters, already costed.** A patrol and a boss fight for every
+  area, priced against the party level it was written for, plus the XP
+  thresholds and the crowd multiplier so you can build your own.
+- **Four ways to find anything:** by name, by challenge rating, by creature
+  kind, and by terrain — all with page numbers — plus a two-page table of all
+  168 with rating, armor class, hit points and page. That last one is the page
+  to keep behind the screen.
 - **A picture for every single monster**, each one standing in its own place
   rather than on a blank page.
 - **The method, written down.** The introduction explains exactly how the card
-  game's balance numbers became challenge ratings, so you can see the working
-  and decide whether to trust it.
+  game's balance numbers became challenge ratings, and where that method
+  follows the Dungeon Master's Guide and where it follows published creatures
+  instead. You can see the working and decide whether to trust it.
 
 **Use it with whatever you are already running.** There is no setting to buy
 into and no new rules to learn. It is a book of monsters.
 
-**138 pages, PDF.**
+**139 pages, PDF.**
 
 ---
 
@@ -220,6 +233,11 @@ drawn or written by a human by hand. The pictures come out of the card game,
 where they have been in use since launch. If AI art or AI writing is not
 something you want to pay for, please do not buy this — that is a fair
 position and this notice is here so you can take it before you spend anything.
+
+---
+
+**Also in paperback.** The same book, 8.5 x 11, full colour, on Amazon at
+$29.99. This PDF is the cheaper way to get it and the one you can search.
 
 ---
 
