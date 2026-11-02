@@ -11,7 +11,7 @@ build = open("dev/build.py", encoding="utf-8").read()
 # Each game on the site keeps its head in its own variable in dev/build.py, so a
 # test page can never drift from the real page. Match the assignment at the
 # start of a line, or `head` would also be found inside `fhead`.
-HEADVAR = {"farkle": "fhead"}
+HEADVAR = {"farkle": "fhead", "solitaire": "shead"}
 var = HEADVAR.get(os.path.splitext(os.path.basename(src))[0], "head")
 m = re.search('^' + var + ' = """(.*?)"""', build, re.S | re.M)
 assert m, "could not find " + var + ' = """..."""' + " in dev/build.py"

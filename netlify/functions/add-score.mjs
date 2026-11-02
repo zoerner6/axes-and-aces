@@ -9,11 +9,11 @@ export default async (req) => {
   // Boards are a fixed list so a caller cannot invent one. Monster Farkle
   // (farkle.html) posts to its own, and the scores table already has the
   // columns, so no migration.
-  const BOARDS = ["daily", "level", "farkle", "farkle_daily"];
+  const BOARDS = ["daily", "level", "farkle", "farkle_daily", "solitaire", "solitaire_daily"];
   const board = BOARDS.includes(b.board) ? b.board : "daily";
   const name = cleanName(b.name);
   const score = Math.floor(Number(b.score));
-  const daily = board === "daily" || board === "farkle_daily";
+  const daily = board === "daily" || board === "farkle_daily" || board === "solitaire_daily";
   const day = daily && /^\d{4}-\d{2}-\d{2}$/.test(b.day || "") ? b.day : null;
   if (!name) return json({ error: "Pick a name" }, 400);
   if (!Number.isFinite(score) || score < 0 || score > 10000000) return json({ error: "Bad score" }, 400);
