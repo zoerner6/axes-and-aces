@@ -9,7 +9,11 @@
 
    So the doors live in one place. Add a panel to the game, add its button
    here, and every tool keeps working. */
-const DOORS = ['storyNext', 'fight', 'onward', 'perk', 'leaveShop', 'quest', 'again'];
+/* Order matters: the first one present is the one pressed. The slot screen is
+   last because it only appears for a player who has been here before, and
+   every other door should win when both are somehow on screen. */
+const DOORS = ['storyNext', 'fight', 'onward', 'perk', 'leaveShop', 'quest', 'again',
+               'loadHero', 'newHero'];
 
 /* Press whatever is in front of you until the board is yours. Returns the
    names of the doors it went through, which is worth printing when a harness

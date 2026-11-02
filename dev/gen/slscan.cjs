@@ -57,6 +57,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     });
     const p = await ctx.newPage();
     await p.route('**/vid/**', r => r.abort());   /* 585MB of clips, and the stills are what we measure */
+    await p.route('**/music/**', r => r.abort());   /* not what this one is measuring */
     const errs = [];
     p.on('pageerror', e => errs.push(PLAIN(e.message).slice(0, 150)));
     /* the clips are blocked above on purpose, so their failures are ours */

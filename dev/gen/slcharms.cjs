@@ -21,6 +21,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const p = await ctx.newPage();
   await p.route('**/vid/**', r => r.abort());
+    await p.route('**/music/**', r => r.abort());   /* not what this one is measuring */
   const errs = [];
   p.on('pageerror', e => errs.push(String(e.message).replace(/\s+/g, ' ').slice(0, 150)));
   await p.addInitScript(() => {

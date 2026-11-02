@@ -32,6 +32,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
     isMobile: W <= 560, hasTouch: W <= 560, reducedMotion: 'no-preference' });
   const p = await ctx.newPage();
   await p.route('**/vid/**', r => r.abort());      /* 585MB, and not what is being checked */
+    await p.route('**/music/**', r => r.abort());   /* not what this one is measuring */
   const errs = [];
   p.on('pageerror', e => errs.push(String(e.message).replace(/\s+/g, ' ').slice(0, 160)));
   p.on('console', m => {

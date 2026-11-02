@@ -49,11 +49,20 @@
   for = "/vid/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+    Access-Control-Allow-Origin = "*"
 
+# The games read music through the Web Audio API, which needs the element to
+# be CORS-clean - createMediaElementSource refuses a tainted one. On the web
+# that is same-origin and fine, but the phone apps serve the game from
+# capacitor:// and fetch the songs from here, so without this header every
+# song is blocked and the game is silent with nothing in the console a player
+# would ever see. Found while checking Monster Solitaire; Monster Farkle uses
+# the same code and has the same problem waiting for it on iOS.
 [[headers]]
   for = "/music/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+    Access-Control-Allow-Origin = "*"
 
 [[redirects]]
   from = "https://www.axesandaces.com/*"

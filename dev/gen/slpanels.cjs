@@ -36,6 +36,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
       isMobile: w <= 560, hasTouch: w <= 560 });
     const p = await ctx.newPage();
     await p.route('**/vid/**', r => r.abort());
+    await p.route('**/music/**', r => r.abort());   /* not what this one is measuring */
     const errs = [];
     p.on('pageerror', e => errs.push(PLAIN(e.message).slice(0, 150)));
     await p.goto('file://' + out.replace(/\\/g, '/'), { waitUntil: 'load' });

@@ -386,6 +386,26 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row .btn{flex:1}
 .menu-note{font-size:.9rem;color:var(--parch-dim);line-height:1.45}
+.words{display:block;width:100%;max-width:340px;height:auto;margin:0 auto}
+.cloud-code{font-family:var(--f-num);font-weight:700;font-size:clamp(1.05rem,5.2vw,1.5rem);letter-spacing:.08em;
+  text-align:center;background:rgba(0,0,0,.35);border:2px solid #000;border-radius:10px;
+  padding:9px 6px;color:var(--gold-hi);word-break:break-all}
+.name-row{display:flex;flex-direction:column;gap:4px}
+.name-row label{font-family:var(--f-num);font-weight:600;font-size:.72rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--parch-dim)}
+.name-row input{font:inherit;font-family:var(--f-num);font-weight:600;letter-spacing:.06em;
+  background:#120d0b;color:var(--parch);border:2px solid #000;border-radius:9px;padding:11px 10px;min-height:48px}
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;counter-reset:lb}
+.lb li{counter-increment:lb;display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;
+  background:rgba(0,0,0,.3);border:2px solid #000;border-radius:9px;padding:6px 10px;font-size:.95rem}
+.lb li::before{content:counter(lb);font-family:var(--f-num);font-weight:700;color:var(--parch-dim);min-width:1.4em}
+.lb li b{font-family:var(--f-num);font-weight:700;color:var(--gold-hi);font-variant-numeric:tabular-nums}
+.lb li.me{background:rgba(242,182,50,.16)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  background:var(--leather);color:var(--parch);border:3px solid #000;box-shadow:4px 4px 0 #000;
+  border-radius:10px;padding:9px 14px;font-size:.92rem;z-index:90;max-width:90vw;text-align:center;
+  animation:rise2 2.6s ease forwards}
+@keyframes rise2{0%{opacity:0;transform:translate(-50%,12px)}10%,86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 .tipbox{background:var(--bubble);color:var(--bubble-ink);border:3px solid #000;box-shadow:4px 4px 0 #000;
   border-radius:12px;padding:9px 11px;font-size:.95rem;line-height:1.4}
 .tipbox b{color:#000}
@@ -836,6 +856,16 @@ const LAYOUT = (() => {
 
 const $ = id => document.getElementById(id);
 
+/* Everything this game remembers, under sl_ keys so it can never tread on an
+   Axes & Aces or a Monster Farkle hero. It sits up here because the hero that
+   is built before the first card is dealt reads a name out of it, and a const
+   declared further down is still in its dead zone at that point - which took
+   the page out entirely until it was moved. */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('sl_' + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('sl_' + k, JSON.stringify(v)); }catch(e){} }
+};
+
 /* ===================== where this page is talking to =====================
    The clips are 585MB and do not ship inside the app, so they always come off
    the live site unless the page is already being served from it. Same line as
@@ -983,12 +1013,19 @@ function makeFoe(kind, L, boss){
    same shape as the other two games, so the art, the place names and the level
    bands all line up. */
 const AREA_FIGHTS = 3;
-const S = {
+/* A hero at the start of everything. It is a function because three slots and
+   a cloud load all need one, and because a stale half-reset hero is the kind
+   of bug that only shows up in somebody's second playthrough. */
+const freshHero = () => ({
+  name: store.get('name', '') || 'Edward',
   level:1, hp:400, maxHp:400, gold:3, xp:0,
-  eq:{}, world:0, area:0, step:0,
-  fight:null, block:0,
+  eq:{}, perks:[], charms:[], pots:[], bonusHp:0, pendingLv:0,
+  world:0, area:0, step:0, introBeat:0, endBeat:0,
+  fight:null, block:0, wins:0, deaths:0,
   training:false,                /* this fight is off the quest and advances nothing */
-};
+});
+/* let, not const: loading a save from the cloud replaces the whole hero */
+let S = freshHero();
 const worldOf = () => WORLDS[(S.world || 0) % 10];
 const areaOf = () => Math.min(3, S.area | 0);
 const curArea = () => worldOf().areas[areaOf()];
@@ -1353,10 +1390,6 @@ function render(){
    Cards, not dice: a short paper snap off a band-passed noise burst, built the
    same way dev/game.html and dev/farkle.html build theirs, so nothing has to
    ship as an audio file. */
-const store = {
-  get(k, d){ try{ const v = localStorage.getItem('sl_' + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem('sl_' + k, JSON.stringify(v)); }catch(e){} }
-};
 let ac = null, noiseBuf = null;
 let soundOn = store.get('sound', true);
 function audio(){
@@ -1761,6 +1794,155 @@ function takePerk(id){
   else shopPanel();
 }
 
+/* ===================== keeping your hero =====================
+   Three slots under sl_ keys, so Monster Solitaire can never overwrite an
+   Axes & Aces hero or a Monster Farkle one. The cloud functions store
+   whatever JSON they are handed, so they needed no change for a third game -
+   only the leaderboard did, and that was two names added to a fixed list. */
+let SLOT = (() => { try{ return +JSON.parse(localStorage.getItem('sl_slot') || '1') || 1; }catch(e){ return 1; } })();
+const SK = (k, n) => `sl_${k}_${n || SLOT}`;
+const heroName = () => (S && S.name) || store.get('name', '') || 'Edward';
+
+function saveGame(){
+  if(!S || S.daily) return;
+  try{ localStorage.setItem(SK('save'), JSON.stringify({ S, at:Date.now() })); }catch(e){}
+}
+function loadSave(n){ try{ return JSON.parse(localStorage.getItem(SK('save', n)) || 'null'); }catch(e){ return null; } }
+function slotLine(n){
+  const v = loadSave(n);
+  if(!v || !v.S) return { n, empty:true };
+  const L = v.S;
+  const w = WORLDS[(L.world || 0) % 10];
+  return { n, empty:false, name:L.name || 'Edward', level:L.level || 1,
+           where:(w.areas[Math.min(3, L.area | 0)] || {}).name || '',
+           world:w.name };
+}
+
+/* The title, drawn rather than drawn on: gold down the glyph, the black
+   outline painted behind the fill, and a flat black copy under the whole
+   thing for the hard offset shadow BRAND.md asks a sister product for. Its
+   own object, the same slab capitals, never the parent's wordmark. */
+function logoSVG(){
+  return `<svg class="words" viewBox="0 0 400 162" role="img" aria-label="Monster Solitaire">
+    <defs>
+      <linearGradient id="slgold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff8e0"/><stop offset=".2" stop-color="#ffd964"/>
+        <stop offset=".56" stop-color="#f2b632"/><stop offset="1" stop-color="#ab6d14"/>
+      </linearGradient>
+      <g id="slwords" font-family="Alfa Slab One, Rockwell, Georgia, serif"
+         text-anchor="middle" font-size="62" letter-spacing="-1">
+        <text x="200" y="66">MONSTER</text><text x="200" y="142">SOLITAIRE</text>
+      </g>
+    </defs>
+    <use href="#slwords" fill="#000" opacity=".85" transform="translate(4,6)"/>
+    <use href="#slwords" fill="none" stroke="#000" stroke-width="9" stroke-linejoin="round"/>
+    <use href="#slwords" fill="url(#slgold)"/>
+  </svg>`;
+}
+
+function slotsPanel(){
+  const rows = [1, 2, 3].map(slotLine);
+  openPanel(`
+    ${logoSVG()}
+    <p>Three peaks of cards, and something behind them. Cut the reading away.</p>
+    <div class="buys">${rows.map(r => r.empty
+      ? `<button class="buy" data-act="newHero" data-slot="${r.n}">
+          <img class="ico" src="art/i_level.webp" alt=""><b>New hero</b><span>Slot ${r.n}</span>
+          <span class="cost">Start</span></button>`
+      : `<button class="buy" data-act="loadHero" data-slot="${r.n}">
+          <img class="ico" src="art/hero_t${Math.min(5, Math.floor(r.level / 3))}.webp" alt=""><b>${r.name}</b>
+          <span>Level ${r.level} &middot; ${r.where}</span><span class="cost">Play</span></button>`).join('')}</div>
+    <button class="btn big ghost" data-act="cloud">Play on another device</button>`);
+}
+
+/* ---------- the leaderboard and the cloud ----------
+   The same Netlify functions the other two games use, on their own boards. */
+const API = REMOTE + '.netlify/functions/';
+async function api(path, body){
+  const r = await fetch(API + path, body
+    ? { method:'POST', headers:{ 'content-type':'application/json' }, body:JSON.stringify(body) }
+    : undefined);
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(j.error || 'That did not work. Try again in a moment.');
+  return j;
+}
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+function cloudCode(){
+  let c = store.get('cloud', '');
+  if(!c){
+    const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    c = Array.from(crypto.getRandomValues(new Uint8Array(16)), x => a[x % a.length]).join('');
+    store.set('cloud', c);
+  }
+  return c;
+}
+const prettyCode = c => c.match(/.{1,4}/g).join('-');
+function cloudPanel(){
+  openPanel(`<div class="eyebrow">Play on any device</div><h2>Your save code</h2>
+    <p>Write this down or copy it. Type it on another phone or computer to pick up where you left off.</p>
+    <div class="cloud-code">${prettyCode(cloudCode())}</div>
+    <div class="row"><button class="btn ghost" data-act="cloudSave">Save to cloud</button>
+      <button class="btn ghost" data-act="cloudCopy">Copy code</button></div>
+    <div class="name-row"><label for="cloudIn">Load a save code</label>
+      <input id="cloudIn" maxlength="24" placeholder="ABCD-EFGH-JKLM-NPQR"></div>
+    <button class="btn big ghost" data-act="cloudLoad">Load from cloud</button>
+    <p class="menu-note" id="cloudMsg"></p>
+    <button class="btn big" data-act="closeMenu">Back</button>`);
+}
+async function cloudSave(quiet){
+  if(!S) return;
+  const m = $('cloudMsg');
+  try{
+    /* SL, so a Solitaire code can never collide with an Axes & Aces or a
+       Monster Farkle one in the same store */
+    await api('save-game', { code:'SL' + cloudCode(), data:{ S, at:Date.now() } });
+    if(!quiet){ toast('Saved to the cloud'); if(m) m.textContent = 'Saved. Use your code on any device.'; }
+  }catch(e){ if(!quiet){ toast(e.message); if(m) m.textContent = e.message; } }
+}
+async function cloudLoad(){
+  const raw = (($('cloudIn') || {}).value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const m = $('cloudMsg');
+  if(raw.length < 12){ if(m) m.textContent = 'Type the 16-letter code.'; return; }
+  try{
+    const j = await api('load-game?code=SL' + raw);
+    const sv = j.data;
+    if(!sv || !sv.S) throw new Error('No save found for that code');
+    store.set('cloud', raw);
+    S = sv.S;
+    saveGame(); closePanel();
+    toast('Your hero is back.');
+    startFight();
+  }catch(e){ if(m) m.textContent = e.message; }
+}
+
+function scoreList(rows, mine){
+  if(!rows || !rows.length) return '<p class="menu-note">Nobody yet. Be the first.</p>';
+  return `<ol class="lb">${rows.map(r =>
+    `<li${r.score === mine ? ' class="me"' : ''}><span>${(r.name || 'Edward').slice(0, 18)}</span><b>${fmt(r.score)}</b></li>`).join('')}</ol>`;
+}
+function lbPanel(){
+  openPanel(`<div class="eyebrow">Hall of readers</div><h2>How far others got</h2>
+    <div id="lbList"><p class="menu-note">Looking&hellip;</p></div>
+    <button class="btn big ghost" data-act="postLevel">Put my level up there</button>
+    <button class="btn big" data-act="closeMenu">Back</button>`);
+  api('get-scores?board=solitaire')
+    .then(j => { const el = $('lbList'); if(el) el.innerHTML = scoreList(j.scores, S.level); })
+    .catch(e => { const el = $('lbList'); if(el) el.innerHTML = `<p class="menu-note">${e.message}</p>`; });
+}
+async function postLevel(){
+  try{
+    await api('add-score', { board:'solitaire', name:heroName(), score:S.level });
+    toast('Your level is up there.');
+    const j = await api('get-scores?board=solitaire');
+    const el = $('lbList'); if(el) el.innerHTML = scoreList(j.scores, S.level);
+  }catch(e){ toast(e.message); }
+}
+
 /* ===================== the menu =====================
    Two toggles and a way back. Both remember themselves, because a player who
    turns the music off and finds it on again next time turns it off once and
@@ -1781,6 +1963,18 @@ function menuPanel(){
         <img class="ico" src="art/i_map.webp" alt=""><b>How to play</b>
         <span>What a run is and why it matters.</span>
         <span class="cost">Read</span></button>
+      <button class="buy" data-act="lb">
+        <img class="ico" src="art/i_chest.webp" alt=""><b>Hall of readers</b>
+        <span>How far other players got.</span>
+        <span class="cost">Open</span></button>
+      <button class="buy" data-act="cloud">
+        <img class="ico" src="art/i_bag.webp" alt=""><b>Play on another device</b>
+        <span>Your private save code.</span>
+        <span class="cost">Open</span></button>
+      <button class="buy" data-act="slots">
+        <img class="ico" src="art/i_skull.webp" alt=""><b>Change hero</b>
+        <span>Three slots, three heroes.</span>
+        <span class="cost">Open</span></button>
     </div>
     <button class="btn big" data-act="closeMenu">Back to the cards</button>`);
 }
@@ -1838,6 +2032,7 @@ const REST_PRICE = 4, REST_SHARE = .5;
 const TABS = [['rest','Rest'], ['smith','Smith'], ['charms','Charms'], ['pots','Potions']];
 function shopPanel(tab){
   S.phase = 'camp'; updateMusic();
+  saveGame();
   S.shopTab = tab || S.shopTab || 'rest';
   const t = S.shopTab;
   openPanel(`
@@ -2066,6 +2261,7 @@ function onwardFromShop(){
 }
 function nextFight(stay){
   S.hp = Math.min(S.maxHp, S.hp + Math.round(S.maxHp * .25));
+  saveGame();
   if(!stay){
     S.step++;
     if(S.step % AREA_FIGHTS === 0){
@@ -2424,6 +2620,25 @@ $('overlay').addEventListener('click', e => {
   if(act === 'help'){ return helpPanel(0); }
   if(act === 'helpNext'){ return helpPanel(+b.dataset.page); }
   if(act === 'closeMenu'){ closePanel(); if(!S.fight) startFight(); return; }
+  if(act === 'slots'){ return slotsPanel(); }
+  if(act === 'cloud'){ return cloudPanel(); }
+  if(act === 'cloudSave'){ cloudSave(); return; }
+  if(act === 'cloudLoad'){ cloudLoad(); return; }
+  if(act === 'cloudCopy'){
+    try{ navigator.clipboard.writeText(prettyCode(cloudCode())); toast('Code copied'); }
+    catch(e){ toast('Write it down instead'); }
+    return;
+  }
+  if(act === 'lb'){ return lbPanel(); }
+  if(act === 'postLevel'){ postLevel(); return; }
+  if(act === 'newHero' || act === 'loadHero'){
+    SLOT = +b.dataset.slot || 1;
+    try{ localStorage.setItem('sl_slot', JSON.stringify(SLOT)); }catch(e){}
+    const v = act === 'loadHero' ? loadSave(SLOT) : null;
+    if(v && v.S){ S = v.S; closePanel(); startFight(); }
+    else { S = freshHero(); saveGame(); closePanel(); S.introBeat = 0; R = dealRound(); busy = true; storyPanel('start'); }
+    return;
+  }
   if(act === 'rest'){
     if(S.gold < REST_PRICE || S.hp >= S.maxHp) return;
     spend(REST_PRICE);
@@ -2480,19 +2695,32 @@ $('board').addEventListener('click', e => {
 /* ===================== the first reading =====================
    The world opens on its own words before a card is dealt, the same as the
    other two games. */
-S.introBeat = 0;
 R = dealRound();
 busy = true;
-storyPanel('start');
+(() => {
+  const saved = [1, 2, 3].map(loadSave).filter(v => v && v.S);
+  if(saved.length){ slotsPanel(); return; }
+  /* nobody has played here before, so get straight to it */
+  S.introBeat = 0;
+  storyPanel('start');
+})();
 
 /* exposed for the test harness and for dev/gen/slscan.cjs */
 Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT, takes, valueOf,
-  set R(v){ R = v; }, S, startFight, makeFoe, WORLDS, BOSS_RULES,
+  set R(v){ R = v; },
+  /* S and SLOT are live bindings, not a copy: a tool that assigns __SOL.S a
+     new hero means the GAME to have that hero, and exporting the value simply
+     replaced a property on this object while the game carried on with the old
+     one - which looked exactly like saving not working. */
+  get S(){ return S; }, set S(v){ S = v; },
+  get SLOT(){ return SLOT; }, set SLOT(v){ SLOT = v; },
+  startFight, makeFoe, WORLDS, BOSS_RULES,
   fightIntro, openPanel, closePanel, PERKS, hasPerk, levelPanel, victoryPanel,
   won, lost, nextFight, xpNeed, cumNeed, doStrike, peakDown, STRIKE_TIERS,
   shopPanel, CHARMS, POTIONS, hasCharm, drink, useCoin, renderPots, openBoard, setMyBars,
   pathPanel, onwardFromShop, worldName, questStep, areaIcon, curArea, worldOf,
   storyPanel, storyNext, updateMusic, songWant, menuPanel, helpPanel,
+  slotsPanel, cloudPanel, lbPanel, saveGame, loadSave, freshHero, SK, cloudCode,
   get musicOn(){ return musicOn; }, set musicOn(v){ musicOn = v; },
   get busy(){ return busy; }, afterMove, anyLegal, cleared } });
 
