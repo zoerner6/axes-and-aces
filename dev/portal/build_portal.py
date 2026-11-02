@@ -37,6 +37,19 @@ PORTALS = {
         "online": False,        # Poki blocks every external call until approved
         "video": False,         # they ask for a small build; the still art stands in
     },
+    # A build to hand someone who has not approved a domain yet. Poki's pitch
+    # form asks for "a browser build we can access without a login", and their
+    # SDK answers any domain they have not whitelisted by printing a DMCA
+    # takedown notice at the console and loading ad tags. So the pitch link
+    # carries no portal SDK at all. Everything else is the Poki build.
+    "plain": {
+        "sdk": "",
+        "shim_portal": "none",  # the shim stands down; nothing to report to
+        "ad_gap": 0,
+        "ad_free_fights": 0,
+        "online": False,
+        "video": False,
+    },
 }
 
 # The game reads its save slot the instant its own script runs, and a portal's
@@ -117,7 +130,7 @@ class Patcher:
 
 def shim_for(portal, cfg):
     js = (HERE / "shim.js").read_text(encoding="utf-8")
-    return (js.replace("__PORTAL__", portal)
+    return (js.replace("__PORTAL__", cfg.get("shim_portal", portal))
               .replace("__AD_GAP__", str(cfg["ad_gap"]))
               .replace("__AD_FREE_FIGHTS__", str(cfg["ad_free_fights"])))
 

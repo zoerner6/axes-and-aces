@@ -172,25 +172,40 @@ say no, and that will be about the content, not the build.
 
 It costs you a form and a wait, so it is still worth doing.
 
-### 1. Build the package
+### 1. Build the two things you need
+
+Poki do not take an upload. Their form asks for a link to a build you can play
+without logging in, so you need the game hosted somewhere.
+
+**Do not host the Poki build.** Poki's SDK answers any domain they have not
+whitelisted by printing a DMCA takedown notice in the console and loading ad
+tags. That is what a reviewer would see. So the link uses a build with no
+portal SDK in it at all:
+
+```bash
+python dev/portal/build_portal.py plain
+```
+
+Everything else is the Poki build: bundled fonts, no links off the page, no
+splash, straight into the story. It makes no external request of any kind.
+
+Build the Poki package too, for when they say yes:
 
 ```bash
 python dev/portal/build_portal.py poki --zip
 ```
 
-You get `dist/axes-and-aces-poki.zip`, about 50 MB. You do not upload this yet —
-Poki want a link they can play first.
+### 2. Put the plain build somewhere they can play it
 
-### 2. Put a copy somewhere they can play it
-
-They ask for "a browser build we can access without a login". The simplest way is
-a Netlify draft, which does not count against the daily publish limit:
+A Netlify draft. Drafts do not count against the one-publish-a-day rule:
 
 ```bash
-npx netlify deploy --dir dist/poki --site axesandaces
+npx netlify deploy --dir dist/plain --site 91a15133-fba8-4a2a-be7d-7f29ed8fb141 --no-build
 ```
 
-That prints a draft URL. Copy it. Check it opens and plays before you go on.
+The site's name is `axes-and-aces`, but passing the name fails with "Not Found" —
+pass the id above. It prints a **Draft URL**. Open it, play a hand, and check the
+console is clean before you give it to anyone.
 
 ### 3. Fill in their form
 
@@ -200,12 +215,26 @@ Go to **developers.poki.com/guide/share**. Copy the answers from `SUBMISSION.md`
 - Team size: Just me
 - Game title: Axes & Aces
 - Describe your game in a few sentences
-- Engine: **Custom engine / framework**
-- Build link: the draft URL from step 2
+- Do you have a registered company? / Where is your team based?
+- Team size: Just me
+- What platforms has your team released games on before?
+- Game title: Axes & Aces
+- Describe your game in a few sentences
+- Engine: their list now has an **AI/Claude/ChatGPT** option as well as
+  **Custom engine / framework**. Both are true of this game. Their content
+  rules ask you to be able to show which tools were used and to walk through
+  the process on request, so say AI rather than let them find out.
+- Build link: the Draft URL from step 2
 - Three screenshots: `screenshot-1-fight.png`, `screenshot-2-boss.png`,
-  `screenshot-3-reward.png`
+  `screenshot-3-reward.png` (they take PNG, JPEG or WebP up to 5 MiB each)
 - Why it is a good fit
 - **Has this game already been released on other platforms? Answer Yes.**
+- A checkbox saying you have read their Content & Brand Guidelines
+
+The form has **no thumbnail field**, whatever older notes say.
+`poki-thumbnail-square-1024x1024.jpg` is still needed, but later: a static
+thumbnail is what starts their player fit test, and it has to be full-bleed
+square, at least 628x628, with no text and no border.
 
 ### 4. Answer Yes about the other platforms, and mean it
 
