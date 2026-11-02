@@ -531,6 +531,15 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
 .buy .cost img{width:19px;height:19px}
 .buy:disabled{opacity:.42;box-shadow:1px 1px 0 #000}
 .buy.owned .cost{color:var(--heal-hi);font-size:.8rem}
+/* The menu is seven rows deep, and with a description under every name it
+   comes to about 740px - too tall for a 740-high phone, let alone a 667 or a
+   568. Hiding the descriptions only on a short screen fixed 320x568 and left
+   360x740 and 375x667 still overflowing, with the button a few pixels below
+   the bottom in each. They go everywhere: this is a menu, and the name and
+   the value say the whole of it. */
+.menu-list .buy{min-height:44px}
+.menu-list .buy span:not(.cost){display:none}
+
 .purse-line{display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--f-num);
   font-weight:700;font-size:1.05rem;color:var(--gold-hi)}
 .purse-line img{width:22px;height:22px}
@@ -562,7 +571,10 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
    picture. At 2.1 it loses 15% and the boss intro, the tallest of the four,
    still finishes 48px clear of the bottom of a 568-tall screen. */
 @media (max-height:620px){
-  .panel{padding:12px;gap:8px}
+  .panel{padding:12px;gap:7px}
+  /* the menu is seven rows plus a heading plus a button, and at 568 tall that
+     came to sixteen pixels more than there is room for */
+  .panel h2{font-size:1.35rem}
   .scene{aspect-ratio:2.1/1}
   .tape{padding:6px 9px}
   .say{margin-top:7px;padding:6px 10px;font-size:.9rem}
@@ -574,11 +586,7 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
   .buy b{font-size:1rem}
   .buy span:not(.cost){font-size:.82rem}
   .buys{gap:6px}
-  /* The menu is seven rows deep and every description wraps to two lines at
-     320 wide, which put 592px of content in 534px and the button 29px off the
-     bottom of the screen. The names and the values carry it on their own. */
-  .menu-list .buy{min-height:44px}
-  .menu-list .buy span:not(.cost){display:none}
+
 }
 
 /* ===================== things that fly across the screen =====================
@@ -630,6 +638,25 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
 .pop.b{background:var(--steel);color:#fff} .pop.h{background:var(--heal-hi)}
 .pop.g{background:var(--gold-hi)} .pop.dim{background:var(--wood-3);color:var(--parch-dim)}
 @keyframes rise{0%{opacity:0;margin-top:6px}15%{opacity:1}100%{opacity:0;margin-top:-50px}}
+
+/* ===================== the first time =====================
+   Four marks, once ever, in the order a player meets them: tap a card, turn
+   one when you are stuck, watch the run, take the peaks down. They point at
+   the thing they are about and go when you do it, rather than stopping the
+   game to explain itself - a player who already knows never has to dismiss
+   anything. */
+.coach{position:fixed;z-index:70;max-width:min(260px,74vw);
+  background:var(--bubble);color:var(--bubble-ink);border:3px solid #000;box-shadow:4px 4px 0 #000;
+  border-radius:11px;padding:8px 11px;font-size:.92rem;line-height:1.3;font-weight:500;
+  pointer-events:none;animation:coachIn .26s ease both}
+.coach b{color:#000}
+.coach::after{content:"";position:absolute;width:0;height:0;border:9px solid transparent}
+.coach.below::after{top:-9px;left:var(--px,26px);border-bottom-color:var(--bubble);border-top:0}
+.coach.above::after{bottom:-9px;left:var(--px,26px);border-top-color:var(--bubble);border-bottom:0}
+@keyframes coachIn{from{opacity:0;transform:translateY(6px) scale(.96)}}
+/* the thing it is pointing at, lit so the eye lands on it */
+.coachlit{position:fixed;z-index:69;border-radius:12px;pointer-events:none;
+  box-shadow:0 0 0 3px var(--gold-hi),0 0 22px rgba(255,210,120,.7);animation:coachIn .26s ease both}
 
 /* A card on its way into the blow. The run is kept on the waste pile, so when
    the blow lands that is the pile that has to go into it, or the damage comes
@@ -1144,7 +1171,7 @@ function setMyBars(){
 }
 
 /* ===================== popups ===================== */
-function openPanel(html){ $('panel').innerHTML = html; $('overlay').hidden = false; $('panel').scrollTop = 0; }
+function openPanel(html){ coachClear(); $('panel').innerHTML = html; $('overlay').hidden = false; $('panel').scrollTop = 0; }
 function closePanel(){ $('overlay').hidden = true; }
 
 /* ===================== how a fight starts =====================
@@ -1408,6 +1435,7 @@ function peek(){
 }
 
 function render(){
+  coachClear();
   $('board').innerHTML =
     `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable();
 }
@@ -2680,6 +2708,83 @@ function useCoin(){
   render();
 }
 
+/* ===================== the first time =====================
+   Four marks in the order a player meets them, once ever. Each one waits for
+   the moment it is about rather than firing on a timer, so "turn a card when
+   you are stuck" arrives the first time you are stuck and not before. */
+const COACH = [
+  {id:'play',  when:() => !!document.querySelector('.peaks .pk.free'),
+   sel:() => document.querySelector('.peaks .pk.free'),
+   text:'Tap a card <b>one above or one below</b> the one on the pile.'},
+  {id:'stock', when:() => !document.querySelector('.peaks .pk.free') && R.si < R.stock.length,
+   sel:() => document.querySelector('[data-act="turn"]'),
+   text:'Nothing to play? <b>Turn a card</b> &mdash; but that ends your run.'},
+  {id:'run',   when:() => R.run >= 2,
+   sel:() => document.querySelector('#runbox'),
+   text:'That is your <b>run</b>. The longer it gets, the heavier the blow.'},
+  {id:'clear', when:() => R.down.length > 0 && R.down.length < 3,
+   sel:() => document.querySelector('.peaks'),
+   text:'One peak down. Take <b>all three</b> and you cut the reading away.'},
+];
+/* A set of what has been learned, not a position in a list. The list was an
+   index, and a Tri-Peaks board can perfectly well open with no legal move -
+   at which point the first mark could not be shown, the second was refused
+   for not being first, and a player who met that board got no marks ever.
+   Each mark now waits for its own moment and the order is kept by preferring
+   the earliest one still unlearned whose moment is true. */
+let coachLearned = new Set(store.get('coachLearned', []));
+let coachEl = null, coachLit = null;
+const coachKnowsAll = () => COACH.every(c => coachLearned.has(c.id));
+function coachClear(){
+  if(coachEl){ coachEl.remove(); coachEl = null; }
+  if(coachLit){ coachLit.remove(); coachLit = null; }
+}
+function coachDone(id){
+  if(coachLearned.has(id)) return;
+  coachLearned.add(id);
+  store.set('coachLearned', [...coachLearned]);
+  coachClear();
+}
+/* Called wherever the board becomes the player's again. A timer started when
+   the board was dealt was the obvious way and the wrong one: the board is
+   dealt behind the fight intro, so whether a mark appeared came down to
+   whether Fight had been pressed yet. */
+function coachMaybe(){
+  if(coachKnowsAll()) return;
+  setTimeout(() => {
+    if(busy || !$('overlay').hidden || coachEl || !R) return;
+    const c = COACH.find(x => !coachLearned.has(x.id) && x.when());
+    if(c) coachShow(c.id);
+  }, 420);
+}
+function coachShow(id){
+  if(coachLearned.has(id) || coachEl) return;
+  const c = COACH.find(x => x.id === id);
+  if(!c) return;
+  const t = c.sel();
+  if(!t) return;
+  const r = t.getBoundingClientRect();
+  if(r.width < 2) return;
+
+  coachLit = document.createElement('div');
+  coachLit.className = 'coachlit';
+  Object.assign(coachLit.style, { left:(r.left - 4) + 'px', top:(r.top - 4) + 'px',
+    width:(r.width + 8) + 'px', height:(r.height + 8) + 'px' });
+  document.body.appendChild(coachLit);
+
+  coachEl = document.createElement('div');
+  coachEl.className = 'coach';
+  coachEl.innerHTML = c.text;
+  document.body.appendChild(coachEl);
+  const b = coachEl.getBoundingClientRect();
+  const below = r.bottom + 14 + b.height < innerHeight - 8;
+  const left = Math.max(8, Math.min(innerWidth - b.width - 8, r.left + r.width / 2 - b.width / 2));
+  coachEl.classList.add(below ? 'below' : 'above');
+  coachEl.style.left = left + 'px';
+  coachEl.style.top = (below ? r.bottom + 12 : r.top - b.height - 12) + 'px';
+  coachEl.style.setProperty('--px', Math.max(12, Math.min(b.width - 24, r.left + r.width / 2 - left - 9)) + 'px');
+}
+
 function bumpRun(){
   const box = $('runbox');
   if(!box) return;
@@ -2705,6 +2810,8 @@ function playCard(i){
     render();
     bumpRun();
     cardSnap(R.run);
+    coachDone('play');
+    coachMaybe();
 
     /* a peak coming down is its own moment, and it has to land before the
        board is handed back, or the next tap arrives on top of it */
@@ -2780,8 +2887,10 @@ async function peakDown(k){
   goldBurst(x, y, 150);
   tone(660, .18, 'triangle', .07); tone(880, .2, 'sine', .05, .08);
   banner('Peak down', `${3 - R.down.length} left standing`);
+  if(R.down.length < 3) setTimeout(() => coachShow('clear'), 1600);
   await wait(420);
   await bonusBlow(PEAK_BONUS, 2);
+  coachDone('clear');
 }
 
 /* Turning a card is how a run ends, so this is where the blow lands. A turn
@@ -2798,8 +2907,10 @@ async function turnStock(){
   R.waste.push(R.stock[R.si++]);
   cardSnap();
   render();
+  coachDone('stock');
   busy = false;
   afterMove();
+  coachMaybe();
 }
 
 /* Is anything left to do? Either there is a legal card, or there is stock to
@@ -2872,6 +2983,7 @@ function redeal(){
   dailySeedOff();
   openBoard();
   busy = false;
+  coachMaybe();
 }
 
 /* Everything that happens to a board before the first tap. Kept in one place
@@ -2898,7 +3010,7 @@ $('overlay').addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if(!b) return;
   const act = b.dataset.act;
-  if(act === 'fight'){ closePanel(); busy = false; return; }
+  if(act === 'fight'){ closePanel(); busy = false; coachMaybe(); return; }
   if(act === 'onward'){ if(S.pendingLv) levelPanel(); else shopPanel(); return; }
   if(act === 'perk'){ takePerk(b.dataset.perk); return; }
   if(act === 'again'){ S.hp = S.maxHp; closePanel(); startFight(); return; }
@@ -3021,7 +3133,9 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   storyPanel, storyNext, updateMusic, songWant, menuPanel, helpPanel,
   slotsPanel, cloudPanel, lbPanel, saveGame, loadSave, freshHero, SK, cloudCode,
   startDaily, dailyNext, dailyDone, dailyStep, seeded, dayNumber, todayKey, DAILY_FIGHTS,
-  bragPanel, bragInfo, bragCard,
+  bragPanel, bragInfo, bragCard, COACH, coachShow, coachDone, coachClear, coachMaybe,
+  get coachLearned(){ return [...coachLearned]; },
+  set coachLearned(v){ coachLearned = new Set(v); store.set('coachLearned', [...coachLearned]); },
   get musicOn(){ return musicOn; }, set musicOn(v){ musicOn = v; },
   get busy(){ return busy; }, afterMove, anyLegal, cleared } });
 
