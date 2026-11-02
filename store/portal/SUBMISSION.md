@@ -50,11 +50,20 @@ cannot see the best hand. Rest heals you but gives the monster a free swing.
 Everything is mouse or touch; no keyboard needed.
 ```
 
-### Tags / categories
+### Category and tags
 
-```
-Card, RPG, Adventure, Strategy, Poker, Roguelike, Fantasy, Singleplayer, 2D
-```
+CrazyGames take **one** category and **at most five** tags, both picked from
+their own fixed lists. Their list has no Poker, no Fantasy, no Roguelike and no
+Strategy tag, so the wish list below had to become what they actually offer.
+
+| | Chosen |
+|---|---|
+| Category | Card |
+| Tags | RPG, Monster, Magic, Battle, 1 Player |
+
+Card is the category because the poker hand is the mechanic, and it is where a
+player who would like this game goes looking. Monster earns its slot on 168
+hand-drawn monsters. Battle beat Fighting, which promises a brawler.
 
 ### Language
 
@@ -69,6 +78,9 @@ These are picked from a list, not typed.
 | Game engine | HTML5 |
 | Does your game save progress? | **Yes, using the Data Module from the CrazyGames SDK** |
 | Game options | The game supports mobile devices |
+| Mobile orientation | BOTH |
+| The game works well in fullscreen | Ticked |
+| Which tools did you use? | Claude |
 
 The progress-save answer has to match the build. The game saves through their
 data module, and their documentation says the module stays switched off unless
