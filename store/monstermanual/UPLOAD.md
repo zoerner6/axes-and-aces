@@ -6,8 +6,25 @@
 > to 72 hours to put it on sale. Part two below is kept as the record of what
 > was done and what to change if the proof disappoints.
 >
-> **The itch.io PDF in part one has NOT been done.** That is the one that
-> earns more per sale.
+> **The itch.io page is built but not live.** It is saved as a DRAFT at
+> https://jzoerner.itch.io/axes-and-aces-monster-manual with the title,
+> tagline, full description, all ten tags, Physical games classification,
+> Released status, $14.99 minimum, comments on, and the AI disclosure set to
+> Yes with Graphics and Text & Dialog both declared. Three things are left,
+> and all three need Josh:
+>
+> 1. **Configure a payment provider.** itch says plainly: "You've configured
+>    your game to be purchasable for $14.99 but you have not configured a
+>    payment provider. Until you set up a payment provider, this game can not
+>    be purchased or donated to." Use the Change payment settings button on
+>    the page, or itch.io/user/settings/seller.
+> 2. **Upload the PDF**, `dist/Axes-and-Aces-Monster-Manual.pdf`, 95 MB.
+>    itch allows 1 GB, so size is no problem - it is the browser bridge that
+>    caps at 10 MB. Tick "This file will be sold".
+> 3. **Upload the cover image**, `dist/cover-itch.png`. itch builds its file
+>    input only when the button is clicked, which opens a native picker.
+>
+> Then switch Visibility from Draft to Public, and run the 25% launch sale.
 >
 > One thing was skipped: no proof copy was ordered before publishing, on
 > Josh's instruction. The ink type is now welded to the ISBN. If the ten
