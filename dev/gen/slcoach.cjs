@@ -27,7 +27,10 @@ const markState = () => {
       [...document.querySelectorAll('#panel [data-act]')].map(e => e.dataset.act).join(','),
     free: document.querySelectorAll('.peaks .pk.free').length,
     cards: document.querySelectorAll('.peaks .pk').length,
-    stored: localStorage.getItem('sl_coachLearned')
+    stored: localStorage.getItem('sl_coachLearned'),
+    turnBtn: !!document.querySelector('[data-act="turn"]'),
+    stockLeft: window.__SOL.R.stock.length - window.__SOL.R.si,
+    run: window.__SOL.R.run
   };
   if (!c) return { up: false, ...ctx };
   const r = c.getBoundingClientRect();
@@ -63,49 +66,84 @@ const markState = () => {
     await openGame(p);
     await p.waitForTimeout(1000);                /* the first mark waits for the board */
 
-    /* 1. play */
+    /* 1. whichever mark the board it dealt actually calls for. A Tri-Peaks
+       board can open with no legal move, and when it does the honest first
+       lesson is the stock, not the tap - so the test asks the board what it
+       should be seeing rather than insisting on one of them. */
     let m = await p.evaluate(markState);
-    check('1. tap a card', m.up && m.at === '' && m.onScreen && m.size >= 10.5,
-      m.up ? `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}, on screen ${m.onScreen}`
-           : `nothing shown: step ${m.at}, busy ${m.busy}, panel ${m.panel}, ` +
-             `${m.free} free of ${m.cards} cards, learned "${m.at}"`);
+    const openedPlayable = m.free > 0;
+    const firstWord = openedPlayable ? 'Tap a card' : 'Nothing to play';
+    check(`1. ${openedPlayable ? 'tap a card' : 'turn a card (dead board)'}`,
+      m.up && m.at === '' && m.onScreen && m.size >= 10.5 && (m.text || '').startsWith(firstWord),
+      m.up ? `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}, ` +
+             `${m.free} of ${m.cards} cards playable`
+           : `nothing shown: busy ${m.busy}, panel ${m.panel}, ${m.free} of ${m.cards} playable`);
 
-    /* and it goes when you do it */
-    const played = await p.evaluate(async () => {
-      const free = document.querySelector('.peaks .pk.free');
-      if (!free) return false;
-      free.click();
-      await new Promise(r => setTimeout(r, 600));
+    /* and it goes when you do the thing it asked for */
+    const did = await p.evaluate(async playable => {
+      const t = playable ? document.querySelector('.peaks .pk.free')
+                         : document.querySelector('[data-act="turn"]');
+      if (!t) return false;
+      t.click();
+      await new Promise(r => setTimeout(r, 900));
       return true;
-    });
+    }, openedPlayable);
+    await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 10000 }).catch(() => {});
     m = await p.evaluate(markState);
-    check('   and goes once you do', played && m.at === 'play' && !m.up, `learned: ${m.at || 'nothing'}`);
+    const firstId = openedPlayable ? 'play' : 'stock';
+    /* what matters is that the mark was learned, not that the screen is now
+       empty: doing the thing can perfectly well bring the NEXT mark straight
+       up, and asserting nothing is showing called that a failure */
+    check('   and goes once you do', did && m.at.includes(firstId),
+      `learned: ${m.at || 'nothing'}${m.up ? `, and it has moved on to "${(m.text || '').slice(0, 28)}"` : ''}`);
 
-    /* 2. stock: a board with nothing legal on it */
-    await p.evaluate(() => {
+    /* 2. whichever of the two the opening board did not call for. A dead
+       opening board teaches the stock first, so what is owed then is the tap,
+       and building another dead board would make a mark that can never show.
+       The board is built to suit what is owed, not the other way round. */
+    const second = openedPlayable ? 'stock' : 'play';
+    await p.evaluate(want => {
       const SOL = window.__SOL, R = SOL.R;
-      R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
-      R.waste = [{ r: 2, s: 0 }];
+      if (want === 'stock') {
+        /* nothing legal: every card a 7 and a 2 on the pile */
+        R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
+        R.waste = [{ r: 2, s: 0 }];
+      } else {
+        /* one legal card, on the bottom row where nothing covers it */
+        R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
+        R.tableau[18].gone = false; R.tableau[18].r = 7;
+        R.waste = [{ r: 8, s: 0 }];
+      }
       /* no run going: otherwise turning a card lands a whole strike and the
          monster answers it, which takes seconds and is not what is being
          checked here */
       R.run = 0; R.runVal = 0;
       SOL.render();
-      SOL.coachShow('stock');
-    });
+      SOL.coachShow(want);
+    }, second);
     await p.waitForTimeout(300);
     m = await p.evaluate(markState);
-    check('2. turn a card', m.up && m.at === 'play' && m.onScreen,
-      `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}`);
+    check(`2. ${second === 'stock' ? 'turn a card' : 'tap a card'}`,
+      m.up && m.onScreen, `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}`);
     /* a tap only counts when the board is listening; clicking while the game
        is still playing something out does nothing at all and looks from out
        here exactly like the mark failing to advance */
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 8000 }).catch(() => {});
-    await p.click('[data-act="turn"]', { timeout: 4000 }).catch(() => {});
+    await p.click(second === 'stock' ? '[data-act="turn"]' : '.peaks .pk.free',
+      { timeout: 4000 }).catch(() => {});
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 10000 }).catch(() => {});
     await p.waitForTimeout(400);
     m = await p.evaluate(markState);
-    check('   and goes once you do', /stock/.test(m.at) && !m.up, `learned: ${m.at}, busy ${m.busy}`);
+    check('   and goes once you do', m.at.includes(second),
+      `learned: ${m.at || 'nothing'}, busy ${m.busy}, turn button ${m.turnBtn}, ` +
+      `stock ${m.stockLeft}, run ${m.run}, panel ${m.panel}`);
+    /* whichever one the opening board skipped is still owed, which is the
+       whole point of keeping a set rather than a position in a list */
+    const owed = await p.evaluate(() => {
+      const learned = window.__SOL.coachLearned;
+      return ['play', 'stock', 'run', 'clear'].filter(x => !learned.includes(x));
+    });
+    check('   and still owes the rest', owed.length > 0, `still to meet: ${owed.join(', ')}`);
 
     /* 3. the run */
     await p.evaluate(() => {
