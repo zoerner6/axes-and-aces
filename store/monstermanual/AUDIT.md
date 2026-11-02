@@ -266,3 +266,51 @@ And one latent bug in the family merge: a creature that both replaced a list
 and added to it got whichever was written last in the source. The merge now
 applies plain overrides first and additions second, whatever order they are
 written in.
+
+---
+
+## Second pass: looking at the pages
+
+The first pass checked the book by pulling its text out and measuring it.
+That misses anything that is wrong only when you *look* at it, and something
+was. Josh spotted it on the Troll King's page.
+
+**F1. The rule under every section heading was struck through the heading.**
+It was drawn one point *above* the baseline instead of below it, so the line
+meant to underline "Actions" crossed the letters, and on "Legendary Actions"
+and "Lair Actions" it cut the descenders of the g and the y. This was on all
+168 stat blocks and it was in the first print too. A text dump cannot see it.
+
+There is now a check for it — `rule through text`, in the layout checker —
+along with text-on-text overlaps and margin breaches, run over every page.
+
+Then every page was rendered and read. That turned up:
+
+| | Found | Fix |
+|---|---|---|
+| F2 | The Lich and the Demon King ran off the bottom of the page. Spellcasting and lair actions made their columns taller than the page | The boss picture gives up width before the stat block does, so one boss still fits one page |
+| F3 | KDP's previewer rejected page 100: text 26 pt from the trim where it wants 27 | Running head and folio moved clear |
+| F4 | **"Monstrositys", "Undeads", "Feys"** in the index of kinds | Named properly instead of adding an s |
+| F5 | An area's "Boss fight" line could land at the top of a page with its heading left behind on the previous one | The area's heading and both its encounters stay together |
+| F6 | A world's name could sit alone at the foot of a page in the encounters list | It now needs room for its first area too |
+| F7 | Section headings sat too close to the paragraph above | More air above the heading |
+| F8 | The last page was blank | A closing page |
+
+**F9, the big one: forty pages were sixty per cent white.**
+
+Every area holds three ordinary creatures, two fill a page, so the third was
+left alone on a page with nothing under it. Forty areas, forty such pages,
+a median of 475 points of blank out of 792.
+
+Three ordinary creatures will not fit on one page — measured, not assumed:
+even squeezed to the tightest readable setting the median entry is 233 points
+where 217 is needed, and only 42 of 128 would fit. Shrinking the boss art to
+share the leftover page would have made boss pictures smaller than the mob
+pictures.
+
+So the rank and file of all four areas now run on without a break and the
+world's four bosses take a page each at the end of the world. Each leftover
+pairs with the first creature of the next area. Single-entry pages went from
+**40 to 4**, the book from **156 pages to 138**, and no picture got smaller.
+Printing drops from $7.27 a copy to $6.55, which at $29.99 is $11.45 a copy
+instead of $10.72.

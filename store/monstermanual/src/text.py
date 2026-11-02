@@ -5,6 +5,12 @@ SUBTITLE = '168 monsters from the ten worlds'
 TAGLINE = 'Fifth Edition compatible'
 SITE = 'AxesAndAces.com'
 
+# The one-line form of the licence notice, for the closing page. The full
+# notice required by CC BY 4.0 is printed in the front matter.
+SRD_SHORT = ('This work includes material from the System Reference Document '
+             '5.1 by Wizards of the Coast LLC, licensed under CC BY 4.0. The '
+             'full notice is on the copyright page.')
+
 # The attribution statement below is reproduced exactly as the System
 # Reference Document 5.1 requires it. Do not reword it, and do not add any
 # other mention of the rights holder anywhere in the book.
@@ -66,9 +72,11 @@ INTRO = [
      "one is a tavern cellar. World ten is the Abyss. If you read the book "
      "front to back you are walking the same road the game walks, and the "
      "challenge ratings climb with you.\n\n"
-     "Each world has four areas, and each area has its monsters and one boss. "
-     "Bosses get a page of their own. If you want a monster by name or by "
-     "challenge rating instead, there are tables for both at the back."),
+     "Each world has four areas. The rank and file of all four run one after "
+     "another, and then the world's four bosses close it out, a page each. "
+     "If you want a creature by name, by kind, by terrain or by challenge "
+     "rating instead, there are tables for all four at the back, and an "
+     "Encounters chapter with forty fights already costed."),
 
     ('Where the numbers come from',
      "The game is balanced for poker hands, not for four people around a "

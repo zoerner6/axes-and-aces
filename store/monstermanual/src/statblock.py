@@ -13,6 +13,15 @@ from layout import (BODY_F, BODY_I, BODY_B, BODY_BI, LABEL_F, TITLE_F,
                     CRIMSON, INK, MUTED, PARCH_D, wrap, rich_height,
                     draw_rich, draw_para)
 
+# A section heading inside a block: how far the baseline sits below the top
+# of the part, how far the rule sits below the baseline (clear of descenders),
+# and the air left under the rule. HEAD_H is the three added up, and has to
+# match or the page measures the block wrongly and entries collide.
+HEAD_TEXT = 16.5
+HEAD_DROP = 4.5
+HEAD_AFTER = 4.5
+HEAD_H = HEAD_TEXT + HEAD_DROP + HEAD_AFTER
+
 SZ = 8.4          # body size inside a block
 LEAD = 10.0       # line spacing
 GAP = 3.2         # space between parts
@@ -171,7 +180,7 @@ def parts_for(b):
         heal = None
 
     # --- actions ---
-    add('head', LEAD + 5, text='Actions')
+    add('head', HEAD_H, text='Actions')
     if b['swings'] > 1:
         word = {2: 'two', 3: 'three'}[b['swings']]
         txt = 'The %s makes %s %s attacks.' % (bare(name), word,
@@ -209,7 +218,7 @@ def parts_for(b):
 
     # --- reactions ---
     if guard and guard[1] == 'reaction':
-        add('head', LEAD + 5, text='Reactions')
+        add('head', HEAD_H, text='Reactions')
         gname, _, gtext = guard
         runs = [(gname + '. ', BODY_BI), (fill(gtext, b, dc_default), BODY_F)]
         add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
@@ -218,7 +227,7 @@ def parts_for(b):
     # Only bosses, and every boss. One of these fought alone against a party
     # of four otherwise spends the whole fight watching.
     if b['boss']:
-        add('head', LEAD + 5, text='Legendary Actions')
+        add('head', HEAD_H, text='Legendary Actions')
         runs = [(fill(LEG.LEGENDARY_INTRO, b, dc_default), BODY_F)]
         add('rich', rich_height(runs, SZ, 0, LEAD), runs=runs)
         for lname, cost, ltext in LEG.actions_for(b):
@@ -231,7 +240,7 @@ def parts_for(b):
     lair = LEG.lair_for(b)
     if lair:
         place, ldc, effects = lair
-        add('head', LEAD + 5, text='Lair Actions')
+        add('head', HEAD_H, text='Lair Actions')
         intro = ('When fighting inside %s, the %s can take a lair action on '
                  'initiative count 20 (losing ties). It cannot do so two rounds '
                  'in a row. Choose one:' % (place, bare(name)))
@@ -359,14 +368,19 @@ def draw(c, parts, b, x, y, width):
             c.drawString(x, y - 8, p['text'])
             y -= p['h']
         elif k == 'head':
-            y -= 4
+            # The rule goes below the descenders, not through them. It used to
+            # be drawn a point ABOVE the baseline, which struck out the word
+            # it was meant to underline - visible on every "Legendary Actions"
+            # and "Lair Actions", whose g and y hang below the line.
             c.setFont(TITLE_F, 11)
             c.setFillColor(CRIMSON)
-            c.drawString(x, y - 9, p['text'])
-            y -= LEAD + 1
+            base = y - HEAD_TEXT
+            c.drawString(x, base, p['text'])
+            rule = base - HEAD_DROP
             c.setStrokeColor(CRIMSON)
             c.setLineWidth(0.6)
-            c.line(x, y + 3, x + width, y + 3)
+            c.line(x, rule, x + width, rule)
+            y = rule - HEAD_AFTER
         elif k == 'rule':
             c.setStrokeColor(CRIMSON)
             c.setLineWidth(0.8)

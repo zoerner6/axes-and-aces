@@ -80,11 +80,14 @@ class Book:
             return
         self.c.setFont(L.LABEL_F, 8)
         self.c.setFillColor(L.GOLD if dark else L.MUTED)
-        self.c.drawCentredString(PW / 2, M - 8, str(self.page))
+        self.c.drawCentredString(PW / 2, M - 1, str(self.page))
         if self.chapter and not dark:
             self.c.setFont(L.BODY_I, 7.5)
             self.c.setFillColor(L.MUTED)
-            self.c.drawRightString(PW - M, PH - M + 10, self.chapter)
+            # 0.375 in (27 pt) clear of the trim is KDP's minimum on the
+            # top edge. At +10 the cap height reached 26 pt and the previewer
+            # called it.
+            self.c.drawRightString(PW - M, PH - M + 4, self.chapter)
 
     def bg(self, color=L.PARCH):
         """Page colour, run out past the trim on every side."""
@@ -439,13 +442,43 @@ def mob_entry(bk, b):
     bk.c.line(M, bk.y + 2, PW - M, bk.y + 2)
 
 
+FLAVOR_ALLOW = 46.0     # the boss line and the two lines of flavour above
+
+
+def _tallest_column(parts, colw):
+    """Height of the taller of the two columns a boss block is split into."""
+    total = SB.height(parts, colw)
+    run, cut = 0.0, len(parts)
+    for i, p in enumerate(parts):
+        run += SB.height([p], colw)
+        if run >= total / 2 and parts[i]['kind'] not in ('head', 'rule'):
+            cut = i + 1
+            break
+    return max(SB.height(parts[:cut], colw), SB.height(parts[cut:], colw))
+
+
 def boss_entry(bk, b):
     if bk.y < TOP - 2:
         bk.new_page()
     bk.mark('mon_%s' % b['slug'])
     c = bk.c
     top = bk.y
-    ph = bk.panel_img(b['slug'], True, M, top, CW)
+
+    # The picture gives up room before the stat block does. The Lich carries
+    # eight levels of spells and the Demon King carries lair actions, and at
+    # the full panel size their taller column runs off the bottom of the page.
+    # Narrowing the panel keeps one boss to one page, which is the point of
+    # giving it a page.
+    parts = SB.parts_for(b)
+    colw = (CW - 22) / 2
+    need = _tallest_column(parts, colw)
+    pw = CW
+    while pw > CW * 0.55:
+        ph = pw * (1088 / 1950)
+        if (top - ph - 12 - FLAVOR_ALLOW) - BOT >= need:
+            break
+        pw -= 12
+    ph = bk.panel_img(b['slug'], True, M + (CW - pw) / 2, top, pw)
     y = top - ph - 12
 
     c.setFont(L.LABEL_F, 9)
@@ -456,8 +489,6 @@ def boss_entry(bk, b):
     y = flavor(bk, b, M, y, CW)
     y -= 8
 
-    parts = SB.parts_for(b)
-    colw = (CW - 22) / 2
     # Split the block across two columns at the part that balances them best.
     total = SB.height(parts, colw)
     run, cut = 0.0, len(parts)
@@ -608,11 +639,16 @@ def two_col_index(bk, key, title, blurb, groups):
 
 def appendix_type(bk, blocks):
     """By creature kind. What a cleric turns, what a ranger hunts."""
-    order = ['aberration', 'beast', 'celestial', 'construct', 'dragon',
-             'elemental', 'fey', 'fiend', 'giant', 'humanoid', 'monstrosity',
-             'ooze', 'plant', 'undead']
-    groups = [(t.capitalize() + 's', [b for b in blocks if b['type'] == t])
-              for t in order]
+    # Named, not pluralised by adding an s: that gave "Monstrositys",
+    # "Undeads" and "Feys" in the first print.
+    order = [('aberration', 'Aberrations'), ('beast', 'Beasts'),
+             ('celestial', 'Celestials'), ('construct', 'Constructs'),
+             ('dragon', 'Dragons'), ('elemental', 'Elementals'),
+             ('fey', 'Fey'), ('fiend', 'Fiends'), ('giant', 'Giants'),
+             ('humanoid', 'Humanoids'), ('monstrosity', 'Monstrosities'),
+             ('ooze', 'Oozes'), ('plant', 'Plants'), ('undead', 'Undead')]
+    groups = [(label, [b for b in blocks if b['type'] == t])
+              for t, label in order]
     two_col_index(bk, 'app_type', 'Monsters by kind', T.APPENDIX_TYPE, groups)
 
 
@@ -687,7 +723,9 @@ def appendix_encounters(bk, worlds, blocks):
     bk.body(T.ENCOUNTERS_AREAS, 10, 13.4)
     bk.y -= 4
     for w in worlds:
-        bk.space(34)
+        # Room for the world's name AND its first area, so a heading never
+        # ends up alone at the foot of a page.
+        bk.space(34 + 14 + 2 * 12 + 10)
         bk.y -= 18
         bk.c.setFont(L.TITLE_F, 14)
         bk.c.setFillColor(L.CRIMSON)
@@ -701,7 +739,10 @@ def appendix_encounters(bk, worlds, blocks):
             mobs = [b for b in inarea if not b['boss']]
             bosses = [b for b in inarea if b['boss']]
             pl = inarea[0]['party_level']
-            bk.space(30)
+            # The area's heading and both of its encounters stay together.
+            # Split across a page they leave an orphan "Boss fight." line
+            # under no heading at all.
+            bk.space(14 + 2 * 12 + 10)
             bk.y -= 14
             bk.c.setFont(L.BODY_B, 10)
             bk.c.setFillColor(L.INK)
@@ -773,6 +814,53 @@ def appendix_glance(bk, blocks):
     bk.y = BOT
 
 
+def closing(bk):
+    """The last page. A book should not end on a blank leaf."""
+    bk.new_page(dark=True)
+    bk.chapter = ''
+    icon = bk.icon
+    iw, ih = brand.fit(icon, 120)
+    y = PH - 300
+    bk.c.drawImage(icon['path'], (PW - iw) / 2, y, iw, ih, mask='auto')
+
+    y -= 54
+    bk.c.setFont(L.TITLE_F, 30)
+    bk.c.setFillColor(L.GOLD)
+    bk.c.drawCentredString(PW / 2, y, 'That is all of them.')
+
+    y -= 16
+    bk.c.setStrokeColor(L.CRIMSON)
+    bk.c.setLineWidth(2)
+    bk.c.line(PW / 2 - 90, y, PW / 2 + 90, y)
+
+    y -= 34
+    for line in (
+            'One hundred and sixty-eight monsters, ten worlds, and every one',
+            'of them already waiting in the card game they came out of.'):
+        bk.c.setFont(L.BODY_F, 12)
+        bk.c.setFillColor(L.PARCH)
+        bk.c.drawCentredString(PW / 2, y, line)
+        y -= 18
+
+    y -= 26
+    bk.c.setFont(L.TITLE_F, 20)
+    bk.c.setFillColor(L.BRIGHT)
+    bk.c.drawCentredString(PW / 2, y, 'Play it free at ' + T.SITE)
+
+    y -= 54
+    bk.c.setFont(L.LABEL_F, 9)
+    bk.c.setFillColor(L.MUTED)
+    bk.c.drawCentredString(PW / 2, y, 'CONTAINS AI-GENERATED CONTENT')
+
+    y -= 30
+    for line in L.wrap(T.SRD_SHORT, L.BODY_F, 8, CW - 120):
+        bk.c.setFont(L.BODY_F, 8)
+        bk.c.setFillColor(L.MUTED)
+        bk.c.drawCentredString(PW / 2, y, line)
+        y -= 11
+    bk.y = BOT
+
+
 def build(path, toc=None, kdp=False):
     data = json.load(open(os.path.join(BUILD, 'blocks.json'), encoding='utf-8'))
     worlds, blocks = data['worlds'], data['blocks']
@@ -787,10 +875,19 @@ def build(path, toc=None, kdp=False):
     intro(bk)
     for w in worlds:
         world_opener(bk, w, blocks)
+        # The rank and file of all four areas run on without a break, then
+        # the world's four bosses take a page each at the end.
+        #
+        # Every area holds three ordinary creatures and two of them fill a
+        # page, so when a boss interrupted after each area the third was left
+        # alone on a page that was sixty per cent white - forty of them across
+        # the book. Letting the areas run together pairs each leftover with
+        # the first creature of the next area and the white goes away.
+        world_bosses = []
         for a_i in range(4):
             in_area = [b for b in blocks if b['world_i'] == w['i'] and b['area_i'] == a_i]
             mobs = [b for b in in_area if not b['boss']]
-            bosses = [b for b in in_area if b['boss']]
+            world_bosses += [b for b in in_area if b['boss']]
             bk.space(34)
             bk.y -= 20
             bk.c.setFont(L.TITLE_F, 17)
@@ -806,14 +903,15 @@ def build(path, toc=None, kdp=False):
             bk.y -= 12
             for b in mobs:
                 mob_entry(bk, b)
-            for b in bosses:
-                boss_entry(bk, b)
+        for b in world_bosses:
+            boss_entry(bk, b)
     appendix_encounters(bk, worlds, blocks)
     appendix_cr(bk, blocks)
     appendix_type(bk, blocks)
     appendix_terrain(bk, blocks)
     appendix_az(bk, blocks)
     appendix_glance(bk, blocks)
+    closing(bk)
     bk.folio()
     if kdp and bk.page % 2:
         # A printed book has to end on a left-hand page.

@@ -29,7 +29,7 @@ was chosen — but the AI-written text rules it out, and no amount of editing
 changes where the words came from.
 
 **Two stores are open.** itch.io takes the PDF at $14.99 with its AI
-disclosure tag set. Amazon KDP takes a 156-page paperback at $29.99, which
+disclosure tag set. Amazon KDP takes a 138-page paperback at $29.99, which
 requires an AI-content disclosure at upload and allows the book on that
 basis; print-ready interior and wraparound cover are both built. Foundry
 VTT's package browser is closed to it for the same reason as DriveThruRPG,
@@ -85,6 +85,25 @@ It only ever reads `dev/game.html` and `art/`. It does not write to either.
 | `src/foundry.py` | The free Foundry VTT module |
 | `src/legendary.py` | Legendary actions, lair actions and the nine spellcasters |
 | `src/text.py` | The book's written content |
+| `src/layoutcheck.py` | Finds rules drawn through text, overlapping text and margin breaches, on every page |
+| `src/sheets.py` | Renders every page into contact sheets, for looking at |
+
+## Checking a build
+
+Measuring the text is not enough. The first print had the rule under every
+section heading struck through the heading itself, on all 168 stat blocks,
+and no amount of reading the extracted text would have shown it. From
+`store/monstermanual/`:
+
+```bash
+python src/layoutcheck.py dist/Axes-and-Aces-Monster-Manual-KDP-interior.pdf --kdp
+```
+
+All three counts should be zero. Then look at the pages:
+
+```bash
+python src/sheets.py dist/Axes-and-Aces-Monster-Manual-KDP-interior.pdf build/preview
+```
 
 ## Things worth knowing
 

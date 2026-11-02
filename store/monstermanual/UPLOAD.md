@@ -34,7 +34,7 @@ editing the words does not change where they came from. Checked 1 November
 AI art or AI text in March 2026. The free module still works, it just installs
 from a link instead of the in-app browser.
 
-**Kindle.** Not a store rule, a judgement: this is a 156-page full-colour
+**Kindle.** Not a store rule, a judgement: this is a 138-page full-colour
 8.5x11 book of stat blocks. Reflowable Kindle would destroy the layout and
 fixed-layout Kindle reads badly on a phone. The PDF on itch.io already serves
 digital buyers. Skip it.
@@ -85,8 +85,8 @@ Bigger audience and better money per copy, but read step 4 before you start.
 **The files are already print-ready.** The interior is laid out on a
 8.625 x 11.25 inch sheet, which is the 8.5 x 11 trim plus Amazon's 0.125 inch
 bleed on the top, bottom and outside edge, and the trim box alternates sides
-so the gutter lands correctly. The cover is a single 17.601 x 11.25 inch PDF
-holding back, spine and front, with the spine sized for 156 pages.
+so the gutter lands correctly. The cover is a single 17.561 x 11.25 inch PDF
+holding back, spine and front, with the spine sized for 138 pages.
 
 1. **Sign in to KDP** at `kdp.amazon.com`. Same account the coloring book is
    going through.
@@ -154,13 +154,13 @@ holding back, spine and front, with the spine sized for 156 pages.
    - Cover finish: **Matte**
 
    **Ink type cannot be changed once the book is published.** Amazon locks it
-   to the ISBN. Standard colour costs $7.27 a copy to print; premium colour
-   costs $13.48 and would force the price above $21 before you earn anything.
+   to the ISBN. Standard colour costs $6.55 a copy to print; premium colour
+   costs $12.04 and would force the price above $21 before you earn anything.
    Standard is the right call for a book that is mostly light parchment
    pages, but see step 9 before you commit.
 
    **If the proof makes you switch to premium, the cover has to be rebuilt.**
-   The spine is thicker on premium paper — 0.366 in against 0.351 in — and a
+   The spine is thicker on premium paper — 0.324 in against 0.311 in — and a
    cover built for the wrong one will have the spine type drifting onto the
    front. Rebuild it from `store/monstermanual/` with:
 
@@ -181,8 +181,8 @@ holding back, spine and front, with the spine sized for 156 pages.
    banded, go back to step 6 and switch to premium colour *before* you
    publish, because after publishing you cannot.
 
-10. **Pricing:** list at **$29.99** on Amazon.com. That earns about **$10.72 a
-    copy** after printing. The floor Amazon will allow is $12.12; do not go
+10. **Pricing:** list at **$29.99** on Amazon.com. That earns about **$11.45 a
+    copy** after printing. The floor Amazon will allow is $10.91; do not go
     near it, print RPG books are not priced like novels.
 
 11. **Expanded Distribution: tick it, but do not count on it.** 8.5 x 11 on

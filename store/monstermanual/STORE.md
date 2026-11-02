@@ -34,7 +34,7 @@ upload and allows the book on that basis.
 
 To be clear about which earns more: the **PDF earns more per sale**. At
 $14.99 on itch, with itch's default 10% share, that is about $13.49 a copy
-against the paperback's $10.72 at $29.99, because a printed book costs $7.27
+against the paperback's $11.45 at $29.99, because a printed book costs $6.55
 to manufacture. The paperback is worth doing for reach, not margin — Amazon
 is where people who have never heard of the game will find it, and a physical
 book is a different purchase from a PDF. Details and the print arithmetic are
@@ -45,7 +45,7 @@ all, and Ko-fi explicitly permits AI work as long as you do not pass it off as
 hand-made. None of those three bring any buyers of their own, so they are
 checkout pages rather than stores.
 
-Not worth doing: a **Kindle** edition. This is a 156-page full-colour 8.5x11
+Not worth doing: a **Kindle** edition. This is a 138-page full-colour 8.5x11
 book of stat blocks. Reflowable would destroy the layout and fixed-layout
 reads badly on a phone. The PDF already serves digital buyers.
 
@@ -81,19 +81,19 @@ than Amazon's own pages support.
 ### What it costs to print and what it can sell for
 
 8.5 x 11 counts as a **large trim size** at KDP (anything over 6.12 inches
-wide). At 156 pages, on Amazon.com:
+wide). At 138 pages, on Amazon.com:
 
 | Ink | Printing cost a copy | Lowest list price allowed | Royalty at $29.99 |
 |---|---|---|---|
-| **Standard colour** | $7.27 | $12.12 | **$10.72** |
-| Premium colour | $13.48 | $22.47 | $4.51 |
+| **Standard colour** | $6.55 | $10.91 | **$11.45** |
+| Premium colour | $12.04 | $20.07 | $5.95 |
 
-Printing cost is `fixed + pages x per-page`: $1.00 + 156 x $0.0402 for
-standard, $1.00 + 156 x $0.080 for premium. Royalty is 60% of list minus
+Printing cost is `fixed + pages x per-page`: $1.00 + 138 x $0.0402 for
+standard, $1.00 + 138 x $0.080 for premium. Royalty is 60% of list minus
 printing cost.
 
-**Sell it at $29.99 in standard colour.** That earns about $10.72 a copy.
-A 156-page full-colour large-format book is not priced like a novel, and the
+**Sell it at $29.99 in standard colour.** That earns about $11.45 a copy.
+A 138-page full-colour large-format book is not priced like a novel, and the
 comparables back it up: Kobold Press lists Tome of Beasts between $34.99 and
 $89.99 depending on format, and Hit Point Press sells its bestiaries at $49
 direct. $29.99 sits under all of them, which is where an unknown publisher
@@ -115,9 +115,9 @@ your book(s) on Amazon."
 
 ### The risk worth knowing
 
-Ten of the 156 pages are full-bleed dark scenes, and dark full-bleed pages are
+Ten of the 138 pages are full-bleed dark scenes, and dark full-bleed pages are
 the hardest thing for print-on-demand to render well: banding, muddiness and
-show-through are all common. The other ~146 pages are light parchment with
+show-through are all common. The other ~128 pages are light parchment with
 modest pictures and will print fine. Order one proof and look at the ten
 before publishing.
 
@@ -127,11 +127,11 @@ before publishing.
 |---|---|
 | Interior sheet | 8.625 x 11.25 in (8.5 x 11 trim + 0.125 in bleed on three sides) |
 | Trim box | slides per page so the bleed is always on the outside edge |
-| Margins | 0.583 in all round — the book is over 150 pages, so KDP requires a 0.5 in gutter rather than 0.375 in, and this clears it with room to spare. Also clears the 0.375 in bleed-side minimum |
-| Pages | 156, even, no cover page (KDP takes the cover separately) |
+| Margins | 0.583 in all round — clears KDP's 0.375 in gutter and bleed-side minimums with room to spare, and would still clear the 0.5 in gutter KDP wants above 150 pages if the book grows |
+| Pages | 138, even, no cover page (KDP takes the cover separately) |
 | Interior file | 95 MB against KDP's 650 MB ceiling |
-| Cover sheet | 17.601 x 11.25 in, one PDF, back + spine + front |
-| Spine | 0.351 in (156 x 0.002252 in, standard colour). Premium colour is thicker at 0.366 in, so switching ink means rebuilding the cover: `python src/book.py --premium` |
+| Cover sheet | 17.561 x 11.25 in, one PDF, back + spine + front |
+| Spine | 0.311 in (138 x 0.002252 in, standard colour). Premium colour is thicker at 0.324 in, so switching ink means rebuilding the cover: `python src/book.py --premium` |
 | Spine text clearance | 6.5 pt each side, against KDP's 4.5 pt minimum |
 | Cover file | 7 MB, against the 40 MB KDP recommends |
 
@@ -140,7 +140,7 @@ before publishing.
 ## Price of the PDF on itch.io
 
 **Launch at $14.99.** The paperback is priced separately in the KDP section
-above, at $29.99 — a printed book costing $7.27 to manufacture cannot sit at
+above, at $29.99 — a printed book costing $6.55 to manufacture cannot sit at
 the PDF's price.
 
 Comparable bestiaries, checked 1 November 2026:
@@ -210,7 +210,7 @@ with a picture, a stat block, and a line telling you how it actually fights.
 **Use it with whatever you are already running.** There is no setting to buy
 into and no new rules to learn. It is a book of monsters.
 
-**156 pages, PDF.**
+**138 pages, PDF.**
 
 ---
 
