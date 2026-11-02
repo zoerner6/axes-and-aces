@@ -34,7 +34,31 @@ Go to **developer.crazygames.com** and sign up. It is free.
 
 ### 3. Start a new game submission
 
-Click **Submit a game**. Choose HTML5 when it asks what the game is built with.
+Click **Submit a game**. It opens on six things to confirm about the game. Those
+are yours to tick, not mine. Three are plain fact and three are your judgment:
+
+| They ask | Where it stands |
+|---|---|
+| Loads in desktop Chrome within 20 seconds, no errors | Yes. About 6 MB loads before the first fight, and a 68-screen sweep found no errors. |
+| Works on mobile, or is marked desktop only | Yes. Checked at 390x844, 375x667, 360x740 and 320x568. |
+| Default language is English | Yes. |
+| The first minute makes it clear what to do | Your call. It opens in the story rather than a menu. |
+| Someone other than you has played it start to finish | Your call. |
+| You own the code, art and sound | Your call. |
+
+**Continue** stays greyed out until all six are ticked. The next screen asks:
+
+- **Game name** - Axes & Aces
+- **Game engine** - HTML5. Not "Externally hosted (iframe)": that one points at
+  axesandaces.com, and the whole point is that the package carries its own files.
+- **Does your game save progress?** - **Yes, using the Data Module from the
+  CrazyGames SDK.** Get this one right. The build saves through their data
+  module so a player's progress follows their CrazyGames account across
+  devices, and their own documentation says the module is switched off unless
+  this answer matches. Pick either other answer and every save is lost.
+- **Game options** - tick *The game supports mobile devices*. Leave the
+  multiplayer and audio-muting boxes alone: the game is single-player and it
+  handles its own sound during an ad.
 
 ### 4. Upload the zip
 

@@ -39,6 +39,33 @@ PORTALS = {
     },
 }
 
+# The game reads its save slot the instant its own script runs, and a portal's
+# data module only answers once that portal's SDK is up. So the SDK is started
+# here, ahead of the game, and the game is handed to AABOOT to run afterwards.
+# If the SDK is missing, blocked or slow, the timeout starts the game anyway
+# and it saves to the browser, exactly as it does on the site.
+BOOT = """<script>
+window.AABOOT = (function(){
+  var P = '__PORTAL__', settled = false, waiting = [], ok = false;
+  function go(good){
+    if(settled) return;
+    settled = true; ok = !!good;
+    var q = waiting; waiting = [];
+    for(var i = 0; i < q.length; i++){ try{ q[i](); }catch(e){} }
+  }
+  if(P === 'crazygames' && window.CrazyGames && window.CrazyGames.SDK){
+    try{ window.CrazyGames.SDK.init().then(function(){ go(true); },
+                                           function(){ go(false); }); }
+    catch(e){ go(false); }
+    setTimeout(function(){ go(false); }, 5000);
+  } else { go(false); }
+  var boot = function(fn){ settled ? fn() : waiting.push(fn); };
+  boot.sdkReady = function(){ return ok; };
+  return boot;
+})();
+</script>
+"""
+
 HEAD = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14100d">
@@ -53,7 +80,7 @@ img{{max-width:100%}}[hidden]{{display:none!important}}
 input{{-webkit-user-select:text;user-select:text}}
 </style>
 </head><body>
-"""
+{boot}"""
 TAIL = "</body></html>"
 
 
@@ -122,7 +149,7 @@ FIRST_RUN = """  if(ch){ challengePanel(ch, anySlots()?'title':'name'); return; 
      gets a hero in slot 1 and the opening scene with no menu in the way.
      Anyone who has played here before still picks their hero. */
   if(!anySlots()){
-    setSlot(1); try{ localStorage.setItem(SKn('name',1), JSON.stringify('Edward')); }catch(e){}
+    setSlot(1); try{ AA.store.setItem(SKn('name',1), JSON.stringify('Edward')); }catch(e){}
     canSave=true; newRun(true); S.heroName='Edward'; render(); saveGame(); storyPanel(); return;
   }
   slotsPanel();"""
@@ -136,9 +163,22 @@ def patch(src, portal, cfg):
     p.sub("bundle the fonts",
           GFONTS, "<style>" + (HERE / "faces.css").read_text(encoding="utf-8") + "</style>")
 
-    # 2. The portal shim, first thing inside the game's own scope.
+    # 2. Progress save. CrazyGames require a player's progress to follow their
+    #    account rather than sit in one browser, and their data module takes
+    #    the same four calls as localStorage, so the game's saves are pointed
+    #    at the shim. This runs before the shim goes in, so the shim's own
+    #    localStorage fallback is left alone.
+    p.sub("save progress through the portal, not the browser",
+          "localStorage.", "AA.store.", count=29)
+
+    # 3. The portal shim, first thing inside the game's own scope. The game's
+    #    body is handed to AABOOT rather than run on the spot: it reads its
+    #    save slot immediately, and the data module only answers once the SDK
+    #    is up.
     p.sub("insert the portal shim", "<script>\n(() => {\n",
-          "<script>\n(() => {\n" + shim_for(portal, cfg) + "\n")
+          "<script>\nAABOOT(() => {\n" + shim_for(portal, cfg) + "\n")
+    p.sub("start the game once the portal's SDK is up",
+          "\n})();\n</script>", "\n});\n</script>")
 
     # 3. Nothing may send the player off the page.
     p.sub("drop the buttons that leave the page",
@@ -324,7 +364,7 @@ def main():
 
     src = (ROOT / "dev" / "game.html").read_text(encoding="utf-8")
     p = patch(src, a.portal, cfg)
-    (out / "index.html").write_text(HEAD.format(sdk=cfg["sdk"]) + p.text + TAIL,
+    (out / "index.html").write_text(HEAD.format(sdk=cfg["sdk"], boot=BOOT.replace("__PORTAL__", a.portal)) + p.text + TAIL,
                                     encoding="utf-8")
     copy_assets(out, cfg, a.vid)
 

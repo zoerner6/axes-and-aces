@@ -60,6 +60,20 @@ Card, RPG, Adventure, Strategy, Poker, Roguelike, Fantasy, Singleplayer, 2D
 
 English.
 
+### The form's own questions
+
+These are picked from a list, not typed.
+
+| Question | Answer |
+|---|---|
+| Game engine | HTML5 |
+| Does your game save progress? | **Yes, using the Data Module from the CrazyGames SDK** |
+| Game options | The game supports mobile devices |
+
+The progress-save answer has to match the build. The game saves through their
+data module, and their documentation says the module stays switched off unless
+this answer says so.
+
 ### Covers to upload
 
 | What | File | Size |

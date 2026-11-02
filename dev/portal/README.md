@@ -22,12 +22,25 @@ re-encoding when `vid/` changes.
 | `encvid.py` | Shrinks the 413 monster and scene clips from 583 MB to about 147 MB, so they fit inside a portal's size limit. `--sample` measures without encoding. |
 | `fonts.py` | Downloads the five Google fonts the game uses into `dev/portal/fonts/` and writes `faces.css`. Both portals forbid a font CDN at run time. Already run; only needed again if the fonts change. |
 | `build_portal.py` | The build. Reads `dev/game.html`, applies the patches, writes `dist/<portal>/`. |
-| `shim.js` | The layer between the game and whichever portal is hosting it. `build_portal.py` drops it into the game and fills in the portal's name and ad timing. |
+| `shim.js` | The layer between the game and whichever portal is hosting it. `build_portal.py` drops it into the game and fills in the portal's name and ad timing. It also holds `AA.store`, which the game's saves go through: the CrazyGames data module where that SDK is up, the browser everywhere else. |
 | `harness.py` | Adds the eval hook `dev/gen/mobscan.cjs` needs, so a built package can be screen-swept. |
 | `covers.py` | The cover pictures, into `store/portal/`. |
 | `trailer.cjs` | Films a real playthrough for the preview videos. |
 | `preview.py` | Cuts that recording to the length and shape CrazyGames accept. |
 | `shots.cjs` | The three gameplay screenshots Poki ask for. |
+
+## Why the game waits before it starts
+
+The game reads which save slot you are on the moment its script runs, and a
+portal's data module only answers once that portal's SDK has started. So the
+build wraps the game's body in `AABOOT`, a gate in the page that starts the SDK
+first and runs the game after. It gives up after five seconds, so a missing or
+blocked SDK still starts the game - on the browser's own storage, as on the site.
+
+Two things follow from this. The package ends `});` rather than the `})();`
+`dev/game.html` closes with, which `harness.py` has to know about. And the gate
+sits inside `<body>`, not the head: the SDK puts elements into the page when it
+starts and throws if there is no body yet.
 
 ## Adding or changing a portal
 

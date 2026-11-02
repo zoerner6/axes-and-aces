@@ -19,11 +19,29 @@ const AA = (function(){
   function send(fn){ ready ? safe(fn) : queued.push(fn); }
   function open(){ ready = true; const q = queued; queued = []; q.forEach(safe); }
 
+  /* On CrazyGames the SDK is started before the game's own code runs, because
+     the game reads its save slot the moment it starts and the data module only
+     answers once the SDK is up. AABOOT did that and is holding the result, so
+     there is nothing left to wait for here. */
   if(P === 'crazygames'){
-    if(cg()) cg().init().then(open, open); else open();
+    open();
   } else if(P === 'poki'){
     if(pk()) pk().init().then(open, open); else open();
   }
+
+  /* Progress save. CrazyGames require a player's progress to live on their
+     account rather than in one browser, and their data module takes the same
+     four calls as localStorage, so the game's own save code is pointed here.
+     Where the SDK is not up - a plain web server, a blocked SDK, Poki - this
+     is localStorage, and the game saves exactly as it does on the site. */
+  const cgData = () => P === 'crazygames' && window.AABOOT
+                       && AABOOT.sdkReady() && cg() && cg().data;
+  const store = {
+    getItem(k){ try{ const d = cgData(); return d ? d.getItem(k) : localStorage.getItem(k); }catch(e){ return null; } },
+    setItem(k,v){ try{ const d = cgData(); d ? d.setItem(k,v) : localStorage.setItem(k,v); }catch(e){} },
+    removeItem(k){ try{ const d = cgData(); d ? d.removeItem(k) : localStorage.removeItem(k); }catch(e){} },
+    clear(){ try{ const d = cgData(); d ? d.clear() : localStorage.clear(); }catch(e){} }
+  };
 
   /* Both portals ask that the game go quiet and still while an ad plays. */
   function hush(on){
@@ -57,18 +75,23 @@ const AA = (function(){
     stop();
     if(!ready || ++fights <= FREE || Date.now() - lastAd < GAP) return done();
     lastAd = Date.now();
-    if(P === 'crazygames' && cg()){
+    /* Only ask for an ad from an SDK that actually started. One that loaded
+       but failed to initialize throws on the way in, and swallowing that
+       would leave the game hidden until the timeout - a long look at nothing
+       for a player whose SDK had a bad minute. */
+    if(P === 'crazygames' && cg() && window.AABOOT && AABOOT.sdkReady()){
       let left = false;
       const fin = () => { if(left) return; left = true; done(); };
-      safe(()=>{ hush(true); cg().ad.requestAd('midgame', {adFinished: fin, adError: fin}); });
+      try{ hush(true); cg().ad.requestAd('midgame', {adFinished: fin, adError: fin}); }
+      catch(e){ fin(); }
       setTimeout(fin, 45000);          /* never strand the player on a stuck ad */
-      if(!cg()) fin();
       return;
     }
     if(P === 'poki' && pk()){
       let left = false;
       const fin = () => { if(left) return; left = true; done(); };
-      safe(()=>pk().commercialBreak(()=>hush(true)).then(fin, fin));
+      try{ pk().commercialBreak(()=>hush(true)).then(fin, fin); }
+      catch(e){ fin(); }
       setTimeout(fin, 45000);
       return;
     }
@@ -85,7 +108,7 @@ const AA = (function(){
   /* The portal measures how much the game downloads before the first
      `gameplay start`. Keeping the marks here lets that be checked for real
      in a browser instead of guessed from the folder size. */
-  const api = {portal:P, loaded, start, stop, adBreak,
+  const api = {portal:P, loaded, start, stop, adBreak, store,
                marks:{boot:performance.now(), loaded:0, firstPlay:0}};
   const _loaded = api.loaded, _start = api.start;
   api.loaded = () => { if(!api.marks.loaded) api.marks.loaded = performance.now(); _loaded(); };

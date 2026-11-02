@@ -66,14 +66,17 @@ Measured on the finished folders, not estimated.
 |---|---|---|
 | Files | 1,022 (limit 1,500) | 609 |
 | Total size | 200.9 MB (limit 250 MB) | 53.9 MB |
-| Downloaded before the first fight | **5.4 MB** | about 3 MB |
+| Downloaded before the first fight | **about 6 MB** | about 3 MB |
 | Monster videos | Yes, all 413 clips | No |
+| Progress save | On their account, through their data module | In the browser |
 | Leaderboard and cloud save | No, see below | No |
 
-The 5.4 MB figure is the real thing: measured in a browser, counting every byte
-that crossed the wire between opening the page and the SDK's `gameplay start`
-firing. The cap is 50 MB and the mobile-home-page bar is 20 MB, so the game
-clears both comfortably. The page itself loads in well under a second.
+That figure is measured, not estimated: counted in a browser, every byte between
+opening the page and the SDK's own `gameplay start` firing. It moves between
+about 5 and 7 MB depending on how long the player reads the opening story,
+because the music and the first monster's clip keep loading while they read.
+The cap is 50 MB and the mobile-home-page bar is 20 MB, so it clears both with
+room to spare either way. The page itself is up in well under a second.
 
 ### The videos came back
 
@@ -117,12 +120,39 @@ from the same `dev/game.html`.
   work, and there is one ad break: the moment the player leaves one fight and
   asks for the next. Never inside a hand, never on a menu button. That is the
   only spot both portals allow.
+- **Progress saves to the player's CrazyGames account**, not just their
+  browser, because CrazyGames require it. See below for what that took.
 - **Neither build calls anything outside itself.** The leaderboard, the cloud
   save and the score posting are taken out rather than left as buttons that fail.
   The Poki build also no longer asks for video files it does not carry.
 
 Each package now contains exactly one address pointing off the page: its own
 portal's SDK. Progress is saved in the browser, as it is on the site.
+
+### Progress saves to the player's CrazyGames account
+
+CrazyGames do not treat progress save as optional: "unless progress is not
+applicable for your game, we require you to implement one of these methods."
+A game with three save slots and ten quests does not get to answer no.
+
+So the game's saves go through their data module instead of the browser. It
+takes the same four calls as the browser's own storage, so the swap is one for
+one across the 29 places the game reads or writes a save. The catch was the
+timing: the game reads which save slot you are on the instant its script runs,
+and the data module only answers once the SDK has started. The game's body is
+now handed to a small gate that waits for the SDK first, with a five-second
+timeout so a blocked or missing SDK still starts the game - it just saves to
+the browser instead, exactly as it does on the site. The Poki build and a plain
+web server take that same fallback path.
+
+This has to be matched on the submission form: **Does your game save progress?**
+has to be answered *Yes, using the Data Module from the CrazyGames SDK*. Their
+documentation is explicit that the module is switched off if the answer says
+otherwise, which would silently lose every save.
+
+Checked for real, not assumed: a value written through the game's own save code
+lands in the SDK's store and not in the browser's, comes back after a reload,
+and disappears when the game deletes it.
 
 ### Why the leaderboard is off even on CrazyGames
 
