@@ -51,25 +51,49 @@ function serve(root){
 
 /* Every screen, as a thing to do in the page. Board screens leave the overlay
    shut; popup screens open one. */
+/* Every screen starts from the same plausible hero. Without this they ran in
+   order and leaked state into each other, which is how a victory screen came
+   to show "GOLD -6" and a level-up "700 -> 400": the panels are called
+   directly, without the bookkeeping the real path does before them, on top of
+   whatever the screen before had left behind. */
+const RESET = `
+  S = SOL.freshHero();
+  S.level = 6; S.maxHp = 400 + 100 * 5; S.hp = Math.round(S.maxHp * .55);
+  S.gold = 64; S.xp = SOL.cumNeed(5) + 30;
+  S.eq = { main:{type:'sword',tier:2}, armor:{type:'armor',tier:1} };
+  SOL.S = S;
+  SOL.coachLearned = ['play','stock','run','clear'];
+  SOL.startFight(); SOL.closePanel();
+`;
+
 const SCREENS = [
   ['heroes',      `S.name='Edward'; S.level=6; SOL.saveGame(); SOL.slotsPanel();`],
   ['story-start', `S.world=0; S.introBeat=0; SOL.storyPanel('start');`],
   ['story-area',  `S.world=0; SOL.storyPanel('a2');`],
   ['story-end',   `S.world=1; S.endBeat=0; SOL.storyPanel('end');`],
-  ['intro-ambush',`SOL.startFight(); SOL.closePanel(); SOL.fightIntro('ambush');`],
+  ['intro-ambush',`SOL.fightIntro('ambush');`],
   ['intro-spot',  `SOL.fightIntro('spot');`],
   ['intro-path',  `SOL.fightIntro('path');`],
   ['intro-boss',  `S.step=2; SOL.startFight(); SOL.closePanel(); SOL.fightIntro('boss');`],
-  ['board',       `S.step=0; SOL.startFight(); SOL.closePanel(); SOL.coachLearned=['play','stock','run','clear'];`],
+  ['board',       ``],
   ['board-run',   `SOL.R.run=7; SOL.R.runVal=58; SOL.render();`],
   ['board-stuck', `SOL.R.tableau.forEach(c=>{if(!c.gone)c.r=7}); SOL.R.waste=[{r:2,s:0}]; SOL.R.si=SOL.R.stock.length; SOL.render();`],
   ['board-peak',  `SOL.R=SOL.dealRound(); SOL.LAYOUT.peak.forEach((k,i)=>{if(k===0)SOL.R.tableau[i].gone=true}); SOL.R.down=[0]; SOL.render();`],
   ['board-pouch', `SOL.R=SOL.dealRound(); S.pots=['heal','iron','rage']; S.ironskin=true; S.rage=true; SOL.render(); SOL.renderPots();`],
-  ['victory',     `S.hp=Math.round(S.maxHp*.5); SOL.victoryPanel(S.fight,{flawless:false,clean:false,clutch:false,bonus:0});`],
-  ['victory-mark',`SOL.victoryPanel(S.fight,{flawless:true,clean:false,clutch:false,bonus:S.fight.gold});`],
-  ['level',       `S.level=5; S.pendingLv=1; SOL.levelPanel();`],
-  ['crossing',    `S.level=1; S.step=2; S.area=0; SOL.pathPanel();`],
-  ['shop-rest',   `S.gold=64; S.charms=['cup']; S.pots=['heal']; SOL.shopPanel('rest');`],
+  /* the gold and the experience are added before the panel on the real
+     path, so they are added here too rather than counting up from behind */
+  ['victory',     `S.gold+=S.fight.gold; S.xp+=S.fight.xp; SOL.victoryPanel(S.fight,{flawless:false,clean:false,clutch:false,bonus:0});`],
+  ['victory-mark',`const bn=S.fight.gold; S.gold+=S.fight.gold+bn; S.xp+=S.fight.xp;
+                   SOL.victoryPanel(S.fight,{flawless:true,clean:false,clutch:false,bonus:bn});`],
+  /* level up the way the game does it, not by setting the number: levelPanel
+     compares against the health of the level below, so forcing S.level on its
+     own drew "700 -> 400" and made it look as if levelling cost you health */
+  ['level',       `SOL.levelUp(); SOL.levelPanel();`],
+  /* underlevelled on purpose, so the warning is on screen - and with the
+     health that goes with being level 1, or the picture says level 1 beside
+     900 health and reads as a bug */
+  ['crossing',    `S.level=1; S.maxHp=400; S.hp=220; S.step=2; S.area=0; SOL.pathPanel();`],
+  ['shop-rest',   `S.charms=['cup']; S.pots=['heal']; SOL.shopPanel('rest');`],
   ['shop-smith',  `SOL.shopPanel('smith');`],
   ['shop-charms', `SOL.shopPanel('charms');`],
   ['shop-pots',   `SOL.shopPanel('pots');`],
@@ -117,13 +141,25 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
 
     for (const [name, code] of SCREENS) {
       try {
-        await p.evaluate(src => {
-          const SOL = window.__SOL, S = SOL.S;
-          // eslint-disable-next-line no-eval
-          eval(src);
-        }, code);
+        await p.evaluate(([reset, src]) => {
+          const SOL = window.__SOL;
+          let S = SOL.S;
+          eval(reset);            // eslint-disable-line no-eval
+          S = SOL.S;
+          eval(src);              // eslint-disable-line no-eval
+        }, [RESET, code]);
       } catch (e) { console.log(`  ${name.padEnd(13)} *** would not open: ${PLAIN(e.message).slice(0, 70)}`); bad++; continue; }
-      await p.waitForTimeout(name.startsWith('brag') ? 1400 : 500);
+      /* Most of these screens are popups, and some of them take their time:
+         the fallen screen banners for a second and a half before it opens.
+         Waiting a flat moment photographed the banner instead of the panel,
+         so the one screen that most needed looking at was never in the set. */
+      const isBoard = name.startsWith('board');
+      await p.waitForTimeout(name.startsWith('brag') ? 1400 : 300);
+      if (!isBoard) {
+        await p.waitForFunction(() => !document.getElementById('overlay').hidden,
+          null, { timeout: 6000 }).catch(() => {});
+      }
+      await p.waitForTimeout(260);
       /* A typed line arrives over seconds, and a panel measured half-typed is
          a shorter panel than a player ever sees. Wait for the words to stop
          arriving rather than for a fixed moment. */
