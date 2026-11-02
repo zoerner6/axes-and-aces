@@ -1080,6 +1080,7 @@ const freshHero = () => ({
   level:1, hp:400, maxHp:400, gold:3, xp:0,
   eq:{}, perks:[], charms:[], pots:[], bonusHp:0, pendingLv:0,
   world:0, area:0, step:0, introBeat:0, endBeat:0,
+  openingSeen:false,             /* the first board comes before the story, not after */
   fight:null, block:0, wins:0, deaths:0,
   training:false,                /* this fight is off the quest and advances nothing */
 });
@@ -1322,8 +1323,20 @@ function startFight(){
   /* the board this fight is read on, bent by the boss rule if there is one */
   R = dealRound(boss ? f.rule.deal : {});
   openBoard();
-  busy = true;                 /* the board waits behind the intro */
-  fightIntro();
+
+  /* The very first board a new player ever sees has nothing in front of it.
+     Everything else here opens behind a panel - two story beats and a fight
+     intro - and that is three full screens of knights and kidnapping before
+     a single card, to somebody who clicked a link that said Solitaire. The
+     story is not cut, it is moved: it plays once the first fight is won, by
+     which point a player knows what the game is and will read it. */
+  if(!S.openingSeen && !S.daily){
+    busy = false;
+    coachMaybe();
+  } else {
+    busy = true;                 /* the board waits behind the intro */
+    fightIntro();
+  }
   dailySeedOff();
 }
 
@@ -2632,7 +2645,14 @@ function storyNext(key){
   if(key === 'start'){
     S.introBeat = (S.introBeat || 0) + 1;
     if(S.introBeat < w.intro.length) return storyPanel('start');
-    S.introBeat = 0; closePanel(); return startFight();
+    S.introBeat = 0;
+    /* the opening beats now sit after the first win, so they hand back to
+       the level-up or the merchant rather than straight to a new fight */
+    if(S.fight && S.fight.hp <= 0){
+      if(S.pendingLv) return levelPanel();
+      return shopPanel();
+    }
+    closePanel(); return startFight();
   }
   if(key === 'end'){
     S.endBeat = (S.endBeat || 0) + 1;
@@ -2785,7 +2805,13 @@ function coachShow(id){
   coachEl.innerHTML = c.text;
   document.body.appendChild(coachEl);
   const b = coachEl.getBoundingClientRect();
-  const below = r.bottom + 14 + b.height < innerHeight - 8;
+  /* Below the thing if there is room, EXCEPT where that would cover the deck
+     and the pile. The very first mark says to play a card one above or one
+     below "the one on the pile" - and it was sitting on top of the pile. */
+  const table = document.querySelector('.table');
+  const floor = table ? Math.min(innerHeight - 8, table.getBoundingClientRect().top - 8)
+                      : innerHeight - 8;
+  const below = r.bottom + 14 + b.height < floor;
   const left = Math.max(8, Math.min(innerWidth - b.width - 8, r.left + r.width / 2 - b.width / 2));
   coachEl.classList.add(below ? 'below' : 'above');
   coachEl.style.left = left + 'px';
@@ -3019,7 +3045,13 @@ $('overlay').addEventListener('click', e => {
   if(!b) return;
   const act = b.dataset.act;
   if(act === 'fight'){ closePanel(); busy = false; coachMaybe(); return; }
-  if(act === 'onward'){ if(S.pendingLv) levelPanel(); else shopPanel(); return; }
+  if(act === 'onward'){
+    /* the world's own words, once the player has played a board and knows
+       what they are reading */
+    if(!S.openingSeen){ S.openingSeen = true; saveGame(); S.introBeat = 0; return storyPanel('start'); }
+    if(S.pendingLv) levelPanel(); else shopPanel();
+    return;
+  }
   if(act === 'perk'){ takePerk(b.dataset.perk); return; }
   if(act === 'again'){ S.hp = S.maxHp; closePanel(); startFight(); return; }
   if(act === 'shopTab'){ shopPanel(b.dataset.tab); return; }
@@ -3111,17 +3143,15 @@ $('board').addEventListener('click', e => {
   if(card) playCard(+card.dataset.i);
 });
 
-/* ===================== the first reading =====================
-   The world opens on its own words before a card is dealt, the same as the
-   other two games. */
+/* ===================== the first board =====================
+   A player who has been here before picks a hero. A new one gets cards, at
+   once, with nothing in front of them. */
 R = dealRound();
 busy = true;
 (() => {
   const saved = [1, 2, 3].map(loadSave).filter(v => v && v.S);
   if(saved.length){ slotsPanel(); return; }
-  /* nobody has played here before, so get straight to it */
-  S.introBeat = 0;
-  storyPanel('start');
+  startFight();
 })();
 
 /* exposed for the test harness and for dev/gen/slscan.cjs */
