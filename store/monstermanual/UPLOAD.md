@@ -1,6 +1,18 @@
 # Putting the Monster Manual on sale — step by step
 
-Nothing has been uploaded. Every step below is yours to do.
+> **The paperback is done.** Submitted to Amazon KDP on 2 November 2026 at
+> $29.99, status "In review". ISBN 9798167110366, 138 pages, standard colour
+> on white, 8.5 x 11, matte, Expanded Distribution enrolled. Amazon takes up
+> to 72 hours to put it on sale. Part two below is kept as the record of what
+> was done and what to change if the proof disappoints.
+>
+> **The itch.io PDF in part one has NOT been done.** That is the one that
+> earns more per sale.
+>
+> One thing was skipped: no proof copy was ordered before publishing, on
+> Josh's instruction. The ink type is now welded to the ISBN. If the ten
+> full-bleed dark pages come back muddy, the fix is a new edition with a new
+> ISBN, not an edit to this one.
 
 There are two editions, built from the same source:
 
