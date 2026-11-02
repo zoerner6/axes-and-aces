@@ -69,6 +69,16 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
        the board back, and hiding the panel alone leaves it frozen. */
     await p.click('[data-act="fight"]', { timeout: 4000 }).catch(() => {});
     await p.waitForTimeout(160);
+    /* The pouch row only exists when you are carrying something, and it is
+       the one strip that can push the board off a short screen, so measure
+       the screen a player who has been shopping actually sees. */
+    await p.evaluate(() => {
+      const SOL = window.__SOL, S = SOL.S;
+      S.pots = ['heal', 'iron', 'rage'];
+      S.ironskin = true; S.rage = true;
+      SOL.renderPots();
+    });
+    await p.waitForTimeout(120);
 
     const m = await p.evaluate(() => {
       const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();   /* the page has its own copy */

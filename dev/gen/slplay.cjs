@@ -86,7 +86,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
      then victory, then a level-up with a perk to pick, or the fallen screen.
      Clicking the board while any of them is up is a thirty-second Playwright
      timeout, so the bot walks through whatever door is in front of it. */
-  const DOORS = ['fight', 'onward', 'perk', 'again'];
+  const DOORS = ['fight', 'onward', 'perk', 'leaveShop', 'again'];
   const walkPanels = async () => {
     for (let i = 0; i < 8; i++) {
       const act = await p.evaluate(doors => {
@@ -147,7 +147,11 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
       await settle();
     } else if (st.stockLeft > 0) {
       const before = { hp: st.foeHp, run: st.run };
-      await p.click('[data-act="turn"]');
+      /* A panel can open while this click is still retrying - the monster
+         dies on the strike before it - and then the overlay intercepts and
+         Playwright waits thirty seconds. Fail fast and look again. */
+      try { await p.click('[data-act="turn"]', { timeout: 3000 }); }
+      catch { await walkPanels(); st = await read(); continue; }
       if (before.run > 0) {
         /* a strike: catch the number it claims and check the health against it */
         let shown = null;

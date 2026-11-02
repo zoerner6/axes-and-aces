@@ -45,7 +45,8 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     /* The four intros, then the screens a fight ends on. The level-up has no
        one big button - its main control is the list of perks - so what has to
        be reachable there is the LAST perk, not a button. */
-    const SCREENS = ['ambush', 'spot', 'path', 'boss', 'victory', 'flawless', 'clean', 'level', 'fallen'];
+    const SCREENS = ['ambush', 'spot', 'path', 'boss', 'victory', 'flawless', 'clean', 'level', 'fallen',
+                     'rest', 'smith', 'charms', 'pots'];
     for (const kind of SCREENS) {
       await p.evaluate(k => {
         const SOL = window.__SOL, S = SOL.S;
@@ -60,6 +61,15 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
         if (['ambush', 'spot', 'path', 'boss'].includes(k)) return SOL.fightIntro(k);
         if (k === 'level') { S.pendingLv = 1; return SOL.levelPanel(); }
         if (k === 'fallen') return SOL.lost();
+        if (['rest', 'smith', 'charms', 'pots'].includes(k)) {
+          /* a player who has been shopping: some gold, a charm, a potion, and
+             mid-tier gear, which is when the rows are at their tallest */
+          S.gold = 64; S.level = 6;
+          S.maxHp = 400 + 100 * 5; S.hp = Math.round(S.maxHp * .55);
+          S.charms = ['cup']; S.pots = ['heal'];
+          S.eq = { main: { type: 'sword', tier: 2 }, armor: { type: 'armor', tier: 1 } };
+          return SOL.shopPanel(k);
+        }
         const d = S.fight;
         const mood = { flawless: k === 'flawless', clean: k === 'clean', clutch: false };
         mood.bonus = mood.flawless ? d.gold : 0;
