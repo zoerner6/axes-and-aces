@@ -178,16 +178,26 @@ for (const wrap of [true, false]) {
     (gaveUp ? `  (+${pct(gaveUp, SOLVE)} undecided, counted against)` : ''));
 
   const bests = [], dmg = [], downs = [], left = [], cards = [];
+  const nruns = [], nturns = [], blows = [];
   let clears = 0, dead = 0;
   const hist = new Array(29).fill(0);
   for (let n = 0; n < DEALS; n++) {
     const { tableau, stock } = deal(Math.random);
     const g = greedy(tableau, stock, wrap);
     bests.push(g.best); dmg.push(g.damage); downs.push(g.down); cards.push(g.cards);
+    /* How often the monster would get to move, which is the question the fight
+       maths needs answered. A stock turn that ends a real run is a strike and
+       an answering move; a stock turn taken while already stuck at nothing is
+       just hunting, and must not be a free hit on the player or a round would
+       hand the monster twenty of them. */
+    nruns.push(g.runs.length);
+    nturns.push(g.turns);
+    for (const [len, val] of g.runs) blows.push(val * len);
     hist[Math.min(28, g.best)]++;
     if (g.cleared) { clears++; left.push(g.stockLeft); }
     if (g.cards < 4) dead++;                 /* a board that gave almost nothing */
   }
+  blows.sort((a, b) => a - b);
   bests.sort((a, b) => a - b); dmg.sort((a, b) => a - b);
   const p = (arr, q) => arr[Math.floor(arr.length * q)];
 
@@ -198,6 +208,9 @@ for (const wrap of [true, false]) {
   console.log(`  stock left when cleared     : ${avg(left).toFixed(1)} of 24`);
   console.log(`  longest run  avg/med/90th   : ${avg(bests).toFixed(2)} / ${p(bests, .5)} / ${p(bests, .9)}`);
   console.log(`  ROUND DAMAGE avg/med/90th   : ${avg(dmg).toFixed(0)} / ${p(dmg, .5)} / ${p(dmg, .9)}`);
+  console.log(`  runs per round (= strikes)  : ${avg(nruns).toFixed(2)}`);
+  console.log(`  stock turns per round       : ${avg(nturns).toFixed(1)}  <- NOT the move count`);
+  console.log(`  ONE BLOW     avg/med/90th   : ${avg(blows).toFixed(0)} / ${p(blows, .5)} / ${p(blows, .9)}`);
   const top = hist.map((c, i) => [i, c]).filter(([, c]) => c).slice(0, 14);
   console.log(`  longest-run spread          : ` +
     top.map(([i, c]) => `${i}:${(100 * c / DEALS).toFixed(0)}%`).join('  '));

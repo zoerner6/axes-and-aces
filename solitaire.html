@@ -58,11 +58,46 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 img{max-width:100%}
 [hidden]{display:none!important}
 
+/* ===================== the shape of the screen =====================
+   A solitaire layout wants width and the monster wants height, and on a phone
+   they are fighting over the same screen. So they do not share a direction:
+
+   On a phone it is one column - monster band on top, you under it, then the
+   peaks and the waste. The peaks are the one part whose height is fixed by
+   arithmetic rather than taste: ten cards have to fit across, which sets the
+   pitch, which sets the height through the board's aspect ratio. Everything
+   else is flex:none at its own height and the monster takes what is left.
+   That leaves the monster 454px at 390x844 and still 236px at 320x568, which
+   is twice what Monster Farkle's band gets, because a card board is shorter
+   than two rows of dice and buttons.
+
+   On a desktop they stop competing: the peaks take the left and the monster
+   fills the right, full height, which is what BRAND.md asks for. 820px is
+   where there is enough width to give the peaks 450px and still leave the
+   monster a column worth looking at. */
 #app{
   max-width:880px;margin:0 auto;height:100%;min-height:0;
   padding-left:max(14px, env(safe-area-inset-left, 0px));
   padding-right:max(14px, env(safe-area-inset-right, 0px));
   padding-block:8px 10px;display:flex;flex-direction:column;gap:7px;
+}
+#board{display:flex;flex-direction:column;flex:0 0 auto;min-width:0}
+
+@media (min-width:820px){
+  #app{
+    max-width:1180px;display:grid;gap:10px 16px;
+    grid-template-columns:minmax(0,1fr) minmax(0,.76fr);
+    grid-template-rows:auto minmax(0,1fr);
+  }
+  .top{grid-column:1 / -1}
+  #board{grid-column:1;grid-row:2;justify-content:center;gap:10px}
+  #side{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:8px;min-height:0}
+  .stage{min-height:260px}
+  .peaks{width:100%}
+}
+/* phone: the monster and you sit above the board, in that order */
+@media (max-width:819px){
+  #side{display:contents}
 }
 #app.shake{animation:shake .38s}
 @keyframes shake{20%{transform:translate(-7px,2px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,1px)}80%{transform:translate(3px,-1px)}}
@@ -74,6 +109,99 @@ img{max-width:100%}
 @media (max-width:560px){
   :root{ --phone:1; }
   #app{ padding-inline:max(9px, env(safe-area-inset-left, 0px)); }
+}
+
+/* ===================== the top bar ===================== */
+.top{display:flex;align-items:center;gap:9px;flex:none}
+.brand{display:flex;align-items:center;gap:7px;font-family:var(--f-title);font-size:1.18rem;
+  color:var(--gold-hi);text-shadow:2px 2px 0 #000;line-height:1;white-space:nowrap}
+.brand img{width:30px;height:30px;border-radius:7px;border:2px solid #000;box-shadow:2px 2px 0 #000}
+.tools{margin-left:auto;display:flex;gap:6px}
+.tool{background:var(--leather);border:2px solid #000;box-shadow:2px 2px 0 #000;border-radius:999px;
+  padding:6px 11px;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--f-num);font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+@media (max-width:420px){ .wide-only{display:none} .tool{padding:6px 9px;font-size:.72rem} }
+
+/* ===================== the monster =====================
+   Lifted from dev/farkle.html, which lifted it from dev/game.html: area
+   background, still art, looping idle clip, the vertical health bar, the name,
+   the level badge, the threat color and the next-move chip. The one thing that
+   changes here is the shape of the box it lives in - a wide short band on a
+   phone, a tall column on a desktop - so the clip's framing has to survive
+   both. See .foe-vidwrap video below. */
+.stage{position:relative;flex:1 1 auto;min-height:104px;min-width:0;
+  border-radius:14px;overflow:hidden;border:3px solid #000;box-shadow:4px 4px 0 #000;
+  display:flex;flex-direction:column;
+  background:linear-gradient(rgba(10,5,3,.55), rgba(10,5,3,.05) 38%, rgba(10,5,3,.05) 70%, rgba(10,5,3,.6)),
+             var(--bgimg) center/cover no-repeat, linear-gradient(#3e2617,#170d07)}
+.stage-top{padding:9px 42px 0 11px;display:flex;flex-direction:column;gap:5px;z-index:2}
+.foe-title{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+.foe-name{font-family:var(--f-title);font-size:1.3rem;line-height:1.1;text-shadow:0 2px 0 rgba(0,0,0,.7)}
+.foe-rule{font-family:var(--f-num);font-weight:600;font-size:.8rem;letter-spacing:.03em;color:#ffb7a3;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.foe-pic{flex:1;min-height:0;display:grid;place-items:center;z-index:1;filter:drop-shadow(0 14px 18px rgba(0,0,0,.65));
+  animation:breathe 3.2s ease-in-out infinite}
+.foe-pic img{display:block;height:clamp(84px,22vh,250px);max-width:76%;object-fit:contain}
+@keyframes breathe{50%{transform:scale(1.04) translateY(-5px)}}
+.foe-pic.hit{animation:foeHit .42s}
+@keyframes foeHit{0%{filter:brightness(2.4) saturate(0)}30%{transform:translateX(-14px) rotate(-7deg)}60%{transform:translateX(10px) rotate(5deg)}}
+
+/* The clips are 16:9 and this box is neither. On a phone it is a short wide
+   band, where cover trims the sides and the head has to be held up in frame;
+   on a desktop it is a tall column, where cover trims top and bottom instead
+   and the head would be the first thing to go. So the framing moves with the
+   box rather than being one number for both. Never crop a head. */
+.foe-vidwrap{position:absolute;inset:0;overflow:hidden;z-index:0;opacity:0;transition:opacity .4s;pointer-events:none}
+.stage.hasvid .foe-vidwrap{opacity:1}
+.stage.hasvid .foe-pic{visibility:hidden}
+.foe-vidwrap::before{content:"";position:absolute;inset:-20px;background:var(--bgimg) center/cover;filter:blur(15px) brightness(.5)}
+.foe-vidwrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;
+  filter:contrast(1.06) saturate(1.06)}
+@media (min-width:820px){ .foe-vidwrap video{object-position:50% 26%} }
+.foe-vidwrap video.atk{opacity:0;transition:opacity .22s ease}
+.foe-vidwrap video.atk.on{opacity:1}
+.foe-vidwrap.hit{animation:vidHit .42s}
+@keyframes vidHit{0%{filter:brightness(2.6) saturate(0)}35%{transform:translateX(-12px)}70%{transform:translateX(9px)}}
+.foe-vidwrap.healglow{animation:vidHeal 1.1s}
+@keyframes vidHeal{40%{filter:brightness(1.3) sepia(.5) hue-rotate(60deg)}}
+.foe-vidwrap.shieldglow{animation:vidShield 1.1s}
+@keyframes vidShield{40%{filter:brightness(1.25) sepia(.6) hue-rotate(175deg)}}
+
+/* the level badge and how dangerous this one is */
+.lvtag{display:inline-flex;align-items:center;gap:4px;border:2px solid #000;border-radius:999px;padding:2px 9px;
+  font-family:var(--f-num);font-weight:700;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--wood-3);color:var(--parch);box-shadow:2px 2px 0 #000}
+.lvtag.easy{background:#2c5230;color:#cfeccf} .lvtag.even{background:#4a3a1c;color:#ffe3a6}
+.lvtag.hard{background:#5e2a1e;color:#ffd0c2} .lvtag.boss{background:var(--boss);color:#fff}
+.vbar{position:absolute;right:11px;top:11px;bottom:11px;width:17px;border-radius:999px;
+  background:rgba(0,0,0,.45);border:2px solid #000;overflow:hidden;z-index:2}
+.vbar i{position:absolute;left:0;right:0;bottom:0;height:100%;background:linear-gradient(0deg,#8e1a16,var(--hp) 70%,#ff7a6a);transition:height .45s ease}
+.stage-foot{position:absolute;left:10px;right:40px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap;z-index:2}
+
+/* ===================== you ===================== */
+.hero{display:flex;align-items:center;gap:7px;flex:none;
+  background:var(--leather);border:3px solid #000;box-shadow:3px 3px 0 #000;border-radius:12px;padding:6px 9px}
+.hero .me{width:34px;height:34px;flex:0 0 auto;object-fit:contain;object-position:bottom;
+  background:radial-gradient(circle at 50% 62%,#3a2a1d,#14100d);border:2px solid #000;border-radius:8px}
+.hpbar{flex:1;min-width:0;height:20px;border-radius:999px;background:#120d0b;border:2px solid #000;overflow:hidden;position:relative}
+.hpbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2d7f36,var(--heal-hi));transition:width .45s ease}
+.hpbar span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-weight:600;
+  font-size:.76rem;letter-spacing:.04em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.85);font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;
+  font-family:var(--f-num);font-weight:600;font-size:.78rem;letter-spacing:.03em;
+  background:var(--wood-3);border:2px solid #000;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip .ico{width:15px;height:15px;object-fit:contain}
+.chip.gold{color:var(--gold-hi)}
+.chip.blk{background:#26394d;color:#cfe4ff}
+.chip.hit{background:#5a2a22;color:#ffd9cc}
+.chip.calm{background:#2f3b4f;color:#d6e6ff}
+/* On a phone the strip is one row and has to hold its line, so the two
+   smallest numbers go once there is no room for them. */
+@media (max-width:400px){ .hero .sm{display:none} }
+/* On a desktop you sit under the monster in the right-hand column, where
+   there is room to stack rather than squeeze. */
+@media (min-width:820px){
+  .hero{flex-wrap:wrap;gap:6px 8px}
+  .hero .hpbar{flex:1 0 100%;order:-1;height:22px}
 }
 
 /* ===================== the peaks =====================
@@ -135,21 +263,29 @@ img{max-width:100%}
   font-size:min(40cqw, 23px);
 }
 .pk .cn i{font-style:normal;font-size:.84em;margin-top:.04em}
-.pk .mid{
-  position:absolute;right:6%;bottom:4%;
-  font-size:min(42cqw, 30px);line-height:1;opacity:.92;
-}
-/* The painted jack, queen and king are lovely at the size dev/game.html shows
-   them and a smudge on a 41px phone card, where they read as a stain rather
-   than a face. So the art only appears once a card is wide enough to carry it,
-   and below that the suit does the job. The rank is what a player actually
-   reads either way. */
-.pk .mid img{display:none;width:min(46cqw,34px);border-radius:3px}
-.pk .mid em{font-style:normal}
-@container (min-width:72px){
-  .pk .mid img{display:block}
-  .pk .mid em{display:none}
-}
+
+/* Only one corner of a card is ever reliably visible, and it is worth being
+   exact about which. The row below covers a card from one pitch down, which
+   is its bottom half. Its neighbour along the same row starts one pitch to
+   the right, which is 1/1.42 of a card, so it covers the right 30%. What is
+   left is the top-left - top half, left 70% - and that is the whole of what
+   this layout can be trusted to show.
+
+   So the rank corner sits there, and the painted face sits beside it inside
+   the same safe strip. Top-right looked right in a mock-up and was wrong on
+   the board: every card except the last of its row had its face sliced down
+   the middle by its neighbour.
+
+   The art only appears once a card is wide enough to carry it. At the 41px a
+   phone gives a card, dev/game.html's painted jack is a smudge, and the rank
+   corner already carries rank and suit together, so below 72px a card shows
+   its corner and nothing else. */
+.pk .mid{position:absolute;top:5%;left:27%;display:none;line-height:0}
+/* It has to end by 59% of the card, not 70%. A neighbour that happens to be
+   legal grows 14% from its own top centre, which moves its left edge 7% back
+   over this card, so the usual 70% safe edge is only 63% on those deals. */
+.pk .mid img{display:block;width:min(32cqw,38px);border-radius:4px}
+@container (min-width:72px){ .pk .mid{display:block} }
 
 /* face down: the deck back, which is the one thing per world that is allowed
    to change. The faces never change - a face harder to read at 320px is wrong
@@ -166,8 +302,15 @@ img{max-width:100%}
    player is never hunting for the legal move, and the only cards worth tapping
    are the ones with a big target. A card that cannot be played does nothing
    when tapped, so it does not need 44px. */
+/* It grows from its own top edge and never upward. The obvious version lifted
+   it five pixels and scaled it from the middle, which at 390 wide put its top
+   ten pixels higher than it belongs - and the pitch between rows is 34.7px
+   with a 31px rank corner sitting in it, so a lifted card quietly swallowed
+   the corner of the card above. It only happened on deals where that card
+   was the legal one, which is exactly why it had to be measured rather than
+   looked at. The ring and the hard shadow carry the lift instead. */
 .pk.free{
-  z-index:30;transform:translateY(-5px) scale(1.14);
+  z-index:30;transform-origin:50% 0;transform:scale(1.14);
   box-shadow:0 0 0 3px var(--gold), 0 0 14px rgba(242,182,50,.55), 0 5px 0 rgba(0,0,0,.45);
 }
 .pk.gone{opacity:0;transform:scale(.6) translateY(-30px);pointer-events:none}
@@ -194,7 +337,7 @@ img{max-width:100%}
 /* ===================== waste and stock ===================== */
 .table{
   display:flex;align-items:center;justify-content:center;gap:clamp(14px,6vw,34px);
-  margin-top:clamp(6px,2vw,12px);
+  margin-top:clamp(11px,3.2vw,18px);   /* a lifted bottom-row card grows 14% downward into this */
 }
 .slot{
   width:clamp(52px,17vw,78px);aspect-ratio:5/7;position:relative;
@@ -231,7 +374,43 @@ img{max-width:100%}
 </style>
 
 <div id="app">
-  <div id="stage"></div>
+  <header class="top">
+    <div class="brand"><img src="img/emblem-64.webp" width="64" height="64" alt=""><span class="wide-only">Monster </span>Solitaire</div>
+    <div class="tools">
+      <button class="tool" data-act="menu">Menu</button>
+      <button class="tool" data-act="help" aria-label="How to play">?</button>
+    </div>
+  </header>
+
+  <!-- On a phone #side is display:contents, so the monster and you fall into
+       the single column in this order. On a desktop they are the right-hand
+       column and the board is the left. -->
+  <div id="side">
+    <section class="stage" id="stage">
+      <div class="foe-vidwrap" id="foeVidWrap">
+        <video id="foeVid" muted playsinline loop preload="auto"></video>
+        <video id="foeAtk" class="atk" muted playsinline preload="auto"></video>
+      </div>
+      <div class="stage-top">
+        <div class="foe-title"><span class="foe-name" id="foeName">The three peaks</span><span class="lvtag" id="lvTag" hidden></span></div>
+        <div class="foe-rule" id="foeRule" hidden></div>
+      </div>
+      <div class="vbar" aria-label="Monster health"><i id="foeBar"></i></div>
+      <div class="foe-pic" id="foePic"></div>
+      <div class="stage-foot"><span class="chip hit" id="intent" hidden></span><span class="chip blk" id="foeBlock" hidden></span></div>
+    </section>
+
+    <section class="hero" id="heroBox">
+      <img class="me" id="mePic" src="art/hero_t0.webp" alt="">
+      <div class="hpbar"><i id="myBar"></i><span id="myHp">HP 400 / 400</span></div>
+      <span class="chip gold"><img class="ico" src="art/i_level.webp" alt="">Lv&nbsp;<b id="lvNum">1</b></span>
+      <span class="chip gold"><img class="ico" src="art/i_coin.webp" alt=""><b id="goldNum">3</b></span>
+      <span class="chip sm"><img class="ico" src="art/i_axe.webp" alt=""><b id="atkNum">0</b></span>
+      <span class="chip sm"><img class="ico" src="art/i_defense.webp" alt=""><b id="defNum">0</b></span>
+    </section>
+  </div>
+
+  <div id="board"></div>
 </div>
 
 <script>
@@ -273,8 +452,31 @@ img{max-width:100%}
    clear is not a dead board; it is the designed way to lose a round, and it
    happens about half the time on purpose. Biasing would have cost a full
    solver run on every deal to fix a problem that does not exist. */
-const ROUND_AVG = 838;     /* the average damage a round produces */
+const ROUND_AVG = 839;     /* the average damage a whole round produces */
 const ROUND_MED = 785;     /* the median, which is what the fight is tuned to */
+
+/* How often the monster actually gets to move, which is the number the fight
+   maths turns on, and the one place a guess would have broken everything.
+
+   dev/plans/solitaire.md, step 7, says turning a stock card lets the monster
+   take its move. Measured, that is 20.9 moves a round - and at Monster
+   Farkle's rate of a tenth of your health a hit, a single board would deal
+   836 damage to a hero with 400. The player would die in half a board, every
+   time, and no amount of tuning the hit size fixes it: at a survivable size
+   each hit is worth 8 and reads as nothing.
+
+   The fix is not a smaller number, it is a better trigger. A stock turn that
+   ends a real run is a strike, and the monster answers it. A stock turn taken
+   while already stuck at nothing is hunting, and costs you only the card. That
+   is 11.14 moves a round instead of 20.9, and it reads the way a fight should:
+   you hit it, it hits you back. */
+const STRIKES = 11.14;     /* runs per round, so answering moves per round */
+
+/* What one strike is worth. Wildly skewed on purpose - most runs are a card or
+   two and land as a scratch, and the whole tension of the game is the rare
+   long one. Monster heals and guards are priced off this, not off the round,
+   or one heal would undo a whole board. */
+const BLOW_AVG = 75, BLOW_MED = 21, BLOW_P90 = 200;
 
 /* ===================== the deck =====================
    Ranks are 1..13 with 1 meaning ace. In Tri-Peaks an ace wraps both ways, so
@@ -353,6 +555,252 @@ const LAYOUT = (() => {
 
 const $ = id => document.getElementById(id);
 
+/* ===================== where this page is talking to =====================
+   The clips are 585MB and do not ship inside the app, so they always come off
+   the live site unless the page is already being served from it. Same line as
+   dev/game.html and dev/farkle.html. */
+const REMOTE = /^https?:$/.test(location.protocol) ? '' : 'https://axesandaces.com/';
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = n => Math.round(n).toLocaleString('en-US');
+
+const VIDS = new Set(["abbot", "abyssbeast", "airelemental", "anglerfish", "ashghoul", "babydragon", "balrog", "bandit", "banshee", "basilisk", "bat", "bear", "boar", "boghag", "bogman", "bogtroll", "bonedragon", "bonewalker", "captain", "caveworm", "cerberus", "chaindemon", "clockwork", "cloudgiant", "cobra", "crab", "crocodile", "crows", "cryptrat", "crystaldrake", "crystalgolem", "darkpriest", "deathknight", "demonking", "demonknight", "demonmage", "djinn", "djinnwarrior", "dragon", "drowned", "dryad", "eel", "elfgeneral", "elfknight", "elfmage", "firedwarf", "firegiant", "firewisp", "foreman", "forgehound", "frogman", "frostbat", "frostgiant", "frostknight", "frostmage", "frostspider", "gardenguard", "gargoyle", "gargoylepup", "gemspider", "ghost", "ghostmonk", "ghostship", "ghoul", "ghoulhound", "giantguard", "goblin", "gravedigger", "griffon", "hagspawn", "harpy", "headless", "hellhound", "icegolem", "icequeen", "icetroll", "icewolf", "icewraith", "imp", "imp2", "irongolem", "jackal", "jailer", "knight", "kobold", "kraken", "lavagolem", "lavaserpent", "leech", "lich", "magmaslime", "mammoth", "merman", "minebat", "mosquito", "mummy", "mushroomman", "octopus", "owlbear", "pharaoh", "phoenix", "pirate", "pixie", "plaguebeast", "plaguedoctor", "plaguerat", "poltergeist", "priest", "raider", "rat", "rocbird", "rootbeast", "rootgolem", "salamander", "sandgolem", "sandscorp", "sandwyrm", "scarab", "scorpion", "seagull", "seal", "seaserpent", "seawitch", "shark", "sickzombie", "siren", "skeleton", "skyserpent", "slime", "smithimp", "snake", "snowgoblin", "sphinx", "spider", "stormdrake", "stormgiant", "stormsoldier", "stormtitan", "stormwraith", "succubus", "sunlord", "templeguard", "thornbear", "thornbeast", "thornelf", "thornqueen", "thunderbird", "thunderknight", "toad", "tombguard", "treant", "troll", "unicorn", "vampire", "vampirebat", "vinesnake", "vulture", "warden", "werewolf", "wight", "willowisp", "windspirit", "witch", "wolf", "wolfpack", "wyrm", "yetichief", "zombie"]);
+/* when each attack clip lands its blow, in seconds */
+const HIT_AT = {"abbot": 1.5, "abyssbeast": 1.0, "airelemental": 1.5, "anglerfish": 1.3, "ashghoul": 1.3, "babydragon": 1.65, "balrog": 1.2, "bandit": 2.2, "banshee": 1.1, "basilisk": 1.4, "bat": 2.2, "bear": 1.9, "boar": 2.3, "boghag": 1.7, "bogman": 1.2, "bogtroll": 1.3, "bonedragon": 1.7, "bonewalker": 1.2, "captain": 1.5, "caveworm": 1.9, "cerberus": 1.8, "chaindemon": 1.3, "clockwork": 2.0, "cloudgiant": 1.2, "cobra": 1.4, "crab": 1.8, "crocodile": 1.6, "crows": 1.1, "cryptrat": 1.4, "crystaldrake": 1.2, "crystalgolem": 1.4, "darkpriest": 1.6, "deathknight": 1.2, "demonking": 1.0, "demonknight": 0.7, "demonmage": 2.2, "djinn": 1.2, "djinnwarrior": 0.8, "dragon": 2.1, "drowned": 1.3, "dryad": 1.3, "eel": 1.1, "elfgeneral": 1.6, "elfknight": 0.9, "elfmage": 0.8, "firedwarf": 1.3, "firegiant": 1.7, "firewisp": 1.7, "foreman": 1.3, "forgehound": 1.0, "frogman": 0.8, "frostbat": 1.4, "frostgiant": 1.0, "frostknight": 1.7, "frostmage": 0.8, "frostspider": 1.4, "gardenguard": 1.3, "gargoyle": 2.2, "gargoylepup": 2.2, "gemspider": 0.8, "ghost": 1.7, "ghostmonk": 2.0, "ghostship": 1.8, "ghoul": 1.7, "ghoulhound": 1.0, "giantguard": 1.3, "goblin": 1.0, "gravedigger": 1.5, "griffon": 1.2, "hagspawn": 1.5, "harpy": 1.4, "headless": 1.5, "hellhound": 1.7, "icegolem": 1.3, "icequeen": 0.7, "icetroll": 1.2, "icewolf": 1.0, "icewraith": 1.0, "imp": 2.0, "imp2": 2.2, "irongolem": 1.3, "jackal": 1.7, "jailer": 1.2, "knight": 1.4, "kobold": 1.5, "kraken": 1.5, "lavagolem": 1.8, "lavaserpent": 1.3, "leech": 1.5, "lich": 1.3, "magmaslime": 1.8, "mammoth": 1.6, "merman": 1.5, "minebat": 2.0, "mosquito": 1.8, "mummy": 1.5, "mushroomman": 1.8, "octopus": 1.3, "owlbear": 1.3, "pharaoh": 1.7, "phoenix": 0.8, "pirate": 1.2, "pixie": 1.3, "plaguebeast": 2.3, "plaguedoctor": 1.1, "plaguerat": 1.7, "poltergeist": 1.0, "priest": 1.7, "raider": 1.0, "rat": 2.3, "rocbird": 1.3, "rootbeast": 1.2, "rootgolem": 1.7, "salamander": 1.2, "sandgolem": 1.5, "sandscorp": 1.5, "sandwyrm": 1.5, "scarab": 1.0, "scorpion": 2.0, "seagull": 1.2, "seal": 1.7, "seaserpent": 1.5, "seawitch": 1.3, "shark": 1.3, "sickzombie": 1.9, "siren": 1.2, "skeleton": 2.2, "skyserpent": 0.9, "slime": 1.2, "smithimp": 1.5, "snake": 1.5, "snowgoblin": 1.3, "sphinx": 1.2, "spider": 1.8, "stormdrake": 1.2, "stormgiant": 0.8, "stormsoldier": 1.5, "stormtitan": 1.6, "stormwraith": 1.0, "succubus": 1.1, "sunlord": 1.4, "templeguard": 1.3, "thornbear": 1.5, "thornbeast": 1.5, "thornelf": 1.2, "thornqueen": 1.3, "thunderbird": 1.1, "thunderknight": 1.6, "toad": 1.7, "tombguard": 1.7, "treant": 1.7, "troll": 2.1, "unicorn": 1.5, "vampire": 2.4, "vampirebat": 1.3, "vinesnake": 0.8, "vulture": 1.9, "warden": 1.1, "werewolf": 1.1, "wight": 0.8, "willowisp": 1.5, "windspirit": 1.8, "witch": 2.2, "wolf": 1.5, "wolfpack": 1.4, "wyrm": 1.5, "yetichief": 1.8, "zombie": 2.0};
+
+/* ===== THE FIGHT MATHS =============================================
+   Both sides measured in the same units, so neither is stronger by default.
+   The hero's output is a dealt round, which dev/gen/peakdeal.cjs measured at
+   839 over 200,000 of them. Everything else is built off that and off what a
+   hero of a given level can take, the way dev/game.html builds its numbers off
+   HAND_AVG and dev/farkle.html builds its off WINDUP_AVG.
+
+   dev/gen/slbalance.cjs lifts this block and runs whole fights through it, so
+   keep it free of the page: no DOM, nothing off S, nothing from outside. The
+   bits that do read S live below the end marker. */
+const LVL_STEP = 1.12;
+const lvlMult = L => Math.pow(LVL_STEP, Math.max(1, L | 0));
+const heroMaxHP = L => 400 + 100 * (Math.max(1, L | 0) - 1);
+
+/* A fight is one dealt board. That is not a shortcut, it is the mapping the
+   whole game rests on: Old Bram lays the peaks out to see what is coming, and
+   cutting the shape away is how you get through it. An ordinary player gets
+   839 out of a board and clears it 47% of the time, so an even monster dies in
+   about one good reading - and when it does not, the board is redealt and that
+   costs you a heavy free hit, which is step 7's punishment and the reason a
+   fight can still run long when you play it badly. */
+const ROUNDS = 1;
+const roundDamage = L => ROUND_AVG * lvlMult(L);
+
+/* A heal or a guard is priced off ONE STRIKE, not off the round. Monster
+   Farkle prices them off a turn because a turn there is one wind-up and one
+   move. Here a round is eleven strikes, so pricing a heal off the round would
+   hand the monster back more than a whole board in a single move. */
+const blowDamage = L => BLOW_AVG * lvlMult(L);
+const HEAL_SHARE = .4, GUARD_SHARE = .3;
+
+/* A kind's temperament, 0 to 1: 1 is all shell and no bite, 0 is all bite and
+   no shell. Read off the kind's own health and attack, the same trick
+   dev/game.html uses, so no monster needs tagging by hand. */
+const temper = k => Math.max(0, Math.min(1, ((k.hp || 1) / (k.atk || 1) - 0.6) / 1.1));
+
+/* Its ordinary hit is a share of what a hero of its level can take, divided
+   over the strikes an even fight contains. HURT_SHARE is what winning an even
+   fight should cost you, and it is the one number here still open to a
+   measurement rather than a derivation - dev/gen/slbalance.cjs plays whole
+   fights and reports the win rate it produces. */
+const HURT_SHARE = .5;
+const foeHit = (L, tp) =>
+  Math.max(5, Math.round(heroMaxHP(L) * HURT_SHARE / (STRIKES * ROUNDS) * (1.3 - .6 * tp) / 5) * 5);
+/* Armor soaks a share of every strike. The cap keeps it under half, always. */
+const foeArmorFor = (L, boss, tp) => Math.min(95, Math.round((10 + L * 5) * (.6 + .8 * tp) * (boss ? 1.25 : 1)));
+const foeArmor = d => d ? (d.def != null ? d.def : foeArmorFor(d.lvl || 1, d.boss, d.tp)) : 0;
+const armored = (dmg, d) => Math.max(1, Math.round(dmg / (1 + foeArmor(d) / 100)));
+
+/* Its health is the fight length you want, in damage that actually lands.
+   Armor is divided back out here on purpose: without that, a shelled monster
+   got the longer fight twice over - once from its armor and again from the
+   kind's own health. */
+const monsterHP = (L, kindHp, armor) =>
+  Math.round(ROUNDS * roundDamage(L) / (1 + armor / 100) * (kindHp || 1) / 50) * 50;
+
+/* Running the stock dry with peaks still standing is the punishment, so it
+   costs more than an ordinary move. */
+const DRY_MULT = 2.5;
+
+/* what you carry */
+const weaponPts = () => (S.eq.main ? EQUIP[S.eq.main.type].atk[S.eq.main.tier] : 0)
+  + (S.eq.off && !twoHanded() ? EQUIP[S.eq.off.type].atk[S.eq.off.tier] : 0);
+const twoHanded = () => !!(S.eq.main && EQUIP[S.eq.main.type].hands === 2);
+const defense = () => ['shield','helm','armor'].reduce((a,k) => a + (S.eq[k] ? EQUIP[S.eq[k].type].def[S.eq[k].tier] : 0), 0);
+const atkMult = () => 1 + weaponPts() / 100;
+/* what one of the monster's hits actually costs you */
+const takeFrom = n => Math.max(1, Math.round(n / (1 + defense() / 100)));
+
+/* the same gear table the other two games use, so the art and the numbers match */
+const I = n => `<img class="ico" src="art/i_${n}.webp" alt="" draggable="false">`;
+const MAT = {w:['','Wooden','Tin','Iron','Steel','Titanium'], a:['','Leather','Tin','Iron','Steel','Titanium']};
+const EQUIP = {
+  sword: {slot:'main',  name:'Sword',      mat:'w', hands:1, atk:[0,8,16,28,44,64],   price:[0,4,8,12,18,26]},
+  axe:   {slot:'main',  name:'Battle Axe', mat:'w', hands:2, atk:[0,14,28,48,75,110], price:[0,6,11,17,25,36]},
+  dagger:{slot:'off',   name:'Dagger',     mat:'w', atk:[0,4,8,14,22,32],             price:[0,3,6,9,14,20]},
+  shield:{slot:'shield',name:'Shield',     mat:'w', def:[0,10,20,40,60,90],           price:[0,3,6,10,15,22]},
+  helm:  {slot:'helm',  name:'Helmet',     mat:'a', def:[0,10,20,30,50,70],           price:[0,3,5,8,12,18]},
+  armor: {slot:'armor', name:'Armor',      mat:'a', def:[0,20,30,50,80,120],          price:[0,5,9,14,20,30]}
+};
+const eqName = (type, tier) => `${MAT[EQUIP[type].mat][tier]} ${EQUIP[type].name}`;
+const heroTier = () => Math.max(0, ...['armor','helm','shield'].map(k => S.eq[k] ? S.eq[k].tier : 0));
+
+/* ---------- the monsters ----------
+   Ten worlds of areas, pools and bosses, copied out of dev/game.html by
+   dev/gen/slworlds.py. Do not edit between the markers by hand; run the
+   script. */
+/* __WORLDS_START__ */
+const WORLDS = [{"id":"w1","name":"The Rescue of Anna","quest":"Bring Anna home","intro":[{"title":"The deck nobody deals from","text":"Bandits take Anna out the back of the Gilded Ace. You go for your axe. Old Bram goes for the shelf behind the bar and comes back with a deck so worn the corners are round. \"I do not play with these,\" he says, and lays them out in three peaks."},{"title":"How to read it","text":"\"The shape tells you what is waiting. Cut it away a card at a time, one rank up or one rank down, and the longer you go without stopping the harder you come out the other side. Stop, and the blow lands.\" He turns the top card over. \"Go and get her.\""}],"areas":[{"name":"The Gilded Ace","place":"In the shadows of the tavern","pool":[{"slug":"goblin","name":"Sneaky Goblin","hp":1.0,"atk":1.0,"pat":[1.0,1.3,1.0]},{"slug":"rat","name":"Giant Rat","hp":1.2,"atk":0.8,"pat":[1.0,1.0,2.2]},{"slug":"bat","name":"Tavern Bat","hp":0.8,"atk":1.1,"pat":[1.0,1.0]},{"slug":"boar","name":"Wild Boar","hp":1.4,"atk":1.0,"pat":[0.8,1.8]},{"slug":"imp","name":"Little Imp","hp":0.9,"atk":1.2,"pat":[1.0,"H",1.2]}],"boss":{"slug":"bandit","name":"Bandit Chief","pat":[1,"B",1.9]}},{"name":"The Cellar","place":"In the damp dark of the cellar","pool":[{"slug":"skeleton","name":"Rattling Skeleton","hp":1.1,"atk":1.0,"pat":[1.0,"B",1.2]},{"slug":"spider","name":"Giant Spider","hp":1.0,"atk":1.0,"pat":[0.8,0.8,2.2]},{"slug":"snake","name":"Cellar Snake","hp":0.9,"atk":1.2,"pat":[1.0,1.4]},{"slug":"zombie","name":"Lost Zombie","hp":1.4,"atk":0.9,"pat":[1.0,"H",1.0]},{"slug":"scorpion","name":"Giant Scorpion","hp":1.1,"atk":1.0,"pat":[1.0,1.0,1.8]}],"boss":{"slug":"ghoul","name":"Cellar Ghoul","pat":[1,"H",1.9]}},{"name":"The Dark Forest","place":"Between the twisted trees","pool":[{"slug":"wolf","name":"Dire Wolf","hp":1.0,"atk":1.2,"pat":[1.0,1.0,1.0,1.6]},{"slug":"witch","name":"Swamp Witch","hp":0.9,"atk":1.0,"pat":["H",1.2,1.5]},{"slug":"bear","name":"Angry Bear","hp":1.5,"atk":1.0,"pat":[1.0,2.0]},{"slug":"treant","name":"Treant","hp":1.6,"atk":0.8,"pat":["B",1.0,1.3]},{"slug":"toad","name":"Giant Toad","hp":1.1,"atk":1.0,"pat":[1.0,1.5]}],"boss":{"slug":"troll","name":"Troll King","pat":[1,"B",2]}},{"name":"Castle Grimstone","place":"In the castle's cold halls","pool":[{"slug":"knight","name":"Dark Knight","hp":1.3,"atk":1.0,"pat":[1.0,"B",1.3]},{"slug":"gargoyle","name":"Stone Gargoyle","hp":1.5,"atk":1.0,"pat":["B",1.0,1.6]},{"slug":"ghost","name":"Castle Ghost","hp":0.8,"atk":1.3,"pat":[1.0,"H",1.5]},{"slug":"vampire","name":"Vampire","hp":1.1,"atk":1.0,"pat":[1.2,"H",1.4]},{"slug":"babydragon","name":"Baby Dragon","hp":1.3,"atk":1.2,"pat":[1.0,1.0,2.0]}],"boss":{"slug":"dragon","name":"Grimstone Dragon","pat":[1,1,2.1]}}],"steps":[["Face the goblin in the tavern","Stop the attack"],["Search the Gilded Ace","Look for where they took Anna"],["Follow the bandits to the cellar door","They dragged Anna this way"],["Go down into the Cellar","Find Anna"],["Search deeper in the Cellar","Anna's ribbon was down here"],["Find the way out of the Cellar","The trail keeps going"],["Enter the Dark Forest","Follow Anna's trail"],["Follow the footprints into the woods","Anna's scarf points the way"],["Reach the edge of the forest","The castle must be close"],["Storm Castle Grimstone","Rescue Anna"],["Climb toward the tallest tower","You can hear Anna calling"],["Face the master at the top of the tower","Bring Anna home"]],"story":{"a1":{"title":"Down the cellar stairs","text":"The trapdoor is open and the stairs go down further than they should. You lay the three peaks out on the top step, read what is under them, and start down."},"a2":{"title":"Into the trees","text":"Anna's scarf is caught on a branch at the forest edge, still warm. You deal the peaks on a flat stone. Every card comes up black."},"a3":{"title":"The castle gate","text":"Castle Grimstone stands black against the sky. Somewhere above you, Anna is calling your name. You lay the cards out one last time and do not like the shape of them."},"end":[{"title":"Anna is safe","text":"You bring Anna down the tower stairs and out through the broken gate. She does not let go of your arm the whole way home."},{"title":"Sir Edward","text":"The Gilded Ace is full when you get back. Old Bram holds his hand out for the deck, looks it over, and puts it back in your pocket. \"They are yours now,\" he says. \"You read them better than I do.\""}]}},{"id":"w2","name":"The Frozen Peaks","quest":"The Frost Crown","intro":[{"title":"A summons from the King","text":"A royal rider gallops into the Gilded Ace. \"Sir Edward! The Frost Giant has stolen the King's Frost Crown. Without it, winter will never end.\""},{"title":"Into the snow","text":"Anna presses a warm cloak into your hands. \"Come back to us, Sir Edward.\" You ride north, where the mountains are white and the wind howls like wolves."}],"areas":[{"name":"The Snowy Pass","place":"On the icy mountain trail","pool":[{"slug":"icewolf","name":"Ice Wolf","hp":1,"atk":1.1,"pat":[1,1,1.6]},{"slug":"snowgoblin","name":"Snow Goblin","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"frostbat","name":"Frost Bat","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"yetichief","name":"Yeti Chieftain","rule":{"off":0},"pat":[1,"B",1.9]}},{"name":"The Ice Caves","place":"In the glittering ice caves","pool":[{"slug":"icegolem","name":"Ice Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]},{"slug":"frostspider","name":"Frost Spider","hp":1,"atk":1.1,"pat":[0.8,0.8,2.1]},{"slug":"icewraith","name":"Ice Wraith","hp":0.8,"atk":1.3,"pat":[1,"H",1.4]}],"boss":{"slug":"icequeen","name":"The Ice Witch","rule":{"off":1},"pat":["H",1.2,1.8]}},{"name":"The Frozen Lake","place":"On the cracking frozen lake","pool":[{"slug":"mammoth","name":"War Mammoth","hp":1.6,"atk":1,"pat":[0.8,2]},{"slug":"icetroll","name":"Ice Troll","hp":1.3,"atk":1,"pat":[1,"H",1.3]},{"slug":"seal","name":"Sabre Walrus","hp":1.2,"atk":1,"pat":[1,1.5]}],"boss":{"slug":"wyrm","name":"Frost Wyrm","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Giant's Hall","place":"In the Frost Giant's hall","pool":[{"slug":"frostknight","name":"Frost Knight","hp":1.3,"atk":1,"pat":[1,"B",1.3]},{"slug":"giantguard","name":"Giant's Hound","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"frostmage","name":"Frost Shaman","hp":0.9,"atk":1.2,"pat":["H",1.2,1.5]}],"boss":{"slug":"frostgiant","name":"The Frost Giant","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Climb the Snowy Pass","Follow the Frost Giant's tracks"],["Push through the blizzard","The trail goes higher"],["Face the Yeti Chieftain","He guards the pass"],["Enter the Ice Caves","The tracks lead inside"],["Search the glittering tunnels","Something glows deeper in"],["Find the Ice Witch","She serves the Giant"],["Cross the Frozen Lake","The Giant's hall lies beyond"],["Keep to the thick ice","The ice is cracking"],["Face the Frost Wyrm","It rises from the lake"],["Storm the Giant's Hall","Get the crown back"],["Fight through the hall","The throne room is close"],["Face the Frost Giant","Take back the Frost Crown"]],"story":{"a1":{"title":"The Ice Caves","text":"The Yeti Chieftain falls in the snow. Huge footprints lead into a cave that glitters like a thousand blue diamonds."},"a2":{"title":"The Frozen Lake","text":"Beyond the caves lies a frozen lake. On the far shore, the Frost Giant's hall smokes with blue fire."},"a3":{"title":"The Giant's Hall","text":"The Frost Wyrm sinks beneath the ice. The doors of the Giant's hall stand open, and from inside comes a laugh like an avalanche."},"end":[{"title":"The crown returns","text":"The Frost Giant crashes down like a falling mountain. You lift the Frost Crown from the snow, and the clouds begin to part."},{"title":"Spring comes","text":"The King places the crown on his head and warm wind sweeps the land. \"Rest well, Sir Edward. I fear we will need you again soon.\""}]}},{"id":"w3","name":"The Burning Sands","quest":"The Lost Caravan","intro":[{"title":"A cry for help","text":"A caravan carrying the kingdom's medicine has vanished in the Burning Sands. The last message says only: \"The dead walk at night.\""},{"title":"The endless desert","text":"You cross the dunes under a blazing sun. Far away, half buried in sand, stands an ancient pyramid."}],"areas":[{"name":"The Dunes","place":"Among the scorching dunes","pool":[{"slug":"sandscorp","name":"Sand Scorpion","hp":1,"atk":1.1,"pat":[1,1,1.8]},{"slug":"vulture","name":"Bone Vulture","hp":0.8,"atk":1.2,"pat":[1,1.4]},{"slug":"raider","name":"Dune Raider","hp":1,"atk":1.1,"pat":[1,1.3,1]}],"boss":{"slug":"sandwyrm","name":"Sand Wyrm","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Oasis Ruins","place":"In the ruined oasis","pool":[{"slug":"jackal","name":"Jackal Warrior","hp":1,"atk":1.1,"pat":[1,1.4]},{"slug":"cobra","name":"Giant Cobra","hp":0.9,"atk":1.3,"pat":[1,1,1.6]},{"slug":"sandgolem","name":"Sand Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"djinn","name":"The Dark Djinn","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Pyramid","place":"In the pyramid's dark halls","pool":[{"slug":"mummy","name":"Ancient Mummy","hp":1.4,"atk":0.9,"pat":[1,"H",1]},{"slug":"scarab","name":"Scarab Swarm King","hp":1.2,"atk":1,"pat":[1,1.5]},{"slug":"tombguard","name":"Tomb Guardian","hp":1.3,"atk":1,"pat":[1,"B",1.4]}],"boss":{"slug":"pharaoh","name":"The Mummy Pharaoh","rule":{"off":3},"pat":[1,"H",2]}},{"name":"The Sun Temple","place":"In the burning Sun Temple","pool":[{"slug":"firewisp","name":"Fire Spirit","hp":0.8,"atk":1.3,"pat":[1,1.5]},{"slug":"sphinx","name":"Sphinx","hp":1.4,"atk":1,"pat":["B",1,1.6]},{"slug":"priest","name":"Cult Priest","hp":0.9,"atk":1.2,"pat":["H",1.2,1.4]}],"boss":{"slug":"sunlord","name":"The Scorched King","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Cross the dunes","Find the lost caravan"],["Follow the wagon tracks","They lead deeper into the desert"],["Face the Sand Wyrm","It swallowed the last wagon"],["Reach the Oasis Ruins","Water, and footprints"],["Search the broken temple","The merchants were here"],["Face the Dark Djinn","He holds the caravan's keys"],["Enter the Pyramid","The dead walk inside"],["Go deeper into the tombs","You hear crying below"],["Face the Mummy Pharaoh","He wakes at last"],["Climb to the Sun Temple","The caravan is held at the top"],["Fight up the burning stairs","Almost there"],["Face the Scorched King","Free the caravan"]],"story":{"a1":{"title":"The Oasis Ruins","text":"From inside the Sand Wyrm's coils you pull a torn caravan flag. Its trail leads to an old oasis in ruins."},"a2":{"title":"The Pyramid","text":"The Djinn vanishes in smoke and leaves behind a golden key. It fits the great door of the pyramid."},"a3":{"title":"The Sun Temple","text":"The Pharaoh crumbles to dust. Through a hidden passage you climb toward the Sun Temple, where the merchants are chained."},"end":[{"title":"The caravan is free","text":"The Scorched King falls and the flames go out. You break the merchants' chains, and they weep with joy."},{"title":"Medicine for the kingdom","text":"The caravan rolls home with its medicine. Children cheer as Sir Edward rides beside the wagons."}]}},{"id":"w4","name":"The Sunken Coast","quest":"The Drowned Bell","intro":[{"title":"Ships are vanishing","text":"Every ship that sails past the Sunken Coast disappears. Fishermen whisper about a giant bell ringing under the waves."},{"title":"To the coast","text":"You sail out on a fishing boat. Fog rolls in, and somewhere below the water, a bell begins to toll."}],"areas":[{"name":"The Smugglers' Cove","place":"In the smugglers' cove","pool":[{"slug":"pirate","name":"Cutthroat Pirate","hp":1,"atk":1.1,"pat":[1,1.3,1]},{"slug":"crab","name":"Giant Crab","hp":1.4,"atk":0.9,"pat":["B",1,1.5]},{"slug":"seagull","name":"Gull Harpy","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"captain","name":"Captain Blacktide","rule":{"off":2},"pat":[1,"B",1.9]}},{"name":"The Shipwreck","place":"Inside the rotting shipwreck","pool":[{"slug":"drowned","name":"Drowned Sailor","hp":1.2,"atk":1,"pat":[1,"H",1]},{"slug":"eel","name":"Electric Eel","hp":0.9,"atk":1.3,"pat":[1,1.5]},{"slug":"octopus","name":"Giant Octopus","hp":1.3,"atk":1,"pat":[1,1,1.7]}],"boss":{"slug":"ghostship","name":"The Ghost Captain","rule":{"off":1},"pat":["H",1.2,1.8]}},{"name":"The Coral Depths","place":"In the glowing coral depths","pool":[{"slug":"merman","name":"Merman Warrior","hp":1,"atk":1.1,"pat":[1,1.4]},{"slug":"shark","name":"Bull Shark","hp":1.2,"atk":1.2,"pat":[1,1,1.8]},{"slug":"siren","name":"Siren","hp":0.9,"atk":1.2,"pat":["H",1.3,1.3]}],"boss":{"slug":"seaserpent","name":"The Sea Serpent","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Drowned Temple","place":"In the drowned temple","pool":[{"slug":"anglerfish","name":"Abyss Angler","hp":1.1,"atk":1.2,"pat":[1,1.6]},{"slug":"seawitch","name":"Sea Witch","hp":0.9,"atk":1.2,"pat":["H",1.2,1.5]},{"slug":"templeguard","name":"Coral Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]}],"boss":{"slug":"kraken","name":"The Kraken","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Sneak into the smugglers' cove","The pirates know something"],["Search the pirate docks","Find their captain"],["Face Captain Blacktide","He sails for the Kraken"],["Dive into the shipwreck","The bell rings below"],["Search the flooded decks","Cursed sailors lurk here"],["Face the Ghost Captain","He guards the way down"],["Swim into the coral depths","The ringing grows louder"],["Follow the glowing coral","The temple is near"],["Face the Sea Serpent","It circles the temple"],["Enter the Drowned Temple","Silence the bell"],["Fight through the temple halls","The bell is right ahead"],["Face the Kraken","End the curse of the coast"]],"story":{"a1":{"title":"The Shipwreck","text":"Captain Blacktide's map shows a wreck below the cove. You drink a sea-witch's potion, take a deep breath and dive."},"a2":{"title":"The Coral Depths","text":"Past the ghost ship, the sea floor opens into a forest of glowing coral. The bell's toll shakes the water."},"a3":{"title":"The Drowned Temple","text":"The Sea Serpent sinks into the dark. Ahead lies a temple, and inside it a giant bronze bell wrapped in tentacles."},"end":[{"title":"The bell falls silent","text":"The Kraken lets go and sinks into the deep. You cut the bell's chain, and the sea goes calm and still."},{"title":"Safe waters","text":"Ships sail the coast again. The fishermen name their best boat the Sir Edward."}]}},{"id":"w5","name":"The Plague Marsh","quest":"The Rotting Curse","intro":[{"title":"A sickness spreads","text":"A green fog drifts out of the Plague Marsh, and everyone it touches falls ill. An old healer begs for help: \"Someone is brewing the curse.\""},{"title":"Into the fog","text":"You wrap a cloth over your face and wade into the marsh. The trees are dead and the water bubbles."}],"areas":[{"name":"The Rotting Fen","place":"In the rotting fen","pool":[{"slug":"plaguerat","name":"Plague Rat","hp":1,"atk":1.1,"pat":[1,1,1.7]},{"slug":"leech","name":"Giant Leech","hp":1.2,"atk":0.9,"pat":[1,"H",1.2]},{"slug":"bogman","name":"Bog Man","hp":1.4,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"crocodile","name":"The Swamp King Croc","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Plague Village","place":"In the abandoned plague village","pool":[{"slug":"plaguedoctor","name":"Mad Plague Doctor","hp":1,"atk":1.2,"pat":[1,1.4]},{"slug":"sickzombie","name":"Rotting Villager","hp":1.3,"atk":0.9,"pat":[1,"H",1]},{"slug":"crows","name":"Carrion Crow","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"plaguebeast","name":"The Plague Beast","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Witch's Bog","place":"In the witch's bog","pool":[{"slug":"frogman","name":"Frog Brute","hp":1.2,"atk":1,"pat":[1,1.5]},{"slug":"willowisp","name":"Will-o'-Wisp","hp":0.8,"atk":1.3,"pat":[1,1.6]},{"slug":"mosquito","name":"Giant Mosquito","hp":0.9,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"bogtroll","name":"The Bog Troll","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Hag's Lair","place":"In the Bog Hag's lair","pool":[{"slug":"hagspawn","name":"Hag Spawn","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"rootbeast","name":"Root Horror","hp":1.4,"atk":0.9,"pat":["B",1,1.6]},{"slug":"slime","name":"Toxic Slime","hp":1.2,"atk":1,"pat":[1,"H",1.3]}],"boss":{"slug":"boghag","name":"The Bog Hag","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Wade into the Rotting Fen","Find where the fog begins"],["Push through the swamp","The fog grows thicker"],["Face the Swamp King Croc","It guards the deep marsh"],["Reach the plague village","Survivors may be hiding"],["Search the empty houses","Someone left a trail of potions"],["Face the Plague Beast","It spreads the sickness"],["Enter the Witch's Bog","The potions came from here"],["Follow the purple lights","The hag's hut is near"],["Face the Bog Troll","He guards her door"],["Enter the Hag's Lair","Stop the curse"],["Fight past her creatures","The cauldron bubbles ahead"],["Face the Bog Hag","Break the rotting curse"]],"story":{"a1":{"title":"The Plague Village","text":"The Croc sinks into the muck. Beyond the reeds, an empty village sits on stilts, its lanterns still burning."},"a2":{"title":"The Witch's Bog","text":"In the Plague Beast's den you find empty potion jars, all marked with the same witch's sign. It points to the bog."},"a3":{"title":"The Hag's Lair","text":"The Bog Troll falls with a splash. Inside a giant rotting tree, a green cauldron bubbles, and a cackle echoes."},"end":[{"title":"The cauldron breaks","text":"The Bog Hag shrieks and melts into the mud. You kick over her cauldron, and the green fog drains away."},{"title":"The healing","text":"The sick wake up healthy. The old healer bows. \"The whole kingdom owes you its life, Sir Edward.\""}]}},{"id":"w6","name":"The Iron Mines","quest":"The Stolen Forge","intro":[{"title":"The forge goes cold","text":"The dwarves of the Iron Mines have sent no iron for months. A wounded dwarf crawls into the castle: \"The golems woke up... they took the Great Forge!\""},{"title":"Into the mountain","text":"You light a lantern and step into the mine. Deep below, something heavy goes thump... thump... thump."}],"areas":[{"name":"The Mine Shafts","place":"In the dark mine shafts","pool":[{"slug":"kobold","name":"Kobold Miner","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"caveworm","name":"Rock Worm","hp":1.2,"atk":1,"pat":[1,1,1.7]},{"slug":"minebat","name":"Cave Bat Swarm","hp":0.8,"atk":1.2,"pat":[1,1.5]}],"boss":{"slug":"foreman","name":"The Goblin Foreman","rule":{"off":0},"pat":[1,"B",1.9]}},{"name":"The Crystal Cavern","place":"In the crystal cavern","pool":[{"slug":"crystalgolem","name":"Crystal Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]},{"slug":"basilisk","name":"Basilisk","hp":1.1,"atk":1.1,"pat":[1,1.5]},{"slug":"gemspider","name":"Gem Spider","hp":1,"atk":1.1,"pat":[0.8,0.8,2]}],"boss":{"slug":"crystaldrake","name":"The Crystal Drake","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Lava Tunnels","place":"In the scorching lava tunnels","pool":[{"slug":"magmaslime","name":"Magma Slime","hp":1.2,"atk":1,"pat":[1,"H",1.3]},{"slug":"salamander","name":"Fire Salamander","hp":1,"atk":1.2,"pat":[1,1.6]},{"slug":"firedwarf","name":"Cursed Dwarf","hp":1.1,"atk":1.1,"pat":[1,1.3,1]}],"boss":{"slug":"lavagolem","name":"The Lava Golem","rule":{"off":3},"pat":["H",1.2,1.9]}},{"name":"The Great Forge","place":"In the Great Forge","pool":[{"slug":"clockwork","name":"Clockwork Soldier","hp":1.3,"atk":1,"pat":[1,"B",1.3]},{"slug":"forgehound","name":"Forge Hound","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"smithimp","name":"Furnace Imp","hp":0.8,"atk":1.3,"pat":[1,1.5]}],"boss":{"slug":"irongolem","name":"The Iron Golem","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Enter the mine shafts","Find the dwarves"],["Follow the rail tracks","They go deeper"],["Face the Goblin Foreman","He bosses the mine"],["Climb into the crystal cavern","The thumping grows louder"],["Search among the crystals","Dwarf tracks lead on"],["Face the Crystal Drake","It nests in the cavern"],["Cross the lava tunnels","The forge is below"],["Brave the burning bridges","Keep going"],["Face the Lava Golem","It blocks the forge door"],["Storm the Great Forge","Free the dwarves"],["Fight past the clockwork guards","The forge master waits"],["Face the Iron Golem","Take back the forge"]],"story":{"a1":{"title":"The Crystal Cavern","text":"The Foreman drops a map scratched on leather. It shows a cavern full of crystals where the dwarves were taken."},"a2":{"title":"The Lava Tunnels","text":"Beyond the Drake's nest, the air turns hot. Rivers of lava light the way down to the Great Forge."},"a3":{"title":"The Great Forge","text":"The Lava Golem crumbles. Through the doors you see the dwarves chained to the anvils, and a giant made of iron."},"end":[{"title":"The forge burns again","text":"The Iron Golem crashes down. The dwarves break free and light the Great Forge with a mighty cheer."},{"title":"A gift of steel","text":"The dwarf king hands you a shield marked with your name. \"No finer knight ever walked our halls, Sir Edward.\""}]}},{"id":"w7","name":"The Haunted Abbey","quest":"The Silent Bells","intro":[{"title":"The bells stop","text":"The bells of the Holy Abbey have gone silent, and the monks have not been seen in weeks. At night, candles flicker in every window."},{"title":"The abbey gates","text":"The gates creak open on their own. A cold voice whispers your name: \"Edwaaard...\""}],"areas":[{"name":"The Graveyard","place":"Among the abbey graves","pool":[{"slug":"gravedigger","name":"Undead Gravedigger","hp":1.1,"atk":1,"pat":[1,1.3,1]},{"slug":"ghoulhound","name":"Ghoul Hound","hp":1,"atk":1.2,"pat":[1,1,1.6]},{"slug":"banshee","name":"Banshee","hp":0.8,"atk":1.3,"pat":["H",1.3,1.4]}],"boss":{"slug":"headless","name":"The Headless Knight","rule":{"off":1},"pat":[1,"B",1.9]}},{"name":"The Cloister","place":"In the haunted cloister","pool":[{"slug":"ghostmonk","name":"Ghost Monk","hp":0.9,"atk":1.2,"pat":["H",1.2,1.3]},{"slug":"gargoylepup","name":"Cloister Gargoyle","hp":1.3,"atk":1,"pat":["B",1,1.5]},{"slug":"poltergeist","name":"Poltergeist","hp":0.8,"atk":1.3,"pat":[1,1.6]}],"boss":{"slug":"abbot","name":"The Cursed Abbot","rule":{"off":0},"pat":["H",1.2,1.9]}},{"name":"The Catacombs","place":"In the bone-lined catacombs","pool":[{"slug":"bonewalker","name":"Bone Walker","hp":1.4,"atk":0.9,"pat":["B",1,1.6]},{"slug":"cryptrat","name":"Crypt Rat King","hp":1,"atk":1.1,"pat":[1,1,1.7]},{"slug":"wight","name":"Barrow Wight","hp":1.2,"atk":1.1,"pat":[1,"H",1.3]}],"boss":{"slug":"bonedragon","name":"The Bone Dragon","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Bell Tower","place":"In the cursed bell tower","pool":[{"slug":"darkpriest","name":"Shadow Priest","hp":0.9,"atk":1.3,"pat":["H",1.2,1.5]},{"slug":"vampirebat","name":"Vampire Bat","hp":1,"atk":1.2,"pat":[1,1.5]},{"slug":"deathknight","name":"Death Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]}],"boss":{"slug":"lich","name":"The Lich","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Enter the graveyard","The dead are restless"],["Search among the graves","Something rides at night"],["Face the Headless Knight","He guards the abbey"],["Enter the cloister","The monks were last seen here"],["Search the haunted halls","Candles float in the air"],["Face the Cursed Abbot","He knows the truth"],["Descend into the catacombs","The curse lies below"],["Search the walls of bones","A dragon sleeps here"],["Face the Bone Dragon","It wakes"],["Climb the bell tower","Ring the bells again"],["Fight up the tower stairs","Lightning strikes"],["Face the Lich","Lift the abbey's curse"]],"story":{"a1":{"title":"The Cloister","text":"The Headless Knight falls apart. A key on a black ribbon opens the abbey door, and the cold voice laughs inside."},"a2":{"title":"The Catacombs","text":"The Abbot sobs as the curse leaves him. \"The Lich... he hides below, in the bones.\""},"a3":{"title":"The Bell Tower","text":"The Bone Dragon collapses into a pile of bones. Far above, in the tower, a green light pulses where the bells should ring."},"end":[{"title":"The bells ring","text":"The Lich shatters into dust. You pull the great rope, and the bells ring out across the land for the first time in weeks."},{"title":"Peace returns","text":"The monks return, whole again. They carve your name in the abbey wall: Sir Edward, the Bell-Ringer."}]}},{"id":"w8","name":"The Elven Wilds","quest":"The Thorned Heart","intro":[{"title":"The forest turns dark","text":"The peaceful elves of the Wilds have stopped trading. Travelers come back covered in thorns, whispering about a queen with a heart of briars."},{"title":"The silver forest","text":"The trees of the Wilds shine like silver, but black thorns are choking them. Elven eyes watch you from the branches."}],"areas":[{"name":"The Silver Woods","place":"In the silver woods","pool":[{"slug":"thornelf","name":"Thorn Archer","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"wolfpack","name":"Shadow Stag","hp":1.3,"atk":1,"pat":[1,1.6]},{"slug":"pixie","name":"Wicked Pixie","hp":0.7,"atk":1.3,"pat":[1,1,1.5]}],"boss":{"slug":"thornbear","name":"The Briar Bear","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Moonlit Glade","place":"In the moonlit glade","pool":[{"slug":"dryad","name":"Corrupted Dryad","hp":1,"atk":1.1,"pat":["H",1.2,1.3]},{"slug":"werewolf","name":"Werewolf","hp":1.2,"atk":1.2,"pat":[1,1,1.7]},{"slug":"mushroomman","name":"Fungal Brute","hp":1.4,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"unicorn","name":"The Dark Unicorn","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Elven City","place":"In the overgrown elven city","pool":[{"slug":"elfknight","name":"Thorn Knight","hp":1.2,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"elfmage","name":"Thorn Mage","hp":0.9,"atk":1.3,"pat":["H",1.2,1.5]},{"slug":"owlbear","name":"Owlbear","hp":1.4,"atk":1,"pat":[1,1.6]}],"boss":{"slug":"elfgeneral","name":"The Thorn General","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Heart Tree","place":"Under the Heart Tree","pool":[{"slug":"thornbeast","name":"Thorn Beast","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"vinesnake","name":"Vine Serpent","hp":1.2,"atk":1.1,"pat":[1,1.5]},{"slug":"rootgolem","name":"Heartwood Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]}],"boss":{"slug":"thornqueen","name":"The Thorn Queen","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Enter the Silver Woods","Find the elves"],["Cut through the thorns","Eyes watch from the trees"],["Face the Briar Bear","It guards the woods"],["Reach the Moonlit Glade","A friendly elf hides here"],["Search the standing stones","The thorns spread from the city"],["Face the Dark Unicorn","Its horn feeds the curse"],["Enter the elven city","The elves are under a spell"],["Cross the tree bridges","The Heart Tree is ahead"],["Face the Thorn General","He leads the queen's army"],["Reach the Heart Tree","Free the forest's heart"],["Cut through the roots","The queen is waiting"],["Face the Thorn Queen","Break the thorned heart"]],"story":{"a1":{"title":"The Moonlit Glade","text":"The Briar Bear falls and the thorns pull back. A small elf girl peeks out from behind a tree. \"Please... help our queen.\""},"a2":{"title":"The Elven City","text":"The Dark Unicorn's horn cracks, and its red glow fades. The elf girl leads you to a city in the trees, wrapped in thorns."},"a3":{"title":"The Heart Tree","text":"The Thorn General kneels, freed from the spell. \"The queen took the Heart of the Forest. Save her... from herself.\""},"end":[{"title":"The heart is free","text":"The thorns crumble from the Queen's crown. She opens her eyes, and they are kind again. \"What have I done?\""},{"title":"Friends of the forest","text":"The silver trees bloom. The Elf Queen gives you a leaf of pure silver. \"The elves will always stand with Sir Edward.\""}]}},{"id":"w9","name":"The Sky Fortress","quest":"The Storm Throne","intro":[{"title":"A storm that never ends","text":"Lightning strikes the kingdom every night, and a fortress has appeared floating in the clouds. The King's wizard says: \"The Storm Titan has awoken.\""},{"title":"Up to the clouds","text":"The wizard's spell lifts you on a staircase of wind. Up and up you climb, into the storm."}],"areas":[{"name":"The Cloud Bridges","place":"On the cloud bridges","pool":[{"slug":"harpy","name":"Storm Harpy","hp":0.9,"atk":1.2,"pat":[1,1,1.5]},{"slug":"cloudgiant","name":"Cloud Ogre","hp":1.4,"atk":1,"pat":[1,1.6]},{"slug":"windspirit","name":"Wind Spirit","hp":0.8,"atk":1.3,"pat":["H",1.3,1.3]}],"boss":{"slug":"griffon","name":"The Griffon King","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Sky Gardens","place":"In the floating sky gardens","pool":[{"slug":"skyserpent","name":"Sky Serpent","hp":1,"atk":1.2,"pat":[1,1.5]},{"slug":"thunderbird","name":"Thunderbird","hp":0.9,"atk":1.3,"pat":[1,1,1.6]},{"slug":"gardenguard","name":"Stone Sentinel","hp":1.5,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"stormdrake","name":"The Storm Drake","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Fortress Walls","place":"On the fortress walls","pool":[{"slug":"stormsoldier","name":"Storm Soldier","hp":1.2,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"airelemental","name":"Air Elemental","hp":1.2,"atk":1.1,"pat":[1,1.6]},{"slug":"djinnwarrior","name":"Cloud Djinn","hp":1,"atk":1.2,"pat":["H",1.2,1.5]}],"boss":{"slug":"stormgiant","name":"The Storm Giant","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Storm Throne","place":"Before the Storm Throne","pool":[{"slug":"thunderknight","name":"Thunder Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"stormwraith","name":"Storm Wraith","hp":0.9,"atk":1.3,"pat":["H",1.3,1.4]},{"slug":"rocbird","name":"Roc","hp":1.3,"atk":1.1,"pat":[1,1,1.7]}],"boss":{"slug":"stormtitan","name":"The Storm Titan","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Cross the cloud bridges","Reach the floating fortress"],["Leap across the floating rocks","Harpies circle above"],["Face the Griffon King","He rules the sky"],["Explore the sky gardens","Find a way into the fortress"],["Search the floating islands","Lightning strikes all around"],["Face the Storm Drake","It guards the fortress gate"],["Climb the fortress walls","The throne is at the top"],["Fight along the battlements","Storm soldiers everywhere"],["Face the Storm Giant","The Titan's guard"],["Enter the throne room","End the storm"],["Fight through the lightning","The Titan rises"],["Face the Storm Titan","Calm the skies"]],"story":{"a1":{"title":"The Sky Gardens","text":"The Griffon King bows his golden head and lets you ride on his back to the floating gardens."},"a2":{"title":"The Fortress Walls","text":"The Storm Drake falls into the clouds. Before you rise the huge walls of the Sky Fortress, crackling with lightning."},"a3":{"title":"The Storm Throne","text":"The Storm Giant topples off the walls. At the very top, on a throne of lightning, the Titan opens his eyes."},"end":[{"title":"The storm breaks","text":"The Titan roars and fades into a harmless cloud. Sunlight pours over the fortress for the first time in a hundred years."},{"title":"A dark warning","text":"In the empty throne you find a black letter: \"You cannot stop me forever. Come to the Abyss, Sir Edward.\" It is signed with a burning crown."}]}},{"id":"w10","name":"The Abyss","quest":"The Demon King","intro":[{"title":"The final quest","text":"The letter burns away in your hands. Every monster you ever fought was sent by one master: the Demon King, who waits in the Abyss."},{"title":"The gates of the Abyss","text":"Anna, Old Bram, the King and all your friends see you off. You step through the burning gates into darkness."}],"areas":[{"name":"The Ash Wastes","place":"In the burning ash wastes","pool":[{"slug":"hellhound","name":"Hellhound","hp":1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"imp2","name":"Fire Imp","hp":0.8,"atk":1.3,"pat":[1,1.5]},{"slug":"ashghoul","name":"Ash Ghoul","hp":1.2,"atk":1.1,"pat":[1,"H",1.3]}],"boss":{"slug":"cerberus","name":"Cerberus","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Chained Halls","place":"In the chained halls","pool":[{"slug":"chaindemon","name":"Chain Demon","hp":1.2,"atk":1.1,"pat":[1,1.6]},{"slug":"succubus","name":"Shadow Fiend","hp":1,"atk":1.2,"pat":["H",1.2,1.4]},{"slug":"jailer","name":"Demon Jailer","hp":1.4,"atk":1,"pat":["B",1,1.6]}],"boss":{"slug":"warden","name":"The Pit Warden","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Lake of Fire","place":"By the lake of fire","pool":[{"slug":"lavaserpent","name":"Lava Serpent","hp":1.1,"atk":1.2,"pat":[1,1.6]},{"slug":"firegiant","name":"Fire Giant","hp":1.5,"atk":1,"pat":[1,"B",1.6]},{"slug":"phoenix","name":"Dark Phoenix","hp":1,"atk":1.3,"pat":["H",1.3,1.5]}],"boss":{"slug":"balrog","name":"The Flame Fiend","rule":{"off":1},"pat":["H",1.2,2]}},{"name":"The Demon Throne","place":"Before the Demon Throne","pool":[{"slug":"demonknight","name":"Demon Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"abyssbeast","name":"Abyss Horror","hp":1.4,"atk":1.1,"pat":[1,1,1.8]},{"slug":"demonmage","name":"Demon Sorcerer","hp":1,"atk":1.3,"pat":["H",1.2,1.6]}],"boss":{"slug":"demonking","name":"The Demon King","rule":{"off":0},"pat":[1,"B",2.2]}}],"steps":[["Cross the ash wastes","The Demon King waits below"],["March through the fire","His hounds are hunting you"],["Face Cerberus","It guards the way down"],["Enter the chained halls","His prisoners call for help"],["Search the cages","Free who you can"],["Face the Pit Warden","He holds the keys"],["Reach the lake of fire","The throne is across"],["Cross the burning bridges","Do not look down"],["Face the Flame Fiend","His last guardian"],["Enter the Demon Throne","This ends now"],["Fight to the throne","He rises to meet you"],["Face the Demon King","Save the whole kingdom"]],"story":{"a1":{"title":"The Chained Halls","text":"Cerberus whimpers and runs off. Below, you hear the rattle of chains and the cries of the Demon King's prisoners."},"a2":{"title":"The Lake of Fire","text":"With the Warden's keys you free the prisoners. They point across a lake of fire to a castle of black glass."},"a3":{"title":"The Demon Throne","text":"The Flame Fiend sinks into the lake. The doors of the black castle open, and a voice like thunder says: \"At last, Sir Edward.\""},"end":[{"title":"The Demon King falls","text":"With one last mighty hand, the Demon King crashes from his throne. His burning crown rolls to your feet and goes dark."},{"title":"Legend of Sir Edward","text":"The whole kingdom celebrates for a week. Anna, Old Bram and the King raise their cups: \"To Sir Edward, the greatest hero who ever lived!\""},{"title":"But the darkness stirs...","text":"Deep in the Abyss, the shadows gather again. New monsters rise, stronger than ever. The Endless Quest begins."}]}}];
+/* __WORLDS_END__ */
+
+/* Build the monster a fight is against, out of its kind and the level it is
+   met at. Same shape as dev/farkle.html's makeFoe, with the pattern array
+   read the same way: a number is an attack at that weight, B is a guard and H
+   is a heal. */
+function makeFoe(kind, L, boss){
+  const tp = temper(kind);
+  const def = foeArmorFor(L, boss, tp);
+  const hp = monsterHP(L, kind.hp, def);
+  const hit = foeHit(L, tp) * (kind.atk || 1) * (boss ? 1.25 : 1);
+  const nums = (kind.pat || [1]).filter(v => typeof v === 'number');
+  const mean = nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : 1;
+  const moves = (kind.pat || [1]).map(v =>
+    v === 'B' ? { k:'blk',  n:Math.round(blowDamage(L) * GUARD_SHARE / 5) * 5 } :
+    v === 'H' ? { k:'heal', n:Math.round(blowDamage(L) * HEAL_SHARE / 5) * 5 } :
+                { k:'atk',  n:Math.max(5, Math.round(hit * (v / mean) / 5) * 5) });
+  return { slug:kind.slug, name:kind.name, lvl:L, tp, boss:!!boss, hp, max:hp, moves, def,
+           xp:Math.round((6 + 5 * L) * 1.8 * (boss ? 2.4 : 1)),
+           gold:(Math.ceil(L * 1.2) + 3) * (boss ? 3 : 1) };
+}
+/* ===== END FIGHT MATHS ===== */
+
+/* ===================== where you are =====================
+   Ten worlds of four areas, three fights each, the last of them a boss. The
+   same shape as the other two games, so the art, the place names and the level
+   bands all line up. */
+const AREA_FIGHTS = 3;
+const S = {
+  level:1, hp:400, maxHp:400, gold:3, xp:0,
+  eq:{}, world:0, area:0, step:0,
+  fight:null, block:0,
+};
+const worldOf = () => WORLDS[(S.world || 0) % 10];
+const areaOf = () => Math.min(3, S.area | 0);
+const curArea = () => worldOf().areas[areaOf()];
+const posIn = () => (S.step | 0) % AREA_FIGHTS;
+const isBossStep = () => posIn() === AREA_FIGHTS - 1;
+const AREA_LV = () => { const off = (S.world || 0) * 8; return [[1,3],[3,5],[5,7],[7,9]][areaOf()].map(x => x + off); };
+const bgOf = (a = areaOf()) => (S.world || 0) % 10 === 0
+  ? `bg_${['tavern','cellar','forest','castle'][a]}` : `bg_${worldOf().id}_${a}`;
+const rndInt = n => Math.random() * n | 0;
+
+/* A boss fights by a rule that changes the deal itself. The card game's bosses
+   kill a suit and the dice game's bend the dice; these bend the reading. All
+   four are expressed through dealRound, so none of them is special-cased in
+   the play loop.
+
+   They are ordered by what they actually cost, which is measured rather than
+   felt: dev/gen/peakdeal.cjs says turning the ace wrap off drops an ordinary
+   player's clear rate from 47% to 18% and their damage by a fifth, which is
+   more than the other three together. So it is the last one, the rule the
+   quest boss fights by. */
+const BOSS_RULES = [
+  {text:'One peak is dealt face down',  deal:{hidden:[1]}},
+  {text:'The stock runs short',         deal:{stock:18}},
+  {text:'Two peaks are dealt face down',deal:{hidden:[0,2]}},
+  {text:'Aces no longer wrap',          deal:{wrap:false}},
+];
+const bossRule = () => BOSS_RULES[areaOf()];
+
+/* ---------- the monster on the stage ---------- */
+function setFoeVideo(slug){
+  const st = $('stage'), v = $('foeVid'), a = $('foeAtk');
+  a.classList.remove('on');
+  if(!slug || !VIDS.has(slug) || reduced()){ st.classList.remove('hasvid'); stopFoeVideo(); return; }
+  v.src = `${REMOTE}vid/${slug}_idle.mp4`;
+  a.src = `${REMOTE}vid/${slug}_attack.mp4`;
+  st.classList.add('hasvid');
+  const p = v.play(); if(p && p.catch) p.catch(() => {});
+  v.onerror = () => st.classList.remove('hasvid');
+}
+function stopFoeVideo(){ ['foeVid','foeAtk'].forEach(id => { try{ $(id).pause(); }catch(e){} }); }
+
+/* play the attack clip, and say when its blow actually lands */
+function playFoeAttack(){
+  if(!$('stage').classList.contains('hasvid')) return 0;
+  const a = $('foeAtk'), v = $('foeVid');
+  a.currentTime = 0; a.classList.add('on');
+  const p = a.play(); if(p && p.catch) p.catch(() => a.classList.remove('on'));
+  a.onended = () => { a.classList.remove('on'); v.currentTime = 0; const q = v.play(); if(q && q.catch) q.catch(() => {}); };
+  return Math.round(((HIT_AT[S.fight.slug] || 1.5) - 0.1) * 1000);
+}
+
+function threatOf(d){
+  if(d.boss) return ['boss', 'Boss'];
+  const g = (d.lvl || S.level) - S.level;
+  return g <= -2 ? ['easy', 'Easy'] : g >= 2 ? ['hard', 'Tough'] : ['even', 'Even'];
+}
+function intentText(mv){
+  if(!mv) return '';
+  return mv.k === 'atk' ? `Next: hits for ${fmt(takeFrom(mv.n))}`
+       : mv.k === 'blk' ? 'Next: raises its guard'
+       : 'Next: heals itself';
+}
+function setFoeBars(){
+  const f = S.fight; if(!f) return;
+  $('foeBar').style.height = Math.max(0, f.hp / f.max * 100) + '%';
+  $('foeBlock').hidden = !(f.block > 0);
+  if(f.block > 0) $('foeBlock').textContent = `Guard ${fmt(f.block)}`;
+  const mv = f.moves[f.mv % f.moves.length];
+  $('intent').hidden = false;
+  $('intent').className = 'chip ' + (mv.k === 'atk' ? 'hit' : 'calm');
+  $('intent').textContent = intentText(mv);
+}
+function setMyBars(){
+  $('myBar').style.width = Math.max(0, S.hp / S.maxHp * 100) + '%';
+  $('myHp').textContent = `HP ${fmt(Math.max(0, S.hp))} / ${fmt(S.maxHp)}`;
+  $('lvNum').textContent = S.level;
+  $('goldNum').textContent = fmt(S.gold);
+  $('atkNum').textContent = weaponPts();
+  $('defNum').textContent = defense();
+  $('mePic').src = `art/hero_t${heroTier()}.webp`;
+}
+
+/* ---------- starting one ---------- */
+function startFight(){
+  const a = curArea(), [lo, hi] = AREA_LV(), boss = isBossStep();
+  const L = boss ? hi : lo + Math.round(posIn() * (hi - lo) / Math.max(1, AREA_FIGHTS - 1));
+  const kind = boss ? a.boss : a.pool[rndInt(a.pool.length)];
+  const f = makeFoe(kind, L, boss);
+  f.mv = 0; f.block = 0;
+  if(boss) f.rule = bossRule();
+  S.fight = f;
+  S.block = 0;
+
+  $('stage').style.setProperty('--bgimg', `url(art/${bgOf()}.webp)`);
+  document.body.className = 'w' + ((S.world || 0) % 10);
+  $('foeName').textContent = f.name;
+  const [k, t] = threatOf(f);
+  $('lvTag').hidden = false;
+  $('lvTag').className = 'lvtag ' + k;
+  $('lvTag').textContent = `Lv ${f.lvl} · ${t}`;
+  $('foeRule').hidden = !boss;
+  if(boss) $('foeRule').textContent = f.rule.text;
+  $('foePic').innerHTML = `<img src="art/${f.slug}.webp" alt="${f.name}" draggable="false">`;
+  setFoeVideo(f.slug);
+  setFoeBars(); setMyBars();
+
+  /* the board this fight is read on, bent by the boss rule if there is one */
+  R = dealRound(boss ? f.rule.deal : {});
+  render();
+}
+
+
 /* ===================== the round ===================== */
 let R = null;        /* the round in play */
 
@@ -387,11 +835,10 @@ function isFaceUp(i){
 function cardFace(c){
   const s = SUITS[c.s];
   const art = FACE_ART[c.r];
-  /* both the suit and, for a face card, its painted art: the CSS above picks
-     whichever suits the card's width */
-  const mid = `<span class="mid"><em>${s.ch}</em>` +
-              (art ? `<img src="${art}" alt="">` : '') + `</span>`;
-  return `<span class="cn">${RANKS[c.r]}<i>${s.ch}</i></span>${mid}`;
+  /* the corner carries rank and suit on every card; the painted face is extra,
+     and the CSS above hides it on a card too narrow to show it properly */
+  return `<span class="cn">${RANKS[c.r]}<i>${s.ch}</i></span>` +
+         (art ? `<span class="mid"><img src="${art}" alt=""></span>` : '');
 }
 
 function drawPeaks(){
@@ -430,7 +877,7 @@ function drawTable(){
 }
 
 function render(){
-  $('stage').innerHTML =
+  $('board').innerHTML =
     `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable();
 }
 
@@ -519,20 +966,19 @@ function banner(text){
   setTimeout(() => b.remove(), 1800);
 }
 
-$('stage').addEventListener('click', e => {
+$('board').addEventListener('click', e => {
   const t = e.target.closest('[data-act="turn"]');
   if(t){ turnStock(); return; }
   const card = e.target.closest('.pk[data-i]');
   if(card) playCard(+card.dataset.i);
 });
 
-/* ===================== a first dealt board ===================== */
-R = dealRound();
-render();
+/* ===================== the first fight ===================== */
+startFight();
 
 /* exposed for the test harness and for dev/gen/slscan.cjs */
 Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT, takes, valueOf,
-  set R(v){ R = v; } } });
+  set R(v){ R = v; }, S, startFight, makeFoe, WORLDS, BOSS_RULES } });
 
 })();
 </script>
