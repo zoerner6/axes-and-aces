@@ -156,10 +156,20 @@ function greedy(t, stock, wrap) {
   };
 }
 
+/* hoisted above the export below, because greedy() calls it and a const
+   declared after an early return is still in its dead zone when required */
+function popcount(m){ let c = 0; while (m) { m &= m - 1; c++; } return c; }
+
+/* ---------- shared with dev/gen/slbalance.cjs ----------
+   The balance simulator plays whole fights, and a fight is rounds of this. It
+   requires these rather than keeping its own copy, so the deal the balance is
+   measured against cannot drift from the deal that was measured here. */
+module.exports = { COVERS, PEAK, VALUE, takes, deal, greedy, solvable, exposed };
+if (require.main !== module) return;
+
 /* ---------- run it ---------- */
 const pct = (a, b) => (100 * a / b).toFixed(1) + '%';
 const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
-const popcount = m => { let c = 0; while (m) { m &= m - 1; c++; } return c; };
 
 console.log(`Tri-Peaks: 28 in the tableau, 24 in the stock.`);
 console.log(`${SOLVE} deals checked by the exact solver, ${DEALS} played by an ordinary player.

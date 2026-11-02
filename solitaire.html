@@ -228,7 +228,7 @@ img{max-width:100%}
    phone does not have it - that is arithmetic, not a style choice. Overlapping
    buys each card 41px of width for its rank corner, which is the part a player
    actually reads, and the corner sits in the left-hand strip that is never
-   covered by its neighbour. */
+   covered by its neighbor. */
 .peaks{
   --span:10.42; --rows:4.988;
   position:relative;width:calc(100% - 10px);aspect-ratio:var(--span)/var(--rows);
@@ -266,7 +266,7 @@ img{max-width:100%}
 
 /* Only one corner of a card is ever reliably visible, and it is worth being
    exact about which. The row below covers a card from one pitch down, which
-   is its bottom half. Its neighbour along the same row starts one pitch to
+   is its bottom half. Its neighbor along the same row starts one pitch to
    the right, which is 1/1.42 of a card, so it covers the right 30%. What is
    left is the top-left - top half, left 70% - and that is the whole of what
    this layout can be trusted to show.
@@ -274,15 +274,15 @@ img{max-width:100%}
    So the rank corner sits there, and the painted face sits beside it inside
    the same safe strip. Top-right looked right in a mock-up and was wrong on
    the board: every card except the last of its row had its face sliced down
-   the middle by its neighbour.
+   the middle by its neighbor.
 
    The art only appears once a card is wide enough to carry it. At the 41px a
    phone gives a card, dev/game.html's painted jack is a smudge, and the rank
    corner already carries rank and suit together, so below 72px a card shows
    its corner and nothing else. */
 .pk .mid{position:absolute;top:5%;left:27%;display:none;line-height:0}
-/* It has to end by 59% of the card, not 70%. A neighbour that happens to be
-   legal grows 14% from its own top centre, which moves its left edge 7% back
+/* It has to end by 59% of the card, not 70%. A neighbor that happens to be
+   legal grows 14% from its own top center, which moves its left edge 7% back
    over this card, so the usual 70% safe edge is only 63% on those deals. */
 .pk .mid img{display:block;width:min(32cqw,38px);border-radius:4px}
 @container (min-width:72px){ .pk .mid{display:block} }
@@ -317,18 +317,76 @@ img{max-width:100%}
 .pk.flip{animation:pkflip .22s ease-out}
 @keyframes pkflip{from{transform:rotateY(85deg) scale(.94)}to{transform:none}}
 
-/* said out loud, briefly, when something happens that the board alone does not
-   explain - a cleared board, or a stock that has run dry */
-.banner{
-  position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:80;
-  font-family:var(--f-title);font-size:clamp(1.6rem,7vw,2.4rem);color:var(--gold-hi);
-  text-shadow:4px 4px 0 #000;pointer-events:none;animation:bannerIn 1.8s ease-out forwards;
-  text-align:center;max-width:90vw;
+/* Said out loud, briefly, over the monster - which is where a player is
+   already looking when a blow lands. One element reused, not a new one each
+   time, so two shouts in quick succession replace each other instead of
+   stacking up on top of one another. */
+.banner{position:absolute;left:16px;right:16px;top:20%;text-align:center;font-family:var(--f-title);
+  font-size:clamp(1.9rem,8.5vw,3rem);color:var(--gold);text-shadow:0 3px 0 #000,0 0 18px rgba(0,0,0,.85);
+  opacity:0;pointer-events:none;z-index:3;text-transform:uppercase;line-height:1.05}
+.banner small{display:block;font-family:var(--f-num);font-weight:600;font-size:.42em;letter-spacing:.06em;color:var(--parch)}
+.banner.show{animation:bannerIn 1.4s ease forwards}
+@keyframes bannerIn{0%{opacity:0;transform:scale(.55)}18%{opacity:1;transform:scale(1.06)}72%{opacity:1;transform:scale(1)}100%{opacity:0}}
+@media (min-width:820px){ .banner{font-size:clamp(1.9rem,3.4vw,3rem)} }
+
+/* ===================== things that fly across the screen =====================
+   The same set dev/farkle.html uses, so a blow in one game reads like a blow
+   in the other: the axe through it, the comic star, the number counting up out
+   of the star, and the claws when it is your turn to be hit. */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.slash{position:fixed;z-index:62;border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fff 45%,#ffe9a8 55%,transparent);
+  filter:drop-shadow(0 0 7px var(--gold-hi));animation:slash .3s ease-out forwards}
+@keyframes slash{0%{transform:rotate(var(--a)) scaleX(0);opacity:0}28%{opacity:1}100%{transform:rotate(var(--a)) scaleX(1);opacity:0}}
+.boom{position:fixed;transform:translate(-50%,-50%);z-index:61;width:58px;height:58px;animation:boom .65s ease-out forwards}
+.boom::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,#ffe36b 0 30%,#ff8a1f 55%,#e2361f 100%);
+  clip-path:polygon(50% 0,61% 30%,95% 15%,72% 42%,100% 55%,68% 62%,82% 95%,52% 72%,30% 100%,32% 68%,0 72%,26% 50%,4% 25%,36% 32%);z-index:-1}
+@keyframes boom{0%{transform:translate(-50%,-50%) scale(.2) rotate(-20deg)}25%{transform:translate(-50%,-50%) scale(1.15) rotate(5deg)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
+/* The number that comes out of it, counting up. The outline is drawn behind
+   the fill and it is thick, because this lands in the same instant the monster
+   flashes white - a pale number with a thin shadow vanished into it. */
+.dmgnum{position:fixed;transform:translate(-50%,-50%);z-index:63;font-family:var(--f-title);
+  font-size:clamp(2.1rem,10vw,3.4rem);line-height:1;color:var(--gold-hi);
+  -webkit-text-stroke:6px #000;paint-order:stroke fill;
+  text-shadow:0 0 20px rgba(0,0,0,.95),0 5px 0 rgba(0,0,0,.55);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+.dmgnum.out{animation:dmgOut .6s ease-in forwards}
+@keyframes dmgOut{to{opacity:0;transform:translate(-50%,-150%) scale(.8)}}
+.hurtnum{position:fixed;transform:translate(-50%,-50%);z-index:62;font-family:var(--f-num);font-weight:700;font-size:1.7rem;
+  color:#fff;text-shadow:0 2px 0 #7e1410,0 0 7px #e2361f;animation:hurtrise 1.2s ease-out forwards}
+@keyframes hurtrise{0%{opacity:0;margin-top:0}15%{opacity:1}100%{opacity:0;margin-top:-70px}}
+.redflash{position:fixed;inset:0;z-index:59;background:radial-gradient(ellipse at 50% 120%,rgba(200,36,31,.55),transparent 62%);
+  animation:redout .45s ease-out forwards}
+@keyframes redout{to{opacity:0}}
+.claw{position:fixed;z-index:62;width:84px;height:5px;border-radius:999px;background:linear-gradient(90deg,transparent,#ff5a4a,#fff,transparent);
+  transform:rotate(-38deg);animation:clawcut .4s ease-out forwards}
+@keyframes clawcut{0%{opacity:0;transform:rotate(-38deg) scaleX(.2)}30%{opacity:1}100%{opacity:0;transform:rotate(-38deg) scaleX(1.3)}}
+.hero.flash{animation:heroFlash .45s}
+@keyframes heroFlash{30%{background:rgba(200,36,31,.4)}}
+.foe-pic.lunge{animation:lunge .45s}
+@keyframes lunge{40%{transform:scale(1.22) translateY(16px)}}
+#app.shake2{animation:shake2 .5s} #app.shake3{animation:shake3 .62s}
+@keyframes shake2{15%{transform:translate(-13px,5px)}32%{transform:translate(11px,-6px)}52%{transform:translate(-9px,3px)}72%{transform:translate(7px,-3px)}88%{transform:translate(-4px,1px)}}
+@keyframes shake3{10%{transform:translate(-20px,8px) rotate(-1deg)}26%{transform:translate(17px,-9px) rotate(1deg)}44%{transform:translate(-14px,6px) rotate(-.6deg)}62%{transform:translate(11px,-4px)}80%{transform:translate(-7px,2px)}}
+@media (prefers-reduced-motion: reduce){
+  #app.shake,#app.shake2,#app.shake3{animation:none}
+  .slash,.claw,.redflash{display:none}
 }
-@keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0}}
+.pop{position:fixed;transform:translate(-50%,-50%);font-family:var(--f-num);font-weight:700;font-size:1.05rem;
+  padding:2px 9px;border-radius:8px;white-space:nowrap;animation:rise 1s ease-out forwards;color:var(--ink);border:2px solid #000}
+.pop.b{background:var(--steel);color:#fff} .pop.h{background:var(--heal-hi)}
+.pop.g{background:var(--gold-hi)} .pop.dim{background:var(--wood-3);color:var(--parch-dim)}
+@keyframes rise{0%{opacity:0;margin-top:6px}15%{opacity:1}100%{opacity:0;margin-top:-50px}}
+
+/* A card on its way into the blow. The run is kept on the waste pile, so when
+   the blow lands that is the pile that has to go into it, or the damage comes
+   from nowhere. */
+.flyer{position:fixed;z-index:61;border-radius:7px;border:2.5px solid #14100e;background:#fffaf0;
+  box-shadow:0 3px 0 rgba(0,0,0,.45);pointer-events:none}
 
 /* stacking: lower rows sit over the rows behind them, and within a row the
-   later card sits over its neighbour, so every rank corner stays uncovered */
+   later card sits over its neighbor, so every rank corner stays uncovered */
 .pk[data-row="0"]{z-index:4}
 .pk[data-row="1"]{z-index:6}
 .pk[data-row="2"]{z-index:8}
@@ -397,6 +455,7 @@ img{max-width:100%}
       </div>
       <div class="vbar" aria-label="Monster health"><i id="foeBar"></i></div>
       <div class="foe-pic" id="foePic"></div>
+      <div class="banner" id="banner"></div>
       <div class="stage-foot"><span class="chip hit" id="intent" hidden></span><span class="chip blk" id="foeBlock" hidden></span></div>
     </section>
 
@@ -412,6 +471,8 @@ img{max-width:100%}
 
   <div id="board"></div>
 </div>
+
+<div id="fx" aria-hidden="true"></div>
 
 <script>
 (() => {
@@ -589,7 +650,20 @@ const heroMaxHP = L => 400 + 100 * (Math.max(1, L | 0) - 1);
    costs you a heavy free hit, which is step 7's punishment and the reason a
    fight can still run long when you play it badly. */
 const ROUNDS = 1;
-const roundDamage = L => ROUND_AVG * lvlMult(L);
+const roundDamage = L => (ROUND_AVG + BONUS_AVG) * lvlMult(L);
+
+/* Taking a peak down and clearing the board both land a blow of their own, so
+   a board is worth more than the sum of its runs. The monster's health has to
+   know that or every fight would be half the length it was measured for, so
+   the bonus is folded back in here rather than quietly inflating the game.
+
+   PEAKS_DOWN_AVG and CLEAR_RATE are measured by dev/gen/peakdeal.cjs, so if
+   the bonuses are ever resized the monster's health follows on its own. */
+const PEAKS_DOWN_AVG = 2.27;        /* of three, by an ordinary player */
+const CLEAR_RATE = .47;             /* how often an ordinary player clears */
+const PEAK_BONUS  = Math.round(1.2 * BLOW_AVG);
+const CLEAR_BONUS = Math.round(4 * BLOW_AVG);
+const BONUS_AVG = PEAKS_DOWN_AVG * PEAK_BONUS + CLEAR_RATE * CLEAR_BONUS;
 
 /* A heal or a guard is priced off ONE STRIKE, not off the round. Monster
    Farkle prices them off a turn because a turn there is one wind-up and one
@@ -663,10 +737,15 @@ const WORLDS = [{"id":"w1","name":"The Rescue of Anna","quest":"Bring Anna home"
    read the same way: a number is an attack at that weight, B is a guard and H
    is a heal. */
 function makeFoe(kind, L, boss){
-  const tp = temper(kind);
+  /* A boss is defined by a slug, a name and a pattern and nothing else, so it
+     has no health or attack of its own to read a temperament off. Pinning it
+     at .3 and bulking it by hand is what dev/farkle.html does, and leaving
+     that out here was measurable: dev/gen/slbalance.cjs had bosses coming out
+     EASIER than the ordinary monsters guarding the way to them. */
+  const tp = boss ? .3 : temper(kind);
   const def = foeArmorFor(L, boss, tp);
-  const hp = monsterHP(L, kind.hp, def);
-  const hit = foeHit(L, tp) * (kind.atk || 1) * (boss ? 1.25 : 1);
+  const hp = monsterHP(L, (kind.hp || 1) * (boss ? 1.45 : 1), def);
+  const hit = foeHit(L, tp) * (kind.atk || 1) * (boss ? 1.15 : 1);
   const nums = (kind.pat || [1]).filter(v => typeof v === 'number');
   const mean = nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : 1;
   const moves = (kind.pat || [1]).map(v =>
@@ -815,6 +894,7 @@ function dealRound(opts = {}){
     si: 1,                        /* the first stock card starts the waste */
     waste: [stock[0]],
     run: 0, runVal: 0,
+    down: [],                     /* peaks already taken down, so each lands once */
     hidden: opts.hidden || [],    /* peaks dealt face down, for boss rules */
   };
 }
@@ -881,6 +961,303 @@ function render(){
     `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable();
 }
 
+/* ===================== sound =====================
+   Cards, not dice: a short paper snap off a band-passed noise burst, built the
+   same way dev/game.html and dev/farkle.html build theirs, so nothing has to
+   ship as an audio file. */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('sl_' + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('sl_' + k, JSON.stringify(v)); }catch(e){} }
+};
+let ac = null, noiseBuf = null;
+let soundOn = store.get('sound', true);
+function audio(){
+  if(!ac){ try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
+  if(ac && ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function noise(){
+  if(!noiseBuf){
+    noiseBuf = ac.createBuffer(1, ac.sampleRate * .4, ac.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const s = ac.createBufferSource(); s.buffer = noiseBuf; return s;
+}
+function tone(f, dur, type = 'triangle', vol = .07, delay = 0){
+  if(!soundOn || !audio()) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .012);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + .02);
+}
+/* one card landing on the pile. It rises in pitch with the run, so a player
+   hears the chain building before they look at the number. */
+function cardSnap(step = 0){
+  if(!soundOn || !audio()) return;
+  const t = ac.currentTime, n = noise(), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = 'bandpass'; f.frequency.value = 2200 + Math.min(step, 10) * 190; f.Q.value = 1.1;
+  g.gain.setValueAtTime(.13, t); g.gain.exponentialRampToValueAtTime(.0001, t + .07);
+  n.connect(f); f.connect(g); g.connect(ac.destination); n.start(t); n.stop(t + .09);
+  tone(320 + Math.min(step, 10) * 36, .06, 'sine', .035);
+}
+function swoosh(){
+  if(!soundOn || !audio()) return;
+  const t = ac.currentTime, n = noise(), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = 'bandpass'; f.frequency.setValueAtTime(2600, t); f.frequency.exponentialRampToValueAtTime(380, t + .22);
+  g.gain.setValueAtTime(.1, t); g.gain.exponentialRampToValueAtTime(.0001, t + .24);
+  n.connect(f); f.connect(g); g.connect(ac.destination); n.start(t); n.stop(t + .26);
+}
+const deadthud = () => { tone(104, .26, 'sawtooth', .09); tone(66, .34, 'sine', .11, .02); };
+const bigBoom = t => { tone(55, .5 + t * .1, 'sine', .17); tone(42, .7, 'sawtooth', .06, .03); if(t >= 3) tone(30, .9, 'sine', .13, .06); };
+
+/* ===================== things that fly across the screen ===================== */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function anim(el, cls){
+  if(!el) return;
+  if(el === $('foePic') && $('stage').classList.contains('hasvid')) el = $('foeVidWrap');
+  el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), 1300);
+}
+function shake(t = 1){
+  if(reduced()) return;
+  const a = $('app');
+  a.classList.remove('shake', 'shake2', 'shake3'); void a.offsetWidth;
+  a.classList.add(t >= 3 ? 'shake3' : t >= 2 ? 'shake2' : 'shake');
+  setTimeout(() => a.classList.remove('shake', 'shake2', 'shake3'), 700);
+}
+function banner(t, small){
+  const b = $('banner');
+  b.innerHTML = small ? `${t}<small>${small}</small>` : t;
+  b.className = 'banner'; void b.offsetWidth; b.classList.add('show');
+}
+function pop(el, text, cls){
+  if(!el) return;
+  const r = el.getBoundingClientRect(), s = document.createElement('div');
+  s.className = 'pop ' + cls; s.textContent = text;
+  s.style.left = (r.left + r.width / 2 + (Math.random() * 18 - 9)) + 'px';
+  s.style.top = r.top + 'px';
+  $('fx').appendChild(s); setTimeout(() => s.remove(), 1050);
+}
+function stageCenter(){
+  const r = $('stage').getBoundingClientRect();
+  return { x:r.left + r.width / 2, y:r.top + r.height * .55, r };
+}
+/* the axe going through it, once per tier of the hit */
+async function slashes(n){
+  const { x, y, r } = stageCenter();
+  for(let i = 0; i < n; i++){
+    if(!reduced()){
+      const el = document.createElement('div');
+      el.className = 'slash';
+      const a = (i % 2 ? 148 : 32) + (Math.random() * 34 - 17);
+      const w = Math.max(200, Math.min(900, Math.min(r.width, r.height * 1.6) * .8)), h = Math.max(6, Math.round(w / 38));
+      el.style.width = w + 'px'; el.style.height = h + 'px';
+      el.style.margin = `${-h / 2}px 0 0 ${-w / 2}px`;
+      el.style.left = (x + Math.random() * w / 5 - w / 10) + 'px';
+      el.style.top = (y + Math.random() * 60 - 30) + 'px';
+      el.style.setProperty('--a', a + 'deg');
+      $('fx').appendChild(el); setTimeout(() => el.remove(), 420);
+    }
+    swoosh(); anim($('foePic'), 'hit');
+    await wait(n > 3 ? 92 : 118);
+  }
+}
+function damageBurst(n, tier){
+  const { x, y } = stageCenter();
+  if(!reduced()){
+    const b = document.createElement('div');
+    b.className = 'boom'; b.style.left = x + 'px'; b.style.top = y + 'px';
+    b.style.width = b.style.height = (120 + tier * 34) + 'px';
+    $('fx').appendChild(b); setTimeout(() => b.remove(), 700);
+  }
+  const t = document.createElement('div');
+  t.className = 'dmgnum'; t.style.left = x + 'px'; t.style.top = y + 'px';
+  t.textContent = '0'; $('fx').appendChild(t);
+  const ms = reduced() ? 1 : 420, t0 = performance.now();
+  (function step(now){
+    const k = Math.min(1, (now - t0) / ms);
+    t.textContent = fmt(Math.round(n * (1 - Math.pow(1 - k, 3))));
+    if(k < 1) requestAnimationFrame(step);
+    else { t.textContent = fmt(n); t.classList.add('out'); setTimeout(() => t.remove(), 700); }
+  })(t0);
+}
+function claws(){
+  if(reduced()) return;
+  const r = $('heroBox').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const fl = document.createElement('div'); fl.className = 'redflash';
+  $('fx').appendChild(fl); setTimeout(() => fl.remove(), 460);
+  [-1, 0, 1].forEach((k, i) => {
+    const c = document.createElement('div'); c.className = 'claw';
+    c.style.left = (cx + k * 32) + 'px'; c.style.top = (cy - 10 + k * 9) + 'px';
+    c.style.animationDelay = (i * 45) + 'ms';
+    $('fx').appendChild(c); setTimeout(() => c.remove(), 700);
+  });
+}
+
+/* ===================== the strike =====================
+   The blow is the run's total card value times its length. That shape is the
+   whole game in one line: a second card is worth more than twice a first,
+   because it multiplies everything before it as well as adding to it.
+
+   The tiers are set off the measured spread rather than picked. One blow came
+   out at a median of 21 and a 90th percentile of 200 over 200,000 rounds, so
+   most strikes are a scratch and the rare long run is the event - which is the
+   feeling the game is for. A run of eight comes to about 470 and gets the full
+   treatment; a run of one is worth seven and stays out of the way. */
+const STRIKE_TIERS = [
+  [0,   'Hit!'],
+  [0.6, 'Solid hit!'],
+  [1.6, 'Brutal!'],
+  [3.3, 'Devastating!'],
+  [6,   'Legendary!'],
+];
+const strikeTier = w => {
+  let t = 0;
+  STRIKE_TIERS.forEach((x, i) => { if(w / BLOW_AVG >= x[0]) t = i; });
+  return t;
+};
+const runBlow = () => R.runVal * R.run;
+const strikeDamage = w => armored(Math.round(w * lvlMult(S.level) * atkMult()), S.fight);
+
+/* The waste pile is where the run has been kept, so when the blow lands that
+   is the pile that goes into it. A number appearing out of nowhere reads as a
+   number; cards flying into the monster reads as the thing you built. */
+function sweepWaste(n){
+  const slot = $('wasteslot');
+  if(reduced() || !slot) return wait(60);
+  const { x, y } = stageCenter();
+  const r = slot.getBoundingClientRect();
+  const many = Math.min(n, 6);
+  for(let k = 0; k < many; k++){
+    const f = document.createElement('div');
+    f.className = 'flyer';
+    f.style.left = r.left + 'px'; f.style.top = r.top + 'px';
+    f.style.width = r.width + 'px'; f.style.height = r.height + 'px';
+    $('fx').appendChild(f);
+    f.animate([
+      { transform:'none', opacity:1 },
+      { transform:`translate(${x - r.left - r.width / 2}px, ${y - r.top - r.height / 2}px) ` +
+                  `scale(.4) rotate(${120 + rndInt(200)}deg)`, opacity:0 }
+    ], { duration:360, delay:k * 46, easing:'cubic-bezier(.5,0,.75,.2)', fill:'forwards' });
+    setTimeout(() => f.remove(), 400 + k * 46);
+  }
+  return wait(360 + many * 46);
+}
+
+/* opts.answer false means the monster does not get its move back - used when
+   the board was cleared, because clearing is already the reward */
+async function doStrike(opts = {}){
+  const w = runBlow();
+  if(!w) return;
+  const tier = strikeTier(w), dmg = strikeDamage(w);
+  const len = R.run;
+  R.run = 0; R.runVal = 0;
+  /* drawn straight away, before the cards start flying: the run is spent the
+     moment the blow begins, and leaving the old count on screen through the
+     sweep showed a number the player no longer had */
+  render();
+
+  await sweepWaste(len);
+  banner(STRIKE_TIERS[tier][1], `Run of ${len}`);
+  await slashes(tier + 1);
+
+  const f = S.fight, absorbed = Math.min(f.block, dmg);
+  f.block -= absorbed; f.hp -= dmg - absorbed;
+  damageBurst(dmg - absorbed, tier);
+  if(absorbed) pop($('foeBlock'), `${fmt(absorbed)} blocked`, 'b');
+  if(tier >= 2){ bigBoom(tier); shake(tier >= 3 ? 3 : 2); }
+  else if(dmg - absorbed >= f.max * .25) shake(1);
+  setFoeBars();
+  render();
+  await wait(tier >= 3 ? 900 : 640);
+
+  if(f.hp <= 0) return;
+  if(opts.answer !== false) await foeTurn();
+}
+
+/* ===================== the monster's move =====================
+   One a strike, not one a stock turn. A stock turn taken while already stuck
+   at a run of nothing is hunting for a card, and hunting is not something to
+   be punished for - see STRIKES at the top of this file for what happens when
+   it is. */
+async function foeTurn(mult){
+  const f = S.fight;
+  const atks = f.moves.filter(m => m.k === 'atk');
+  const mv = mult
+    ? { k:'atk', n:Math.round(atks.reduce((a, b) => a + b.n, 0) / Math.max(1, atks.length) * mult) }
+    : f.moves[f.mv++ % f.moves.length];
+  await wait(200);
+
+  if(mv.k === 'atk'){
+    const hitMs = playFoeAttack();
+    if(!hitMs){ anim($('foePic'), 'lunge'); swoosh(); }
+    await wait(hitMs || 320);
+    swoosh(); claws();
+    const after = takeFrom(mv.n);
+    const absorbed = Math.min(S.block, after); S.block -= absorbed;
+    const dmg = Math.max(0, after - absorbed);
+    S.hp = Math.max(0, S.hp - dmg);
+    if(absorbed) pop($('heroBox'), `${fmt(absorbed)} blocked`, 'b');
+    if(dmg > 0){
+      setMyBars(); anim($('heroBox'), 'flash'); deadthud();
+      const r = $('heroBox').getBoundingClientRect();
+      const t = document.createElement('div');
+      t.className = 'hurtnum'; t.textContent = '-' + fmt(dmg);
+      t.style.left = (r.left + r.width / 2) + 'px'; t.style.top = r.top + 'px';
+      $('fx').appendChild(t); setTimeout(() => t.remove(), 1250);
+      shake(mult ? 2 : 1);
+    }
+    await wait(620);
+  } else if(mv.k === 'blk'){
+    f.block += mv.n;
+    anim($('foeVidWrap'), 'shieldglow');
+    pop($('foeBlock'), `Guard +${fmt(mv.n)}`, 'b');
+    tone(330, .22, 'triangle', .06); tone(495, .2, 'sine', .04, .07);
+    setFoeBars();
+    await wait(560);
+  } else {
+    f.hp = Math.min(f.max, f.hp + mv.n);
+    anim($('foeVidWrap'), 'healglow');
+    pop($('foePic'), `+${fmt(mv.n)}`, 'h');
+    tone(523, .2, 'sine', .05); tone(784, .22, 'sine', .04, .08);
+    setFoeBars();
+    await wait(560);
+  }
+  setFoeBars();
+}
+
+/* ===================== the ends of a fight =====================
+   Victory, gold, experience and the level ladder are step 10 and step 11 of
+   dev/plans/solitaire.md. These two carry the loop in the meantime so the game
+   can be played end to end, and they get replaced rather than added to. */
+async function won(){
+  busy = true;
+  stopFoeVideo();
+  S.gold += S.fight.gold;
+  S.xp += S.fight.xp;
+  banner('It falls', `${fmt(S.fight.gold)} gold`);
+  bigBoom(3); shake(2);
+  setMyBars();
+  await wait(1500);
+  S.step++;
+  if(S.step % AREA_FIGHTS === 0){ S.area++; if(S.area > 3){ S.area = 0; S.world++; } }
+  S.hp = Math.min(S.maxHp, S.hp + Math.round(S.maxHp * .25));
+  startFight();
+  busy = false;
+}
+async function lost(){
+  busy = true;
+  stopFoeVideo();
+  banner('You fall', 'Old Bram lays the cards out again');
+  deadthud();
+  await wait(1800);
+  S.hp = S.maxHp;
+  startFight();
+  busy = false;
+}
+
 /* ===================== playing =====================
    Tapping a playable card sends it to the waste and the run grows. Tapping the
    stock turns a card, which ends the run - and the run ending is when the blow
@@ -916,7 +1293,7 @@ function playCard(i){
   if(busy || !canPlay(i)) return;
   busy = true;
   const el = document.querySelector(`.pk[data-i="${i}"]`);
-  flyToWaste(el, () => {
+  flyToWaste(el, async () => {
     const c = R.tableau[i];
     c.gone = true;
     R.waste.push(c);
@@ -924,18 +1301,83 @@ function playCard(i){
     R.runVal += valueOf(c.r);
     render();
     bumpRun();
+    cardSnap(R.run);
+
+    /* a peak coming down is its own moment, and it has to land before the
+       board is handed back, or the next tap arrives on top of it */
+    const k = LAYOUT.peak[i];
+    if(k >= 0 && !R.down.includes(k) && peakIsDown(k)){
+      R.down.push(k);
+      await peakDown(k);
+      if(S.fight.hp <= 0){ await won(); return; }
+    }
     busy = false;
     afterMove();
   });
 }
 
-function turnStock(){
+/* ===================== a peak coming down =====================
+   A correction to dev/plans/solitaire.md, step 8: it asks for the two
+   remaining peaks to slide across and fill the space. They cannot, and it is
+   not a matter of effort. The bottom row of ten is shared by all three peaks -
+   covers[9+i] = [18+i, 18+i+1] - so a peak sits directly on the bottom-row
+   cards beneath it. Slide a peak sideways and its cards are drawn over bottom
+   cards they have no relationship with, and the one thing a player has to be
+   able to read off this board, which card is holding which, becomes a lie.
+   The space a fallen peak leaves is information: it is the part of the reading
+   you have already cut away. So it stays empty, and the moment is carried by
+   the burst and the blow instead. */
+const peakIsDown = k => R.tableau.every((c, i) => LAYOUT.peak[i] !== k || c.gone);
+
+function peakCenter(k){
+  const el = $('peaks');
+  if(!el) return stageCenter();
+  const r = el.getBoundingClientRect();
+  return { x: r.left + ((k * 3 + 2.21) / 10.42) * r.width,
+           y: r.top + (1.0 / 4.988) * r.height };
+}
+function goldBurst(x, y, size){
+  if(reduced()) return;
+  const b = document.createElement('div');
+  b.className = 'boom'; b.style.left = x + 'px'; b.style.top = y + 'px';
+  b.style.width = b.style.height = size + 'px';
+  $('fx').appendChild(b); setTimeout(() => b.remove(), 700);
+}
+/* a bonus blow: no run behind it, so it is its own damage rather than a
+   multiple of anything the player was holding */
+async function bonusBlow(raw, tier){
+  const dmg = armored(Math.round(raw * lvlMult(S.level) * atkMult()), S.fight);
+  const f = S.fight, absorbed = Math.min(f.block, dmg);
+  f.block -= absorbed; f.hp -= dmg - absorbed;
+  await slashes(tier);
+  damageBurst(dmg - absorbed, tier);
+  bigBoom(tier); shake(tier >= 3 ? 3 : 2);
+  setFoeBars();
+  await wait(760);
+}
+
+async function peakDown(k){
+  const { x, y } = peakCenter(k);
+  goldBurst(x, y, 150);
+  tone(660, .18, 'triangle', .07); tone(880, .2, 'sine', .05, .08);
+  banner('Peak down', `${3 - R.down.length} left standing`);
+  await wait(420);
+  await bonusBlow(PEAK_BONUS, 2);
+}
+
+/* Turning a card is how a run ends, so this is where the blow lands. A turn
+   taken at a run of nothing is just hunting for a card and costs you nothing
+   but the card - the monster only answers a strike. */
+async function turnStock(){
   if(busy || R.si >= R.stock.length) return;
   busy = true;
-  /* the run breaks here. Step 6 lands the blow; for now the count resets so
-     the loop is playable end to end. */
-  R.run = 0; R.runVal = 0;
+  if(R.run){
+    await doStrike();
+    if(S.fight.hp <= 0){ await won(); return; }
+    if(S.hp <= 0){ await lost(); return; }
+  }
   R.waste.push(R.stock[R.si++]);
+  cardSnap();
   render();
   busy = false;
   afterMove();
@@ -952,18 +1394,61 @@ function afterMove(){
   if(!anyLegal() && R.si >= R.stock.length) onDry();
 }
 
-/* Both of these get their real consequences in later steps - the finisher blow
-   and the monster's free hit. For now they say so plainly rather than leaving
-   a player staring at a board that will not move. */
-function onClear(){ banner('All three peaks down'); }
-function onDry(){ banner('Out of cards'); }
+/* The finisher. The run it ended on lands first - unanswered, because clearing
+   the board is already the answer - and then the clear itself, which is the
+   biggest single blow in the game and is meant to end most fights it happens
+   in. */
+async function onClear(){
+  busy = true;
+  if(R.run) await doStrike({ answer:false });
+  if(S.fight.hp <= 0) return won();
 
-function banner(text){
-  const b = document.createElement('div');
-  b.className = 'banner';
-  b.textContent = text;
-  $('app').appendChild(b);
-  setTimeout(() => b.remove(), 1800);
+  const el = $('peaks');
+  if(el && !reduced()){
+    const r = el.getBoundingClientRect();
+    for(let k = 0; k < 3; k++){
+      const c = peakCenter(k);
+      setTimeout(() => goldBurst(c.x, c.y, 180), k * 110);
+    }
+    goldBurst(r.left + r.width / 2, r.top + r.height / 2, 260);
+  }
+  banner('The reading is cut away', 'All three peaks down');
+  [0, 1, 2, 3].forEach(k => tone(523 * Math.pow(1.26, k), .2, 'triangle', .07, k * .09));
+  await wait(700);
+  await bonusBlow(CLEAR_BONUS, 4);
+  if(S.fight.hp <= 0) return won();
+
+  await wait(500);
+  redeal();
+}
+
+/* Running the stock dry with peaks still standing is the punishment. It is
+   the one move in the game that costs you health for nothing, and it has to
+   be clearly worse than turning a card, or there would be no reason to care
+   about the stock running low. */
+async function onDry(){
+  busy = true;
+  /* The stock running out is itself a run breaking, so the run still lands
+     before the punishment. Without this, playing your last legal card as the
+     eighth of a run threw the whole run away - the one moment in the game
+     where a player has earned the most and would be told the least. */
+  if(R.run){
+    await doStrike({ answer:false });
+    if(S.fight.hp <= 0){ await won(); return; }
+  }
+  banner('Out of cards', 'It gets a free swing');
+  deadthud();
+  await wait(900);
+  await foeTurn(DRY_MULT);
+  if(S.hp <= 0) return lost();
+  redeal();
+}
+
+function redeal(){
+  const boss = S.fight && S.fight.boss;
+  R = dealRound(boss ? S.fight.rule.deal : {});
+  render();
+  busy = false;
 }
 
 $('board').addEventListener('click', e => {
