@@ -100,6 +100,25 @@ world1 = {
 }
 
 ALL = [world1] + worlds
+
+# ---- beats that speak of the wrong table ----
+# Worlds two to ten are copied verbatim, and almost all of their story is
+# about the quest rather than about what you fight with, so it carries over
+# untouched. Checking every beat against the words a card or dice game would
+# use turned up exactly one that does not: the Demon King falls to "one last
+# mighty hand", which is a poker hand. Overriding it here rather than editing
+# the copy means re-running this script does not quietly put it back.
+RETELL = {
+    ("w10", "story", "end", 0): {
+        "title": "The Demon King falls",
+        "text": "The last card comes away clean and there is nothing left between you. The Demon King crashes from his throne, and his burning crown rolls to your feet and goes dark."},
+}
+for key, beat in RETELL.items():
+    wid, kind, name, idx = key
+    w = next(x for x in ALL if x["id"] == wid)
+    target = w[kind][name] if kind == "story" else w[kind]
+    target[idx] = beat
+
 blob = json.dumps(ALL, separators=(",", ":"), ensure_ascii=False)
 
 src = io.open("dev/solitaire.html", encoding="utf-8").read()

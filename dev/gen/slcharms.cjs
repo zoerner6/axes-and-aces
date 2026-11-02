@@ -8,6 +8,7 @@
    the fight-maths block dev/gen/slbalance.cjs lifts, so they are measured in
    a real page rather than in the simulator. */
 const { chromium } = require('playwright');
+const { openGame } = require('./slopen.cjs');
 const { execFileSync } = require('child_process');
 const path = require('path');
 
@@ -29,8 +30,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
   p.on('console', m => { if (m.type() === 'error' && !/vid\/|ERR_/.test(m.text())) errs.push(m.text().slice(0, 150)); });
   await p.goto('file://' + file, { waitUntil: 'load' });
   await p.waitForTimeout(400);
-  await p.click('[data-act="fight"]').catch(() => {});
-  await p.waitForTimeout(200);
+    await openGame(p);          /* the game opens on its story now */
 
   let bad = 0;
   const check = (name, ok, detail) => {

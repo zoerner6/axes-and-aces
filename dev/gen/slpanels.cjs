@@ -46,7 +46,8 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
        one big button - its main control is the list of perks - so what has to
        be reachable there is the LAST perk, not a button. */
     const SCREENS = ['ambush', 'spot', 'path', 'boss', 'victory', 'flawless', 'clean', 'level', 'fallen',
-                     'rest', 'smith', 'charms', 'pots'];
+                     'rest', 'smith', 'charms', 'pots', 'crossing', 'crossing-warned',
+                     'story-start', 'story-area', 'story-end', 'menu', 'help1', 'help2'];
     for (const kind of SCREENS) {
       await p.evaluate(k => {
         const SOL = window.__SOL, S = SOL.S;
@@ -61,6 +62,25 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
         if (['ambush', 'spot', 'path', 'boss'].includes(k)) return SOL.fightIntro(k);
         if (k === 'level') { S.pendingLv = 1; return SOL.levelPanel(); }
         if (k === 'fallen') return SOL.lost();
+        if (k === 'menu') return SOL.menuPanel();
+        if (k.startsWith('help')) return SOL.helpPanel(+k.slice(4) - 1);
+        if (k.startsWith('story')) {
+          S.world = k === 'story-end' ? 1 : 0;   /* a second world, so the art has a prefix */
+          S.introBeat = 0; S.endBeat = 0;
+          return SOL.storyPanel(k === 'story-start' ? 'start' : k === 'story-end' ? 'end' : 'a2');
+        }
+        if (k.startsWith('crossing')) {
+          /* 'crossing' at a level that makes the next area fair, and
+             'crossing-warned' well under it, which is when the panel carries
+             the level warning and is at its tallest. The key is not 'path':
+             that is already one of the four kinds of meeting, and naming this
+             the same thing meant it quietly measured the intro twice and the
+             path panel never at all. */
+          S.level = k === 'crossing' ? 6 : 1;
+          S.maxHp = 400 + 100 * (S.level - 1); S.hp = Math.round(S.maxHp * .6);
+          S.step = 2; S.area = 0;
+          return SOL.pathPanel();
+        }
         if (['rest', 'smith', 'charms', 'pots'].includes(k)) {
           /* a player who has been shopping: some gold, a charm, a potion, and
              mid-tier gear, which is when the rows are at their tallest */
@@ -78,13 +98,24 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
         SOL.victoryPanel(d, mood);
       }, kind);
       await p.waitForTimeout(kind === 'fallen' ? 2400 : 1700);   /* typed lines, counters */
+      /* A typed line arrives over about a second. Waiting a flat moment for it
+         reported the very first screen of every size as having said nothing,
+         which was the measurement being impatient rather than the game being
+         silent - the panel is built, the timer is set, and the clock the test
+         is watching is not the clock the page is typing on. */
+      if (['ambush', 'spot', 'path', 'boss'].includes(kind)) {
+        await p.waitForFunction(() => (document.querySelector('#encSay') || {}).textContent,
+          null, { timeout: 4000 }).catch(() => {});
+      }
 
       const m = await p.evaluate(() => {
         const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();   /* the page needs its own */
         const panel = document.querySelector('#panel');
-        /* the main control: one big button, or the last perk on a level-up */
-        const perks = [...panel.querySelectorAll('.perk')];
-        const btn = panel.querySelector('.btn.big') || perks[perks.length - 1] || null;
+        /* The main control is whatever a player has to reach to move on: one
+           big button, the last perk on a level-up, or the last road out on
+           the crossing panel, which offers two and no button at all. */
+        const rows = [...panel.querySelectorAll('.perk, .buy[data-act]')];
+        const btn = panel.querySelector('.btn.big') || rows[rows.length - 1] || null;
         const pr = panel.getBoundingClientRect();
         const br = btn ? btn.getBoundingClientRect() : null;
         return {
@@ -96,6 +127,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
                       inView: br.bottom <= innerHeight + 1 && br.top >= -1 } : null,
           tag: PLAIN((panel.querySelector('.scene .tag') || {}).textContent || ''),
           say: PLAIN((panel.querySelector('#encSay') || {}).textContent || ''),
+          story: PLAIN((panel.querySelector('#storyText') || {}).textContent || ''),
           cap: PLAIN((panel.querySelector('#encCap') || {}).textContent || ''),
           rule: PLAIN((panel.querySelector('.tipbox') || {}).textContent || ''),
           audit: window.__AUDIT('panel'),
@@ -111,6 +143,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
       }
       if (kind === 'boss' && !m.rule) { notes.push('boss intro shows no rule'); bad++; }
       if (['ambush', 'spot', 'path', 'boss'].includes(kind) && !m.say) { notes.push('nothing was said'); bad++; }
+      if (kind.startsWith('story') && !m.story) { notes.push('the story panel is blank'); bad++; }
       if (a.overlaps.length) { notes.push('text on text: ' + a.overlaps.map(o => `"${o.a}" x "${o.b}"`).join(' | ')); bad++; }
       if (a.cropped.length) { notes.push('art sliced: ' + a.cropped.map(c => `${c.src} sides ${c.cutSides} topbottom ${c.cutTopBottom}`).join(' | ')); bad++; }
       if (a.broken.length) { notes.push('missing art: ' + a.broken.join(', ')); bad++; }
@@ -119,7 +152,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
 
       console.log(`${String(w).padStart(4)}x${h} ${kind.padEnd(7)} panel ${String(m.panelH).padStart(3)}px ` +
         `content ${String(m.scrollH).padStart(3)}  button bottom ${m.btn ? m.btn.bottom : '-'} of ${h}  ` +
-        `"${m.tag}" / "${m.say}"`);
+        `"${m.tag}" / "${m.say || m.story.slice(0, 34)}"`);
       notes.forEach(n => console.log('      ** ' + n));
 
       if (shotAt && w === 320) await p.screenshot({ path: shotAt.replace('.png', `_${kind}.png`) });

@@ -12,6 +12,7 @@
    outside the fight-maths block the simulator lifts, so they have to be
    measured in a real page. */
 const { chromium } = require('playwright');
+const { openGame } = require('./slopen.cjs');
 const { execFileSync } = require('child_process');
 const path = require('path');
 
@@ -28,8 +29,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
   p.on('pageerror', e => errs.push(String(e.message).replace(/\s+/g, ' ').slice(0, 150)));
   await p.goto('file://' + file, { waitUntil: 'load' });
   await p.waitForTimeout(400);
-  await p.click('[data-act="fight"]').catch(() => {});
-  await p.waitForTimeout(200);
+    await openGame(p);          /* the game opens on its story now */
 
   let bad = 0;
   const check = (name, got, want, detail) => {

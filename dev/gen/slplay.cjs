@@ -12,6 +12,7 @@
    and the screen through the health bar, so a disagreement between the two is
    the thing it is looking for. */
 const { chromium } = require('playwright');
+const { DOORS, openGame } = require('./slopen.cjs');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -86,22 +87,10 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
      then victory, then a level-up with a perk to pick, or the fallen screen.
      Clicking the board while any of them is up is a thirty-second Playwright
      timeout, so the bot walks through whatever door is in front of it. */
-  const DOORS = ['fight', 'onward', 'perk', 'leaveShop', 'again'];
   const walkPanels = async () => {
-    for (let i = 0; i < 8; i++) {
-      const act = await p.evaluate(doors => {
-        if (document.getElementById('overlay').hidden) return null;
-        for (const d of doors) if (document.querySelector(`[data-act="${d}"]`)) return d;
-        return 'unknown';
-      }, DOORS);
-      if (!act) return;
-      if (act === 'unknown') {
-        console.log('      ** a panel with no way out of it');
-        return;
-      }
-      await p.click(`[data-act="${act}"]`, { timeout: 5000 }).catch(() => {});
-      await p.waitForTimeout(260);
-    }
+    const went = await openGame(p);
+    if (went.some(x => x.startsWith('a panel') || x.startsWith('still behind')))
+      console.log('      ** ' + went.join(' -> '));
   };
   const dismissIntro = walkPanels;
 
@@ -205,6 +194,12 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
       } catch { /* reported below */ }
       await settle();
       if (!moved) {
+        /* A panel in front of the board is not a wedge - it is the game
+           waiting for a player. Dying is the loud one: the fallen screen
+           leaves the board behind it frozen on purpose, and three separate
+           times that looked from out here like a board that would not move. */
+        const st1 = await read();
+        if (st1.panel) { await walkPanels(); st = await read(); continue; }
         wedged++;
         const st2 = await read();
         console.log(`      ** the board will not move and nothing redealt it ` +

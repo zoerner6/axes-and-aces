@@ -12,6 +12,7 @@
    The eval hook has to go INSIDE the IIFE or nothing in the game's scope is
    reachable; see dev/gen/audit.js and the note above __A below. */
 const { chromium } = require('playwright');
+const { openGame } = require('./slopen.cjs');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -67,8 +68,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     /* A fight opens behind its intro and the board is what is being measured,
        so press the button rather than hiding the panel: the button also hands
        the board back, and hiding the panel alone leaves it frozen. */
-    await p.click('[data-act="fight"]', { timeout: 4000 }).catch(() => {});
-    await p.waitForTimeout(160);
+    await openGame(p);          /* the game opens on its story now */
     /* The pouch row only exists when you are carrying something, and it is
        the one strip that can push the board off a short screen, so measure
        the screen a player who has been shopping actually sees. */
