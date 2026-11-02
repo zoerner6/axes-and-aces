@@ -38,7 +38,7 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
   /* a stand-in for the cloud, so nothing is written to the real one */
   const cloud = new Map();
   let lastSaveCode = null;
-  await p.route('**/.netlify/functions/**', async route => {
+  await p.route(/\.netlify\/functions\//   /* a glob stops at the ?, and these all carry a query */, async route => {
     const u = new URL(route.request().url());
     const fn = u.pathname.split('/').pop();
     if (fn === 'save-game') {

@@ -539,6 +539,14 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
    the value say the whole of it. */
 .menu-list .buy{min-height:44px}
 .menu-list .buy span:not(.cost){display:none}
+/* Eight rows at 48px each, a heading and a button, and at 568 tall that came
+   to 548px of content in 534px. The gaps were the only place left to find
+   fourteen pixels, so the menu's are tighter than the shop's.
+
+   Two class names, not one: .buys sets the gap again inside the short-screen
+   media query, and a media query adds no specificity - so a single .menu-list
+   ties and loses on source order, silently. */
+.buys.menu-list{gap:4px}
 
 .purse-line{display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--f-num);
   font-weight:700;font-size:1.05rem;color:var(--gold-hi)}
@@ -2263,7 +2271,7 @@ function menuPanel(){
         <span>What a run is and why it matters.</span>
         <span class="cost">Read</span></button>
       <button class="buy" data-act="brag" data-kind="run">
-        <img class="ico" src="art/i_attack.webp" alt=""><b>Brag about your longest run</b>
+        <img class="ico" src="art/i_attack.webp" alt=""><b>Brag about a run</b>
         <span>${S.bestRun ? `${S.bestRun} cards in a row so far.` : 'Once you have one worth showing.'}</span>
         <span class="cost">Share</span></button>
       <button class="buy" data-act="daily">

@@ -104,9 +104,17 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
          which was the measurement being impatient rather than the game being
          silent - the panel is built, the timer is set, and the clock the test
          is watching is not the clock the page is typing on. */
-      if (['ambush', 'spot', 'path', 'boss'].includes(kind)) {
-        await p.waitForFunction(() => (document.querySelector('#encSay') || {}).textContent,
-          null, { timeout: 4000 }).catch(() => {});
+      if (['ambush', 'spot', 'path', 'boss'].includes(kind) || kind.startsWith('story')) {
+        /* wait for the words to stop arriving, not for a fixed moment: a
+           panel measured half-typed is shorter than one a player ever sees */
+        await p.waitForFunction(() => {
+          const t = ['#storyText', '#encSay', '#encCap']
+            .map(s => (document.querySelector(s) || {}).textContent || '').join('').length;
+          const was = window.__typedWas;
+          window.__typedWas = t;
+          return t > 0 && was === t;
+        }, null, { timeout: 9000 }).catch(() => {});
+        await p.evaluate(() => { window.__typedWas = -1; });
       }
 
       const m = await p.evaluate(() => {

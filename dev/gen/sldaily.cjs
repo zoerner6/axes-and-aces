@@ -39,7 +39,7 @@ async function runDaily(browser, fights) {
   const p = await ctx.newPage();
   await p.route('**/vid/**', r => r.abort());
   await p.route('**/music/**', r => r.abort());
-  await p.route('**/.netlify/functions/**', r =>
+  await p.route(/\.netlify\/functions\//   /* a glob stops at the ?, and these all carry a query */, r =>
     r.fulfill({ status: 200, contentType: 'application/json', body: '{"scores":[]}' }));
   const errs = [];
   p.on('pageerror', e => errs.push(String(e.message).replace(/\s+/g, ' ').slice(0, 150)));
