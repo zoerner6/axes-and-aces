@@ -1249,6 +1249,7 @@ function fightIntro(force){
 
 /* ---------- starting one ---------- */
 function startFight(){
+  dailySeedOn();        /* on for the whole of what a fight draws from chance */
   const a = curArea(), [lo, hi] = AREA_LV(), boss = isBossStep();
   const L = boss ? hi : lo + Math.round(posIn() * (hi - lo) / Math.max(1, AREA_FIGHTS - 1));
   const kind = boss ? a.boss : a.pool[rndInt(a.pool.length)];
@@ -1283,6 +1284,7 @@ function startFight(){
   openBoard();
   busy = true;                 /* the board waits behind the intro */
   fightIntro();
+  dailySeedOff();
 }
 
 
@@ -1663,6 +1665,7 @@ async function doStrike(opts = {}){
 
   const f = S.fight, absorbed = Math.min(f.block, dmg);
   f.block -= absorbed; f.hp -= dmg - absorbed;
+  if(S.daily) S.daily.score += dmg - absorbed;
   damageBurst(dmg - absorbed, tier);
   if(absorbed) pop($('foeBlock'), `${fmt(absorbed)} blocked`, 'b');
   if(tier >= 2){ bigBoom(tier); shake(tier >= 3 ? 3 : 2); }
@@ -1962,6 +1965,104 @@ async function postLevel(){
   }catch(e){ toast(e.message); }
 }
 
+/* ===================== the daily challenge =====================
+   Five fights, and everybody who plays today gets the same monsters and the
+   same deals. That only works if every shuffle comes from a seed instead of
+   Math.random, so the daily swaps Math.random out while a board is being
+   dealt, exactly the way the other two games do it.
+
+   The window has to cover the monster pick AND the deal AND the kind of
+   meeting, because all three draw from the same stream: seed only the
+   shuffle and two players get the same cards against different monsters. */
+const realRandom = Math.random;
+function seeded(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const DAILY_FIGHTS = 5;
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const dayNumber = () => Math.floor(Date.parse(todayKey()) / 86400000);
+function dailySeedOn(){
+  if(!S.daily) return;
+  Math.random = seeded(S.daily.seed * 7919 + S.daily.n * 131 + (S.daily.roll = (S.daily.roll || 0) + 1));
+}
+const dailySeedOff = () => { Math.random = realRandom; };
+
+function startDaily(){
+  S = freshHero();
+  S.daily = { seed:dayNumber(), n:0, score:0, date:todayKey() };
+  S.level = 3; S.maxHp = heroMaxHP(3); S.hp = S.maxHp;
+  S.eq = { main:{type:'sword',tier:2}, off:{type:'dagger',tier:2},
+           shield:{type:'shield',tier:2}, helm:{type:'helm',tier:2}, armor:{type:'armor',tier:2} };
+  S.pots = ['heal'];
+  closePanel();
+  dailyIntro();
+}
+function dailyIntro(){
+  openPanel(`<div class="eyebrow">Daily challenge &middot; ${S.daily.date}</div>
+    <h2>Today's reading</h2>
+    <p>Five fights. <b>Everybody gets the same monsters and the same cards today.</b>
+      You start at level 3 with a full set of gear and one potion. Your score is the damage you land.</p>
+    <div class="tipbox">No merchant, no levels, no second chances. Just the cards you are dealt.</div>
+    <button class="btn big" data-act="dailyGo">Begin</button>
+    <button class="btn big ghost" data-act="closeMenu">Back</button>`);
+}
+/* Where the nth fight of a daily sits. Driving it off S.step alone let the
+   levels wander - 1, 2, 5, 3, 6, with the boss third of five - because the
+   area and the position inside it both move at once. Setting them apart gives
+   a climb: 1, 2, 3, 4, and a level 7 boss at the end, against a hero who
+   starts at 3 with a full set of tier-two gear. */
+function dailyStep(){
+  const n = S.daily.n, last = n === DAILY_FIGHTS - 1;
+  S.area = Math.min(2, Math.floor(n / 2));
+  S.step = last ? AREA_FIGHTS - 1 : (n % 2);
+}
+function dailyNext(){
+  S.daily.n++;
+  if(S.daily.n >= DAILY_FIGHTS) return dailyDone();
+  dailyStep();
+  startFight();
+}
+function nameRow(){
+  return `<div class="name-row"><label for="lbName">Your name</label>
+    <input id="lbName" maxlength="20" value="${(store.get('name', '') || '').replace(/"/g, '&quot;')}" placeholder="Edward"></div>`;
+}
+function dailyDone(){
+  const r = S.dailyResult = { date:S.daily.date, score:S.daily.score, wins:S.wins || 0 };
+  S.phase = 'camp'; updateMusic();
+  openPanel(`<div class="eyebrow">Daily challenge &middot; ${r.date}</div>
+    <h2>${r.wins >= DAILY_FIGHTS ? 'You cleared it!' : `You won ${r.wins} of ${DAILY_FIGHTS}`}</h2>
+    <div class="lu-medal"><b>${r.wins}</b></div>
+    <p>You landed <b>${fmt(r.score)}</b> damage on today's cards.</p>
+    ${nameRow()}
+    <div id="lbList"></div>
+    <button class="btn big" data-act="postDaily">Post my score</button>
+    <button class="btn big ghost" data-act="dailyQuit">Back to your hero</button>`);
+}
+async function postDaily(btn){
+  const v = (($('lbName') || {}).value || '').trim().slice(0, 20);
+  if(!v){ toast('Type your name first'); return; }
+  store.set('name', v);
+  if(btn){ btn.disabled = true; btn.textContent = 'Posting...'; }
+  try{
+    await api('add-score', { board:'solitaire_daily', day:S.dailyResult.date, name:v, score:S.dailyResult.score });
+    if(btn) btn.textContent = 'Posted';
+    const j = await api(`get-scores?board=solitaire_daily&day=${S.dailyResult.date}`);
+    const el = $('lbList'); if(el) el.innerHTML = scoreList(j.scores, S.dailyResult.score);
+  }catch(e){ if(btn){ btn.disabled = false; btn.textContent = 'Try again'; } toast(e.message); }
+}
+function dailyQuit(){
+  const saved = loadSave(SLOT);
+  S = (saved && saved.S) || freshHero();
+  closePanel();
+  if(saved && saved.S) startFight();
+  else { S.introBeat = 0; R = dealRound(); busy = true; storyPanel('start'); }
+}
+
 /* ===================== the menu =====================
    Two toggles and a way back. Both remember themselves, because a player who
    turns the music off and finds it on again next time turns it off once and
@@ -1982,6 +2083,10 @@ function menuPanel(){
         <img class="ico" src="art/i_map.webp" alt=""><b>How to play</b>
         <span>What a run is and why it matters.</span>
         <span class="cost">Read</span></button>
+      <button class="buy" data-act="daily">
+        <img class="ico" src="art/i_trap.webp" alt=""><b>Daily challenge</b>
+        <span>The same cards for everybody today.</span>
+        <span class="cost">Play</span></button>
       <button class="buy" data-act="lb">
         <img class="ico" src="art/i_chest.webp" alt=""><b>Hall of readers</b>
         <span>How far other players got.</span>
@@ -2208,6 +2313,12 @@ async function won(){
   S.xp += Math.round(d.xp * (hasPerk('study') ? 1.25 : 1));
   S.wins = (S.wins || 0) + 1;
   banner('Victory!', `The ${d.name} is down`);
+  if(S.daily){
+    anim($('foePic'), 'hit');
+    [0, 1, 2, 3].forEach(k => tone([523.25, 659.25, 783.99, 1046.5][k], k === 3 ? .6 : .14, 'triangle', .06, k * .13));
+    await wait(1500);
+    return dailyNext();
+  }
   anim($('foePic'), 'hit');
   [0, 1, 2, 3].forEach(k => tone([523.25, 659.25, 783.99, 1046.5][k], k === 3 ? .6 : .14, 'triangle', .06, k * .13));
   setMyBars();
@@ -2349,6 +2460,7 @@ async function lost(){
   banner('You have fallen', `The ${d.name} brought you down`);
   deadthud();
   await wait(1600);
+  if(S.daily) return dailyDone();      /* no second chances on today's cards */
   openPanel(`
     <div class="eyebrow">${curArea().name}</div>
     <h2>You have fallen</h2>
@@ -2498,6 +2610,7 @@ async function bonusBlow(raw, tier){
   await slashes(tier);
   const f = S.fight, absorbed = Math.min(f.block, dmg);
   f.block -= absorbed; f.hp -= dmg - absorbed;
+  if(S.daily) S.daily.score += dmg - absorbed;
   damageBurst(dmg - absorbed, tier);
   bigBoom(tier); shake(tier >= 3 ? 3 : 2);
   setFoeBars();
@@ -2596,7 +2709,9 @@ async function onDry(){
 
 function redeal(){
   const boss = S.fight && S.fight.boss;
+  dailySeedOn();               /* a second board in the same fight is still today's */
   R = dealRound(boss ? S.fight.rule.deal : {});
+  dailySeedOff();
   openBoard();
   busy = false;
 }
@@ -2648,6 +2763,10 @@ $('overlay').addEventListener('click', e => {
     catch(e){ toast('Write it down instead'); }
     return;
   }
+  if(act === 'daily'){ return startDaily(); }
+  if(act === 'dailyGo'){ closePanel(); S.daily.n = 0; dailyStep(); startFight(); return; }
+  if(act === 'postDaily'){ postDaily(b); return; }
+  if(act === 'dailyQuit'){ dailyQuit(); return; }
   if(act === 'lb'){ return lbPanel(); }
   if(act === 'postLevel'){ postLevel(); return; }
   if(act === 'newHero' || act === 'loadHero'){
@@ -2740,6 +2859,7 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   pathPanel, onwardFromShop, worldName, questStep, areaIcon, curArea, worldOf,
   storyPanel, storyNext, updateMusic, songWant, menuPanel, helpPanel,
   slotsPanel, cloudPanel, lbPanel, saveGame, loadSave, freshHero, SK, cloudCode,
+  startDaily, dailyNext, dailyDone, dailyStep, seeded, dayNumber, todayKey, DAILY_FIGHTS,
   get musicOn(){ return musicOn; }, set musicOn(v){ musicOn = v; },
   get busy(){ return busy; }, afterMove, anyLegal, cleared } });
 
