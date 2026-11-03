@@ -23,12 +23,18 @@ you install it rather than after.
 
 ## Installing
 
-Foundry's package browser does not list modules containing AI-generated art,
-so install this from the manifest link instead:
+This module comes with the *Axes & Aces Monster Manual*, so it installs by
+hand rather than from a link:
 
-1. In Foundry, go to **Add-on Modules** and click **Install Module**.
-2. Paste the manifest URL into the **Manifest URL** box at the bottom.
-3. Click **Install**.
+1. Find your Foundry data folder. In Foundry, **Configuration and Setup →
+   Config** shows it; it is usually `FoundryVTT/Data`.
+2. Unzip this whole folder into `Data/modules`, so you end up with
+   `Data/modules/axes-and-aces-monsters/module.json`.
+3. Restart Foundry. The module is now in the **Add-on Modules** list and can
+   be enabled in your world.
+
+There is no manifest link. Foundry's package browser does not list modules
+containing AI-generated art, and this one is for people who bought the book.
 
 Then enable it in your world, open the **Actors** tab in the sidebar, and
 click **Import Axes & Aces monsters** at the top. It builds a world

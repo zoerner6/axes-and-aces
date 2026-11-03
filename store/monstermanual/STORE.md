@@ -241,8 +241,8 @@ $29.99. This PDF is the cheaper way to get it and the one you can search.
 
 ---
 
-**Free companion module for Foundry VTT.** All 168 monsters as NPCs with their
-art, free, linked on this page. It installs from a manifest link rather than
+**Foundry VTT module, included.** All 168 monsters as NPCs with their art,
+bundled with this purchase as a second download. It installs from a manifest link rather than
 from Foundry's package browser, because Foundry does not list packages
 containing AI art.
 
@@ -296,14 +296,30 @@ store/monstermanual/dist/cover-itch.png
 
 ---
 
-## What goes in the free Foundry module listing
+## The Foundry module is a bonus, not a giveaway
 
-Put the module up as a separate **free** project, or as a free extra download
-on this same page. Either works. The second is less effort and keeps the link
-on one page.
+It was briefly published as a free public download with an install link.
+That was wrong and it has been pulled back.
 
-Short description:
+The module carries all 168 pieces of art, every complete stat block, the
+forty sets of legendary actions, the ten lair actions, the nine spell lists,
+and the "what it is" and "how it fights" lines for every creature. Set
+against the book, what it does not carry is the introduction and the method,
+the ten in-world pieces, the Encounters chapter, the four indexes and the
+page design. For somebody who runs Foundry, that is not a reason to pay
+fifteen dollars.
 
-```
-168 monsters from Axes & Aces as 5E NPCs with their art, for Foundry VTT. Free.
-```
+The marketing argument does not survive contact either. Foundry's package
+browser refuses packages containing AI art, so there is no discovery there:
+the only way anyone could find the module was from the paid page itself. A
+free download reachable only from the shop is not reach, it is a discount
+given to people who had already decided to buy.
+
+So it ships as a second file on the paid itch project. Buyers get the PDF
+and the module; everyone else gets neither. Buyers unzip it into
+`Data/modules` by hand, which is ordinary for paid Foundry content, and the
+module no longer declares a `manifest` or `download` URL.
+
+**Do not re-publish a GitHub release for it** unless the decision changes.
+The release that existed, `foundry-v1.0.0`, has been deleted along with its
+tag.

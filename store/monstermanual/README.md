@@ -82,7 +82,7 @@ It only ever reads `dev/game.html` and `art/`. It does not write to either.
 | `src/statblock.py` | Measures and draws one stat block |
 | `src/book.py` | Lays out the whole PDF, two passes so the contents can carry page numbers |
 | `src/panels.py` | Composites each monster into its own scene |
-| `src/foundry.py` | The free Foundry VTT module |
+| `src/foundry.py` | The Foundry VTT module that ships with the book |
 | `src/legendary.py` | Legendary actions, lair actions and the nine spellcasters |
 | `src/text.py` | The book's written content |
 | `src/layoutcheck.py` | Finds rules drawn through text, overlapping text and margin breaches, on every page |
@@ -141,6 +141,12 @@ it is playtested, and the introduction says so.
 **The Foundry module has never been loaded into Foundry.** It is built to the
 dnd5e schema and the JSON is valid, but nobody has run it. Install it once
 before telling anyone it works.
+
+**The module is a bonus for buyers, not a free download.** It carries every
+piece of art, every stat block and the per-creature writing, so giving it
+away gives away the book. It deliberately declares no `manifest` or
+`download` URL; buyers unzip it into `Data/modules`. `STORE.md` has the
+reasoning.
 
 ## Licence
 
