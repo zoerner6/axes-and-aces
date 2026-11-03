@@ -218,6 +218,58 @@ img{max-width:100%}
   .hero .hpbar{flex:1 0 100%;order:-1;height:22px}
 }
 
+/* ===================== the board: Klondike =====================
+   Seven columns across, which on a 320px phone is 41.7px a card - the width
+   the old board already proved a rank corner reads at. Nothing overlaps
+   sideways: you have to be able to see seven separate piles.
+
+   Down is where it is hard. A column runs 11.3 cards deep on average and 18
+   at the worst, and no fixed step survives that on a 568-tall phone. So
+   layoutKlondike places every card in script, after the columns are in the
+   document and their width is known: face-down cards take a ninth of a card
+   each, the face-up ones share what is left of the tableau, and the tableau
+   is only as tall as its deepest column. */
+.kl-top{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:var(--kgap);
+  --kgap:clamp(3px,1.4vw,8px);
+  flex:0 0 auto;margin-bottom:clamp(6px,2vw,12px);
+}
+.kl-cell{position:relative;aspect-ratio:5/7}
+.kl-cell > .pk,.kl-cell > .kl-slot{position:absolute;inset:0;width:100%;height:100%}
+
+.kl-cols{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:var(--kgap);
+  --kgap:clamp(3px,1.4vw,8px);
+  flex:0 0 auto;
+}
+.kl-col{position:relative;min-width:0}
+/* layoutKlondike sets each card's top, in script - see the note above */
+.kl-col > .pk{position:absolute;left:0;right:0;top:0;aspect-ratio:5/7;height:auto}
+
+/* a card on this board is the same card as on the other one, minus the lift:
+   nothing is ever scaled here, because a column is a stack and growing one
+   card would push it through its neighbours */
+.pk.kl{transform:none}
+.pk.kl.live{box-shadow:0 0 0 2.5px var(--gold),0 0 11px rgba(242,182,50,.5),0 3px 0 rgba(0,0,0,.45)}
+.pk.kl.live:active{box-shadow:0 0 0 2.5px var(--gold-hi),0 0 16px rgba(242,182,50,.8),0 1px 0 rgba(0,0,0,.45)}
+
+/* an empty place: the deck when it is out, a home waiting for its ace */
+.kl-slot{
+  border:2.5px dashed rgba(242,182,50,.34);border-radius:7px;background:rgba(0,0,0,.26);
+  display:grid;place-items:center;padding:0;color:rgba(242,182,50,.5);
+  font-family:var(--f-num);font-weight:700;font-size:min(46cqw,26px);container-type:inline-size;
+}
+.kl-slot.home span{font-size:min(52cqw,30px);line-height:1}
+.kl-slot.again{border-style:solid;border-color:rgba(242,182,50,.5);color:var(--gold-hi);
+  font-size:min(40cqw,20px)}
+/* a finished suit stops being a pile and becomes a mark */
+.pk.kl.home.done,.kl-slot.home.done{box-shadow:0 0 0 3px var(--gold),0 0 14px rgba(242,182,50,.55)}
+
+.kl-cols .pk.kl.down{box-shadow:inset 0 0 0 2px rgba(242,182,50,.22),0 2px 0 rgba(0,0,0,.4)}
+
+/* the run sits under the board here rather than between the piles */
+.kl-cols + .runbox{margin-top:clamp(6px,2vw,12px);text-align:center}
+
 /* ===================== the peaks =====================
    Three overlapping peaks over a row of ten, the standard 28-card Tri-Peaks
    tableau. The whole thing is laid out in one unit - the pitch, the distance
@@ -734,7 +786,7 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
         <video id="foeAtk" class="atk" muted playsinline preload="auto"></video>
       </div>
       <div class="stage-top">
-        <div class="foe-title"><span class="foe-name" id="foeName">The three peaks</span><span class="lvtag" id="lvTag" hidden></span></div>
+        <div class="foe-title"><span class="foe-name" id="foeName">Something in the dark</span><span class="lvtag" id="lvTag" hidden></span></div>
         <div class="foe-rule" id="foeRule" hidden></div>
       </div>
       <div class="vbar" aria-label="Monster health"><i id="foeBar"></i></div>
@@ -833,10 +885,10 @@ const BLOW_AVG = 75, BLOW_MED = 21, BLOW_P90 = 200;
    of the difference - and by the measurement above, the biggest single lever
    in the game. */
 const SUITS = [
-  {k:'s', ch:'♠', red:false},
-  {k:'h', ch:'♥', red:true},
-  {k:'d', ch:'♦', red:true},
-  {k:'c', ch:'♣', red:false},
+  {k:'s', ch:'♠', red:false, name:'spades'},
+  {k:'h', ch:'♥', red:true,  name:'hearts'},
+  {k:'d', ch:'♦', red:true,  name:'diamonds'},
+  {k:'c', ch:'♣', red:false, name:'clubs'},
 ];
 const RANKS = ['', 'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const FACE_ART = {11:'art/face_j.webp', 12:'art/face_q.webp', 13:'art/face_k.webp'};
@@ -1026,7 +1078,7 @@ const heroTier = () => Math.max(0, ...['armor','helm','shield'].map(k => S.eq[k]
    dev/gen/slworlds.py. Do not edit between the markers by hand; run the
    script. */
 /* __WORLDS_START__ */
-const WORLDS = [{"id":"w1","name":"The Rescue of Anna","quest":"Bring Anna home","intro":[{"title":"The deck nobody deals from","text":"Bandits take Anna out the back of the Gilded Ace. You go for your axe. Old Bram goes for the shelf behind the bar and comes back with a deck so worn the corners are round. \"I do not play with these,\" he says, and lays them out in three peaks."},{"title":"How to read it","text":"\"The shape tells you what is waiting. Cut it away a card at a time, one rank up or one rank down, and the longer you go without stopping the harder you come out the other side. Stop, and the blow lands.\" He turns the top card over. \"Go and get her.\""}],"areas":[{"name":"The Gilded Ace","place":"In the shadows of the tavern","pool":[{"slug":"goblin","name":"Sneaky Goblin","hp":1.0,"atk":1.0,"pat":[1.0,1.3,1.0]},{"slug":"rat","name":"Giant Rat","hp":1.2,"atk":0.8,"pat":[1.0,1.0,2.2]},{"slug":"bat","name":"Tavern Bat","hp":0.8,"atk":1.1,"pat":[1.0,1.0]},{"slug":"boar","name":"Wild Boar","hp":1.4,"atk":1.0,"pat":[0.8,1.8]},{"slug":"imp","name":"Little Imp","hp":0.9,"atk":1.2,"pat":[1.0,"H",1.2]}],"boss":{"slug":"bandit","name":"Bandit Chief","pat":[1,"B",1.9]}},{"name":"The Cellar","place":"In the damp dark of the cellar","pool":[{"slug":"skeleton","name":"Rattling Skeleton","hp":1.1,"atk":1.0,"pat":[1.0,"B",1.2]},{"slug":"spider","name":"Giant Spider","hp":1.0,"atk":1.0,"pat":[0.8,0.8,2.2]},{"slug":"snake","name":"Cellar Snake","hp":0.9,"atk":1.2,"pat":[1.0,1.4]},{"slug":"zombie","name":"Lost Zombie","hp":1.4,"atk":0.9,"pat":[1.0,"H",1.0]},{"slug":"scorpion","name":"Giant Scorpion","hp":1.1,"atk":1.0,"pat":[1.0,1.0,1.8]}],"boss":{"slug":"ghoul","name":"Cellar Ghoul","pat":[1,"H",1.9]}},{"name":"The Dark Forest","place":"Between the twisted trees","pool":[{"slug":"wolf","name":"Dire Wolf","hp":1.0,"atk":1.2,"pat":[1.0,1.0,1.0,1.6]},{"slug":"witch","name":"Swamp Witch","hp":0.9,"atk":1.0,"pat":["H",1.2,1.5]},{"slug":"bear","name":"Angry Bear","hp":1.5,"atk":1.0,"pat":[1.0,2.0]},{"slug":"treant","name":"Treant","hp":1.6,"atk":0.8,"pat":["B",1.0,1.3]},{"slug":"toad","name":"Giant Toad","hp":1.1,"atk":1.0,"pat":[1.0,1.5]}],"boss":{"slug":"troll","name":"Troll King","pat":[1,"B",2]}},{"name":"Castle Grimstone","place":"In the castle's cold halls","pool":[{"slug":"knight","name":"Dark Knight","hp":1.3,"atk":1.0,"pat":[1.0,"B",1.3]},{"slug":"gargoyle","name":"Stone Gargoyle","hp":1.5,"atk":1.0,"pat":["B",1.0,1.6]},{"slug":"ghost","name":"Castle Ghost","hp":0.8,"atk":1.3,"pat":[1.0,"H",1.5]},{"slug":"vampire","name":"Vampire","hp":1.1,"atk":1.0,"pat":[1.2,"H",1.4]},{"slug":"babydragon","name":"Baby Dragon","hp":1.3,"atk":1.2,"pat":[1.0,1.0,2.0]}],"boss":{"slug":"dragon","name":"Grimstone Dragon","pat":[1,1,2.1]}}],"steps":[["Face the goblin in the tavern","Stop the attack"],["Search the Gilded Ace","Look for where they took Anna"],["Follow the bandits to the cellar door","They dragged Anna this way"],["Go down into the Cellar","Find Anna"],["Search deeper in the Cellar","Anna's ribbon was down here"],["Find the way out of the Cellar","The trail keeps going"],["Enter the Dark Forest","Follow Anna's trail"],["Follow the footprints into the woods","Anna's scarf points the way"],["Reach the edge of the forest","The castle must be close"],["Storm Castle Grimstone","Rescue Anna"],["Climb toward the tallest tower","You can hear Anna calling"],["Face the master at the top of the tower","Bring Anna home"]],"story":{"a1":{"title":"Down the cellar stairs","text":"The trapdoor is open and the stairs go down further than they should. You lay the three peaks out on the top step, read what is under them, and start down."},"a2":{"title":"Into the trees","text":"Anna's scarf is caught on a branch at the forest edge, still warm. You deal the peaks on a flat stone. Every card comes up black."},"a3":{"title":"The castle gate","text":"Castle Grimstone stands black against the sky. Somewhere above you, Anna is calling your name. You lay the cards out one last time and do not like the shape of them."},"end":[{"title":"Anna is safe","text":"You bring Anna down the tower stairs and out through the broken gate. She does not let go of your arm the whole way home."},{"title":"Sir Edward","text":"The Gilded Ace is full when you get back. Old Bram holds his hand out for the deck, looks it over, and puts it back in your pocket. \"They are yours now,\" he says. \"You read them better than I do.\""}]}},{"id":"w2","name":"The Frozen Peaks","quest":"The Frost Crown","intro":[{"title":"A summons from the King","text":"A royal rider gallops into the Gilded Ace. \"Sir Edward! The Frost Giant has stolen the King's Frost Crown. Without it, winter will never end.\""},{"title":"Into the snow","text":"Anna presses a warm cloak into your hands. \"Come back to us, Sir Edward.\" You ride north, where the mountains are white and the wind howls like wolves."}],"areas":[{"name":"The Snowy Pass","place":"On the icy mountain trail","pool":[{"slug":"icewolf","name":"Ice Wolf","hp":1,"atk":1.1,"pat":[1,1,1.6]},{"slug":"snowgoblin","name":"Snow Goblin","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"frostbat","name":"Frost Bat","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"yetichief","name":"Yeti Chieftain","rule":{"off":0},"pat":[1,"B",1.9]}},{"name":"The Ice Caves","place":"In the glittering ice caves","pool":[{"slug":"icegolem","name":"Ice Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]},{"slug":"frostspider","name":"Frost Spider","hp":1,"atk":1.1,"pat":[0.8,0.8,2.1]},{"slug":"icewraith","name":"Ice Wraith","hp":0.8,"atk":1.3,"pat":[1,"H",1.4]}],"boss":{"slug":"icequeen","name":"The Ice Witch","rule":{"off":1},"pat":["H",1.2,1.8]}},{"name":"The Frozen Lake","place":"On the cracking frozen lake","pool":[{"slug":"mammoth","name":"War Mammoth","hp":1.6,"atk":1,"pat":[0.8,2]},{"slug":"icetroll","name":"Ice Troll","hp":1.3,"atk":1,"pat":[1,"H",1.3]},{"slug":"seal","name":"Sabre Walrus","hp":1.2,"atk":1,"pat":[1,1.5]}],"boss":{"slug":"wyrm","name":"Frost Wyrm","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Giant's Hall","place":"In the Frost Giant's hall","pool":[{"slug":"frostknight","name":"Frost Knight","hp":1.3,"atk":1,"pat":[1,"B",1.3]},{"slug":"giantguard","name":"Giant's Hound","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"frostmage","name":"Frost Shaman","hp":0.9,"atk":1.2,"pat":["H",1.2,1.5]}],"boss":{"slug":"frostgiant","name":"The Frost Giant","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Climb the Snowy Pass","Follow the Frost Giant's tracks"],["Push through the blizzard","The trail goes higher"],["Face the Yeti Chieftain","He guards the pass"],["Enter the Ice Caves","The tracks lead inside"],["Search the glittering tunnels","Something glows deeper in"],["Find the Ice Witch","She serves the Giant"],["Cross the Frozen Lake","The Giant's hall lies beyond"],["Keep to the thick ice","The ice is cracking"],["Face the Frost Wyrm","It rises from the lake"],["Storm the Giant's Hall","Get the crown back"],["Fight through the hall","The throne room is close"],["Face the Frost Giant","Take back the Frost Crown"]],"story":{"a1":{"title":"The Ice Caves","text":"The Yeti Chieftain falls in the snow. Huge footprints lead into a cave that glitters like a thousand blue diamonds."},"a2":{"title":"The Frozen Lake","text":"Beyond the caves lies a frozen lake. On the far shore, the Frost Giant's hall smokes with blue fire."},"a3":{"title":"The Giant's Hall","text":"The Frost Wyrm sinks beneath the ice. The doors of the Giant's hall stand open, and from inside comes a laugh like an avalanche."},"end":[{"title":"The crown returns","text":"The Frost Giant crashes down like a falling mountain. You lift the Frost Crown from the snow, and the clouds begin to part."},{"title":"Spring comes","text":"The King places the crown on his head and warm wind sweeps the land. \"Rest well, Sir Edward. I fear we will need you again soon.\""}]}},{"id":"w3","name":"The Burning Sands","quest":"The Lost Caravan","intro":[{"title":"A cry for help","text":"A caravan carrying the kingdom's medicine has vanished in the Burning Sands. The last message says only: \"The dead walk at night.\""},{"title":"The endless desert","text":"You cross the dunes under a blazing sun. Far away, half buried in sand, stands an ancient pyramid."}],"areas":[{"name":"The Dunes","place":"Among the scorching dunes","pool":[{"slug":"sandscorp","name":"Sand Scorpion","hp":1,"atk":1.1,"pat":[1,1,1.8]},{"slug":"vulture","name":"Bone Vulture","hp":0.8,"atk":1.2,"pat":[1,1.4]},{"slug":"raider","name":"Dune Raider","hp":1,"atk":1.1,"pat":[1,1.3,1]}],"boss":{"slug":"sandwyrm","name":"Sand Wyrm","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Oasis Ruins","place":"In the ruined oasis","pool":[{"slug":"jackal","name":"Jackal Warrior","hp":1,"atk":1.1,"pat":[1,1.4]},{"slug":"cobra","name":"Giant Cobra","hp":0.9,"atk":1.3,"pat":[1,1,1.6]},{"slug":"sandgolem","name":"Sand Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"djinn","name":"The Dark Djinn","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Pyramid","place":"In the pyramid's dark halls","pool":[{"slug":"mummy","name":"Ancient Mummy","hp":1.4,"atk":0.9,"pat":[1,"H",1]},{"slug":"scarab","name":"Scarab Swarm King","hp":1.2,"atk":1,"pat":[1,1.5]},{"slug":"tombguard","name":"Tomb Guardian","hp":1.3,"atk":1,"pat":[1,"B",1.4]}],"boss":{"slug":"pharaoh","name":"The Mummy Pharaoh","rule":{"off":3},"pat":[1,"H",2]}},{"name":"The Sun Temple","place":"In the burning Sun Temple","pool":[{"slug":"firewisp","name":"Fire Spirit","hp":0.8,"atk":1.3,"pat":[1,1.5]},{"slug":"sphinx","name":"Sphinx","hp":1.4,"atk":1,"pat":["B",1,1.6]},{"slug":"priest","name":"Cult Priest","hp":0.9,"atk":1.2,"pat":["H",1.2,1.4]}],"boss":{"slug":"sunlord","name":"The Scorched King","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Cross the dunes","Find the lost caravan"],["Follow the wagon tracks","They lead deeper into the desert"],["Face the Sand Wyrm","It swallowed the last wagon"],["Reach the Oasis Ruins","Water, and footprints"],["Search the broken temple","The merchants were here"],["Face the Dark Djinn","He holds the caravan's keys"],["Enter the Pyramid","The dead walk inside"],["Go deeper into the tombs","You hear crying below"],["Face the Mummy Pharaoh","He wakes at last"],["Climb to the Sun Temple","The caravan is held at the top"],["Fight up the burning stairs","Almost there"],["Face the Scorched King","Free the caravan"]],"story":{"a1":{"title":"The Oasis Ruins","text":"From inside the Sand Wyrm's coils you pull a torn caravan flag. Its trail leads to an old oasis in ruins."},"a2":{"title":"The Pyramid","text":"The Djinn vanishes in smoke and leaves behind a golden key. It fits the great door of the pyramid."},"a3":{"title":"The Sun Temple","text":"The Pharaoh crumbles to dust. Through a hidden passage you climb toward the Sun Temple, where the merchants are chained."},"end":[{"title":"The caravan is free","text":"The Scorched King falls and the flames go out. You break the merchants' chains, and they weep with joy."},{"title":"Medicine for the kingdom","text":"The caravan rolls home with its medicine. Children cheer as Sir Edward rides beside the wagons."}]}},{"id":"w4","name":"The Sunken Coast","quest":"The Drowned Bell","intro":[{"title":"Ships are vanishing","text":"Every ship that sails past the Sunken Coast disappears. Fishermen whisper about a giant bell ringing under the waves."},{"title":"To the coast","text":"You sail out on a fishing boat. Fog rolls in, and somewhere below the water, a bell begins to toll."}],"areas":[{"name":"The Smugglers' Cove","place":"In the smugglers' cove","pool":[{"slug":"pirate","name":"Cutthroat Pirate","hp":1,"atk":1.1,"pat":[1,1.3,1]},{"slug":"crab","name":"Giant Crab","hp":1.4,"atk":0.9,"pat":["B",1,1.5]},{"slug":"seagull","name":"Gull Harpy","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"captain","name":"Captain Blacktide","rule":{"off":2},"pat":[1,"B",1.9]}},{"name":"The Shipwreck","place":"Inside the rotting shipwreck","pool":[{"slug":"drowned","name":"Drowned Sailor","hp":1.2,"atk":1,"pat":[1,"H",1]},{"slug":"eel","name":"Electric Eel","hp":0.9,"atk":1.3,"pat":[1,1.5]},{"slug":"octopus","name":"Giant Octopus","hp":1.3,"atk":1,"pat":[1,1,1.7]}],"boss":{"slug":"ghostship","name":"The Ghost Captain","rule":{"off":1},"pat":["H",1.2,1.8]}},{"name":"The Coral Depths","place":"In the glowing coral depths","pool":[{"slug":"merman","name":"Merman Warrior","hp":1,"atk":1.1,"pat":[1,1.4]},{"slug":"shark","name":"Bull Shark","hp":1.2,"atk":1.2,"pat":[1,1,1.8]},{"slug":"siren","name":"Siren","hp":0.9,"atk":1.2,"pat":["H",1.3,1.3]}],"boss":{"slug":"seaserpent","name":"The Sea Serpent","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Drowned Temple","place":"In the drowned temple","pool":[{"slug":"anglerfish","name":"Abyss Angler","hp":1.1,"atk":1.2,"pat":[1,1.6]},{"slug":"seawitch","name":"Sea Witch","hp":0.9,"atk":1.2,"pat":["H",1.2,1.5]},{"slug":"templeguard","name":"Coral Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]}],"boss":{"slug":"kraken","name":"The Kraken","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Sneak into the smugglers' cove","The pirates know something"],["Search the pirate docks","Find their captain"],["Face Captain Blacktide","He sails for the Kraken"],["Dive into the shipwreck","The bell rings below"],["Search the flooded decks","Cursed sailors lurk here"],["Face the Ghost Captain","He guards the way down"],["Swim into the coral depths","The ringing grows louder"],["Follow the glowing coral","The temple is near"],["Face the Sea Serpent","It circles the temple"],["Enter the Drowned Temple","Silence the bell"],["Fight through the temple halls","The bell is right ahead"],["Face the Kraken","End the curse of the coast"]],"story":{"a1":{"title":"The Shipwreck","text":"Captain Blacktide's map shows a wreck below the cove. You drink a sea-witch's potion, take a deep breath and dive."},"a2":{"title":"The Coral Depths","text":"Past the ghost ship, the sea floor opens into a forest of glowing coral. The bell's toll shakes the water."},"a3":{"title":"The Drowned Temple","text":"The Sea Serpent sinks into the dark. Ahead lies a temple, and inside it a giant bronze bell wrapped in tentacles."},"end":[{"title":"The bell falls silent","text":"The Kraken lets go and sinks into the deep. You cut the bell's chain, and the sea goes calm and still."},{"title":"Safe waters","text":"Ships sail the coast again. The fishermen name their best boat the Sir Edward."}]}},{"id":"w5","name":"The Plague Marsh","quest":"The Rotting Curse","intro":[{"title":"A sickness spreads","text":"A green fog drifts out of the Plague Marsh, and everyone it touches falls ill. An old healer begs for help: \"Someone is brewing the curse.\""},{"title":"Into the fog","text":"You wrap a cloth over your face and wade into the marsh. The trees are dead and the water bubbles."}],"areas":[{"name":"The Rotting Fen","place":"In the rotting fen","pool":[{"slug":"plaguerat","name":"Plague Rat","hp":1,"atk":1.1,"pat":[1,1,1.7]},{"slug":"leech","name":"Giant Leech","hp":1.2,"atk":0.9,"pat":[1,"H",1.2]},{"slug":"bogman","name":"Bog Man","hp":1.4,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"crocodile","name":"The Swamp King Croc","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Plague Village","place":"In the abandoned plague village","pool":[{"slug":"plaguedoctor","name":"Mad Plague Doctor","hp":1,"atk":1.2,"pat":[1,1.4]},{"slug":"sickzombie","name":"Rotting Villager","hp":1.3,"atk":0.9,"pat":[1,"H",1]},{"slug":"crows","name":"Carrion Crow","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"plaguebeast","name":"The Plague Beast","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Witch's Bog","place":"In the witch's bog","pool":[{"slug":"frogman","name":"Frog Brute","hp":1.2,"atk":1,"pat":[1,1.5]},{"slug":"willowisp","name":"Will-o'-Wisp","hp":0.8,"atk":1.3,"pat":[1,1.6]},{"slug":"mosquito","name":"Giant Mosquito","hp":0.9,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"bogtroll","name":"The Bog Troll","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Hag's Lair","place":"In the Bog Hag's lair","pool":[{"slug":"hagspawn","name":"Hag Spawn","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"rootbeast","name":"Root Horror","hp":1.4,"atk":0.9,"pat":["B",1,1.6]},{"slug":"slime","name":"Toxic Slime","hp":1.2,"atk":1,"pat":[1,"H",1.3]}],"boss":{"slug":"boghag","name":"The Bog Hag","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Wade into the Rotting Fen","Find where the fog begins"],["Push through the swamp","The fog grows thicker"],["Face the Swamp King Croc","It guards the deep marsh"],["Reach the plague village","Survivors may be hiding"],["Search the empty houses","Someone left a trail of potions"],["Face the Plague Beast","It spreads the sickness"],["Enter the Witch's Bog","The potions came from here"],["Follow the purple lights","The hag's hut is near"],["Face the Bog Troll","He guards her door"],["Enter the Hag's Lair","Stop the curse"],["Fight past her creatures","The cauldron bubbles ahead"],["Face the Bog Hag","Break the rotting curse"]],"story":{"a1":{"title":"The Plague Village","text":"The Croc sinks into the muck. Beyond the reeds, an empty village sits on stilts, its lanterns still burning."},"a2":{"title":"The Witch's Bog","text":"In the Plague Beast's den you find empty potion jars, all marked with the same witch's sign. It points to the bog."},"a3":{"title":"The Hag's Lair","text":"The Bog Troll falls with a splash. Inside a giant rotting tree, a green cauldron bubbles, and a cackle echoes."},"end":[{"title":"The cauldron breaks","text":"The Bog Hag shrieks and melts into the mud. You kick over her cauldron, and the green fog drains away."},{"title":"The healing","text":"The sick wake up healthy. The old healer bows. \"The whole kingdom owes you its life, Sir Edward.\""}]}},{"id":"w6","name":"The Iron Mines","quest":"The Stolen Forge","intro":[{"title":"The forge goes cold","text":"The dwarves of the Iron Mines have sent no iron for months. A wounded dwarf crawls into the castle: \"The golems woke up... they took the Great Forge!\""},{"title":"Into the mountain","text":"You light a lantern and step into the mine. Deep below, something heavy goes thump... thump... thump."}],"areas":[{"name":"The Mine Shafts","place":"In the dark mine shafts","pool":[{"slug":"kobold","name":"Kobold Miner","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"caveworm","name":"Rock Worm","hp":1.2,"atk":1,"pat":[1,1,1.7]},{"slug":"minebat","name":"Cave Bat Swarm","hp":0.8,"atk":1.2,"pat":[1,1.5]}],"boss":{"slug":"foreman","name":"The Goblin Foreman","rule":{"off":0},"pat":[1,"B",1.9]}},{"name":"The Crystal Cavern","place":"In the crystal cavern","pool":[{"slug":"crystalgolem","name":"Crystal Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]},{"slug":"basilisk","name":"Basilisk","hp":1.1,"atk":1.1,"pat":[1,1.5]},{"slug":"gemspider","name":"Gem Spider","hp":1,"atk":1.1,"pat":[0.8,0.8,2]}],"boss":{"slug":"crystaldrake","name":"The Crystal Drake","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Lava Tunnels","place":"In the scorching lava tunnels","pool":[{"slug":"magmaslime","name":"Magma Slime","hp":1.2,"atk":1,"pat":[1,"H",1.3]},{"slug":"salamander","name":"Fire Salamander","hp":1,"atk":1.2,"pat":[1,1.6]},{"slug":"firedwarf","name":"Cursed Dwarf","hp":1.1,"atk":1.1,"pat":[1,1.3,1]}],"boss":{"slug":"lavagolem","name":"The Lava Golem","rule":{"off":3},"pat":["H",1.2,1.9]}},{"name":"The Great Forge","place":"In the Great Forge","pool":[{"slug":"clockwork","name":"Clockwork Soldier","hp":1.3,"atk":1,"pat":[1,"B",1.3]},{"slug":"forgehound","name":"Forge Hound","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"smithimp","name":"Furnace Imp","hp":0.8,"atk":1.3,"pat":[1,1.5]}],"boss":{"slug":"irongolem","name":"The Iron Golem","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Enter the mine shafts","Find the dwarves"],["Follow the rail tracks","They go deeper"],["Face the Goblin Foreman","He bosses the mine"],["Climb into the crystal cavern","The thumping grows louder"],["Search among the crystals","Dwarf tracks lead on"],["Face the Crystal Drake","It nests in the cavern"],["Cross the lava tunnels","The forge is below"],["Brave the burning bridges","Keep going"],["Face the Lava Golem","It blocks the forge door"],["Storm the Great Forge","Free the dwarves"],["Fight past the clockwork guards","The forge master waits"],["Face the Iron Golem","Take back the forge"]],"story":{"a1":{"title":"The Crystal Cavern","text":"The Foreman drops a map scratched on leather. It shows a cavern full of crystals where the dwarves were taken."},"a2":{"title":"The Lava Tunnels","text":"Beyond the Drake's nest, the air turns hot. Rivers of lava light the way down to the Great Forge."},"a3":{"title":"The Great Forge","text":"The Lava Golem crumbles. Through the doors you see the dwarves chained to the anvils, and a giant made of iron."},"end":[{"title":"The forge burns again","text":"The Iron Golem crashes down. The dwarves break free and light the Great Forge with a mighty cheer."},{"title":"A gift of steel","text":"The dwarf king hands you a shield marked with your name. \"No finer knight ever walked our halls, Sir Edward.\""}]}},{"id":"w7","name":"The Haunted Abbey","quest":"The Silent Bells","intro":[{"title":"The bells stop","text":"The bells of the Holy Abbey have gone silent, and the monks have not been seen in weeks. At night, candles flicker in every window."},{"title":"The abbey gates","text":"The gates creak open on their own. A cold voice whispers your name: \"Edwaaard...\""}],"areas":[{"name":"The Graveyard","place":"Among the abbey graves","pool":[{"slug":"gravedigger","name":"Undead Gravedigger","hp":1.1,"atk":1,"pat":[1,1.3,1]},{"slug":"ghoulhound","name":"Ghoul Hound","hp":1,"atk":1.2,"pat":[1,1,1.6]},{"slug":"banshee","name":"Banshee","hp":0.8,"atk":1.3,"pat":["H",1.3,1.4]}],"boss":{"slug":"headless","name":"The Headless Knight","rule":{"off":1},"pat":[1,"B",1.9]}},{"name":"The Cloister","place":"In the haunted cloister","pool":[{"slug":"ghostmonk","name":"Ghost Monk","hp":0.9,"atk":1.2,"pat":["H",1.2,1.3]},{"slug":"gargoylepup","name":"Cloister Gargoyle","hp":1.3,"atk":1,"pat":["B",1,1.5]},{"slug":"poltergeist","name":"Poltergeist","hp":0.8,"atk":1.3,"pat":[1,1.6]}],"boss":{"slug":"abbot","name":"The Cursed Abbot","rule":{"off":0},"pat":["H",1.2,1.9]}},{"name":"The Catacombs","place":"In the bone-lined catacombs","pool":[{"slug":"bonewalker","name":"Bone Walker","hp":1.4,"atk":0.9,"pat":["B",1,1.6]},{"slug":"cryptrat","name":"Crypt Rat King","hp":1,"atk":1.1,"pat":[1,1,1.7]},{"slug":"wight","name":"Barrow Wight","hp":1.2,"atk":1.1,"pat":[1,"H",1.3]}],"boss":{"slug":"bonedragon","name":"The Bone Dragon","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Bell Tower","place":"In the cursed bell tower","pool":[{"slug":"darkpriest","name":"Shadow Priest","hp":0.9,"atk":1.3,"pat":["H",1.2,1.5]},{"slug":"vampirebat","name":"Vampire Bat","hp":1,"atk":1.2,"pat":[1,1.5]},{"slug":"deathknight","name":"Death Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]}],"boss":{"slug":"lich","name":"The Lich","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Enter the graveyard","The dead are restless"],["Search among the graves","Something rides at night"],["Face the Headless Knight","He guards the abbey"],["Enter the cloister","The monks were last seen here"],["Search the haunted halls","Candles float in the air"],["Face the Cursed Abbot","He knows the truth"],["Descend into the catacombs","The curse lies below"],["Search the walls of bones","A dragon sleeps here"],["Face the Bone Dragon","It wakes"],["Climb the bell tower","Ring the bells again"],["Fight up the tower stairs","Lightning strikes"],["Face the Lich","Lift the abbey's curse"]],"story":{"a1":{"title":"The Cloister","text":"The Headless Knight falls apart. A key on a black ribbon opens the abbey door, and the cold voice laughs inside."},"a2":{"title":"The Catacombs","text":"The Abbot sobs as the curse leaves him. \"The Lich... he hides below, in the bones.\""},"a3":{"title":"The Bell Tower","text":"The Bone Dragon collapses into a pile of bones. Far above, in the tower, a green light pulses where the bells should ring."},"end":[{"title":"The bells ring","text":"The Lich shatters into dust. You pull the great rope, and the bells ring out across the land for the first time in weeks."},{"title":"Peace returns","text":"The monks return, whole again. They carve your name in the abbey wall: Sir Edward, the Bell-Ringer."}]}},{"id":"w8","name":"The Elven Wilds","quest":"The Thorned Heart","intro":[{"title":"The forest turns dark","text":"The peaceful elves of the Wilds have stopped trading. Travelers come back covered in thorns, whispering about a queen with a heart of briars."},{"title":"The silver forest","text":"The trees of the Wilds shine like silver, but black thorns are choking them. Elven eyes watch you from the branches."}],"areas":[{"name":"The Silver Woods","place":"In the silver woods","pool":[{"slug":"thornelf","name":"Thorn Archer","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"wolfpack","name":"Shadow Stag","hp":1.3,"atk":1,"pat":[1,1.6]},{"slug":"pixie","name":"Wicked Pixie","hp":0.7,"atk":1.3,"pat":[1,1,1.5]}],"boss":{"slug":"thornbear","name":"The Briar Bear","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Moonlit Glade","place":"In the moonlit glade","pool":[{"slug":"dryad","name":"Corrupted Dryad","hp":1,"atk":1.1,"pat":["H",1.2,1.3]},{"slug":"werewolf","name":"Werewolf","hp":1.2,"atk":1.2,"pat":[1,1,1.7]},{"slug":"mushroomman","name":"Fungal Brute","hp":1.4,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"unicorn","name":"The Dark Unicorn","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Elven City","place":"In the overgrown elven city","pool":[{"slug":"elfknight","name":"Thorn Knight","hp":1.2,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"elfmage","name":"Thorn Mage","hp":0.9,"atk":1.3,"pat":["H",1.2,1.5]},{"slug":"owlbear","name":"Owlbear","hp":1.4,"atk":1,"pat":[1,1.6]}],"boss":{"slug":"elfgeneral","name":"The Thorn General","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Heart Tree","place":"Under the Heart Tree","pool":[{"slug":"thornbeast","name":"Thorn Beast","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"vinesnake","name":"Vine Serpent","hp":1.2,"atk":1.1,"pat":[1,1.5]},{"slug":"rootgolem","name":"Heartwood Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]}],"boss":{"slug":"thornqueen","name":"The Thorn Queen","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Enter the Silver Woods","Find the elves"],["Cut through the thorns","Eyes watch from the trees"],["Face the Briar Bear","It guards the woods"],["Reach the Moonlit Glade","A friendly elf hides here"],["Search the standing stones","The thorns spread from the city"],["Face the Dark Unicorn","Its horn feeds the curse"],["Enter the elven city","The elves are under a spell"],["Cross the tree bridges","The Heart Tree is ahead"],["Face the Thorn General","He leads the queen's army"],["Reach the Heart Tree","Free the forest's heart"],["Cut through the roots","The queen is waiting"],["Face the Thorn Queen","Break the thorned heart"]],"story":{"a1":{"title":"The Moonlit Glade","text":"The Briar Bear falls and the thorns pull back. A small elf girl peeks out from behind a tree. \"Please... help our queen.\""},"a2":{"title":"The Elven City","text":"The Dark Unicorn's horn cracks, and its red glow fades. The elf girl leads you to a city in the trees, wrapped in thorns."},"a3":{"title":"The Heart Tree","text":"The Thorn General kneels, freed from the spell. \"The queen took the Heart of the Forest. Save her... from herself.\""},"end":[{"title":"The heart is free","text":"The thorns crumble from the Queen's crown. She opens her eyes, and they are kind again. \"What have I done?\""},{"title":"Friends of the forest","text":"The silver trees bloom. The Elf Queen gives you a leaf of pure silver. \"The elves will always stand with Sir Edward.\""}]}},{"id":"w9","name":"The Sky Fortress","quest":"The Storm Throne","intro":[{"title":"A storm that never ends","text":"Lightning strikes the kingdom every night, and a fortress has appeared floating in the clouds. The King's wizard says: \"The Storm Titan has awoken.\""},{"title":"Up to the clouds","text":"The wizard's spell lifts you on a staircase of wind. Up and up you climb, into the storm."}],"areas":[{"name":"The Cloud Bridges","place":"On the cloud bridges","pool":[{"slug":"harpy","name":"Storm Harpy","hp":0.9,"atk":1.2,"pat":[1,1,1.5]},{"slug":"cloudgiant","name":"Cloud Ogre","hp":1.4,"atk":1,"pat":[1,1.6]},{"slug":"windspirit","name":"Wind Spirit","hp":0.8,"atk":1.3,"pat":["H",1.3,1.3]}],"boss":{"slug":"griffon","name":"The Griffon King","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Sky Gardens","place":"In the floating sky gardens","pool":[{"slug":"skyserpent","name":"Sky Serpent","hp":1,"atk":1.2,"pat":[1,1.5]},{"slug":"thunderbird","name":"Thunderbird","hp":0.9,"atk":1.3,"pat":[1,1,1.6]},{"slug":"gardenguard","name":"Stone Sentinel","hp":1.5,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"stormdrake","name":"The Storm Drake","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Fortress Walls","place":"On the fortress walls","pool":[{"slug":"stormsoldier","name":"Storm Soldier","hp":1.2,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"airelemental","name":"Air Elemental","hp":1.2,"atk":1.1,"pat":[1,1.6]},{"slug":"djinnwarrior","name":"Cloud Djinn","hp":1,"atk":1.2,"pat":["H",1.2,1.5]}],"boss":{"slug":"stormgiant","name":"The Storm Giant","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Storm Throne","place":"Before the Storm Throne","pool":[{"slug":"thunderknight","name":"Thunder Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"stormwraith","name":"Storm Wraith","hp":0.9,"atk":1.3,"pat":["H",1.3,1.4]},{"slug":"rocbird","name":"Roc","hp":1.3,"atk":1.1,"pat":[1,1,1.7]}],"boss":{"slug":"stormtitan","name":"The Storm Titan","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Cross the cloud bridges","Reach the floating fortress"],["Leap across the floating rocks","Harpies circle above"],["Face the Griffon King","He rules the sky"],["Explore the sky gardens","Find a way into the fortress"],["Search the floating islands","Lightning strikes all around"],["Face the Storm Drake","It guards the fortress gate"],["Climb the fortress walls","The throne is at the top"],["Fight along the battlements","Storm soldiers everywhere"],["Face the Storm Giant","The Titan's guard"],["Enter the throne room","End the storm"],["Fight through the lightning","The Titan rises"],["Face the Storm Titan","Calm the skies"]],"story":{"a1":{"title":"The Sky Gardens","text":"The Griffon King bows his golden head and lets you ride on his back to the floating gardens."},"a2":{"title":"The Fortress Walls","text":"The Storm Drake falls into the clouds. Before you rise the huge walls of the Sky Fortress, crackling with lightning."},"a3":{"title":"The Storm Throne","text":"The Storm Giant topples off the walls. At the very top, on a throne of lightning, the Titan opens his eyes."},"end":[{"title":"The storm breaks","text":"The Titan roars and fades into a harmless cloud. Sunlight pours over the fortress for the first time in a hundred years."},{"title":"A dark warning","text":"In the empty throne you find a black letter: \"You cannot stop me forever. Come to the Abyss, Sir Edward.\" It is signed with a burning crown."}]}},{"id":"w10","name":"The Abyss","quest":"The Demon King","intro":[{"title":"The final quest","text":"The letter burns away in your hands. Every monster you ever fought was sent by one master: the Demon King, who waits in the Abyss."},{"title":"The gates of the Abyss","text":"Anna, Old Bram, the King and all your friends see you off. You step through the burning gates into darkness."}],"areas":[{"name":"The Ash Wastes","place":"In the burning ash wastes","pool":[{"slug":"hellhound","name":"Hellhound","hp":1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"imp2","name":"Fire Imp","hp":0.8,"atk":1.3,"pat":[1,1.5]},{"slug":"ashghoul","name":"Ash Ghoul","hp":1.2,"atk":1.1,"pat":[1,"H",1.3]}],"boss":{"slug":"cerberus","name":"Cerberus","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Chained Halls","place":"In the chained halls","pool":[{"slug":"chaindemon","name":"Chain Demon","hp":1.2,"atk":1.1,"pat":[1,1.6]},{"slug":"succubus","name":"Shadow Fiend","hp":1,"atk":1.2,"pat":["H",1.2,1.4]},{"slug":"jailer","name":"Demon Jailer","hp":1.4,"atk":1,"pat":["B",1,1.6]}],"boss":{"slug":"warden","name":"The Pit Warden","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Lake of Fire","place":"By the lake of fire","pool":[{"slug":"lavaserpent","name":"Lava Serpent","hp":1.1,"atk":1.2,"pat":[1,1.6]},{"slug":"firegiant","name":"Fire Giant","hp":1.5,"atk":1,"pat":[1,"B",1.6]},{"slug":"phoenix","name":"Dark Phoenix","hp":1,"atk":1.3,"pat":["H",1.3,1.5]}],"boss":{"slug":"balrog","name":"The Flame Fiend","rule":{"off":1},"pat":["H",1.2,2]}},{"name":"The Demon Throne","place":"Before the Demon Throne","pool":[{"slug":"demonknight","name":"Demon Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"abyssbeast","name":"Abyss Horror","hp":1.4,"atk":1.1,"pat":[1,1,1.8]},{"slug":"demonmage","name":"Demon Sorcerer","hp":1,"atk":1.3,"pat":["H",1.2,1.6]}],"boss":{"slug":"demonking","name":"The Demon King","rule":{"off":0},"pat":[1,"B",2.2]}}],"steps":[["Cross the ash wastes","The Demon King waits below"],["March through the fire","His hounds are hunting you"],["Face Cerberus","It guards the way down"],["Enter the chained halls","His prisoners call for help"],["Search the cages","Free who you can"],["Face the Pit Warden","He holds the keys"],["Reach the lake of fire","The throne is across"],["Cross the burning bridges","Do not look down"],["Face the Flame Fiend","His last guardian"],["Enter the Demon Throne","This ends now"],["Fight to the throne","He rises to meet you"],["Face the Demon King","Save the whole kingdom"]],"story":{"a1":{"title":"The Chained Halls","text":"Cerberus whimpers and runs off. Below, you hear the rattle of chains and the cries of the Demon King's prisoners."},"a2":{"title":"The Lake of Fire","text":"With the Warden's keys you free the prisoners. They point across a lake of fire to a castle of black glass."},"a3":{"title":"The Demon Throne","text":"The Flame Fiend sinks into the lake. The doors of the black castle open, and a voice like thunder says: \"At last, Sir Edward.\""},"end":[{"title":"The Demon King falls","text":"The last card comes away clean and there is nothing left between you. The Demon King crashes from his throne, and his burning crown rolls to your feet and goes dark."},{"title":"Legend of Sir Edward","text":"The whole kingdom celebrates for a week. Anna, Old Bram and the King raise their cups: \"To Sir Edward, the greatest hero who ever lived!\""},{"title":"But the darkness stirs...","text":"Deep in the Abyss, the shadows gather again. New monsters rise, stronger than ever. The Endless Quest begins."}]}}];
+const WORLDS = [{"id":"w1","name":"The Rescue of Anna","quest":"Bring Anna home","intro":[{"title":"The deck nobody deals from","text":"Bandits take Anna out the back of the Gilded Ace. You go for your axe. Old Bram goes for the shelf behind the bar and comes back with a deck so worn the corners are round. \"I do not play with these,\" he says, and starts laying them out in seven rows."},{"title":"He does not explain it","text":"Seven rows, four empty spaces above them, the rest kept back in his hand. He does not say a word about any of it, because there is nothing to say - you have been playing this since you were small. He waits until you are at the door for the part that is new. \"Every card you get home lands on something out there. Stop sending them and it lands on you.\""}],"areas":[{"name":"The Gilded Ace","place":"In the shadows of the tavern","pool":[{"slug":"goblin","name":"Sneaky Goblin","hp":1.0,"atk":1.0,"pat":[1.0,1.3,1.0]},{"slug":"rat","name":"Giant Rat","hp":1.2,"atk":0.8,"pat":[1.0,1.0,2.2]},{"slug":"bat","name":"Tavern Bat","hp":0.8,"atk":1.1,"pat":[1.0,1.0]},{"slug":"boar","name":"Wild Boar","hp":1.4,"atk":1.0,"pat":[0.8,1.8]},{"slug":"imp","name":"Little Imp","hp":0.9,"atk":1.2,"pat":[1.0,"H",1.2]}],"boss":{"slug":"bandit","name":"Bandit Chief","pat":[1,"B",1.9]}},{"name":"The Cellar","place":"In the damp dark of the cellar","pool":[{"slug":"skeleton","name":"Rattling Skeleton","hp":1.1,"atk":1.0,"pat":[1.0,"B",1.2]},{"slug":"spider","name":"Giant Spider","hp":1.0,"atk":1.0,"pat":[0.8,0.8,2.2]},{"slug":"snake","name":"Cellar Snake","hp":0.9,"atk":1.2,"pat":[1.0,1.4]},{"slug":"zombie","name":"Lost Zombie","hp":1.4,"atk":0.9,"pat":[1.0,"H",1.0]},{"slug":"scorpion","name":"Giant Scorpion","hp":1.1,"atk":1.0,"pat":[1.0,1.0,1.8]}],"boss":{"slug":"ghoul","name":"Cellar Ghoul","pat":[1,"H",1.9]}},{"name":"The Dark Forest","place":"Between the twisted trees","pool":[{"slug":"wolf","name":"Dire Wolf","hp":1.0,"atk":1.2,"pat":[1.0,1.0,1.0,1.6]},{"slug":"witch","name":"Swamp Witch","hp":0.9,"atk":1.0,"pat":["H",1.2,1.5]},{"slug":"bear","name":"Angry Bear","hp":1.5,"atk":1.0,"pat":[1.0,2.0]},{"slug":"treant","name":"Treant","hp":1.6,"atk":0.8,"pat":["B",1.0,1.3]},{"slug":"toad","name":"Giant Toad","hp":1.1,"atk":1.0,"pat":[1.0,1.5]}],"boss":{"slug":"troll","name":"Troll King","pat":[1,"B",2]}},{"name":"Castle Grimstone","place":"In the castle's cold halls","pool":[{"slug":"knight","name":"Dark Knight","hp":1.3,"atk":1.0,"pat":[1.0,"B",1.3]},{"slug":"gargoyle","name":"Stone Gargoyle","hp":1.5,"atk":1.0,"pat":["B",1.0,1.6]},{"slug":"ghost","name":"Castle Ghost","hp":0.8,"atk":1.3,"pat":[1.0,"H",1.5]},{"slug":"vampire","name":"Vampire","hp":1.1,"atk":1.0,"pat":[1.2,"H",1.4]},{"slug":"babydragon","name":"Baby Dragon","hp":1.3,"atk":1.2,"pat":[1.0,1.0,2.0]}],"boss":{"slug":"dragon","name":"Grimstone Dragon","pat":[1,1,2.1]}}],"steps":[["Face the goblin in the tavern","Stop the attack"],["Search the Gilded Ace","Look for where they took Anna"],["Follow the bandits to the cellar door","They dragged Anna this way"],["Go down into the Cellar","Find Anna"],["Search deeper in the Cellar","Anna's ribbon was down here"],["Find the way out of the Cellar","The trail keeps going"],["Enter the Dark Forest","Follow Anna's trail"],["Follow the footprints into the woods","Anna's scarf points the way"],["Reach the edge of the forest","The castle must be close"],["Storm Castle Grimstone","Rescue Anna"],["Climb toward the tallest tower","You can hear Anna calling"],["Face the master at the top of the tower","Bring Anna home"]],"story":{"a1":{"title":"Down the cellar stairs","text":"The trapdoor is open and the stairs go down further than they should. You deal the rows out on the top step, turn the first card, and start down."},"a2":{"title":"Into the trees","text":"Anna's scarf is caught on a branch at the forest edge, still warm. You deal the rows out on a flat stone. Every card that comes up is black."},"a3":{"title":"The castle gate","text":"Castle Grimstone stands black against the sky. Somewhere above you, Anna is calling your name. You lay the cards out one last time and do not like the shape of them."},"end":[{"title":"Anna is safe","text":"You bring Anna down the tower stairs and out through the broken gate. She does not let go of your arm the whole way home."},{"title":"Sir Edward","text":"The Gilded Ace is full when you get back. Old Bram holds his hand out for the deck, looks it over, and puts it back in your pocket. \"They are yours now,\" he says. \"You get more of them home than I ever did.\""}]}},{"id":"w2","name":"The Frozen Peaks","quest":"The Frost Crown","intro":[{"title":"A summons from the King","text":"A royal rider gallops into the Gilded Ace. \"Sir Edward! The Frost Giant has stolen the King's Frost Crown. Without it, winter will never end.\""},{"title":"Into the snow","text":"Anna presses a warm cloak into your hands. \"Come back to us, Sir Edward.\" You ride north, where the mountains are white and the wind howls like wolves."}],"areas":[{"name":"The Snowy Pass","place":"On the icy mountain trail","pool":[{"slug":"icewolf","name":"Ice Wolf","hp":1,"atk":1.1,"pat":[1,1,1.6]},{"slug":"snowgoblin","name":"Snow Goblin","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"frostbat","name":"Frost Bat","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"yetichief","name":"Yeti Chieftain","rule":{"off":0},"pat":[1,"B",1.9]}},{"name":"The Ice Caves","place":"In the glittering ice caves","pool":[{"slug":"icegolem","name":"Ice Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]},{"slug":"frostspider","name":"Frost Spider","hp":1,"atk":1.1,"pat":[0.8,0.8,2.1]},{"slug":"icewraith","name":"Ice Wraith","hp":0.8,"atk":1.3,"pat":[1,"H",1.4]}],"boss":{"slug":"icequeen","name":"The Ice Witch","rule":{"off":1},"pat":["H",1.2,1.8]}},{"name":"The Frozen Lake","place":"On the cracking frozen lake","pool":[{"slug":"mammoth","name":"War Mammoth","hp":1.6,"atk":1,"pat":[0.8,2]},{"slug":"icetroll","name":"Ice Troll","hp":1.3,"atk":1,"pat":[1,"H",1.3]},{"slug":"seal","name":"Sabre Walrus","hp":1.2,"atk":1,"pat":[1,1.5]}],"boss":{"slug":"wyrm","name":"Frost Wyrm","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Giant's Hall","place":"In the Frost Giant's hall","pool":[{"slug":"frostknight","name":"Frost Knight","hp":1.3,"atk":1,"pat":[1,"B",1.3]},{"slug":"giantguard","name":"Giant's Hound","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"frostmage","name":"Frost Shaman","hp":0.9,"atk":1.2,"pat":["H",1.2,1.5]}],"boss":{"slug":"frostgiant","name":"The Frost Giant","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Climb the Snowy Pass","Follow the Frost Giant's tracks"],["Push through the blizzard","The trail goes higher"],["Face the Yeti Chieftain","He guards the pass"],["Enter the Ice Caves","The tracks lead inside"],["Search the glittering tunnels","Something glows deeper in"],["Find the Ice Witch","She serves the Giant"],["Cross the Frozen Lake","The Giant's hall lies beyond"],["Keep to the thick ice","The ice is cracking"],["Face the Frost Wyrm","It rises from the lake"],["Storm the Giant's Hall","Get the crown back"],["Fight through the hall","The throne room is close"],["Face the Frost Giant","Take back the Frost Crown"]],"story":{"a1":{"title":"The Ice Caves","text":"The Yeti Chieftain falls in the snow. Huge footprints lead into a cave that glitters like a thousand blue diamonds."},"a2":{"title":"The Frozen Lake","text":"Beyond the caves lies a frozen lake. On the far shore, the Frost Giant's hall smokes with blue fire."},"a3":{"title":"The Giant's Hall","text":"The Frost Wyrm sinks beneath the ice. The doors of the Giant's hall stand open, and from inside comes a laugh like an avalanche."},"end":[{"title":"The crown returns","text":"The Frost Giant crashes down like a falling mountain. You lift the Frost Crown from the snow, and the clouds begin to part."},{"title":"Spring comes","text":"The King places the crown on his head and warm wind sweeps the land. \"Rest well, Sir Edward. I fear we will need you again soon.\""}]}},{"id":"w3","name":"The Burning Sands","quest":"The Lost Caravan","intro":[{"title":"A cry for help","text":"A caravan carrying the kingdom's medicine has vanished in the Burning Sands. The last message says only: \"The dead walk at night.\""},{"title":"The endless desert","text":"You cross the dunes under a blazing sun. Far away, half buried in sand, stands an ancient pyramid."}],"areas":[{"name":"The Dunes","place":"Among the scorching dunes","pool":[{"slug":"sandscorp","name":"Sand Scorpion","hp":1,"atk":1.1,"pat":[1,1,1.8]},{"slug":"vulture","name":"Bone Vulture","hp":0.8,"atk":1.2,"pat":[1,1.4]},{"slug":"raider","name":"Dune Raider","hp":1,"atk":1.1,"pat":[1,1.3,1]}],"boss":{"slug":"sandwyrm","name":"Sand Wyrm","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Oasis Ruins","place":"In the ruined oasis","pool":[{"slug":"jackal","name":"Jackal Warrior","hp":1,"atk":1.1,"pat":[1,1.4]},{"slug":"cobra","name":"Giant Cobra","hp":0.9,"atk":1.3,"pat":[1,1,1.6]},{"slug":"sandgolem","name":"Sand Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"djinn","name":"The Dark Djinn","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Pyramid","place":"In the pyramid's dark halls","pool":[{"slug":"mummy","name":"Ancient Mummy","hp":1.4,"atk":0.9,"pat":[1,"H",1]},{"slug":"scarab","name":"Scarab Swarm King","hp":1.2,"atk":1,"pat":[1,1.5]},{"slug":"tombguard","name":"Tomb Guardian","hp":1.3,"atk":1,"pat":[1,"B",1.4]}],"boss":{"slug":"pharaoh","name":"The Mummy Pharaoh","rule":{"off":3},"pat":[1,"H",2]}},{"name":"The Sun Temple","place":"In the burning Sun Temple","pool":[{"slug":"firewisp","name":"Fire Spirit","hp":0.8,"atk":1.3,"pat":[1,1.5]},{"slug":"sphinx","name":"Sphinx","hp":1.4,"atk":1,"pat":["B",1,1.6]},{"slug":"priest","name":"Cult Priest","hp":0.9,"atk":1.2,"pat":["H",1.2,1.4]}],"boss":{"slug":"sunlord","name":"The Scorched King","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Cross the dunes","Find the lost caravan"],["Follow the wagon tracks","They lead deeper into the desert"],["Face the Sand Wyrm","It swallowed the last wagon"],["Reach the Oasis Ruins","Water, and footprints"],["Search the broken temple","The merchants were here"],["Face the Dark Djinn","He holds the caravan's keys"],["Enter the Pyramid","The dead walk inside"],["Go deeper into the tombs","You hear crying below"],["Face the Mummy Pharaoh","He wakes at last"],["Climb to the Sun Temple","The caravan is held at the top"],["Fight up the burning stairs","Almost there"],["Face the Scorched King","Free the caravan"]],"story":{"a1":{"title":"The Oasis Ruins","text":"From inside the Sand Wyrm's coils you pull a torn caravan flag. Its trail leads to an old oasis in ruins."},"a2":{"title":"The Pyramid","text":"The Djinn vanishes in smoke and leaves behind a golden key. It fits the great door of the pyramid."},"a3":{"title":"The Sun Temple","text":"The Pharaoh crumbles to dust. Through a hidden passage you climb toward the Sun Temple, where the merchants are chained."},"end":[{"title":"The caravan is free","text":"The Scorched King falls and the flames go out. You break the merchants' chains, and they weep with joy."},{"title":"Medicine for the kingdom","text":"The caravan rolls home with its medicine. Children cheer as Sir Edward rides beside the wagons."}]}},{"id":"w4","name":"The Sunken Coast","quest":"The Drowned Bell","intro":[{"title":"Ships are vanishing","text":"Every ship that sails past the Sunken Coast disappears. Fishermen whisper about a giant bell ringing under the waves."},{"title":"To the coast","text":"You sail out on a fishing boat. Fog rolls in, and somewhere below the water, a bell begins to toll."}],"areas":[{"name":"The Smugglers' Cove","place":"In the smugglers' cove","pool":[{"slug":"pirate","name":"Cutthroat Pirate","hp":1,"atk":1.1,"pat":[1,1.3,1]},{"slug":"crab","name":"Giant Crab","hp":1.4,"atk":0.9,"pat":["B",1,1.5]},{"slug":"seagull","name":"Gull Harpy","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"captain","name":"Captain Blacktide","rule":{"off":2},"pat":[1,"B",1.9]}},{"name":"The Shipwreck","place":"Inside the rotting shipwreck","pool":[{"slug":"drowned","name":"Drowned Sailor","hp":1.2,"atk":1,"pat":[1,"H",1]},{"slug":"eel","name":"Electric Eel","hp":0.9,"atk":1.3,"pat":[1,1.5]},{"slug":"octopus","name":"Giant Octopus","hp":1.3,"atk":1,"pat":[1,1,1.7]}],"boss":{"slug":"ghostship","name":"The Ghost Captain","rule":{"off":1},"pat":["H",1.2,1.8]}},{"name":"The Coral Depths","place":"In the glowing coral depths","pool":[{"slug":"merman","name":"Merman Warrior","hp":1,"atk":1.1,"pat":[1,1.4]},{"slug":"shark","name":"Bull Shark","hp":1.2,"atk":1.2,"pat":[1,1,1.8]},{"slug":"siren","name":"Siren","hp":0.9,"atk":1.2,"pat":["H",1.3,1.3]}],"boss":{"slug":"seaserpent","name":"The Sea Serpent","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Drowned Temple","place":"In the drowned temple","pool":[{"slug":"anglerfish","name":"Abyss Angler","hp":1.1,"atk":1.2,"pat":[1,1.6]},{"slug":"seawitch","name":"Sea Witch","hp":0.9,"atk":1.2,"pat":["H",1.2,1.5]},{"slug":"templeguard","name":"Coral Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]}],"boss":{"slug":"kraken","name":"The Kraken","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Sneak into the smugglers' cove","The pirates know something"],["Search the pirate docks","Find their captain"],["Face Captain Blacktide","He sails for the Kraken"],["Dive into the shipwreck","The bell rings below"],["Search the flooded decks","Cursed sailors lurk here"],["Face the Ghost Captain","He guards the way down"],["Swim into the coral depths","The ringing grows louder"],["Follow the glowing coral","The temple is near"],["Face the Sea Serpent","It circles the temple"],["Enter the Drowned Temple","Silence the bell"],["Fight through the temple halls","The bell is right ahead"],["Face the Kraken","End the curse of the coast"]],"story":{"a1":{"title":"The Shipwreck","text":"Captain Blacktide's map shows a wreck below the cove. You drink a sea-witch's potion, take a deep breath and dive."},"a2":{"title":"The Coral Depths","text":"Past the ghost ship, the sea floor opens into a forest of glowing coral. The bell's toll shakes the water."},"a3":{"title":"The Drowned Temple","text":"The Sea Serpent sinks into the dark. Ahead lies a temple, and inside it a giant bronze bell wrapped in tentacles."},"end":[{"title":"The bell falls silent","text":"The Kraken lets go and sinks into the deep. You cut the bell's chain, and the sea goes calm and still."},{"title":"Safe waters","text":"Ships sail the coast again. The fishermen name their best boat the Sir Edward."}]}},{"id":"w5","name":"The Plague Marsh","quest":"The Rotting Curse","intro":[{"title":"A sickness spreads","text":"A green fog drifts out of the Plague Marsh, and everyone it touches falls ill. An old healer begs for help: \"Someone is brewing the curse.\""},{"title":"Into the fog","text":"You wrap a cloth over your face and wade into the marsh. The trees are dead and the water bubbles."}],"areas":[{"name":"The Rotting Fen","place":"In the rotting fen","pool":[{"slug":"plaguerat","name":"Plague Rat","hp":1,"atk":1.1,"pat":[1,1,1.7]},{"slug":"leech","name":"Giant Leech","hp":1.2,"atk":0.9,"pat":[1,"H",1.2]},{"slug":"bogman","name":"Bog Man","hp":1.4,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"crocodile","name":"The Swamp King Croc","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Plague Village","place":"In the abandoned plague village","pool":[{"slug":"plaguedoctor","name":"Mad Plague Doctor","hp":1,"atk":1.2,"pat":[1,1.4]},{"slug":"sickzombie","name":"Rotting Villager","hp":1.3,"atk":0.9,"pat":[1,"H",1]},{"slug":"crows","name":"Carrion Crow","hp":0.8,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"plaguebeast","name":"The Plague Beast","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Witch's Bog","place":"In the witch's bog","pool":[{"slug":"frogman","name":"Frog Brute","hp":1.2,"atk":1,"pat":[1,1.5]},{"slug":"willowisp","name":"Will-o'-Wisp","hp":0.8,"atk":1.3,"pat":[1,1.6]},{"slug":"mosquito","name":"Giant Mosquito","hp":0.9,"atk":1.2,"pat":[1,1,1.5]}],"boss":{"slug":"bogtroll","name":"The Bog Troll","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Hag's Lair","place":"In the Bog Hag's lair","pool":[{"slug":"hagspawn","name":"Hag Spawn","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"rootbeast","name":"Root Horror","hp":1.4,"atk":0.9,"pat":["B",1,1.6]},{"slug":"slime","name":"Toxic Slime","hp":1.2,"atk":1,"pat":[1,"H",1.3]}],"boss":{"slug":"boghag","name":"The Bog Hag","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Wade into the Rotting Fen","Find where the fog begins"],["Push through the swamp","The fog grows thicker"],["Face the Swamp King Croc","It guards the deep marsh"],["Reach the plague village","Survivors may be hiding"],["Search the empty houses","Someone left a trail of potions"],["Face the Plague Beast","It spreads the sickness"],["Enter the Witch's Bog","The potions came from here"],["Follow the purple lights","The hag's hut is near"],["Face the Bog Troll","He guards her door"],["Enter the Hag's Lair","Stop the curse"],["Fight past her creatures","The cauldron bubbles ahead"],["Face the Bog Hag","Break the rotting curse"]],"story":{"a1":{"title":"The Plague Village","text":"The Croc sinks into the muck. Beyond the reeds, an empty village sits on stilts, its lanterns still burning."},"a2":{"title":"The Witch's Bog","text":"In the Plague Beast's den you find empty potion jars, all marked with the same witch's sign. It points to the bog."},"a3":{"title":"The Hag's Lair","text":"The Bog Troll falls with a splash. Inside a giant rotting tree, a green cauldron bubbles, and a cackle echoes."},"end":[{"title":"The cauldron breaks","text":"The Bog Hag shrieks and melts into the mud. You kick over her cauldron, and the green fog drains away."},{"title":"The healing","text":"The sick wake up healthy. The old healer bows. \"The whole kingdom owes you its life, Sir Edward.\""}]}},{"id":"w6","name":"The Iron Mines","quest":"The Stolen Forge","intro":[{"title":"The forge goes cold","text":"The dwarves of the Iron Mines have sent no iron for months. A wounded dwarf crawls into the castle: \"The golems woke up... they took the Great Forge!\""},{"title":"Into the mountain","text":"You light a lantern and step into the mine. Deep below, something heavy goes thump... thump... thump."}],"areas":[{"name":"The Mine Shafts","place":"In the dark mine shafts","pool":[{"slug":"kobold","name":"Kobold Miner","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"caveworm","name":"Rock Worm","hp":1.2,"atk":1,"pat":[1,1,1.7]},{"slug":"minebat","name":"Cave Bat Swarm","hp":0.8,"atk":1.2,"pat":[1,1.5]}],"boss":{"slug":"foreman","name":"The Goblin Foreman","rule":{"off":0},"pat":[1,"B",1.9]}},{"name":"The Crystal Cavern","place":"In the crystal cavern","pool":[{"slug":"crystalgolem","name":"Crystal Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]},{"slug":"basilisk","name":"Basilisk","hp":1.1,"atk":1.1,"pat":[1,1.5]},{"slug":"gemspider","name":"Gem Spider","hp":1,"atk":1.1,"pat":[0.8,0.8,2]}],"boss":{"slug":"crystaldrake","name":"The Crystal Drake","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Lava Tunnels","place":"In the scorching lava tunnels","pool":[{"slug":"magmaslime","name":"Magma Slime","hp":1.2,"atk":1,"pat":[1,"H",1.3]},{"slug":"salamander","name":"Fire Salamander","hp":1,"atk":1.2,"pat":[1,1.6]},{"slug":"firedwarf","name":"Cursed Dwarf","hp":1.1,"atk":1.1,"pat":[1,1.3,1]}],"boss":{"slug":"lavagolem","name":"The Lava Golem","rule":{"off":3},"pat":["H",1.2,1.9]}},{"name":"The Great Forge","place":"In the Great Forge","pool":[{"slug":"clockwork","name":"Clockwork Soldier","hp":1.3,"atk":1,"pat":[1,"B",1.3]},{"slug":"forgehound","name":"Forge Hound","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"smithimp","name":"Furnace Imp","hp":0.8,"atk":1.3,"pat":[1,1.5]}],"boss":{"slug":"irongolem","name":"The Iron Golem","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Enter the mine shafts","Find the dwarves"],["Follow the rail tracks","They go deeper"],["Face the Goblin Foreman","He bosses the mine"],["Climb into the crystal cavern","The thumping grows louder"],["Search among the crystals","Dwarf tracks lead on"],["Face the Crystal Drake","It nests in the cavern"],["Cross the lava tunnels","The forge is below"],["Brave the burning bridges","Keep going"],["Face the Lava Golem","It blocks the forge door"],["Storm the Great Forge","Free the dwarves"],["Fight past the clockwork guards","The forge master waits"],["Face the Iron Golem","Take back the forge"]],"story":{"a1":{"title":"The Crystal Cavern","text":"The Foreman drops a map scratched on leather. It shows a cavern full of crystals where the dwarves were taken."},"a2":{"title":"The Lava Tunnels","text":"Beyond the Drake's nest, the air turns hot. Rivers of lava light the way down to the Great Forge."},"a3":{"title":"The Great Forge","text":"The Lava Golem crumbles. Through the doors you see the dwarves chained to the anvils, and a giant made of iron."},"end":[{"title":"The forge burns again","text":"The Iron Golem crashes down. The dwarves break free and light the Great Forge with a mighty cheer."},{"title":"A gift of steel","text":"The dwarf king hands you a shield marked with your name. \"No finer knight ever walked our halls, Sir Edward.\""}]}},{"id":"w7","name":"The Haunted Abbey","quest":"The Silent Bells","intro":[{"title":"The bells stop","text":"The bells of the Holy Abbey have gone silent, and the monks have not been seen in weeks. At night, candles flicker in every window."},{"title":"The abbey gates","text":"The gates creak open on their own. A cold voice whispers your name: \"Edwaaard...\""}],"areas":[{"name":"The Graveyard","place":"Among the abbey graves","pool":[{"slug":"gravedigger","name":"Undead Gravedigger","hp":1.1,"atk":1,"pat":[1,1.3,1]},{"slug":"ghoulhound","name":"Ghoul Hound","hp":1,"atk":1.2,"pat":[1,1,1.6]},{"slug":"banshee","name":"Banshee","hp":0.8,"atk":1.3,"pat":["H",1.3,1.4]}],"boss":{"slug":"headless","name":"The Headless Knight","rule":{"off":1},"pat":[1,"B",1.9]}},{"name":"The Cloister","place":"In the haunted cloister","pool":[{"slug":"ghostmonk","name":"Ghost Monk","hp":0.9,"atk":1.2,"pat":["H",1.2,1.3]},{"slug":"gargoylepup","name":"Cloister Gargoyle","hp":1.3,"atk":1,"pat":["B",1,1.5]},{"slug":"poltergeist","name":"Poltergeist","hp":0.8,"atk":1.3,"pat":[1,1.6]}],"boss":{"slug":"abbot","name":"The Cursed Abbot","rule":{"off":0},"pat":["H",1.2,1.9]}},{"name":"The Catacombs","place":"In the bone-lined catacombs","pool":[{"slug":"bonewalker","name":"Bone Walker","hp":1.4,"atk":0.9,"pat":["B",1,1.6]},{"slug":"cryptrat","name":"Crypt Rat King","hp":1,"atk":1.1,"pat":[1,1,1.7]},{"slug":"wight","name":"Barrow Wight","hp":1.2,"atk":1.1,"pat":[1,"H",1.3]}],"boss":{"slug":"bonedragon","name":"The Bone Dragon","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Bell Tower","place":"In the cursed bell tower","pool":[{"slug":"darkpriest","name":"Shadow Priest","hp":0.9,"atk":1.3,"pat":["H",1.2,1.5]},{"slug":"vampirebat","name":"Vampire Bat","hp":1,"atk":1.2,"pat":[1,1.5]},{"slug":"deathknight","name":"Death Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]}],"boss":{"slug":"lich","name":"The Lich","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Enter the graveyard","The dead are restless"],["Search among the graves","Something rides at night"],["Face the Headless Knight","He guards the abbey"],["Enter the cloister","The monks were last seen here"],["Search the haunted halls","Candles float in the air"],["Face the Cursed Abbot","He knows the truth"],["Descend into the catacombs","The curse lies below"],["Search the walls of bones","A dragon sleeps here"],["Face the Bone Dragon","It wakes"],["Climb the bell tower","Ring the bells again"],["Fight up the tower stairs","Lightning strikes"],["Face the Lich","Lift the abbey's curse"]],"story":{"a1":{"title":"The Cloister","text":"The Headless Knight falls apart. A key on a black ribbon opens the abbey door, and the cold voice laughs inside."},"a2":{"title":"The Catacombs","text":"The Abbot sobs as the curse leaves him. \"The Lich... he hides below, in the bones.\""},"a3":{"title":"The Bell Tower","text":"The Bone Dragon collapses into a pile of bones. Far above, in the tower, a green light pulses where the bells should ring."},"end":[{"title":"The bells ring","text":"The Lich shatters into dust. You pull the great rope, and the bells ring out across the land for the first time in weeks."},{"title":"Peace returns","text":"The monks return, whole again. They carve your name in the abbey wall: Sir Edward, the Bell-Ringer."}]}},{"id":"w8","name":"The Elven Wilds","quest":"The Thorned Heart","intro":[{"title":"The forest turns dark","text":"The peaceful elves of the Wilds have stopped trading. Travelers come back covered in thorns, whispering about a queen with a heart of briars."},{"title":"The silver forest","text":"The trees of the Wilds shine like silver, but black thorns are choking them. Elven eyes watch you from the branches."}],"areas":[{"name":"The Silver Woods","place":"In the silver woods","pool":[{"slug":"thornelf","name":"Thorn Archer","hp":0.9,"atk":1.2,"pat":[1,1.4]},{"slug":"wolfpack","name":"Shadow Stag","hp":1.3,"atk":1,"pat":[1,1.6]},{"slug":"pixie","name":"Wicked Pixie","hp":0.7,"atk":1.3,"pat":[1,1,1.5]}],"boss":{"slug":"thornbear","name":"The Briar Bear","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Moonlit Glade","place":"In the moonlit glade","pool":[{"slug":"dryad","name":"Corrupted Dryad","hp":1,"atk":1.1,"pat":["H",1.2,1.3]},{"slug":"werewolf","name":"Werewolf","hp":1.2,"atk":1.2,"pat":[1,1,1.7]},{"slug":"mushroomman","name":"Fungal Brute","hp":1.4,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"unicorn","name":"The Dark Unicorn","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Elven City","place":"In the overgrown elven city","pool":[{"slug":"elfknight","name":"Thorn Knight","hp":1.2,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"elfmage","name":"Thorn Mage","hp":0.9,"atk":1.3,"pat":["H",1.2,1.5]},{"slug":"owlbear","name":"Owlbear","hp":1.4,"atk":1,"pat":[1,1.6]}],"boss":{"slug":"elfgeneral","name":"The Thorn General","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Heart Tree","place":"Under the Heart Tree","pool":[{"slug":"thornbeast","name":"Thorn Beast","hp":1.1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"vinesnake","name":"Vine Serpent","hp":1.2,"atk":1.1,"pat":[1,1.5]},{"slug":"rootgolem","name":"Heartwood Golem","hp":1.5,"atk":0.9,"pat":["B",1,1.6]}],"boss":{"slug":"thornqueen","name":"The Thorn Queen","rule":{"off":0},"pat":[1,"H",2.1]}}],"steps":[["Enter the Silver Woods","Find the elves"],["Cut through the thorns","Eyes watch from the trees"],["Face the Briar Bear","It guards the woods"],["Reach the Moonlit Glade","A friendly elf hides here"],["Search the standing stones","The thorns spread from the city"],["Face the Dark Unicorn","Its horn feeds the curse"],["Enter the elven city","The elves are under a spell"],["Cross the tree bridges","The Heart Tree is ahead"],["Face the Thorn General","He leads the queen's army"],["Reach the Heart Tree","Free the forest's heart"],["Cut through the roots","The queen is waiting"],["Face the Thorn Queen","Break the thorned heart"]],"story":{"a1":{"title":"The Moonlit Glade","text":"The Briar Bear falls and the thorns pull back. A small elf girl peeks out from behind a tree. \"Please... help our queen.\""},"a2":{"title":"The Elven City","text":"The Dark Unicorn's horn cracks, and its red glow fades. The elf girl leads you to a city in the trees, wrapped in thorns."},"a3":{"title":"The Heart Tree","text":"The Thorn General kneels, freed from the spell. \"The queen took the Heart of the Forest. Save her... from herself.\""},"end":[{"title":"The heart is free","text":"The thorns crumble from the Queen's crown. She opens her eyes, and they are kind again. \"What have I done?\""},{"title":"Friends of the forest","text":"The silver trees bloom. The Elf Queen gives you a leaf of pure silver. \"The elves will always stand with Sir Edward.\""}]}},{"id":"w9","name":"The Sky Fortress","quest":"The Storm Throne","intro":[{"title":"A storm that never ends","text":"Lightning strikes the kingdom every night, and a fortress has appeared floating in the clouds. The King's wizard says: \"The Storm Titan has awoken.\""},{"title":"Up to the clouds","text":"The wizard's spell lifts you on a staircase of wind. Up and up you climb, into the storm."}],"areas":[{"name":"The Cloud Bridges","place":"On the cloud bridges","pool":[{"slug":"harpy","name":"Storm Harpy","hp":0.9,"atk":1.2,"pat":[1,1,1.5]},{"slug":"cloudgiant","name":"Cloud Ogre","hp":1.4,"atk":1,"pat":[1,1.6]},{"slug":"windspirit","name":"Wind Spirit","hp":0.8,"atk":1.3,"pat":["H",1.3,1.3]}],"boss":{"slug":"griffon","name":"The Griffon King","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Sky Gardens","place":"In the floating sky gardens","pool":[{"slug":"skyserpent","name":"Sky Serpent","hp":1,"atk":1.2,"pat":[1,1.5]},{"slug":"thunderbird","name":"Thunderbird","hp":0.9,"atk":1.3,"pat":[1,1,1.6]},{"slug":"gardenguard","name":"Stone Sentinel","hp":1.5,"atk":0.9,"pat":["B",1,1.5]}],"boss":{"slug":"stormdrake","name":"The Storm Drake","rule":{"off":1},"pat":["H",1.2,1.9]}},{"name":"The Fortress Walls","place":"On the fortress walls","pool":[{"slug":"stormsoldier","name":"Storm Soldier","hp":1.2,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"airelemental","name":"Air Elemental","hp":1.2,"atk":1.1,"pat":[1,1.6]},{"slug":"djinnwarrior","name":"Cloud Djinn","hp":1,"atk":1.2,"pat":["H",1.2,1.5]}],"boss":{"slug":"stormgiant","name":"The Storm Giant","rule":{"off":3},"pat":[1,"B",2]}},{"name":"The Storm Throne","place":"Before the Storm Throne","pool":[{"slug":"thunderknight","name":"Thunder Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"stormwraith","name":"Storm Wraith","hp":0.9,"atk":1.3,"pat":["H",1.3,1.4]},{"slug":"rocbird","name":"Roc","hp":1.3,"atk":1.1,"pat":[1,1,1.7]}],"boss":{"slug":"stormtitan","name":"The Storm Titan","rule":{"off":0},"pat":[1,1,2.1]}}],"steps":[["Cross the cloud bridges","Reach the floating fortress"],["Leap across the floating rocks","Harpies circle above"],["Face the Griffon King","He rules the sky"],["Explore the sky gardens","Find a way into the fortress"],["Search the floating islands","Lightning strikes all around"],["Face the Storm Drake","It guards the fortress gate"],["Climb the fortress walls","The throne is at the top"],["Fight along the battlements","Storm soldiers everywhere"],["Face the Storm Giant","The Titan's guard"],["Enter the throne room","End the storm"],["Fight through the lightning","The Titan rises"],["Face the Storm Titan","Calm the skies"]],"story":{"a1":{"title":"The Sky Gardens","text":"The Griffon King bows his golden head and lets you ride on his back to the floating gardens."},"a2":{"title":"The Fortress Walls","text":"The Storm Drake falls into the clouds. Before you rise the huge walls of the Sky Fortress, crackling with lightning."},"a3":{"title":"The Storm Throne","text":"The Storm Giant topples off the walls. At the very top, on a throne of lightning, the Titan opens his eyes."},"end":[{"title":"The storm breaks","text":"The Titan roars and fades into a harmless cloud. Sunlight pours over the fortress for the first time in a hundred years."},{"title":"A dark warning","text":"In the empty throne you find a black letter: \"You cannot stop me forever. Come to the Abyss, Sir Edward.\" It is signed with a burning crown."}]}},{"id":"w10","name":"The Abyss","quest":"The Demon King","intro":[{"title":"The final quest","text":"The letter burns away in your hands. Every monster you ever fought was sent by one master: the Demon King, who waits in the Abyss."},{"title":"The gates of the Abyss","text":"Anna, Old Bram, the King and all your friends see you off. You step through the burning gates into darkness."}],"areas":[{"name":"The Ash Wastes","place":"In the burning ash wastes","pool":[{"slug":"hellhound","name":"Hellhound","hp":1,"atk":1.2,"pat":[1,1,1.7]},{"slug":"imp2","name":"Fire Imp","hp":0.8,"atk":1.3,"pat":[1,1.5]},{"slug":"ashghoul","name":"Ash Ghoul","hp":1.2,"atk":1.1,"pat":[1,"H",1.3]}],"boss":{"slug":"cerberus","name":"Cerberus","rule":{"off":0},"pat":[1,"B",2]}},{"name":"The Chained Halls","place":"In the chained halls","pool":[{"slug":"chaindemon","name":"Chain Demon","hp":1.2,"atk":1.1,"pat":[1,1.6]},{"slug":"succubus","name":"Shadow Fiend","hp":1,"atk":1.2,"pat":["H",1.2,1.4]},{"slug":"jailer","name":"Demon Jailer","hp":1.4,"atk":1,"pat":["B",1,1.6]}],"boss":{"slug":"warden","name":"The Pit Warden","rule":{"off":2},"pat":[1,"B",2]}},{"name":"The Lake of Fire","place":"By the lake of fire","pool":[{"slug":"lavaserpent","name":"Lava Serpent","hp":1.1,"atk":1.2,"pat":[1,1.6]},{"slug":"firegiant","name":"Fire Giant","hp":1.5,"atk":1,"pat":[1,"B",1.6]},{"slug":"phoenix","name":"Dark Phoenix","hp":1,"atk":1.3,"pat":["H",1.3,1.5]}],"boss":{"slug":"balrog","name":"The Flame Fiend","rule":{"off":1},"pat":["H",1.2,2]}},{"name":"The Demon Throne","place":"Before the Demon Throne","pool":[{"slug":"demonknight","name":"Demon Knight","hp":1.3,"atk":1.1,"pat":[1,"B",1.4]},{"slug":"abyssbeast","name":"Abyss Horror","hp":1.4,"atk":1.1,"pat":[1,1,1.8]},{"slug":"demonmage","name":"Demon Sorcerer","hp":1,"atk":1.3,"pat":["H",1.2,1.6]}],"boss":{"slug":"demonking","name":"The Demon King","rule":{"off":0},"pat":[1,"B",2.2]}}],"steps":[["Cross the ash wastes","The Demon King waits below"],["March through the fire","His hounds are hunting you"],["Face Cerberus","It guards the way down"],["Enter the chained halls","His prisoners call for help"],["Search the cages","Free who you can"],["Face the Pit Warden","He holds the keys"],["Reach the lake of fire","The throne is across"],["Cross the burning bridges","Do not look down"],["Face the Flame Fiend","His last guardian"],["Enter the Demon Throne","This ends now"],["Fight to the throne","He rises to meet you"],["Face the Demon King","Save the whole kingdom"]],"story":{"a1":{"title":"The Chained Halls","text":"Cerberus whimpers and runs off. Below, you hear the rattle of chains and the cries of the Demon King's prisoners."},"a2":{"title":"The Lake of Fire","text":"With the Warden's keys you free the prisoners. They point across a lake of fire to a castle of black glass."},"a3":{"title":"The Demon Throne","text":"The Flame Fiend sinks into the lake. The doors of the black castle open, and a voice like thunder says: \"At last, Sir Edward.\""},"end":[{"title":"The Demon King falls","text":"The last card goes home and there is nothing left between you. The Demon King crashes from his throne, and his burning crown rolls to your feet and goes dark."},{"title":"Legend of Sir Edward","text":"The whole kingdom celebrates for a week. Anna, Old Bram and the King raise their cups: \"To Sir Edward, the greatest hero who ever lived!\""},{"title":"But the darkness stirs...","text":"Deep in the Abyss, the shadows gather again. New monsters rise, stronger than ever. The Endless Quest begins."}]}}];
 /* __WORLDS_END__ */
 
 /* Build the monster a fight is against, out of its kind and the level it is
@@ -1332,7 +1384,315 @@ function startFight(){
 /* ===================== the round ===================== */
 let R = null;        /* the round in play */
 
-function dealRound(opts = {}){
+/* ===================== the board: Klondike =====================
+   Seven columns, four foundations, aces up to kings. The one people mean
+   when they say solitaire, so nothing here needs explaining to anybody.
+
+   It was Tri-Peaks until it reached a player, who said what should have been
+   obvious: you cannot call a thing Monster Solitaire and open on a game
+   nobody knows, with a barkeep explaining its rules. Tri-Peaks is still here,
+   further down, as something to meet later.
+
+   The fight did not have to change at all, which is the sign the mapping is
+   the right one:
+     a chain of cards sent up    is the run you are winding up
+     drawing from the stock      breaks it, and the blow lands
+     a finished foundation       is the peak-down moment
+     all four                    is the clear
+
+   dev/gen/klondike.cjs measured it over thousands of games: an ordinary
+   player wins 29.1%, sends 22.9 of the 52 cards up, and plays 95 moves. */
+
+const RED_SUIT = s => s === 1 || s === 2;         /* hearts and diamonds */
+
+function dealKlondike(opts = {}){
+  const d = shuffle(freshDeck(), opts.rnd);
+  /* a boss rule can bury every column one card deeper */
+  const extra = opts.deeper ? 1 : 0;
+  const cols = [];
+  let k = 0;
+  for(let c = 0; c < 7; c++){
+    const col = { down: [], up: [] };
+    const n = c + extra;
+    for(let i = 0; i <= n && k < d.length; i++) (i === n ? col.up : col.down).push(d[k++]);
+    cols.push(col);
+  }
+  /* Marked Deck turns one buried card face up from the start */
+  if(hasCharm('marked')){
+    const deep = cols.filter(c => c.down.length);
+    if(deep.length){
+      const col = deep[rndInt(deep.length)];
+      col.up.unshift(col.down.pop());
+    }
+  }
+  return {
+    kind: 'klondike',
+    cols, found: [0, 0, 0, 0],
+    stock: d.slice(k), waste: [],
+    passes: 0, maxPass: opts.passes || 3,
+    run: 0, runVal: 0,
+    done: [],                     /* foundations already finished, so each lands once */
+    cap: opts.cap || 0,
+    wild: hasPerk('wild'),
+    coin: hasCharm('jester'),
+    picked: null,                 /* a card the player has tapped and not yet placed */
+  };
+}
+
+/* ---------- the rules ---------- */
+const colTop = col => col.up[col.up.length - 1];
+const wasteTop = () => R.waste[R.waste.length - 1];
+const foundOK = c => c && R.found[c.s] === c.r - 1;
+const stackOK = (c, onto) => onto && onto.r === c.r + 1 && RED_SUIT(c.s) !== RED_SUIT(onto.s);
+/* a king goes to an empty column, and Wild Ace lets anything go there once */
+const emptyOK = (c, col) => !col.up.length && !col.down.length && (c.r === 13 || R.wild);
+
+/* Where a tapped card wants to go. Foundations first, because that is what a
+   player means by tapping a card, then a column that will take it. Tap to
+   move rather than drag: a drag on a 41px card is a miss waiting to happen. */
+function bestMove(from){
+  const c = from.card;
+  if(foundOK(c)) return { to:'found' };
+  for(let j = 0; j < 7; j++){
+    if(from.col === j) continue;
+    const col = R.cols[j];
+    /* moving the whole of a column onto an empty one achieves nothing */
+    if(!col.up.length && !col.down.length && from.col >= 0 &&
+       from.n === 0 && !R.cols[from.col].down.length) continue;
+    if(col.up.length ? stackOK(c, colTop(col)) : emptyOK(c, col)) return { to:'col', j };
+  }
+  return null;
+}
+
+/* everything the player could legally do right now */
+function klondikeLegal(){
+  const out = [];
+  const w = wasteTop();
+  if(w && (foundOK(w) || R.cols.some((col, j) => col.up.length ? stackOK(w, colTop(col)) : emptyOK(w, col))))
+    out.push({ col:-1, n:-1, card:w });
+  R.cols.forEach((col, i) => {
+    col.up.forEach((card, n) => {
+      const from = { col:i, n, card };
+      if(bestMove(from)) out.push(from);
+    });
+  });
+  return out;
+}
+
+const klondikeCleared = () => R.found.every(f => f === 13);
+const klondikeStuck = () => !klondikeLegal().length &&
+  !R.stock.length && (R.passes >= R.maxPass || !R.waste.length);
+
+/* ---------- drawing it ----------
+   The tableau is a fixed height and the columns compress to fit it. A column
+   runs 11.3 cards deep on average and 18 at the worst, which no fixed step
+   survives on a 568-tall phone: at 18px a card the worst column is 364px and
+   there is no phone that holds that plus a monster. So each column works out
+   its own step. Face-down cards take 5px - you only need to see that they are
+   there - and the face-up ones share what is left, never below 9px and never
+   above 18. The worst case measured still gives every face-up card 14.7px. */
+const KL_TAB_H = 250;
+
+function klCardHTML(c, cls, attrs){
+  return `<button class="pk kl ${cls}${RED_SUIT(c.s) ? ' red' : ''}" ${attrs}>${cardFace(c)}</button>`;
+}
+function klBackHTML(cls, attrs){
+  return `<button class="pk kl down ${cls}" ${attrs}></button>`;
+}
+
+function drawKlondike(){
+  /* the row that is not the tableau: stock, waste, then the four homes */
+  const stock = R.stock.length
+    ? `<button class="pk kl down" data-act="draw"></button>
+       <span class="stockn">${R.stock.length}</span>`
+    : (R.passes < R.maxPass && R.waste.length
+        ? `<button class="kl-slot again" data-act="draw" aria-label="Turn the pile back over">
+             <span>${R.maxPass - R.passes}</span></button>`
+        : `<div class="kl-slot empty"></div>`);
+  const w = wasteTop();
+  const waste = w
+    ? klCardHTML(w, '', `data-from="w" aria-label="${RANKS[w.r]} of ${SUITS[w.s].name}"`)
+    : `<div class="kl-slot empty"></div>`;
+
+  const homes = R.found.map((top, s) => {
+    const cls = R.done.includes(s) ? ' done' : '';
+    const inner = top
+      ? klCardHTML({ r:top, s }, 'home' + cls, `data-home="${s}"`)
+      : `<div class="kl-slot home${cls}" data-home="${s}"><span>${SUITS[s].ch}</span></div>`;
+    return `<div class="kl-cell">${inner}</div>`;
+  }).join('');
+
+  /* seven cells across, matching the columns below: the deck, the card it
+     turned over, a gap, then the four homes */
+  const top = `<div class="kl-top">
+      <div class="kl-cell">${stock}</div>
+      <div class="kl-cell">${waste}</div>
+      <div class="kl-cell"></div>
+      ${homes}
+    </div>`;
+
+  /* The columns carry only what they are, not where they sit. A card's
+     position depends on the card HEIGHT, which depends on the column width,
+     which nothing knows until this is in the document - so layoutKlondike
+     places them immediately afterwards, and sizes the tableau to the deepest
+     column rather than to the worst case. A fixed 250px box left a lake of
+     empty space under a fresh deal, where every column is one card tall. */
+  const cols = R.cols.map((col, i) => {
+    const down = col.down.map(() =>
+      klBackHTML('', `data-kind="down" tabindex="-1" aria-hidden="true"`)).join('');
+    const up = col.up.map((card, n) => {
+      const live = !!bestMove({ col:i, n, card });
+      return klCardHTML(card, live ? 'live' : '',
+        `data-kind="up" data-from="c" data-col="${i}" data-n="${n}"` + (live ? '' : ' tabindex="-1"'));
+    }).join('');
+    return `<div class="kl-col" data-col="${i}">${down}${up}</div>`;
+  }).join('');
+
+  return top + `<div class="kl-cols" id="klCols">${cols}</div>` + drawRunBox();
+}
+
+/* Where every card in every column actually sits. Face-down cards take a
+   ninth of a card each - you only need to see they are there - and the
+   face-up ones share what is left of the tableau, never closer than a sixth
+   of a card and never further than a third. A column runs 11.3 deep on
+   average and 18 at the worst, so the step has to give. */
+const KL_DOWN_F = 0.09, KL_UP_MIN_F = 0.16, KL_UP_MAX_F = 0.31;
+function layoutKlondike(){
+  const wrap = $('klCols');
+  if(!wrap) return;
+  const first = wrap.querySelector('.kl-col');
+  if(!first) return;
+  const cw = first.getBoundingClientRect().width;
+  if(cw < 2) return;
+  const ch = cw * 1.4;
+  const capH = Math.min(KL_TAB_H, innerHeight * 0.42);
+
+  let tallest = ch;
+  const plans = [...wrap.querySelectorAll('.kl-col')].map(col => {
+    const cards = [...col.children];
+    const nDown = cards.filter(e => e.dataset.kind === 'down').length;
+    const nUp = cards.length - nDown;
+    const downY = nDown * KL_DOWN_F * ch;
+    /* what the column would like, then what it is allowed */
+    const want = downY + Math.max(0, nUp - 1) * KL_UP_MAX_F * ch + ch;
+    const allowed = Math.min(want, capH);
+    const step = nUp > 1
+      ? Math.max(KL_UP_MIN_F * ch, Math.min(KL_UP_MAX_F * ch, (allowed - ch - downY) / (nUp - 1)))
+      : 0;
+    const height = downY + Math.max(0, nUp - 1) * step + ch;
+    if(height > tallest) tallest = height;
+    return { cards, nDown, step, ch };
+  });
+
+  plans.forEach(({ cards, nDown, step, ch }) => {
+    let y = 0;
+    cards.forEach(el => {
+      el.style.top = y + 'px';
+      if(el.dataset.kind === 'down') y += KL_DOWN_F * ch;
+      else y += step;
+    });
+  });
+  wrap.style.height = Math.ceil(tallest) + 'px';
+}
+
+function drawRunBox(){
+  return `<div class="runbox ${R.run >= 8 ? 'wild' : R.run >= 5 ? 'hot' : ''}" id="runbox" style="--r:${R.run}">
+      <b>${R.run}</b><small>Run</small></div>`;
+}
+
+/* ---------- playing it ---------- */
+async function klondikeTap(from){
+  if(busy) return;
+  const m = bestMove(from);
+  if(!m){ return; }
+  busy = true;
+
+  const card = from.card;
+  let run = [];
+  if(from.col < 0) { R.waste.pop(); run = [card]; }
+  else run = R.cols[from.col].up.splice(from.n);
+
+  if(m.to === 'found'){
+    R.found[card.s] = card.r;
+    R.run++; R.runVal += valueOf(card.r);
+    if(from.col >= 0) klFlip(R.cols[from.col]);
+    render(); bumpRun(); cardSnap(R.run);
+    coachDone('play');
+
+    /* a finished suit is this game's peak coming down */
+    if(R.found[card.s] === 13 && !R.done.includes(card.s)){
+      R.done.push(card.s);
+      await suitHome(card.s);
+      if(S.fight.hp <= 0){ await won(); return; }
+    }
+    if(R.cap && R.run >= R.cap && !klondikeCleared()){
+      banner('The reading breaks', `A run cannot pass ${R.cap}`);
+      await wait(520);
+      await doStrike();
+      if(S.fight.hp <= 0){ await won(); return; }
+      if(S.hp <= 0){ await lost(); return; }
+    }
+  } else {
+    /* onto a column: no blow, but it is how the board opens up */
+    if(R.wild && !(card.r === 13) && !R.cols[m.j].up.length && !R.cols[m.j].down.length){
+      R.wild = false;
+      banner('Wild Ace', 'Any card can take an empty column, once');
+      tone(988, .18, 'triangle', .06);
+    }
+    R.cols[m.j].up.push(...run);
+    if(from.col >= 0) klFlip(R.cols[from.col]);
+    render(); cardSnap();
+  }
+  busy = false;
+  afterMove();
+  coachMaybe();
+}
+const klFlip = col => { if(!col.up.length && col.down.length) col.up.push(col.down.pop()); };
+
+/* a whole suit home: the moment this game has instead of a peak coming down */
+async function suitHome(s){
+  const el = document.querySelector(`[data-home="${s}"]`);
+  if(el){
+    const r = el.getBoundingClientRect();
+    goldBurst(r.left + r.width / 2, r.top + r.height / 2, 150);
+  }
+  tone(660, .18, 'triangle', .07); tone(880, .2, 'sine', .05, .08);
+  banner(`${SUITS[s].name} home`, `${4 - R.done.length} suits left`);
+  if(R.done.length < 4) setTimeout(() => coachShow('clear'), 1600);
+  await wait(420);
+  await bonusBlow(PEAK_BONUS, 2);
+  coachDone('clear');
+}
+
+/* Turning a card is how a run ends, so this is where the blow lands. */
+async function klondikeDraw(){
+  if(busy) return;
+  busy = true;
+  if(R.run){
+    await doStrike();
+    if(S.fight.hp <= 0){ await won(); return; }
+    if(S.hp <= 0){ await lost(); return; }
+  }
+  if(R.stock.length){
+    R.waste.push(R.stock.pop());
+  } else if(R.passes < R.maxPass && R.waste.length){
+    R.stock = R.waste.reverse(); R.waste = []; R.passes++;
+    banner('Round again', `${R.maxPass - R.passes} ${R.maxPass - R.passes === 1 ? 'pass' : 'passes'} left`);
+  }
+  cardSnap();
+  render();
+  coachDone('stock');
+  busy = false;
+  afterMove();
+  coachMaybe();
+}
+
+/* ===================== the board: Tri-Peaks =====================
+   The game this used to be, kept whole. It is a better fight than Klondike
+   and a worse first impression, which is the trade it lost on: a player who
+   clicks Solitaire has to recognise what they are looking at. It comes back
+   later as something to unlock. */
+function dealPeaks(opts = {}){
   const wrap = opts.wrap !== false;
   /* Deep Deck: three more cards in the stock, and it stacks if taken twice */
   const stockSize = (opts.stock || 24) + 3 * perkCount('deep');
@@ -1354,6 +1714,7 @@ function dealRound(opts = {}){
   if(hasCharm('marked')) tableau[rndInt(3)].gone = true;
 
   return {
+    kind: 'peaks',
     wrap, tableau, stock,
     si: 1,                        /* the first stock card starts the waste */
     waste: [stock[0]],
@@ -1367,9 +1728,14 @@ function dealRound(opts = {}){
   };
 }
 
+/* which board a fight is read on */
+function dealRound(opts = {}){
+  return (opts.kind || 'klondike') === 'peaks' ? dealPeaks(opts) : dealKlondike(opts);
+}
+const isPeaks = () => R.kind !== 'klondike';
+
 const isGone = i => R.tableau[i].gone;
 const isExposed = i => !isGone(i) && LAYOUT.covers[i].every(isGone);
-const wasteTop = () => R.waste[R.waste.length - 1];
 /* Wild Ace: with the perk, and once a board, an ace on the waste takes
    anything. It is checked here rather than in takes() so the rule stays about
    the ranks and this stays about what the player is carrying. */
@@ -1445,8 +1811,10 @@ function peek(){
 
 function render(){
   coachClear();
-  $('board').innerHTML =
-    `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable();
+  $('board').innerHTML = isPeaks()
+    ? `<div class="peaks" id="peaks">${drawPeaks()}</div>` + drawTable()
+    : drawKlondike();
+  if(!isPeaks()) layoutKlondike();
 }
 
 /* ===================== sound =====================
@@ -1909,7 +2277,7 @@ function slotsPanel(){
   const rows = [1, 2, 3].map(slotLine);
   openPanel(`
     ${logoSVG()}
-    <p>Three peaks of cards, and something behind them. Cut the reading away.</p>
+    <p>The solitaire you already know, with something on the other side of it.</p>
     <div class="buys">${rows.map(r => r.empty
       ? `<button class="buy" data-act="newHero" data-slot="${r.n}">
           <img class="ico" src="art/i_level.webp" alt=""><b>New hero</b><span>Slot ${r.n}</span>
@@ -2094,12 +2462,12 @@ function bragInfo(kind){
   if(kind === 'boss'){ const d = S.lastWin || {};
     return { key:'sol_boss', eyebrow:worldName(), title:`I brought down the ${d.name || 'boss'}!`,
              big:`${fmt(S.bestRun || 0)} in a row`,
-             sub:`${who} read the peaks and cut straight through it.`,
+             sub:`${who} sent them home one after another and cut straight through it.`,
              fig:d.slug ? `art/dead_${d.slug}.webp` : null, bg:bgA }; }
   if(kind === 'run'){
     return { key:'sol_run', eyebrow:'One chain', title:'My longest run yet',
              big:`${fmt(S.bestRun || 0)} cards`,
-             sub:'One above or one below, over and over, and the blow gets heavier every time.',
+             sub:'Card after card sent home without touching the deck, and the blow gets heavier every time.',
              fig:`art/hero_t${heroTier()}.webp`, bg:bgA }; }
   if(kind === 'daily'){ const r = S.dailyResult || { score:0, wins:0 };
     return { key:'sol_daily', eyebrow:`Today's reading`, title:`I scored ${fmt(r.score)} on today's cards`,
@@ -2300,13 +2668,13 @@ function menuPanel(){
    no popup in this game is allowed to need scrolling. */
 const HELP = [
   {title:'How to play',
-   lines:['Old Bram lays three peaks of cards. Clear a card onto the pile when it is <b>one rank above or below</b> the top card there.',
-          'An ace takes a king or a two, either way.',
-          'Every card you clear without touching the deck adds to your <b>run</b>. The run is the blow you are winding up.']},
+   lines:['It is solitaire. Seven columns, four spaces up top, aces first and kings last. Tap a card and it goes wherever it can &mdash; home if it can go home, onto a column if it cannot.',
+          'Columns build <b>down in alternating colours</b>. A king goes into an empty column. Turn a card off the deck when you are out of moves.',
+          'You get <b>three times through the deck</b>. A card sent <b>home</b> is a card that counts.']},
   {title:'How it fights',
-   lines:['Turn a card off the deck and the run ends &mdash; and that is when the blow lands. A run of one is a scratch. A run of eight is the end of something.',
-          'Run the deck out with peaks still standing and the monster gets a <b>free swing</b>, and the cards are dealt again.',
-          'Take all <b>three peaks</b> down and you cut the whole reading away. That is usually the end of the fight.']}
+   lines:['Every card you send home adds to your <b>run</b>. The run is the blow you are winding up.',
+          'Turn a card off the deck and the run ends &mdash; and that is when the blow lands. A run of one is a scratch. A run of eight is the end of something.',
+          'Finish a whole suit and it hits on its own. Get all four home and the fight is over.']}
 ];
 function helpPanel(page){
   const i = Math.max(0, Math.min(HELP.length - 1, page | 0));
@@ -2469,7 +2837,7 @@ function victoryPanel(d, mood){
   openPanel(`<div class="vic">
     <div class="vic-title">Victory!</div>
     ${mood.flawless ? `<div class="vic-tag"><b>Flawless</b><span>Not a scratch &middot; double gold</span></div>`
-      : mood.clean ? `<div class="vic-tag"><b>Clean Read</b><span>Three peaks, stock to spare</span></div>`
+      : mood.clean ? `<div class="vic-tag"><b>Clean Read</b><span>All four home, deck to spare</span></div>`
       : mood.clutch ? `<div class="vic-tag"><b>Clutch</b><span>Won by a hair</span></div>` : ''}
     <div class="vic-foe"><img src="art/dead_${d.slug}.webp" alt="${d.name}, defeated"></div>
     <div class="vic-sub">You brought down the <b>${d.name}</b>.</div>
@@ -2728,19 +3096,37 @@ function useCoin(){
    Four marks in the order a player meets them, once ever. Each one waits for
    the moment it is about rather than firing on a timer, so "turn a card when
    you are stuck" arrives the first time you are stuck and not before. */
+/* Four marks, and on Klondike they deliberately say nothing about how to
+   play solitaire. Nobody needs telling that an ace goes home or that a red
+   six sits on a black seven - that is the entire reason the game changed.
+   What a player does NOT know is that this board is a fight: that sending a
+   card up is what hits, and that turning one ends the run. So that is all
+   they say. */
 const COACH = [
-  {id:'play',  when:() => !!document.querySelector('.peaks .pk.free'),
-   sel:() => document.querySelector('.peaks .pk.free'),
-   text:'Tap a card <b>one above or one below</b> the one on the pile.'},
-  {id:'stock', when:() => !document.querySelector('.peaks .pk.free') && R.si < R.stock.length,
-   sel:() => document.querySelector('[data-act="turn"]'),
-   text:'Nothing to play? <b>Turn a card</b> &mdash; but that ends your run.'},
-  {id:'run',   when:() => R.run >= 2,
+  {id:'play',
+   when:() => isPeaks() ? !!document.querySelector('.peaks .pk.free')
+                        : !!document.querySelector('.kl-cols .pk.live, [data-from="w"].live'),
+   sel:() => document.querySelector('.peaks .pk.free, .kl-cols .pk.live, [data-from="w"].live'),
+   text:() => isPeaks()
+     ? 'Tap a card <b>one above or one below</b> the one on the pile.'
+     : 'Tap a card to move it. The ones that go <b>home</b> are what hit.'},
+  {id:'stock',
+   when:() => isPeaks()
+     ? (!document.querySelector('.peaks .pk.free') && R.si < R.stock.length)
+     : (!document.querySelector('.kl-cols .pk.live') && !!document.querySelector('[data-act="draw"]')),
+   sel:() => document.querySelector('[data-act="turn"], [data-act="draw"]'),
+   text:() => 'Stuck? <b>Turn a card</b> &mdash; but that ends your run.'},
+  {id:'run',
+   when:() => R.run >= 2,
    sel:() => document.querySelector('#runbox'),
-   text:'That is your <b>run</b>. The longer it gets, the heavier the blow.'},
-  {id:'clear', when:() => R.down.length > 0 && R.down.length < 3,
-   sel:() => document.querySelector('.peaks'),
-   text:'One peak down. Take <b>all three</b> and you cut the reading away.'},
+   text:() => 'That is your <b>run</b>. The longer it gets, the heavier the blow.'},
+  {id:'clear',
+   when:() => isPeaks() ? (R.down.length > 0 && R.down.length < 3)
+                        : (R.done.length > 0 && R.done.length < 4),
+   sel:() => document.querySelector('.peaks, .kl-top'),
+   text:() => isPeaks()
+     ? 'One peak down. Take <b>all three</b> and you cut the reading away.'
+     : 'A whole suit home. Get <b>all four</b> and the fight is yours.'},
 ];
 /* A set of what has been learned, not a position in a list. The list was an
    index, and a Tri-Peaks board can perfectly well open with no legal move -
@@ -2790,7 +3176,7 @@ function coachShow(id){
 
   coachEl = document.createElement('div');
   coachEl.className = 'coach';
-  coachEl.innerHTML = c.text;
+  coachEl.innerHTML = typeof c.text === 'function' ? c.text() : c.text;
   document.body.appendChild(coachEl);
   const b = coachEl.getBoundingClientRect();
   /* Below the thing if there is room, EXCEPT where that would cover the deck
@@ -2938,12 +3324,13 @@ async function turnStock(){
 /* Is anything left to do? Either there is a legal card, or there is stock to
    turn. Neither means the round is over with peaks still standing, which is
    the losing end of it. */
-const anyLegal = () => R.tableau.some((c, i) => canPlay(i));
-const cleared  = () => R.tableau.every(c => c.gone);
+const anyLegal = () => isPeaks() ? R.tableau.some((c, i) => canPlay(i)) : klondikeLegal().length > 0;
+const cleared  = () => isPeaks() ? R.tableau.every(c => c.gone) : klondikeCleared();
+const outOfRoad = () => isPeaks() ? (!anyLegal() && R.si >= R.stock.length) : klondikeStuck();
 
 function afterMove(){
   if(cleared()){ guard(onClear()); return; }
-  if(!anyLegal() && R.si >= R.stock.length) guard(onDry());
+  if(outOfRoad()) guard(onDry());
 }
 
 /* The finisher. The run it ended on lands first - unanswered, because clearing
@@ -3125,10 +3512,25 @@ $('potRow').addEventListener('click', e => {
 $('board').addEventListener('click', e => {
   const c = e.target.closest('[data-act="coin"]');
   if(c){ useCoin(); return; }
-  const t = e.target.closest('[data-act="turn"]');
-  if(t){ guard(turnStock()); return; }
-  const card = e.target.closest('.pk[data-i]');
-  if(card) playCard(+card.dataset.i);
+  if(isPeaks()){
+    const t = e.target.closest('[data-act="turn"]');
+    if(t){ guard(turnStock()); return; }
+    const card = e.target.closest('.pk[data-i]');
+    if(card) playCard(+card.dataset.i);
+    return;
+  }
+  /* Klondike: tap the deck to turn a card, tap a card to send it wherever it
+     wants to go. No dragging - a drag on a 41px card is a miss waiting to
+     happen. */
+  const d = e.target.closest('[data-act="draw"]');
+  if(d){ guard(klondikeDraw()); return; }
+  const w = e.target.closest('[data-from="w"]');
+  if(w){ guard(klondikeTap({ col:-1, n:-1, card:wasteTop() })); return; }
+  const k = e.target.closest('[data-from="c"]');
+  if(k){
+    const col = +k.dataset.col, n = +k.dataset.n;
+    guard(klondikeTap({ col, n, card:R.cols[col].up[n] }));
+  }
 });
 
 /* ===================== the first board =====================
@@ -3152,6 +3554,7 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   get S(){ return S; }, set S(v){ S = v; },
   get SLOT(){ return SLOT; }, set SLOT(v){ SLOT = v; },
   startFight, makeFoe, WORLDS, BOSS_RULES,
+  klondikeLegal, klondikeTap, klondikeDraw, layoutKlondike, bestMove, foundOK, isPeaks,
   fightIntro, openPanel, closePanel, PERKS, hasPerk, levelPanel, victoryPanel,
   won, lost, nextFight, xpNeed, cumNeed, doStrike, peakDown, STRIKE_TIERS,
   shopPanel, CHARMS, POTIONS, hasCharm, drink, useCoin, renderPots, openBoard, setMyBars,

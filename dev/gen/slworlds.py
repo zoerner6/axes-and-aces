@@ -10,10 +10,14 @@ rebuilt from the pieces that live loose in game.html as AREAS, POOLS and
 W1.bosses.
 
 What is NOT copied is world one's story text. The card game is poker hands at a
-tavern table and the dice game is a soldier's set of knuckle bones; this is a
-reading. In the Gilded Ace there is a worn deck nobody deals from, and Old Bram
-lays it out in three peaks when he wants to know what is coming. That is world
-one's job to explain, so its words are written here.
+tavern table and the dice game is a soldier's set of knuckle bones; this is the
+solitaire everybody already knows. That last part matters, and the first draft
+got it wrong: the barkeep used to lay out three peaks and explain, at length,
+how to read them. A player saw it and said the obvious thing - you cannot call
+a game Monster Solitaire and open by teaching a game nobody has heard of. So
+Old Bram now deals seven rows and explains nothing, because there is nothing to
+explain. The only words he spends are on the part that is new: a card sent home
+hits something.
 
 The result lands between the markers in dev/solitaire.html, so running this
 again replaces it rather than piling up.
@@ -61,9 +65,9 @@ world1 = {
     "quest": "Bring Anna home",
     "intro": [
         {"title": "The deck nobody deals from",
-         "text": "Bandits take Anna out the back of the Gilded Ace. You go for your axe. Old Bram goes for the shelf behind the bar and comes back with a deck so worn the corners are round. \"I do not play with these,\" he says, and lays them out in three peaks."},
-        {"title": "How to read it",
-         "text": "\"The shape tells you what is waiting. Cut it away a card at a time, one rank up or one rank down, and the longer you go without stopping the harder you come out the other side. Stop, and the blow lands.\" He turns the top card over. \"Go and get her.\""}
+         "text": "Bandits take Anna out the back of the Gilded Ace. You go for your axe. Old Bram goes for the shelf behind the bar and comes back with a deck so worn the corners are round. \"I do not play with these,\" he says, and starts laying them out in seven rows."},
+        {"title": "He does not explain it",
+         "text": "Seven rows, four empty spaces above them, the rest kept back in his hand. He does not say a word about any of it, because there is nothing to say - you have been playing this since you were small. He waits until you are at the door for the part that is new. \"Every card you get home lands on something out there. Stop sending them and it lands on you.\""}
     ],
     "areas": [
         {"name": names1[i], "place": places1[i], "pool": pools1[i], "boss": bosses1[i]}
@@ -85,16 +89,16 @@ world1 = {
     ],
     "story": {
         "a1": {"title": "Down the cellar stairs",
-               "text": "The trapdoor is open and the stairs go down further than they should. You lay the three peaks out on the top step, read what is under them, and start down."},
+               "text": "The trapdoor is open and the stairs go down further than they should. You deal the rows out on the top step, turn the first card, and start down."},
         "a2": {"title": "Into the trees",
-               "text": "Anna's scarf is caught on a branch at the forest edge, still warm. You deal the peaks on a flat stone. Every card comes up black."},
+               "text": "Anna's scarf is caught on a branch at the forest edge, still warm. You deal the rows out on a flat stone. Every card that comes up is black."},
         "a3": {"title": "The castle gate",
                "text": "Castle Grimstone stands black against the sky. Somewhere above you, Anna is calling your name. You lay the cards out one last time and do not like the shape of them."},
         "end": [
             {"title": "Anna is safe",
              "text": "You bring Anna down the tower stairs and out through the broken gate. She does not let go of your arm the whole way home."},
             {"title": "Sir Edward",
-             "text": "The Gilded Ace is full when you get back. Old Bram holds his hand out for the deck, looks it over, and puts it back in your pocket. \"They are yours now,\" he says. \"You read them better than I do.\""}
+             "text": "The Gilded Ace is full when you get back. Old Bram holds his hand out for the deck, looks it over, and puts it back in your pocket. \"They are yours now,\" he says. \"You get more of them home than I ever did.\""}
         ]
     }
 }
@@ -111,7 +115,7 @@ ALL = [world1] + worlds
 RETELL = {
     ("w10", "story", "end", 0): {
         "title": "The Demon King falls",
-        "text": "The last card comes away clean and there is nothing left between you. The Demon King crashes from his throne, and his burning crown rolls to your feet and goes dark."},
+        "text": "The last card goes home and there is nothing left between you. The Demon King crashes from his throne, and his burning crown rolls to your feet and goes dark."},
 }
 for key, beat in RETELL.items():
     wid, kind, name, idx = key

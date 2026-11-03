@@ -27,6 +27,12 @@
 const args = process.argv.slice(2);
 const flag = (n, d) => { const i = args.indexOf(n); return i >= 0 ? +args[i + 1] : d; };
 const GAMES = flag('--games', 20000);
+/* A run lands by itself once it reaches this many cards. Without it the
+   endgame is one unbroken run of thirty-odd cards, and runVal * run grows
+   quadratically, so a won game deals twenty times what a lost one does:
+   1846 average against an 80 median. No monster health survives that spread.
+   See the note in dev/solitaire.html above ROUND_AVG. */
+const CAP = flag('--cap', 0);
 
 const RED = s => s === 1 || s === 2;              /* 0 spades 1 hearts 2 diamonds 3 clubs */
 
@@ -135,6 +141,7 @@ function play(g, cap = 400){
     if(up.length){
       const c = apply(g, up[0]);
       sent++; chain++; chainVal += Math.min(c.r, 10);
+      if(CAP && chain >= CAP) breakChain();
       sinceProgress = 0; note();
       if(g.found.every(f => f === 13)) break;
       continue;
@@ -165,7 +172,8 @@ function play(g, cap = 400){
   }
   breakChain();
   const won = g.found.every(f => f === 13);
-  return { won, sent, chains, best, draws, steps, deepest, faceUpDeepest: deepestUp };
+  return { won, sent, chains, best, draws, steps, deepest, faceUpDeepest: deepestUp,
+           suits: g.found.filter(f => f === 13).length };
 }
 
 /* ---- run it ---- */
@@ -174,6 +182,9 @@ const pct = (a, b) => (100 * a / b).toFixed(1) + '%';
 
 let wins = 0;
 const sents = [], deeps = [], ups = [], bests = [], stepsArr = [], dmg = [];
+/* the four numbers the fight is built on, measured the same way
+   dev/gen/peakdeal.cjs measures them for the other board */
+const blows = [], breaks = [], suitsHome = [];
 const upHist = new Array(30).fill(0);
 
 for(let n = 0; n < GAMES; n++){
@@ -186,6 +197,9 @@ for(let n = 0; n < GAMES; n++){
   /* the blow a chain lands is its length times the cards in it, the same
      shape Tri-Peaks uses, so the two games can share one fight */
   dmg.push(r.chains.reduce((a, [len, val]) => a + val * len, 0));
+  r.chains.forEach(([len, val]) => blows.push(val * len));
+  breaks.push(r.chains.length);
+  suitsHome.push(r.suits);
 }
 sents.sort((a, b) => a - b); dmg.sort((a, b) => a - b); ups.sort((a, b) => a - b);
 const p = (arr, q) => arr[Math.floor(arr.length * q)];
@@ -203,3 +217,12 @@ console.log(`  deepest FACE-UP run         : ${avg(ups).toFixed(1)} avg, ${p(ups
 console.log(`  face-up depth spread        : ` +
   upHist.map((c, i) => [i, c]).filter(([, c]) => c / GAMES > .004)
     .map(([i, c]) => `${i}:${(100 * c / GAMES).toFixed(0)}%`).join('  '));
+console.log();
+console.log(`  THE CONSTANTS TO PASTE IN`);
+blows.sort((a, b) => a - b);
+console.log(`  const ROUND_AVG = ${avg(dmg).toFixed(0)};   /* ${p(dmg, .5)} median */`);
+console.log(`  const ROUND_MED = ${p(dmg, .5)};`);
+console.log(`  const STRIKES = ${avg(breaks).toFixed(2)};     /* run-breaks in a game */`);
+console.log(`  const BLOW_AVG = ${avg(blows).toFixed(0)}, BLOW_MED = ${p(blows, .5)}, BLOW_P90 = ${p(blows, .9)};`);
+console.log(`  const SUITS_HOME_AVG = ${avg(suitsHome).toFixed(2)};  /* of four */`);
+console.log(`  const CLEAR_RATE = ${(wins / GAMES).toFixed(2)};`);
