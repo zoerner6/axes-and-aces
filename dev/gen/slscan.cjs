@@ -86,7 +86,15 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
       const box = s => { const e = document.querySelector(s); if (!e) return null;
         const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height),
           top: Math.round(r.top), bottom: Math.round(r.bottom), left: Math.round(r.left), right: Math.round(r.right) }; };
-      const stage = box('#stage'), peaks = box('.peaks'), table = box('.table'), hero = box('.hero');
+      /* The board is whichever board the hero is on. This used to say
+         `.peaks` outright, so on Klondike it measured null and the whole
+         scan died on `m.peaks.h` - a tool reporting nothing instead of
+         reporting a 0px board. */
+      const stage = box('#stage'), hero = box('.hero');
+      const onPeaks = !!document.querySelector('.peaks');
+      const peaks = box(onPeaks ? '.peaks' : '.kl-cols');
+      const table = box(onPeaks ? '.table' : '.kl-top');
+      const boardName = onPeaks ? 'peaks' : 'columns';
       /* The monster's head is the top third of the ART, not of the box: the
          name and the level badge live along the top of the stage on purpose,
          the same as in dev/farkle.html, and they sit above the picture rather
@@ -148,7 +156,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     const a = m.audit;
     const notes = [];
     if (!m.stage || m.stage.h < 100) { notes.push(`monster band only ${m.stage ? m.stage.h : 0}px`); bad++; }
-    if (!m.peaks || m.peaks.h < 90) { notes.push(`peaks only ${m.peaks ? m.peaks.h : 0}px`); bad++; }
+    if (!m.peaks || m.peaks.h < 90) { notes.push(`${m.boardName || 'board'} only ${m.peaks ? m.peaks.h : 0}px`); bad++; }
     if (m.sideways) { notes.push('scrolls sideways: ' + (m.widest.join(' | ') || 'nothing sticks out, so it is a margin')); bad++; }
     if (m.tall) { notes.push(`page is ${document ? '' : ''}taller than the screen`); bad++; }
     if (m.headOver.length) { notes.push('over the monster head: ' + m.headOver.join(' | ')); bad++; }
@@ -161,7 +169,8 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     if (errs.length) { notes.push('JS: ' + [...new Set(errs)].join(' | ')); bad++; }
 
     console.log(`${String(w).padStart(4)}x${h}  monster ${String(m.stage.h).padStart(3)}px  ` +
-      `peaks ${String(m.peaks.h).padStart(3)}px  table ${m.table ? m.table.h : '-'}  hero ${m.hero ? m.hero.h : '-'}  ` +
+      `${(m.boardName || 'board').padEnd(7)} ${String(m.peaks ? m.peaks.h : 0).padStart(3)}px  ` +
+      `top ${m.table ? m.table.h : '-'}  hero ${m.hero ? m.hero.h : '-'}  ` +
       `foe "${PLAIN(m.foe)}"  clip cuts ${m.clipCut.pc}% off ${m.clipCut.what}`);
     notes.forEach(n => console.log('      ** ' + n));
 

@@ -246,6 +246,31 @@ img{max-width:100%}
 /* layoutKlondike sets each card's top, in script - see the note above */
 .kl-col > .pk{position:absolute;left:0;right:0;top:0;aspect-ratio:5/7;height:auto}
 
+/* A COVERED CARD SHOWS ITS RANK AND NOTHING ELSE. The corner is normally a
+   rank with its suit under it, about 37px tall on a 79px card. In a deep
+   column a card shows an 11px sliver, so the card below sliced every rank
+   clean in half and the board read as a stack of broken glyphs - which no
+   measurement caught, because the sliver was the right size and the thing
+   standing in it was not.
+
+   Shrinking the pair to fit took the rank down to seven pixels. Dropping the
+   suit does not: a covered card is only ever asked one question, which is
+   whether something can sit on it, and that needs the rank and whether the
+   card is red or black. The card is already red or black. The glyph was
+   saying a second time what the colour had said first, in the one place
+   there was no room to say anything twice.
+
+   The bottom card of a column is not covered, and keeps its whole face.
+   The rank gets .70 of the sliver rather than all of it because the corner
+   starts two pixels in from the card's own top edge, and a glyph sized to
+   the whole sliver lands two pixels past the card below. */
+.kl-col > .pk:not(:last-child) .cn{
+  line-height:1;top:0;left:2px;
+  font-size:min(40cqw, 23px, calc(var(--step, 99px) * .70));
+}
+.kl-col > .pk:not(:last-child) .cn i{display:none}
+.kl-col > .pk:not(:last-child) .mid{display:none}
+
 /* a card on this board is the same card as on the other one, minus the lift:
    nothing is ever scaled here, because a column is a stack and growing one
    card would push it through its neighbours */
@@ -1722,7 +1747,20 @@ function layoutKlondike(){
   const cw = first.getBoundingClientRect().width;
   if(cw < 2) return;
   const ch = cw * 1.4;
-  const capH = Math.min(KL_TAB_H, innerHeight * 0.42);
+  /* How tall the tableau is ALLOWED to be. This was a fraction of the window
+     and the fraction was a guess: 0.42 came to 238px on a 320x568 phone, the
+     board came out 239, and the run box - the number the whole fight is about
+     - ended twelve pixels below the screen on a deep board.
+     So measure instead. The room is from the top of the columns to the bottom
+     of the window, less whatever sits under them, and `room` is read again
+     after the height is set because a taller board can move its own top. */
+  const room = () => {
+    const top = wrap.getBoundingClientRect().top;
+    const run = $('runbox');
+    const under = run ? Math.ceil(run.getBoundingClientRect().height) + 12 : 12;
+    return Math.max(ch, innerHeight - top - under);
+  };
+  let capH = Math.min(KL_TAB_H, room());
 
   let tallest = ch;
   const plans = [...wrap.querySelectorAll('.kl-col')].map(col => {
@@ -1741,15 +1779,43 @@ function layoutKlondike(){
     return { cards, nDown, step, ch };
   });
 
-  plans.forEach(({ cards, nDown, step, ch }) => {
+  const place = () => plans.forEach(({ cards, ch }, i) => {
     let y = 0;
     cards.forEach(el => {
       el.style.top = y + 'px';
       if(el.dataset.kind === 'down') y += KL_DOWN_F * ch;
-      else y += step;
+      else y += plans[i].step;
     });
+    /* the sliver this column's covered cards get, so the corner can size
+       itself to what is actually visible of it */
+    if(cards[0]) cards[0].parentNode.style.setProperty('--step', Math.round(plans[i].step) + 'px');
   });
+  place();
   wrap.style.height = Math.ceil(tallest) + 'px';
+
+  /* Second pass, only when the first one overflowed. Setting the height can
+     move the columns' own top, so the room has to be asked again with the
+     board at its real size - and if there is now less of it, everything is
+     worked out once more against the smaller number. One extra pass is
+     enough: the board only ever shrinks here, which can only give room back. */
+  const left = Math.min(KL_TAB_H, room());
+  if(left < tallest - 1){
+    capH = left;
+    tallest = ch;
+    plans.forEach(pl => {
+      const nUp = pl.cards.length - pl.nDown;
+      const downY = pl.nDown * KL_DOWN_F * ch;
+      const want = downY + Math.max(0, nUp - 1) * KL_UP_MAX_F * ch + ch;
+      const allowed = Math.min(want, capH);
+      pl.step = nUp > 1
+        ? Math.max(KL_UP_MIN_F * ch, Math.min(KL_UP_MAX_F * ch, (allowed - ch - downY) / (nUp - 1)))
+        : 0;
+      const height = downY + Math.max(0, nUp - 1) * pl.step + ch;
+      if(height > tallest) tallest = height;
+    });
+    place();
+    wrap.style.height = Math.ceil(tallest) + 'px';
+  }
 }
 
 function drawRunBox(){

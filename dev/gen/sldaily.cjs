@@ -28,7 +28,13 @@ const SNAPSHOT = () => {
   const card = c => `${c.r}${'shdc'[c.s]}`;
   return {
     foe: S.fight ? `${S.fight.slug} lv${S.fight.lvl} ${S.fight.hp}hp${S.fight.boss ? ' boss' : ''}` : '-',
-    table: R.tableau.map(card).join(','),
+    /* The whole point of the daily is that two players get the same cards, so
+       the signature has to cover the board they are actually dealt. R.tableau
+       is a Tri-Peaks idea and on Klondike it is undefined, which made this
+       throw rather than report. */
+    table: R.tableau
+      ? R.tableau.map(card).join(',')
+      : R.cols.map(c => c.down.concat(c.up).map(card).join('.')).join(','),
     stock: R.stock.map(card).join(','),
     n: S.daily ? S.daily.n : -1
   };
