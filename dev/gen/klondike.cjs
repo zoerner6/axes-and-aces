@@ -36,18 +36,23 @@ const CAP = flag('--cap', 0);
 
 const RED = s => s === 1 || s === 2;              /* 0 spades 1 hearts 2 diamonds 3 clubs */
 
-function deal(rnd = Math.random){
+/* opts.deeper buries the N longest columns one card further down. All seven
+   measured at a 39% win rate against an ordinary deal's 84%, which is harsher
+   than the hardest rule Tri-Peaks has, so the boss rules take a count. */
+function deal(rnd = Math.random, opts = {}){
   const d = [];
   for(let s = 0; s < 4; s++) for(let r = 1; r <= 13; r++) d.push({ r, s });
   for(let i = d.length - 1; i > 0; i--){
     const j = (rnd() * (i + 1)) | 0;
     [d[i], d[j]] = [d[j], d[i]];
   }
+  const deep = opts.deeper === true ? 7 : (opts.deeper | 0);
   const cols = [];
   let k = 0;
   for(let c = 0; c < 7; c++){
     const col = { down: [], up: [] };
-    for(let n = 0; n <= c; n++) (n === c ? col.up : col.down).push(d[k++]);
+    const last = c + (c >= 7 - deep ? 1 : 0);
+    for(let n = 0; n <= last && k < d.length; n++) (n === last ? col.up : col.down).push(d[k++]);
     cols.push(col);
   }
   return { cols, stock: d.slice(k), waste: [], found: [0, 0, 0, 0], pass: 0 };
@@ -101,11 +106,11 @@ function apply(g, m){
 }
 const flip = col => { if(!col.up.length && col.down.length) col.up.push(col.down.pop()); };
 
-function draw(g){
+function draw(g, maxPass = 3){
   if(!g.stock.length){
     if(!g.waste.length) return false;
     g.stock = g.waste.reverse(); g.waste = []; g.pass++;
-    return g.pass <= 3;                       /* three times round and no more */
+    return g.pass <= maxPass;                 /* three times round, or what a boss allows */
   }
   g.waste.push(g.stock.pop());
   return true;
@@ -120,7 +125,9 @@ function draw(g){
 
    Not clever beyond that, on purpose. Building the damage on perfect play
    would make every fight too hard for everyone who is not a solver. */
-function play(g, cap = 400){
+function play(g, cap = 400, opts = {}){
+  const runCap = opts.runCap != null ? opts.runCap : CAP;
+  const maxPass = opts.passes != null ? opts.passes : 3;
   let sent = 0, chain = 0, chainVal = 0, best = 0, draws = 0, steps = 0;
   const chains = [];
   let sinceProgress = 0;
@@ -141,7 +148,7 @@ function play(g, cap = 400){
     if(up.length){
       const c = apply(g, up[0]);
       sent++; chain++; chainVal += Math.min(c.r, 10);
-      if(CAP && chain >= CAP) breakChain();
+      if(runCap && chain >= runCap) breakChain();
       sinceProgress = 0; note();
       if(g.found.every(f => f === 13)) break;
       continue;
@@ -164,7 +171,7 @@ function play(g, cap = 400){
 
     /* 5. nothing useful: turn a card */
     breakChain();
-    if(!draw(g)) break;
+    if(!draw(g, maxPass)) break;
     draws++;
     /* a whole pass of the stock with nothing to show for it means the game
        is over whatever the rules say */
@@ -173,8 +180,12 @@ function play(g, cap = 400){
   breakChain();
   const won = g.found.every(f => f === 13);
   return { won, sent, chains, best, draws, steps, deepest, faceUpDeepest: deepestUp,
-           suits: g.found.filter(f => f === 13).length };
+           suits: g.found.filter(f => f === 13).length, cleared: won };
 }
+
+module.exports = { deal, play, moves, apply, draw, canFound, canStack };
+/* required by dev/gen/klbalance.cjs, which wants the board and not the report */
+if(require.main !== module) return;
 
 /* ---- run it ---- */
 const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
@@ -217,12 +228,61 @@ console.log(`  deepest FACE-UP run         : ${avg(ups).toFixed(1)} avg, ${p(ups
 console.log(`  face-up depth spread        : ` +
   upHist.map((c, i) => [i, c]).filter(([, c]) => c / GAMES > .004)
     .map(([i, c]) => `${i}:${(100 * c / GAMES).toFixed(0)}%`).join('  '));
+
+/* ---- and the constants FIGHT.klondike is built from ----
+
+   Three things decide these, and all three were forced by what came out of
+   the runs above rather than chosen:
+
+   THE RUN CAP. runVal * run grows quadratically and Klondike's endgame is one
+   unbroken run of thirty-odd cards, so an uncapped blow made a cleared board
+   deal 2215 against a jammed board's 99. No monster health fits a spread of
+   twenty-three. Eight is also where the run box's meter maxes out in the
+   game, so the cap lands where the player can already see it coming.
+
+   THE SCALE. With the cap the raw numbers are tiny - a median blow of 3 - and
+   a damage number of 3 on screen reads as nothing. Seven puts the median blow
+   at 21, which is exactly where Tri-Peaks' sits, so STRIKE_TIERS and every
+   heal and guard priced off BLOW_AVG keep working untouched.
+
+   WHICH BOARDS COUNT. The monster's health is priced on boards that do NOT
+   clear, because a board that clears ends the fight whatever its damage -
+   pricing on all boards would set the health from the 29% that were already
+   over. And on their MEDIAN rather than their average, because the average is
+   pulled up by boards that were nearly wins, and a health only a good board
+   can reach means losing eleven boards and then winning one. */
+const CAP_OUT = 8, SCALE_OUT = 7;
+const lostD = [], outBlows = [], outBreaks = [], outSuits = [];
+let clears = 0;
+for(let n = 0; n < GAMES; n++){
+  const r = play(deal(), 400, { runCap: CAP_OUT });
+  if(r.won){ clears++; continue; }
+  let tot = 0;
+  for(const [len, val] of r.chains){
+    const w = val * len * SCALE_OUT;
+    tot += w; outBlows.push(w);
+  }
+  lostD.push(tot); outBreaks.push(r.chains.length); outSuits.push(r.suits);
+}
+lostD.sort((a, b) => a - b); outBlows.sort((a, b) => a - b);
+const BA = Math.round(avg(outBlows));
+const RM = Math.round(p(lostD, .5));
+const SH = +avg(outSuits).toFixed(2), CR = +(clears / GAMES).toFixed(2);
+const bonus = SH * Math.round(1.2 * BA) + CR * Math.round(4 * BA);
+
 console.log();
-console.log(`  THE CONSTANTS TO PASTE IN`);
-blows.sort((a, b) => a - b);
-console.log(`  const ROUND_AVG = ${avg(dmg).toFixed(0)};   /* ${p(dmg, .5)} median */`);
-console.log(`  const ROUND_MED = ${p(dmg, .5)};`);
-console.log(`  const STRIKES = ${avg(breaks).toFixed(2)};     /* run-breaks in a game */`);
-console.log(`  const BLOW_AVG = ${avg(blows).toFixed(0)}, BLOW_MED = ${p(blows, .5)}, BLOW_P90 = ${p(blows, .9)};`);
-console.log(`  const SUITS_HOME_AVG = ${avg(suitsHome).toFixed(2)};  /* of four */`);
-console.log(`  const CLEAR_RATE = ${(wins / GAMES).toFixed(2)};`);
+console.log(`  FIGHT.klondike  (run capped at ${CAP_OUT}, blow scaled by ${SCALE_OUT})`);
+console.log(`    ROUND_AVG: ${RM}, ROUND_MED: ${RM},   /* the median board that does not clear */`);
+console.log(`    STRIKES: ${avg(outBreaks).toFixed(2)},`);
+console.log(`    BLOW_AVG: ${BA}, BLOW_MED: ${Math.round(p(outBlows, .5))}, BLOW_P90: ${Math.round(p(outBlows, .9))},`);
+console.log(`    DOWN_AVG: ${SH}, CLEAR_RATE: ${CR},`);
+console.log(`    RUN_CAP: ${CAP_OUT}, SCALE: ${SCALE_OUT},`);
+console.log();
+console.log(`    a board that does not clear deals ${avg(lostD).toFixed(0)} avg / ${RM} median`);
+console.log(`    so roundDamage(1) is ${RM} + ${bonus.toFixed(0)} = ${(RM + bonus).toFixed(0)}`);
+const hp = Math.round((RM + bonus) / 1.15 / 50) * 50;
+const kills = lostD.filter(d => d >= hp).length;
+console.log(`    monster health at level 1, even kind = ${hp}`);
+console.log(`    boards that end the fight         : ${(100 * (kills + clears) / GAMES).toFixed(0)}% (${(100 * clears / GAMES).toFixed(0)}% by clearing)`);
+console.log(`    so a fight runs                   : ${(GAMES / (kills + clears)).toFixed(2)} boards`);
+console.log(`    HURT_SHARE .3 then costs the hero : ${Math.round(Math.max(5, Math.round(400 * .3 / avg(outBreaks) / 5) * 5) * avg(outBreaks) * GAMES / (kills + clears))} of 400`);

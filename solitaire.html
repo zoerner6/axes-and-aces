@@ -864,31 +864,120 @@ body.w9{--back-a:#6e2418;--back-b:#2c0c07}   /* ember, for the Abyss */
    clear is not a dead board; it is the designed way to lose a round, and it
    happens about half the time on purpose. Biasing would have cost a full
    solver run on every deal to fix a problem that does not exist. */
-const ROUND_AVG = 839;     /* the average damage a whole round produces */
-const ROUND_MED = 785;     /* the median, which is what the fight is tuned to */
+/* TWO BOARDS, TWO SETS OF NUMBERS. Everything below used to be one set,
+   because there was one board. Klondike does not fit Tri-Peaks' numbers and
+   it is not close: a Tri-Peaks board delivers 839 damage on average against a
+   785 median, a spread of 1.07, and that is what made one monster health work
+   for every board. Klondike's spread is 23.
 
-/* How often the monster actually gets to move, which is the number the fight
-   maths turns on, and the one place a guess would have broken everything.
+   The cause is that Klondike is all or nothing. A Tri-Peaks player clears
+   26.8 of 28 cards even when they lose. A Klondike player either breaks the
+   board open and sends all 52 home, or jams and sends 13. There is almost
+   nothing in between, and runVal * run grows quadratically, so the endgame -
+   one unbroken run of thirty-odd cards - lands a single blow worth more than
+   twenty ordinary boards.
+
+   So Klondike gets a run cap, a scale, and its own numbers. Every one of them
+   is measured by dev/gen/klondike.cjs. */
+const FIGHT = {
+  peaks: {
+    ROUND_AVG: 839, ROUND_MED: 785,
+    STRIKES: 11.14,
+    BLOW_AVG: 75, BLOW_MED: 21, BLOW_P90: 200,
+    DOWN_AVG: 2.27,          /* peaks taken down, of three */
+    CLEAR_RATE: .47,
+    RUN_CAP: 0,              /* a Tri-Peaks run cannot reach 28 anyway */
+    SCALE: 1,
+    HURT_SHARE: .5,          /* a Tri-Peaks fight really is one board */
+  },
+  klondike: {
+    /* THE ONE NUMBER HERE THAT IS NOT A MEASUREMENT. Tri-Peaks' health falls
+       straight out of what a board delivers, because a Tri-Peaks board always
+       delivers about the same thing. Klondike's does not: the median board
+       that does not clear deals 280 and the average deals 679, and at 280 the
+       monster died in the first twenty moves of every fight - 97% wins with
+       61% of the hero's health untouched, and every boss rule free, because
+       nothing that happens late in a board ever happened at all.
+
+       So this is set by dev/gen/klbalance.cjs, which plays whole fights, to
+       land where Tri-Peaks lands: around 85% wins with about half the hero's
+       health gone. See that tool's own notes for the runs. */
+    ROUND_AVG: 815, ROUND_MED: 280,
+    STRIKES: 6.91,
+    BLOW_AVG: 98, BLOW_MED: 21, BLOW_P90: 189,
+    /* BOTH ZERO, AND NOT BECAUSE NOTHING IS AWARDED. A suit going home and
+       the board clearing still land their blows; they are simply never what
+       kills anything, so the monster must not be paid for them.
+
+       Finishing a suit happens on 1% of boards that do not clear. And a clear
+       cannot be a killing blow at all: getting there means sending all 52
+       cards home, and all 52 already hit - klbalance measured 0% of wins
+       ending on a clear at every health from 350 to 900. Tri-Peaks collects
+       both bonuses constantly, 2.27 peaks a board and 29% of its kills, which
+       is why it prices them in. Leaving its 0.29 clear rate in here put 29%
+       of Klondike's monster health behind a bonus no fight ever reached. */
+    DOWN_AVG: 0, CLEAR_RATE: 0,
+    /* A run lands by itself at eight cards. Without this the endgame is one
+       run of thirty-odd and the blow is quadratic in its length. Eight is
+       also where the run box's own meter maxes out, so the cap lands where
+       the player can already see it coming. */
+    RUN_CAP: 8,
+    /* With the cap the raw numbers are tiny - a median blow of 3 - and a
+       damage number of 3 on screen reads as nothing. Seven puts the median
+       blow at 21, exactly where Tri-Peaks' sits, so STRIKE_TIERS and every
+       heal and guard priced off BLOW_AVG keep working untouched. */
+    SCALE: 7,
+    /* Lower than Tri-Peaks' .5 because the derivation below assumes a fight
+       is one board and a Klondike fight measures 1.68 of them. At .5 a fight
+       cost the hero 349 of 400; at .3 it costs 174. */
+    HURT_SHARE: .3,
+  },
+};
+
+/* Assigned rather than written out once, because the board a hero plays is
+   the hero's own and a hero loaded from a slot can be on the other one. Every
+   use site below stays a bare name, which is the whole point. */
+let ROUND_AVG, ROUND_MED, STRIKES, BLOW_AVG, BLOW_MED, BLOW_P90,
+    DOWN_AVG, CLEAR_RATE, RUN_CAP, SCALE, HURT_SHARE,
+    PEAK_BONUS, CLEAR_BONUS, BONUS_AVG;
+function useBoard(kind){
+  const f = FIGHT[kind] || FIGHT.klondike;
+  ROUND_AVG = f.ROUND_AVG; ROUND_MED = f.ROUND_MED; STRIKES = f.STRIKES;
+  BLOW_AVG = f.BLOW_AVG; BLOW_MED = f.BLOW_MED; BLOW_P90 = f.BLOW_P90;
+  DOWN_AVG = f.DOWN_AVG; CLEAR_RATE = f.CLEAR_RATE;
+  RUN_CAP = f.RUN_CAP; SCALE = f.SCALE; HURT_SHARE = f.HURT_SHARE;
+  /* Taking a peak down, finishing a suit and clearing the board each land a
+     blow of their own, so a board is worth more than the sum of its runs. The
+     monster's health has to know that or every fight would be half the length
+     it was measured for, so the bonus is folded back in here rather than
+     quietly inflating the game. */
+  PEAK_BONUS  = Math.round(1.2 * BLOW_AVG);
+  CLEAR_BONUS = Math.round(4 * BLOW_AVG);
+  BONUS_AVG   = DOWN_AVG * PEAK_BONUS + CLEAR_RATE * CLEAR_BONUS;
+}
+useBoard('klondike');
+
+/* WHY STRIKES IS THE NUMBER THE WHOLE FIGHT TURNS ON, and the one place a
+   guess would have broken everything.
 
    dev/plans/solitaire.md, step 7, says turning a stock card lets the monster
-   take its move. Measured, that is 20.9 moves a round - and at Monster
-   Farkle's rate of a tenth of your health a hit, a single board would deal
-   836 damage to a hero with 400. The player would die in half a board, every
-   time, and no amount of tuning the hit size fixes it: at a survivable size
-   each hit is worth 8 and reads as nothing.
+   take its move. Measured on Tri-Peaks, that is 20.9 moves a round - and at
+   Monster Farkle's rate of a tenth of your health a hit, a single board would
+   deal 836 damage to a hero with 400. The player would die in half a board,
+   every time, and no amount of tuning the hit size fixes it: at a survivable
+   size each hit is worth 8 and reads as nothing.
 
    The fix is not a smaller number, it is a better trigger. A stock turn that
    ends a real run is a strike, and the monster answers it. A stock turn taken
-   while already stuck at nothing is hunting, and costs you only the card. That
-   is 11.14 moves a round instead of 20.9, and it reads the way a fight should:
-   you hit it, it hits you back. */
-const STRIKES = 11.14;     /* runs per round, so answering moves per round */
+   while already stuck at nothing is hunting, and costs you only the card.
+   That is 11.14 moves a round instead of 20.9 - and 6.91 on Klondike, where
+   you turn far more cards but string far fewer of them together. It reads the
+   way a fight should: you hit it, it hits you back.
 
-/* What one strike is worth. Wildly skewed on purpose - most runs are a card or
-   two and land as a scratch, and the whole tension of the game is the rare
-   long one. Monster heals and guards are priced off this, not off the round,
-   or one heal would undo a whole board. */
-const BLOW_AVG = 75, BLOW_MED = 21, BLOW_P90 = 200;
+   What one strike is worth is wildly skewed on purpose. Most runs are a card
+   or two and land as a scratch, and the whole tension of the game is the rare
+   long one. Monster heals and guards are priced off one blow, not off the
+   round, or one heal would undo a whole board. */
 
 /* ===================== the deck =====================
    Ranks are 1..13 with 1 meaning ace. In Tri-Peaks an ace wraps both ways, so
@@ -1013,19 +1102,6 @@ const heroMaxHP = L => 400 + 100 * (Math.max(1, L | 0) - 1);
 const ROUNDS = 1;
 const roundDamage = L => (ROUND_AVG + BONUS_AVG) * lvlMult(L);
 
-/* Taking a peak down and clearing the board both land a blow of their own, so
-   a board is worth more than the sum of its runs. The monster's health has to
-   know that or every fight would be half the length it was measured for, so
-   the bonus is folded back in here rather than quietly inflating the game.
-
-   PEAKS_DOWN_AVG and CLEAR_RATE are measured by dev/gen/peakdeal.cjs, so if
-   the bonuses are ever resized the monster's health follows on its own. */
-const PEAKS_DOWN_AVG = 2.27;        /* of three, by an ordinary player */
-const CLEAR_RATE = .47;             /* how often an ordinary player clears */
-const PEAK_BONUS  = Math.round(1.2 * BLOW_AVG);
-const CLEAR_BONUS = Math.round(4 * BLOW_AVG);
-const BONUS_AVG = PEAKS_DOWN_AVG * PEAK_BONUS + CLEAR_RATE * CLEAR_BONUS;
-
 /* A heal or a guard is priced off ONE STRIKE, not off the round. Monster
    Farkle prices them off a turn because a turn there is one wind-up and one
    move. Here a round is eleven strikes, so pricing a heal off the round would
@@ -1042,8 +1118,8 @@ const temper = k => Math.max(0, Math.min(1, ((k.hp || 1) / (k.atk || 1) - 0.6) /
    over the strikes an even fight contains. HURT_SHARE is what winning an even
    fight should cost you, and it is the one number here still open to a
    measurement rather than a derivation - dev/gen/slbalance.cjs plays whole
-   fights and reports the win rate it produces. */
-const HURT_SHARE = .5;
+   fights and reports the win rate it produces. It is per board, because a
+   Tri-Peaks fight is one board and a Klondike fight is 1.68 of them. */
 const foeHit = (L, tp) =>
   Math.max(5, Math.round(heroMaxHP(L) * HURT_SHARE / (STRIKES * ROUNDS) * (1.3 - .6 * tp) / 5) * 5);
 /* Armor soaks a share of every strike. The cap keeps it under half, always. */
@@ -1135,9 +1211,18 @@ const freshHero = () => ({
   openingSeen:false,             /* the first board comes before the story, not after */
   fight:null, block:0, wins:0, deaths:0,
   training:false,                /* this fight is off the quest and advances nothing */
+  /* Which solitaire this hero plays. Everyone starts on the one they already
+     know; Tri-Peaks is further in, and a hero who unlocks it carries that in
+     their own save rather than in a global switch. */
+  board:'klondike',
 });
 /* let, not const: loading a save from the cloud replaces the whole hero */
 let S = freshHero();
+/* The board this hero is on, and the only thing that should ever decide it.
+   Reading it in one place means a save from before Klondike existed - every
+   save there is - still answers, and answers 'peaks', which is the board it
+   was actually played on. */
+const boardKind = () => S.board || 'peaks';
 const worldOf = () => WORLDS[(S.world || 0) % 10];
 const areaOf = () => Math.min(3, S.area | 0);
 const curArea = () => worldOf().areas[areaOf()];
@@ -1169,13 +1254,39 @@ const rndInt = n => Math.random() * n | 0;
    cost a player at the same level with the same gear and the same monster:
    an ordinary deal 89%, a short stock 85%, a run capped at five 80%, aces not
    wrapping 60%. */
-const BOSS_RULES = [
-  {text:'One peak is dealt face down',  deal:{hidden:[1]}},
-  {text:'The stock runs short',         deal:{stock:18}},
-  {text:'A run cannot pass five',       deal:{cap:5}},
-  {text:'Aces no longer wrap',          deal:{wrap:false}},
-];
-const bossRule = () => BOSS_RULES[areaOf()];
+const BOSS_RULE_SETS = {
+  peaks: [
+    {text:'One peak is dealt face down',  deal:{hidden:[1]}},
+    {text:'The stock runs short',         deal:{stock:18}},
+    {text:'A run cannot pass five',       deal:{cap:5}},
+    {text:'Aces no longer wrap',          deal:{wrap:false}},
+  ],
+  /* Hidden peaks and wrapping aces mean nothing on seven columns, so Klondike
+     needs its own four, and which four was decided by measuring them rather
+     than by picking them. dev/gen/klbalance.cjs, level 6, against an ordinary
+     deal's 81%:
+
+       a run cannot pass five            80%   free, so it is not used
+       the deck comes round twice        80%   free, so it is not used
+       the longest column buried deeper  74%
+       the deck comes round once         72%
+       two longest buried deeper         66%
+       two buried deeper, deck once      55%
+
+     The two free ones are free for the same reason: a fight is decided in the
+     first two boards, so anything that only bites late in a board never bites
+     at all. The four below are in order, easiest first, and the hardest lands
+     at 55% - which is where Tri-Peaks' hardest, aces not wrapping, lands. */
+  klondike: [
+    {text:'The longest column is buried one deeper',  deal:{deeper:1}},
+    {text:'The deck comes round once, not three',     deal:{passes:1}},
+    {text:'The two longest columns are buried deeper', deal:{deeper:2}},
+    {text:'Two columns buried deeper, and one pass',  deal:{deeper:2, passes:1}},
+  ],
+};
+/* kept so dev/gen/slscan.cjs and the boss panel keep finding one list */
+const BOSS_RULES = BOSS_RULE_SETS.klondike;
+const bossRule = () => (BOSS_RULE_SETS[boardKind()] || BOSS_RULE_SETS.klondike)[areaOf()];
 
 /* ---------- the monster on the stage ---------- */
 function setFoeVideo(slug){
@@ -1419,13 +1530,15 @@ const RED_SUIT = s => s === 1 || s === 2;         /* hearts and diamonds */
 
 function dealKlondike(opts = {}){
   const d = shuffle(freshDeck(), opts.rnd);
-  /* a boss rule can bury every column one card deeper */
-  const extra = opts.deeper ? 1 : 0;
+  /* A boss rule can bury the longest columns one card deeper. All seven at
+     once measured at a 39% win rate, harsher than anything Tri-Peaks has, so
+     the rule names how many. */
+  const deep = opts.deeper === true ? 7 : (opts.deeper | 0);
   const cols = [];
   let k = 0;
   for(let c = 0; c < 7; c++){
     const col = { down: [], up: [] };
-    const n = c + extra;
+    const n = c + (c >= 7 - deep ? 1 : 0);
     for(let i = 0; i <= n && k < d.length; i++) (i === n ? col.up : col.down).push(d[k++]);
     cols.push(col);
   }
@@ -1444,7 +1557,7 @@ function dealKlondike(opts = {}){
     passes: 0, maxPass: opts.passes || 3,
     run: 0, runVal: 0,
     done: [],                     /* foundations already finished, so each lands once */
-    cap: opts.cap || 0,
+    cap: opts.cap || RUN_CAP,     /* a boss can shorten it; it is never off */
     wild: hasPerk('wild'),
     coin: hasCharm('jester'),
     picked: null,                 /* a card the player has tapped and not yet placed */
@@ -1638,7 +1751,11 @@ async function klondikeTap(from){
       if(S.fight.hp <= 0){ await won(); return; }
     }
     if(R.cap && R.run >= R.cap && !klondikeCleared()){
-      banner('The reading breaks', `A run cannot pass ${R.cap}`);
+      /* Reaching the board's own cap is the top of the meter, so it reads as
+         the thing you were building. A boss cap is shorter than the board's,
+         and that one reads as being cut off - which is what it is. */
+      if(R.cap < RUN_CAP) banner('Cut short', `A run cannot pass ${R.cap}`);
+      else banner(`${R.cap} in a row`, 'That is all one swing will carry');
       await wait(520);
       await doStrike();
       if(S.fight.hp <= 0){ await won(); return; }
@@ -1740,9 +1857,15 @@ function dealPeaks(opts = {}){
   };
 }
 
-/* which board a fight is read on */
+/* Which board a fight is played on, and the one door every deal goes through.
+   useBoard is called here rather than at the start of a fight because this is
+   the only place that cannot be skipped: a deal from a loaded save, from the
+   daily, from a boss rule and from the opening board all arrive here, and the
+   fight maths has to be the right board's before the first card is turned. */
 function dealRound(opts = {}){
-  return (opts.kind || 'klondike') === 'peaks' ? dealPeaks(opts) : dealKlondike(opts);
+  const kind = opts.kind || boardKind();
+  useBoard(kind);
+  return kind === 'peaks' ? dealPeaks(opts) : dealKlondike(opts);
 }
 const isPeaks = () => R.kind !== 'klondike';
 
@@ -2036,7 +2159,7 @@ const strikeTier = w => {
   STRIKE_TIERS.forEach((x, i) => { if(w / BLOW_AVG >= x[0]) t = i; });
   return t;
 };
-const runBlow = () => R.runVal * R.run;
+const runBlow = () => R.runVal * R.run * SCALE;
 const strikeDamage = w =>
   armored(Math.round(w * lvlMult(S.level) * atkMult() * (S.rage ? 1.5 : 1)), S.fight);
 

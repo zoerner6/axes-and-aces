@@ -20,21 +20,13 @@ const path = require('path');
 process.chdir(path.join(__dirname, '..', '..'));
 const P = require('./peakdeal.cjs');
 
-const src = fs.readFileSync('dev/solitaire.html', 'utf8');
-const lift = (a, b) => {
-  const m = src.match(new RegExp(`\\/\\* ===== ${a}[\\s\\S]*?\\/\\* ===== ${b} ===== \\*\\/`));
-  if (!m) { console.error(`Could not find the ${a} block in dev/solitaire.html`); process.exit(1); }
-  return m[0];
-};
-const num = n => +src.match(new RegExp(`const ${n} = (\\d+(?:\\.\\d+)?)`))[1];
-
-const F = {};
-new Function('X', 'ROUND_AVG', 'BLOW_AVG', 'STRIKES',
-  lift('THE FIGHT MATHS', 'END FIGHT MATHS') +
-  '\nObject.assign(X,{makeFoe,monsterHP,foeHit,foeArmorFor,armored,heroMaxHP,lvlMult,' +
-  'roundDamage,blowDamage,temper,WORLDS,ROUNDS,DRY_MULT,HURT_SHARE,EQUIP,'+
-  'PEAK_BONUS,CLEAR_BONUS,BONUS_AVG});'
-)(F, num('ROUND_AVG'), num('BLOW_AVG'), num('STRIKES'));
+/* There are two boards now, and these constants used to be read out of the
+   file with a `const NAME = 123` regex. That broke the moment they moved into
+   the FIGHT table - silently, which is exactly why the lifting now lives in
+   one place for both balance tools. dev/gen/slfight.cjs runs the game's own
+   table and its own maths, so neither tool can disagree with the game. */
+const F = require('./slfight.cjs')('peaks');
+const num = n => F[n];
 
 const FIGHTS = +(process.argv[2] || 4000);
 const CAP = 12;                              /* boards before calling it a draw */
