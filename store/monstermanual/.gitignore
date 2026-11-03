@@ -14,3 +14,7 @@ foundry/axes-and-aces-monsters/art/
 
 # Trimmed copies of the brand art, remade on every build from img/ and icons/.
 build/brand/
+
+# The release zip, rebuilt by src/foundry.py and attached to a GitHub
+# release rather than kept in the repository.
+foundry/*.zip

@@ -11,6 +11,7 @@ import json, os, re, shutil
 
 from families import TRAITS, GUARDS, HEALS
 from engine import mod_str, ability_mod, SUIT_RULE
+import legendary as LEG
 import statblock as SB
 import text as T
 
@@ -34,6 +35,33 @@ COND_KEY = {'blinded': 'blinded', 'charmed': 'charmed', 'deafened': 'deafened',
             'paralyzed': 'paralyzed', 'petrified': 'petrified',
             'poisoned': 'poisoned', 'prone': 'prone', 'restrained': 'restrained',
             'stunned': 'stunned', 'unconscious': 'unconscious'}
+
+
+SKILL_KEY = {
+    'Acrobatics': 'acr', 'Animal Handling': 'ani', 'Arcana': 'arc',
+    'Athletics': 'ath', 'Deception': 'dec', 'History': 'his',
+    'Insight': 'ins', 'Intimidation': 'itm', 'Investigation': 'inv',
+    'Medicine': 'med', 'Nature': 'nat', 'Perception': 'prc',
+    'Performance': 'prf', 'Persuasion': 'per', 'Religion': 'rel',
+    'Sleight of Hand': 'slt', 'Stealth': 'ste', 'Survival': 'sur',
+}
+
+SAVE_KEY = {'Str': 'str', 'Dex': 'dex', 'Con': 'con', 'Int': 'int',
+            'Wis': 'wis', 'Cha': 'cha'}
+
+
+def save_set(b):
+    """Which abilities this creature is proficient in, as system keys.
+
+    The engine writes saves as display strings like "Dex +4", because that
+    is what the page prints. Here only the ability matters.
+    """
+    out = set()
+    for s in b.get('saves') or []:
+        k = SAVE_KEY.get(s.split()[0])
+        if k:
+            out.add(k)
+    return out
 
 
 def keys(values, table):
@@ -103,6 +131,7 @@ def actor(b):
     dc = 8 + b['prof'] + ability_mod(b['scores']['con'])
     sc = b['scores']
     sp = b['speed']
+    saves = save_set(b)
 
     items = []
     for key in b['traits']:
@@ -114,6 +143,25 @@ def actor(b):
         items.append(feat('%s-Proof' % b['suit'],
                           '%s It has resistance to %s damage.%s'
                           % (flavor, dtype, extra)))
+    spells = LEG.SPELLCASTERS.get(b['slug'])
+    if spells:
+        word, abil, lvl, book = spells
+        sm = ability_mod(sc[abil])
+        lines = []
+        for sl in sorted(book):
+            head = ('Cantrips (at will)' if sl == 0 else
+                    '%s level (%d slots)' % (LEG.ORDINAL[sl],
+                                             LEG.SLOTS[lvl].get(sl, 1)))
+            lines.append('<li><strong>%s:</strong> <em>%s</em></li>'
+                         % (head, ', '.join(book[sl])))
+        items.append(feat('Spellcasting',
+                          'The %s is %s. Its spellcasting ability is %s '
+                          '(spell save DC %d, %s to hit with spell attacks). '
+                          'It has the following spells prepared:<ul>%s</ul>'
+                          % (SB.bare(b['name']), word, SB.ABIL_WORD[abil],
+                             8 + b['prof'] + sm, mod_str(b['prof'] + sm),
+                             ''.join(lines))))
+
     if b['swings'] > 1:
         word = {2: 'two', 3: 'three'}[b['swings']]
         items.append(feat('Multiattack', 'The %s makes %s %s attacks.'
@@ -134,6 +182,27 @@ def actor(b):
         items.append(feat('%s (%s)' % (heal[0], heal[1].title()),
                           SB.fill(heal[2], b, dc)))
 
+    # Legendary actions. Foundry has no distinct item type for them, so they
+    # go in as feats named the way the stat block names them, and the actor
+    # gets the three-per-round resource the sheet shows.
+    if b['boss']:
+        items.append(feat('Legendary Actions',
+                          SB.fill(LEG.LEGENDARY_INTRO, b, dc)))
+        for lname, cost, ltext in LEG.actions_for(b):
+            head = lname if cost == 1 else '%s (Costs %d Actions)' % (lname, cost)
+            items.append(feat(head, SB.fill(ltext, b, dc)))
+
+    lair = LEG.lair_for(b)
+    if lair:
+        place, ldc, effects = lair
+        body = ('When fighting inside %s, the %s can take a lair action on '
+                'initiative count 20 (losing ties). It cannot do so two rounds '
+                'in a row. Choose one:<ul>%s</ul>'
+                % (place, SB.bare(b['name']),
+                   ''.join('<li>%s</li>' % SB.fill(e, b, dc).replace(
+                       '{ld}', str(ldc)) for e in effects)))
+        items.append(feat('Lair Actions', body))
+
     res = list(b['res'])
     if b['suit']:
         res.append(SUIT_RULE[b['suit']][0])
@@ -153,7 +222,9 @@ def actor(b):
         'type': 'npc',
         'img': 'modules/%s/art/%s.webp' % (MODULE_ID, b['slug']),
         'system': {
-            'abilities': {k: {'value': sc[k], 'proficient': 0} for k in
+            'abilities': {k: {'value': sc[k],
+                              'proficient': 1 if k in saves else 0}
+                          for k in
                           ('str', 'dex', 'con', 'int', 'wis', 'cha')},
             'attributes': {
                 'ac': {'flat': b['ac'], 'calc': 'flat',
@@ -165,7 +236,17 @@ def actor(b):
                                  units='ft', hover=False),
                 'senses': senses_of(b),
                 'prof': b['prof'],
-                'spellcasting': '',
+                'spellcasting': (LEG.SPELLCASTERS[b['slug']][1]
+                                 if b['slug'] in LEG.SPELLCASTERS else ''),
+            },
+            'resources': {
+                'legact': ({'value': 3, 'max': 3} if b['boss']
+                           else {'value': 0, 'max': 0}),
+                'legres': ({'value': 3, 'max': 3} if 'legendary' in b['traits']
+                           else {'value': 0, 'max': 0}),
+                'lair': ({'value': True, 'initiative': 20}
+                         if b.get('world_boss') else
+                         {'value': False, 'initiative': 0}),
             },
             'details': {
                 'biography': {'value': '<p>%s</p>' % bio, 'public': ''},
@@ -184,7 +265,8 @@ def actor(b):
                 'ci': {'value': ci, 'custom': ci_custom},
                 'languages': {'value': [], 'custom': b['languages']},
             },
-            'skills': {},
+            'skills': {SKILL_KEY[n]: {'value': 1} for n in b['skills']
+                       if n in SKILL_KEY},
         },
         'items': items,
         'prototypeToken': {
@@ -201,6 +283,14 @@ def actor(b):
     }
 
 
+# Where Foundry fetches the module from. Without these two a manifest-link
+# install cannot work at all, and the package browser will not list this
+# module because it contains AI art - so a manifest link is the only way in.
+# GitHub releases are free and the repository is public.
+REPO = 'https://github.com/zoerner6/axes-and-aces'
+MANIFEST_URL = REPO + '/releases/latest/download/module.json'
+DOWNLOAD_URL = REPO + '/releases/latest/download/%s.zip' % MODULE_ID
+
 MANIFEST = {
     'id': MODULE_ID,
     'title': 'Axes & Aces Monsters',
@@ -210,11 +300,13 @@ MANIFEST = {
         'Manual. Free. <strong>Contains AI-generated art and AI-assisted '
         'text.</strong>'),
     'version': VERSION,
-    'compatibility': {'minimum': '11', 'verified': '12'},
+    'compatibility': {'minimum': '11', 'verified': '13'},
     'relationships': {'systems': [{'id': 'dnd5e', 'type': 'system',
                                    'compatibility': {'minimum': '3.0.0'}}]},
     'authors': [{'name': 'Axes & Aces', 'url': 'https://' + T.SITE}],
     'url': 'https://' + T.SITE,
+    'manifest': MANIFEST_URL,
+    'download': DOWNLOAD_URL,
     'esmodules': ['scripts/aa-monsters.js'],
     'packs': [],
     'license': 'LICENSE.txt',
@@ -254,25 +346,32 @@ async function importMonsters() {
   ui.notifications.info(`Axes & Aces: ${batch.length} monsters imported into "${PACK_LABEL}".`);
 }
 
-Hooks.once("init", () => {
-  game.settings.registerMenu(MODULE, "import", {
-    name: "Import the monsters",
-    label: "Import 168 monsters",
-    hint: "Builds a world compendium holding every creature from the book.",
-    icon: "fas fa-dragon",
-    type: class extends FormApplication {
-      render() { importMonsters(); return this; }
-    },
-    restricted: true
-  });
+/* The button lives on the Actors sidebar rather than in a settings menu.
+ * A settings menu needs a FormApplication subclass, which Foundry deprecated
+ * in v13 and drops in v14; a sidebar button is the same in 11, 12 and 13.
+ */
+function addButton(html) {
+  const root = html instanceof HTMLElement ? html : html[0];
+  if (!root || root.querySelector(".aa-import")) return;
+  const header = root.querySelector(".header-actions") || root.firstElementChild;
+  if (!header) return;
+  const b = document.createElement("button");
+  b.className = "aa-import";
+  b.innerHTML = '<i class="fas fa-dragon"></i> Import Axes &amp; Aces monsters';
+  b.addEventListener("click", () => importMonsters());
+  header.append(b);
+}
+
+Hooks.on("renderActorDirectory", (app, html) => {
+  if (game.user?.isGM) addButton(html);
 });
 
 Hooks.once("ready", () => {
   if (!game.user.isGM) return;
   game.modules.get(MODULE).api = { importMonsters };
   console.log("Axes & Aces Monsters | ready. "
-    + "Run game.modules.get('axes-and-aces-monsters').api.importMonsters() "
-    + "or use the module settings button.");
+    + "Use the button on the Actors tab, or run "
+    + "game.modules.get('axes-and-aces-monsters').api.importMonsters()");
 });
 '''
 
@@ -284,6 +383,14 @@ with their artwork, for Foundry VTT. Free, and always will be.
 This is the companion to the *Axes & Aces Monster Manual*. The book has the
 stat blocks laid out properly, the fiction, and the method behind the
 challenge ratings. This module just gets the creatures into your game.
+
+## Not yet tested in a live Foundry
+
+Read this before you rely on it. The actor data is built to the dnd5e
+schema and every field has been checked, but nobody has installed this
+module into a running Foundry and clicked the button. If something is
+wrong, that is where it will show. Please say so and it will be fixed:
+the issue tracker is on the repository linked above.
 
 ## Contains AI-generated content
 
@@ -300,9 +407,21 @@ so install this from the manifest link instead:
 2. Paste the manifest URL into the **Manifest URL** box at the bottom.
 3. Click **Install**.
 
-Then enable it in your world, open **Module Settings**, and click
-**Import 168 monsters**. It builds a world compendium called
-"Axes & Aces Monsters". You only need to do that once.
+Then enable it in your world, open the **Actors** tab in the sidebar, and
+click **Import Axes & Aces monsters** at the top. It builds a world
+compendium called "Axes & Aces Monsters". You only need to do that once.
+
+## What each creature carries
+
+Ability scores, armor class, hit points and hit dice, every speed, senses,
+languages, challenge rating and XP, damage resistances, immunities and
+vulnerabilities, condition immunities, skill proficiencies, saving throw
+proficiencies, traits, a weapon attack, and the recharging heavy blow where
+the creature has one.
+
+The forty bosses also carry their legendary actions and the three-per-round
+resource, the ten that end a world carry their lair actions, and the nine
+spellcasters carry their spell lists.
 
 ## Requirements
 
