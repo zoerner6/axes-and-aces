@@ -1092,12 +1092,17 @@ const LVL_STEP = 1.12;
 const lvlMult = L => Math.pow(LVL_STEP, Math.max(1, L | 0));
 const heroMaxHP = L => 400 + 100 * (Math.max(1, L | 0) - 1);
 
-/* A fight is one dealt board. That is not a shortcut, it is the mapping the
-   whole game rests on: Old Bram lays the peaks out to see what is coming, and
-   cutting the shape away is how you get through it. An ordinary player gets
-   839 out of a board and clears it 47% of the time, so an even monster dies in
-   about one good reading - and when it does not, the board is redealt and that
-   costs you a heavy free hit, which is step 7's punishment and the reason a
+/* A fight is one dealt board, or as near to one as the board allows. That is
+   not a shortcut, it is the mapping the whole game rests on: you play out a
+   hand of solitaire and what you get out of it is what the monster takes.
+
+   On Tri-Peaks it really is one board - an ordinary player gets 839 out of
+   one and clears it 47% of the time, so an even monster dies in about one
+   good reading. Klondike runs a little past that, two boards at the median,
+   because a Klondike board is all or nothing and half of them go nowhere.
+
+   Either way, when a board does not finish it the cards are dealt again and
+   that costs you a heavy free hit - step 7's punishment, and the reason a
    fight can still run long when you play it badly. */
 const ROUNDS = 1;
 const roundDamage = L => (ROUND_AVG + BONUS_AVG) * lvlMult(L);
@@ -1554,27 +1559,45 @@ function dealKlondike(opts = {}){
   /* A boss rule can bury the longest columns one card deeper. All seven at
      once measured at a 39% win rate, harsher than anything Tri-Peaks has, so
      the rule names how many. */
-  const deep = opts.deeper === true ? 7 : (opts.deeper | 0);
+  const buried = opts.deeper === true ? 7 : (opts.deeper | 0);
   const cols = [];
   let k = 0;
   for(let c = 0; c < 7; c++){
     const col = { down: [], up: [] };
-    const n = c + (c >= 7 - deep ? 1 : 0);
+    const n = c + (c >= 7 - buried ? 1 : 0);
     for(let i = 0; i <= n && k < d.length; i++) (i === n ? col.up : col.down).push(d[k++]);
     cols.push(col);
   }
-  /* Marked Deck turns one buried card face up from the start */
+
+  /* Marked Deck: one column is dealt a card SHALLOWER - one fewer card in it
+     altogether, which is a card you never have to dig out. */
   if(hasCharm('marked')){
     const deep = cols.filter(c => c.down.length);
-    if(deep.length){
-      const col = deep[rndInt(deep.length)];
-      col.up.unshift(col.down.pop());
-    }
+    if(deep.length) deep[rndInt(deep.length)].down.pop();
   }
+  /* Reader's Glass: the column with the most buried cards has its top buried
+     card dealt FACE UP instead. The same depth, one more thing you can see,
+     which is why it is the cheaper of the two. On Tri-Peaks this happens in
+     openBoard, because there the card is marked on top of the board rather
+     than lifted out of a column. */
+  if(hasCharm('glass')){
+    let worst = null;
+    for(const c of cols) if(c.down.length && (!worst || c.down.length > worst.down.length)) worst = c;
+    if(worst) worst.up.unshift(worst.down.pop());
+  }
+
+  /* Deep Deck: three more cards in the stock per copy. Fifty-two cards are
+     exactly 28 dealt and 24 in the stock, so there is nothing spare in the
+     deck to give - the extras come off a second shuffle, which is the same
+     answer dealPeaks reached. */
+  const stock = d.slice(k);
+  const extra = 3 * perkCount('deep');
+  if(extra) stock.push(...shuffle(freshDeck(), opts.rnd).slice(0, extra));
+
   return {
     kind: 'klondike',
     cols, found: [0, 0, 0, 0],
-    stock: d.slice(k), waste: [],
+    stock, waste: [],
     passes: 0, maxPass: opts.passes || 3,
     run: 0, runVal: 0,
     done: [],                     /* foundations already finished, so each lands once */
@@ -1649,7 +1672,7 @@ function klBackHTML(cls, attrs){
 function drawKlondike(){
   /* the row that is not the tableau: stock, waste, then the four homes */
   const stock = R.stock.length
-    ? `<button class="pk kl down" data-act="draw"></button>
+    ? `<button class="pk kl down" data-act="draw">${peek()}</button>
        <span class="stockn">${R.stock.length}</span>`
     : (R.passes < R.maxPass && R.waste.length
         ? `<button class="kl-slot again" data-act="draw" aria-label="Turn the pile back over">
@@ -1961,8 +1984,17 @@ function drawTable(){
    about the decision - knowing what is coming is the difference between
    gambling on a longer run and knowing it is there. */
 function peek(){
-  if(!hasPerk('sight') || R.si >= R.stock.length) return '';
-  const c = R.stock[R.si], s = SUITS[c.s];
+  if(!hasPerk('sight')) return '';
+  /* The two boards keep their stock the opposite way round: Tri-Peaks walks
+     an index forward through it, Klondike pops off the end. The next card is
+     the next card either way, and reading it the wrong way round would show
+     the card at the BOTTOM of the deck - a perk that lies rather than one
+     that does nothing, which is worse. */
+  const c = isPeaks()
+    ? (R.si < R.stock.length ? R.stock[R.si] : null)
+    : R.stock[R.stock.length - 1];
+  if(!c) return '';
+  const s = SUITS[c.s];
   return `<span class="peek${s.red ? ' red' : ''}">${RANKS[c.r]}${s.ch}</span>`;
 }
 
@@ -2872,6 +2904,16 @@ function helpPanel(page){
    the reading lives - four of them are passive, and the fifth is the one
    decision a charm makes in this game, so it gets a button on the thing it
    acts on rather than a row of its own that a 320px screen has no room for. */
+/* Two of the five do a different thing on each board, so they say a different
+   thing. A charm whose words describe a peak, bought by a player who has never
+   seen one, is a charm that looks broken. */
+const CHARM_DESC = {
+  marked: { peaks:'One peak starts a card shallower.',
+            klondike:'One column starts a card shallower.' },
+  glass:  { peaks:'One face-down card is turned over at the start.',
+            klondike:'The deepest column shows one more card.' },
+};
+const charmDesc = c => (CHARM_DESC[c.id] || {})[boardKind()] || c.desc;
 const CHARMS = [
   {id:'marked',  name:'Marked Deck',     icon:'map',     price:14, desc:'One peak starts a card shallower.'},
   {id:'jester',  name:"Jester's Coin",   icon:'coin',    price:18, desc:'Once a board, put the top card back and keep the run.'},
@@ -2956,7 +2998,7 @@ function charmsHTML(){
   const offer = charmOffer();
   if(!offer.length) return `<p class="menu-note">You have every charm the merchant had.</p>`;
   return offer.map(c => `<button class="buy" data-act="buyCharm" data-charm="${c.id}" ${S.gold < c.price ? 'disabled' : ''}>
-        <img class="ico" src="art/i_${c.icon}.webp" alt=""><b>${c.name}</b><span>${c.desc}</span>
+        <img class="ico" src="art/i_${c.icon}.webp" alt=""><b>${c.name}</b><span>${charmDesc(c)}</span>
         <span class="cost"><img src="art/i_coin.webp" alt="">${c.price}</span></button>`).join('')
     + ((S.charms || []).length ? `<p class="menu-note">Already yours:</p><div class="charmrow">${
         (S.charms || []).map(id => `<img src="art/i_${CH[id].icon}.webp" alt="${CH[id].name}" title="${CH[id].name}">`).join('')
@@ -3264,7 +3306,10 @@ function flyToWaste(el, done){
 function useCoin(){
   if(busy || !R.coin || R.waste.length < 2) return;
   const c = R.waste.pop();
-  R.stock.splice(R.si, 0, c);
+  /* back where it came from, which is a different end of the stock on each
+     board - Klondike pops, Tri-Peaks walks an index */
+  if(isPeaks()) R.stock.splice(R.si, 0, c);
+  else R.stock.push(c);
   R.coin = false;
   banner("Jester's Coin", 'The card goes back');
   tone(1318, .12, 'triangle', .05); tone(1760, .14, 'triangle', .04, .07);
@@ -3579,6 +3624,12 @@ function redeal(){
    after the stock ran dry, and a cleared board - and a charm that only worked
    from one of them would be a charm that worked by accident. */
 function openBoard(){
+  /* On Klondike the deal has already placed Reader's Glass, because there the
+     card has to come out of a column rather than be marked on top of one. */
+  if(!isPeaks()){
+    if(hasCharm('cup')) S.block = (S.block || 0) + 20;
+    render(); renderPots(); return;
+  }
   /* Reader's Glass: one card that would have stayed hidden is turned over.
      On a board with nothing hidden it has nothing to do, and says so rather
      than pretending. */
@@ -3736,6 +3787,7 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   startFight, makeFoe, WORLDS, BOSS_RULES,
   klondikeLegal, klondikeTap, klondikeDraw, layoutKlondike, bestMove, foundOK, isPeaks,
   useBoard, boardKind, peaksOpen, switchBoard, FIGHT, HELP_SETS, BOSS_RULE_SETS,
+  charmDesc, peek, RANKS, SUITS, perkCount, heroMaxHP,
   fightIntro, openPanel, closePanel, PERKS, hasPerk, levelPanel, victoryPanel,
   won, lost, nextFight, xpNeed, cumNeed, doStrike, peakDown, STRIKE_TIERS,
   shopPanel, CHARMS, POTIONS, hasCharm, drink, useCoin, renderPots, openBoard, setMyBars,
