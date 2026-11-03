@@ -1869,6 +1869,12 @@ async function klondikeTap(from){
     R.cols[m.j].up.push(...run);
     if(from.col >= 0) klFlip(R.cols[from.col]);
     render(); cardSnap();
+    /* The mark says "tap a card to move it", so moving a card is what ends
+       it. This only fired when a card went HOME, which left the mark stuck
+       on screen for anyone whose first tap was onto a column - and on a
+       320px board three of the opening cards move to a column and none goes
+       home, so that was most first taps. */
+    coachDone('play');
   }
   busy = false;
   afterMove();

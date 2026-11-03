@@ -77,8 +77,28 @@ const SCREENS = [
   ['intro-boss',  `S.step=2; SOL.startFight(); SOL.closePanel(); SOL.fightIntro('boss');`],
   ['board',       ``],
   ['board-run',   `SOL.R.run=7; SOL.R.runVal=58; SOL.render();`],
-  ['board-stuck', `SOL.R.tableau.forEach(c=>{if(!c.gone)c.r=7}); SOL.R.waste=[{r:2,s:0}]; SOL.R.si=SOL.R.stock.length; SOL.render();`],
-  ['board-peak',  `SOL.R=SOL.dealRound(); SOL.LAYOUT.peak.forEach((k,i)=>{if(k===0)SOL.R.tableau[i].gone=true}); SOL.R.down=[0]; SOL.render();`],
+  /* Both of these used to be Tri-Peaks setups outright - R.tableau and
+     LAYOUT.peak - so on the board the game now opens on they threw, and
+     the two screens that show a player in trouble were never photographed
+     at all. Each one asks the board which board it is. */
+  ['board-stuck', `if(SOL.R.tableau){
+                     SOL.R.tableau.forEach(c=>{if(!c.gone)c.r=7}); SOL.R.waste=[{r:2,s:0}]; SOL.R.si=SOL.R.stock.length;
+                   } else {
+                     /* every face-up card a black seven: one cannot sit on
+                        another, and with no ace home none can go home */
+                     SOL.R.cols.forEach(col=>{col.down=[];col.up=[{r:7,s:0}]});
+                     SOL.R.found=[0,0,0,0]; SOL.R.waste=[{r:7,s:3}]; SOL.R.stock=[];
+                     SOL.R.passes=SOL.R.maxPass;
+                   }
+                   SOL.render();`],
+  /* a suit coming home is Klondike's version of a peak coming down */
+  ['board-peak',  `SOL.R=SOL.dealRound();
+                   if(SOL.R.tableau){
+                     SOL.LAYOUT.peak.forEach((k,i)=>{if(k===0)SOL.R.tableau[i].gone=true}); SOL.R.down=[0];
+                   } else {
+                     SOL.R.found=[13,6,0,0]; SOL.R.done=[0]; SOL.R.run=5; SOL.R.runVal=34;
+                   }
+                   SOL.render();`],
   ['board-pouch', `SOL.R=SOL.dealRound(); S.pots=['heal','iron','rage']; S.ironskin=true; S.rage=true; SOL.render(); SOL.renderPots();`],
   /* the gold and the experience are added before the panel on the real
      path, so they are added here too rather than counting up from behind */

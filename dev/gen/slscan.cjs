@@ -149,6 +149,7 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
         })(),
         tall: document.documentElement.scrollHeight > innerHeight + 1,
         foe: (document.querySelector('#foeName') || {}).textContent,
+        boardName,
         audit: window.__AUDIT('solitaire'),
       };
     });
@@ -156,7 +157,14 @@ const PLAIN = s => String(s).replace(/\s+/g, ' ').trim();
     const a = m.audit;
     const notes = [];
     if (!m.stage || m.stage.h < 100) { notes.push(`monster band only ${m.stage ? m.stage.h : 0}px`); bad++; }
-    if (!m.peaks || m.peaks.h < 90) { notes.push(`${m.boardName || 'board'} only ${m.peaks ? m.peaks.h : 0}px`); bad++; }
+    /* 90px was the right floor when the board was 28 cards in a fixed shape.
+       A Klondike board opens one card deep per column on purpose - the space
+       goes to the monster until a column needs it - so 85px at 320x568 is the
+       board working, not the board broken. What it must never be is shorter
+       than a card. The growing board is dev/gen/kldeep.cjs's job, and it
+       checks the deepest column ever measured at every size. */
+    const floor = m.boardName === 'columns' ? 50 : 90;
+    if (!m.peaks || m.peaks.h < floor) { notes.push(`${m.boardName || 'board'} only ${m.peaks ? m.peaks.h : 0}px`); bad++; }
     if (m.sideways) { notes.push('scrolls sideways: ' + (m.widest.join(' | ') || 'nothing sticks out, so it is a margin')); bad++; }
     if (m.tall) { notes.push(`page is ${document ? '' : ''}taller than the screen`); bad++; }
     if (m.headOver.length) { notes.push('over the monster head: ' + m.headOver.join(' | ')); bad++; }

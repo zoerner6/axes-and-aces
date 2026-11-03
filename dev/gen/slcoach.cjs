@@ -8,6 +8,17 @@
    a timer, each one points at the thing it is describing and sits fully on
    the screen, and a player who already knows never sees any of it again. */
 const { chromium } = require('playwright');
+
+/* Which button ends a mark, on whichever board is on screen. This file was
+   written against Tri-Peaks and clicked `.peaks .pk.free` and
+   `[data-act="turn"]` outright, so on Klondike it clicked nothing and then
+   reported the mark as failing to advance - a tool blaming the game for its
+   own selector. */
+const boardSel = async (p, want) => p.evaluate(w => {
+  const peaks = !!document.querySelector('.peaks');
+  if (w === 'stock') return peaks ? '[data-act="turn"]' : '[data-act="draw"]';
+  return peaks ? '.peaks .pk.free' : '.pk.kl.live, [data-from="w"].live';
+}, want);
 const { openGame } = require('./slopen.cjs');
 const { execFileSync } = require('child_process');
 const path = require('path');
@@ -25,11 +36,15 @@ const markState = () => {
     at: window.__SOL.coachLearned.join(','), busy: window.__SOL.busy,
     panel: document.getElementById('overlay').hidden ? 'none' :
       [...document.querySelectorAll('#panel [data-act]')].map(e => e.dataset.act).join(','),
-    free: document.querySelectorAll('.peaks .pk.free').length,
-    cards: document.querySelectorAll('.peaks .pk').length,
+    free: document.querySelectorAll('.peaks .pk.free, .pk.kl.live, [data-from="w"].live').length,
+    cards: document.querySelectorAll('.peaks .pk, .kl-col > .pk').length,
     stored: localStorage.getItem('sl_coachLearned'),
-    turnBtn: !!document.querySelector('[data-act="turn"]'),
-    stockLeft: window.__SOL.R.stock.length - window.__SOL.R.si,
+    turnBtn: !!document.querySelector('[data-act="turn"], [data-act="draw"]'),
+    /* the two boards count their stock the opposite way: Tri-Peaks walks an
+       index forward through it, Klondike pops off the end */
+    stockLeft: window.__SOL.R.tableau
+      ? window.__SOL.R.stock.length - window.__SOL.R.si
+      : window.__SOL.R.stock.length,
     run: window.__SOL.R.run
   };
   if (!c) return { up: false, ...ctx };
@@ -81,8 +96,12 @@ const markState = () => {
 
     /* and it goes when you do the thing it asked for */
     const did = await p.evaluate(async playable => {
-      const t = playable ? document.querySelector('.peaks .pk.free')
-                         : document.querySelector('[data-act="turn"]');
+      /* "turn" on Tri-Peaks, "draw" on Klondike. This said "turn" outright,
+         so on a dead Klondike opening board it clicked nothing and then
+         reported the mark as never being learned - the tool blaming the game
+         for its own selector, which is the same fault twice in one file. */
+      const t = playable ? document.querySelector('.peaks .pk.free, .pk.kl.live, [data-from="w"].live')
+                         : document.querySelector('[data-act="turn"], [data-act="draw"]');
       if (!t) return false;
       t.click();
       await new Promise(r => setTimeout(r, 900));
@@ -104,15 +123,28 @@ const markState = () => {
     const second = openedPlayable ? 'stock' : 'play';
     await p.evaluate(want => {
       const SOL = window.__SOL, R = SOL.R;
-      if (want === 'stock') {
-        /* nothing legal: every card a 7 and a 2 on the pile */
-        R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
-        R.waste = [{ r: 2, s: 0 }];
+      if (R.tableau) {
+        if (want === 'stock') {
+          /* nothing legal: every card a 7 and a 2 on the pile */
+          R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
+          R.waste = [{ r: 2, s: 0 }];
+        } else {
+          /* one legal card, on the bottom row where nothing covers it */
+          R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
+          R.tableau[18].gone = false; R.tableau[18].r = 7;
+          R.waste = [{ r: 8, s: 0 }];
+        }
       } else {
-        /* one legal card, on the bottom row where nothing covers it */
-        R.tableau.forEach(c => { if (!c.gone) c.r = 7; });
-        R.tableau[18].gone = false; R.tableau[18].r = 7;
-        R.waste = [{ r: 8, s: 0 }];
+        /* Klondike. Every column a lone black seven: a seven cannot sit on
+           another seven and with no ace home none of them can go home, so
+           the board is dead and the only thing left is the deck. */
+        R.cols.forEach(col => { col.down = []; col.up = [{ r: 7, s: 0 }]; });
+        R.found = [0, 0, 0, 0];
+        R.waste = [];
+        if (!R.stock.length) R.stock = [{ r: 9, s: 1 }, { r: 4, s: 3 }];
+        R.passes = 0;
+        /* and for the tap, exactly one card that can go home */
+        if (want !== 'stock') R.cols[0].up = [{ r: 1, s: 0 }];
       }
       /* no run going: otherwise turning a card lands a whole strike and the
          monster answers it, which takes seconds and is not what is being
@@ -129,8 +161,7 @@ const markState = () => {
        is still playing something out does nothing at all and looks from out
        here exactly like the mark failing to advance */
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 8000 }).catch(() => {});
-    await p.click(second === 'stock' ? '[data-act="turn"]' : '.peaks .pk.free',
-      { timeout: 4000 }).catch(() => {});
+    await p.click(await boardSel(p, second), { timeout: 4000 }).catch(() => {});
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 10000 }).catch(() => {});
     await p.waitForTimeout(400);
     m = await p.evaluate(markState);
@@ -167,7 +198,7 @@ const markState = () => {
     });
     await p.waitForTimeout(300);
     m = await p.evaluate(markState);
-    check('4. take all three down', m.up && m.onScreen, `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}`);
+    check('4. a suit, or a peak, comes down', m.up && m.onScreen, `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}`);
 
     /* once ever */
     await p.evaluate(() => { window.__SOL.coachLearned = ['play', 'stock', 'run', 'clear']; });

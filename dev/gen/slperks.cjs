@@ -30,6 +30,12 @@ const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
   p.on('pageerror', e => errs.push(String(e.message).replace(/\s+/g, ' ').slice(0, 150)));
   await p.goto('file://' + file, { waitUntil: 'load' });
   await p.waitForTimeout(400);
+  /* THIS TOOL TESTS THE PEAKS BOARD, so put the page on it. Tri-Peaks used
+     to be the only board and dealRound used to deal it; it is an unlock now
+     and a fresh hero is on Klondike, so every deal below came back as columns
+     and every R.tableau in here was undefined. dev/gen/klgear.cjs asks the
+     same questions of Klondike. */
+  await p.evaluate(() => { window.__SOL.S.board = 'peaks'; });
     await openGame(p);          /* the game opens on its story now */
 
   let bad = 0;
