@@ -1203,6 +1203,7 @@ const freshHero = () => ({
      know; Tri-Peaks is further in, and a hero who unlocks it carries that in
      their own save rather than in a global switch. */
   board:'klondike',
+  nextBoard:null,          /* a switch chosen mid-fight, taken at the next deal */
 });
 /* let, not const: loading a save from the cloud replaces the whole hero */
 let S = freshHero();
@@ -1211,6 +1212,26 @@ let S = freshHero();
    save there is - still answers, and answers 'peaks', which is the board it
    was actually played on. */
 const boardKind = () => S.board || 'peaks';
+/* Tri-Peaks is not the board a new player is handed - handing it to them was
+   the whole mistake. It opens once you have brought Anna home, as a second way
+   to read the same fight, and a hero who has seen it keeps it. */
+const peaksOpen = () => !!S.peaksOpen || (S.world | 0) >= 1;
+const BOARD_NAME = { klondike:'Klondike', peaks:'The three peaks' };
+const BOARD_BLURB = {
+  klondike:'Seven columns, four homes. The one everybody knows.',
+  peaks:'Three peaks over a pile, one rank up or one rank down.',
+};
+/* Taken at the next deal rather than now, so a switch can never be a way out
+   of a board that went badly. */
+function switchBoard(){
+  if(!peaksOpen()) return;
+  S.peaksOpen = true;
+  const now = S.nextBoard || boardKind();
+  S.nextBoard = now === 'peaks' ? 'klondike' : 'peaks';
+  saveGame();
+  menuPanel();
+  toast(`${BOARD_NAME[S.nextBoard]} from your next fight`);
+}
 const worldOf = () => WORLDS[(S.world || 0) % 10];
 const areaOf = () => Math.min(3, S.area | 0);
 const curArea = () => worldOf().areas[areaOf()];
@@ -1851,6 +1872,7 @@ function dealPeaks(opts = {}){
    daily, from a boss rule and from the opening board all arrive here, and the
    fight maths has to be the right board's before the first card is turned. */
 function dealRound(opts = {}){
+  if(S.nextBoard){ S.board = S.nextBoard; S.nextBoard = null; }
   const kind = opts.kind || boardKind();
   useBoard(kind);
   return kind === 'peaks' ? dealPeaks(opts) : dealKlondike(opts);
@@ -2762,6 +2784,13 @@ function menuPanel(){
         <img class="ico" src="art/i_map.webp" alt=""><b>How to play</b>
         <span>What a run is and why it matters.</span>
         <span class="cost">Read</span></button>
+      ${peaksOpen() ? (() => {
+        const to = (S.nextBoard || boardKind()) === 'peaks' ? 'klondike' : 'peaks';
+        return `<button class="buy" data-act="board">
+          <img class="ico" src="art/i_map.webp" alt=""><b>${BOARD_NAME[to]}</b>
+          <span>${BOARD_BLURB[to]}${S.nextBoard ? ' Switched already.' : ''}</span>
+          <span class="cost">${S.nextBoard ? 'Undo' : 'Switch'}</span></button>`;
+      })() : ''}
       <button class="buy" data-act="brag" data-kind="run">
         <img class="ico" src="art/i_attack.webp" alt=""><b>Brag about a run</b>
         <span>${S.bestRun ? `${S.bestRun} cards in a row so far.` : 'Once you have one worth showing.'}</span>
@@ -2771,7 +2800,7 @@ function menuPanel(){
         <span>The same cards for everybody today.</span>
         <span class="cost">Play</span></button>
       <button class="buy" data-act="lb">
-        <img class="ico" src="art/i_chest.webp" alt=""><b>Hall of readers</b>
+        <img class="ico" src="art/i_chest.webp" alt=""><b>Hall of heroes</b>
         <span>How far other players got.</span>
         <span class="cost">Open</span></button>
       <button class="buy" data-act="cloud">
@@ -2789,21 +2818,36 @@ function menuPanel(){
 /* Two short pages rather than one long one. A 320x568 screen cannot hold the
    whole of how this game works and still show the button that closes it, and
    no popup in this game is allowed to need scrolling. */
-const HELP = [
-  {title:'How to play',
-   lines:['It is solitaire. Seven columns, four spaces up top, aces first and kings last. Tap a card and it goes wherever it can &mdash; home if it can go home, onto a column if it cannot.',
-          'Columns build <b>down in alternating colours</b>. A king goes into an empty column. Turn a card off the deck when you are out of moves.',
-          'You get <b>three times through the deck</b>. A card sent <b>home</b> is a card that counts.']},
-  {title:'How it fights',
-   lines:['Every card you send home adds to your <b>run</b>. The run is the blow you are winding up.',
-          'Turn a card off the deck and the run ends &mdash; and that is when the blow lands. A run of one is a scratch. A run of eight is the end of something.',
-          'Finish a whole suit and it hits on its own. Get all four home and the fight is over.']}
-];
+const HELP_SETS = {
+  klondike: [
+    {title:'How to play',
+     lines:['It is solitaire. Seven columns, four spaces up top, aces first and kings last. Tap a card and it goes wherever it can &mdash; home if it can go home, onto a column if it cannot.',
+            'Columns build <b>down in alternating colours</b>. A king goes into an empty column. Turn a card off the deck when you are out of moves.',
+            'You get <b>three times through the deck</b>. A card sent <b>home</b> is a card that counts.']},
+    {title:'How it fights',
+     lines:['Every card you send home adds to your <b>run</b>. The run is the blow you are winding up.',
+            'Turn a card off the deck and the run ends &mdash; and that is when the blow lands. A run of one is a scratch. A run of eight is the end of something.',
+            'Finish a whole suit and it hits on its own. Get all four home and the fight is over.']}
+  ],
+  peaks: [
+    {title:'How to play',
+     lines:['Three peaks of cards over a pile. Clear a card onto the pile when it is <b>one rank above or below</b> the top card there.',
+            'An ace takes a king or a two, either way.',
+            'Every card you clear without touching the deck adds to your <b>run</b>. The run is the blow you are winding up.']},
+    {title:'How it fights',
+     lines:['Turn a card off the deck and the run ends &mdash; and that is when the blow lands. A run of one is a scratch. A run of eight is the end of something.',
+            'Run the deck out with peaks still standing and the monster gets a <b>free swing</b>, and the cards are dealt again.',
+            'Take all <b>three peaks</b> down and you cut the whole reading away. That is usually the end of the fight.']}
+  ],
+};
+const HELP = HELP_SETS.klondike;   /* so dev/gen/slcoach.cjs still finds one list */
 function helpPanel(page){
-  const i = Math.max(0, Math.min(HELP.length - 1, page | 0));
-  const h = HELP[i];
+  const pages = HELP_SETS[boardKind()] || HELP_SETS.klondike;
+  const i = Math.max(0, Math.min(pages.length - 1, page | 0));
+  const h = pages[i];
+  const HELP = pages;
   openPanel(`
-    <div class="eyebrow">Monster Solitaire &middot; ${i + 1} of ${HELP.length}</div>
+    <div class="eyebrow">${BOARD_NAME[boardKind()]} &middot; ${i + 1} of ${pages.length}</div>
     <h2>${h.title}</h2>
     ${h.lines.map(l => `<p>${l}</p>`).join('')}
     <button class="btn big" data-act="${i < HELP.length - 1 ? 'helpNext' : 'closeMenu'}" data-page="${i + 1}">
@@ -3559,6 +3603,7 @@ $('overlay').addEventListener('click', e => {
   if(act === 'storyNext'){ storyNext(b.dataset.key); return; }
   if(act === 'togMusic'){ musicOn = !musicOn; store.set('music', musicOn); updateMusic(); return menuPanel(); }
   if(act === 'togSound'){ soundOn = !soundOn; store.set('sound', soundOn); return menuPanel(); }
+  if(act === 'board'){ switchBoard(); return; }
   if(act === 'help'){ return helpPanel(0); }
   if(act === 'helpNext'){ return helpPanel(+b.dataset.page); }
   if(act === 'closeMenu'){ closePanel(); if(!S.fight) startFight(); return; }
@@ -3678,6 +3723,7 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   get SLOT(){ return SLOT; }, set SLOT(v){ SLOT = v; },
   startFight, makeFoe, WORLDS, BOSS_RULES,
   klondikeLegal, klondikeTap, klondikeDraw, layoutKlondike, bestMove, foundOK, isPeaks,
+  useBoard, boardKind, peaksOpen, switchBoard, FIGHT, HELP_SETS, BOSS_RULE_SETS,
   fightIntro, openPanel, closePanel, PERKS, hasPerk, levelPanel, victoryPanel,
   won, lost, nextFight, xpNeed, cumNeed, doStrike, peakDown, STRIKE_TIERS,
   shopPanel, CHARMS, POTIONS, hasCharm, drink, useCoin, renderPots, openBoard, setMyBars,
