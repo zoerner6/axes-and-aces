@@ -12,6 +12,14 @@
 > declared. A "Launch week" sale runs 25% off ($11.24) from 6pm on
 > 2 November to 6pm on 9 November.
 >
+> **The free Foundry VTT module is out.**
+> https://github.com/zoerner6/axes-and-aces/releases/tag/foundry-v1.0.0
+> Installs from
+> https://github.com/zoerner6/axes-and-aces/releases/latest/download/module.json
+> and that link is on the itch page. Both URLs were fetched and checked.
+> It has still never been loaded into a live Foundry - that is said on the
+> itch page, in the release notes and in the module's own README.
+>
 > One thing was skipped: no proof copy was ordered before publishing, on
 > Josh's instruction. The ink type is now welded to the ISBN. If the ten
 > full-bleed dark pages come back muddy, the fix is a new edition with a new
