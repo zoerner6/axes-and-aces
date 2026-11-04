@@ -2,6 +2,8 @@
    Walks the arc by winning fights outright rather than playing them, so the
    twelve-fight shape and the world handover get checked without a long game.
      node dev/gen/fkarc.cjs */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const http = require('http'), fs = require('fs'), path = require('path');
@@ -26,6 +28,7 @@ const srv = http.createServer((q,r)=>{
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
   p.on('console',m=>{ if(m.type()==='error'&&!/404/.test(m.text())) errs.push(m.text().slice(0,140)); });
   await p.goto(base,{waitUntil:'load'}); await p.waitForTimeout(700);
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   const q = js => p.evaluate(x=>window.__A.ev(x), js);
   const seen = [];
   /* clear the opening story */

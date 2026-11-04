@@ -7,6 +7,8 @@
    Each shot is checked before it is kept: nothing clipped, nothing spilling,
    no text on text. A screenshot of a broken frame is worse than no
    screenshot, because it goes in front of a reviewer. */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 
@@ -105,6 +107,7 @@ const SHOTS = [
       deviceScaleFactor: s.scale, isMobile: phone, hasTouch: phone, reducedMotion: 'reduce' });
     const p = await ctx.newPage();
     await p.goto(base, { waitUntil: 'load' });
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
     await p.waitForTimeout(2000);
     /* The portal SDK's loading panel never clears on a local server, and it
        would be in every shot: take it out of the picture, not out of the
