@@ -1,0 +1,34 @@
+{
+  "id": "axes-and-aces-monsters",
+  "title": "Axes & Aces Monsters",
+  "description": "168 monsters from the free card game Axes &amp; Aces, as 5E-compatible NPCs with their artwork. Companion to the Axes &amp; Aces Monster Manual. Free. <strong>Contains AI-generated art and AI-assisted text.</strong>",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "13"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "3.0.0"
+        }
+      }
+    ]
+  },
+  "authors": [
+    {
+      "name": "Axes & Aces",
+      "url": "https://AxesAndAces.com"
+    }
+  ],
+  "url": "https://AxesAndAces.com",
+  "esmodules": [
+    "scripts/aa-monsters.js"
+  ],
+  "packs": [],
+  "license": "LICENSE.txt",
+  "readme": "README.md"
+}
