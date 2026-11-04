@@ -3446,7 +3446,9 @@ function fightIntro(){
     ambush:{title:'Ambush!', text:`It jumped you. <b>It strikes first!</b>`},
     spot:{title:'You spot it first!', text:`You caught it off guard. <b>Strike first!</b>`},
     path:{title:'Blocked', text:`It won't let you past.`},
-    boss:{title:`The ${d.name}!`, text:`It guards the way ${(S.world||0)===0?'to Anna':'forward'}. <b>${d.rule}</b>`}
+    /* The Grimstone Dragon has no suit it shrugs off, and nor do some later
+       bosses, so only say the rule when there is one. */
+    boss:{title:`The ${d.name}!`, text:`It guards the way ${(S.world||0)===0?'to Anna':'forward'}.${d.rule?` <b>${d.rule}</b>`:''}`}
   }[S.enc];
   render();
   const pick=a=>a[rnd(a.length)];
