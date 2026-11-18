@@ -31,10 +31,11 @@ dev/android-app/www/icons/
 dev/android-app/www/music/
 dev/android-app/www/manifest.json
 
-# portal packages for Monster Farkle: rebuilt by dev/portal/farkle/build.py,
-# far too big for git
+# portal packages: rebuilt by dev/portal/build_portal.py (Axes & Aces) and
+# dev/portal/farkle/build.py (Monster Farkle), far too big for git
 dist/
 
-# the shrunk monster clips, rebuilt by dev/portal/farkle/encvid.py
+# the shrunk monster clips, rebuilt by dev/portal/encvid.py or
+# dev/portal/farkle/encvid.py
 .vid-small/
 .enc-sample/
