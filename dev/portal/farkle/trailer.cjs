@@ -15,6 +15,8 @@
    lot of nothing.
 
    Needs ffmpeg on the PATH. */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const http = require('http'), fs = require('fs'), path = require('path');
@@ -62,6 +64,7 @@ const ff = args => execFileSync('ffmpeg', ['-y', '-v', 'error', ...args], { stdi
   });
   const p = await ctx.newPage();
   await p.goto(base, { waitUntil: 'load' });
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   await p.waitForTimeout(1800);
   /* the SDK's loading panel never clears on a local server; it is not part
      of the game and must not be the first thing a reviewer sees */

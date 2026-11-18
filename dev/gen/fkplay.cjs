@@ -2,6 +2,8 @@
    Catches the things a screenshot cannot: a loop that stalls, a button left
    disabled forever, health that goes the wrong way, a turn that never ends.
      node dev/gen/fkplay.cjs [turns] */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const http = require('http'), fs = require('fs'), path = require('path');
@@ -29,6 +31,7 @@ const TURNS = +(process.argv[2] || 14);
   p.on('pageerror', e => errs.push('PAGE: ' + e.message));
   p.on('console', m => { if(m.type()==='error') errs.push('CONSOLE: ' + m.text().slice(0,160)); });
   await p.goto(base, {waitUntil:'load'});
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   await p.waitForTimeout(700);
 
   const look = () => p.evaluate(() => ({

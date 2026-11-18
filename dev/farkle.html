@@ -618,6 +618,18 @@ a.buy{text-decoration:none}
   .stage-top{padding-top:7px}
   .wind-num{font-size:1.7rem}
 }
+/* ---------- Old Bram's walk-through ----------
+   It costs no layout: the coaching speaks in the line the table already has,
+   the ring is an outline so it never moves anything, and Skip takes the place
+   of the three tools you do not need while being shown something. */
+.tut-point{ outline:3px solid var(--gold-hi); outline-offset:3px; border-radius:11px;
+  animation:tutpulse 1.15s ease-in-out infinite }
+@keyframes tutpulse{ 0%,100%{ outline-color:var(--gold-hi) } 50%{ outline-color:transparent } }
+@media (prefers-reduced-motion: reduce){ .tut-point{ animation:none } }
+body.tutoring .tools .tool:not(.skip){ display:none }
+body.tutoring .wind-note{ color:var(--parch); font-weight:600 }
+.tool.skip{ background:var(--gold); color:#16100d; border-color:#000 }
+.tut-say b{ color:var(--gold-hi) }
 </style>
 
 <div id="app">
@@ -627,6 +639,7 @@ a.buy{text-decoration:none}
       <button class="tool" data-act="menu">Menu</button>
       <button class="tool" data-act="guide">Scoring</button>
       <button class="tool" data-act="help" aria-label="How to play">?</button>
+      <button class="tool skip" data-act="tutSkip" hidden>Skip</button>
     </div>
   </header>
 
@@ -1292,6 +1305,118 @@ const SCORE_ROWS = [
   [[5,5,5,5,2,2], 'Four of a kind + a pair', '1,500'],
   [[1,1,1,4,4,4], 'Two triplets', '2,500']
 ];
+/* ===================== Old Bram shows you =====================
+   A guided first turn, played on the real table with real taps. The only
+   thing the walk-through invents is the faces: everything else - the lit
+   dice, the wind-up, the strike - is the game doing what it always does, so
+   what is learned here is the thing the player does a second later.
+
+   Skip is on screen at every step and ends it on the spot. Nothing is saved
+   or restored, because nothing is faked: a skipped lesson just leaves an
+   ordinary turn half played, which is a position the game already handles. */
+const LESSON = [
+  { deal:[1, 5, 3, 3, 4, 6],
+    say:'Six dice, one throw. <b>Tap Roll.</b>',
+    point:'#rollBtn',
+    done:() => rollNo >= 1 && !rolling && !busy },
+
+  { say:'A <b>1</b> is worth 100 and a <b>5</b> is worth 50. Nothing else scores on its own, so nothing else lit up. <b>Tap them both.</b>',
+    point:'.die.can',
+    done:() => pickScore() === 150 },
+
+  { deal:[2, 2, 2, 4],
+    say:'That is <b>150</b> wound up. Strike now and the monster takes 150 - or push, and it gets heavier. <b>Roll the four that are left.</b>',
+    point:'#rollBtn',
+    done:() => rollNo >= 2 && !rolling && !busy },
+
+  { say:'<b>Three 2s.</b> Three of a kind is the face times a hundred, so 200. <b>Tap all three.</b>',
+    point:'.die.can',
+    done:() => pickScore() === 200 },
+
+  { say:'<b>350</b> on the swing, one die left. One die only scores on a 1 or a 5, so two throws in three it <b>farkles</b>: the whole 350 gone, and the monster hits you for pushing. <b>Strike.</b>',
+    point:'#strikeBtn',
+    done:() => busy }
+];
+
+let tutor = null;        /* {i, tick} while Old Bram is talking */
+
+function tutorStart(){
+  if(tutor) return;
+  closePanel();
+  if(busy || rolling){ toast('One moment - finish this roll first.'); return; }
+  /* The lesson ends on a real strike, and a strike needs something to hit.
+     Reachable from the ? at any time, so it has to be asked. */
+  if(!S || !S.fight){ toast('Old Bram will show you once a monster is up.'); return; }
+  if(started) newTurn();                      /* begin the lesson at roll one */
+  tutor = { i:-1, tick:null };
+  document.body.classList.add('tutoring');
+  $('app').querySelector('.tool.skip').hidden = false;
+  tutorGo(0);
+  tutor.tick = setInterval(tutorPulse, 140);
+}
+
+function tutorGo(i){
+  tutor.i = i;
+  const s = LESSON[i];
+  dealt = s.deal ? s.deal.slice() : null;
+  $('windNote').innerHTML = '<span class="tut-say">' + s.say + '</span>';
+  renderWind();
+  tutorRing();
+}
+
+/* The ring follows the step, and the dice are rebuilt on every render, so it
+   has to be put back rather than set once. */
+function tutorRing(){
+  document.querySelectorAll('.tut-point').forEach(e => e.classList.remove('tut-point'));
+  if(!tutor) return;
+  document.querySelectorAll(LESSON[tutor.i].point).forEach(e => {
+    if(!e.disabled) e.classList.add('tut-point');
+  });
+}
+
+function tutorPulse(){
+  if(!tutor) return;
+  const s = LESSON[tutor.i];
+  /* the game rewrites this line whenever it rolls; say our piece again */
+  if($('windNote').textContent.indexOf(s.say.replace(/<[^>]+>/g, '').slice(0, 18)) < 0)
+    $('windNote').innerHTML = '<span class="tut-say">' + s.say + '</span>';
+  tutorRing();
+  if(!s.done()) return;
+  if(tutor.i + 1 < LESSON.length) return tutorGo(tutor.i + 1);
+  tutorEnd(false);
+}
+
+function tutorEnd(skipped){
+  if(!tutor) return;
+  clearInterval(tutor.tick);
+  tutor = null; dealt = null;
+  document.body.classList.remove('tutoring');
+  const sk = $('app').querySelector('.tool.skip'); if(sk) sk.hidden = true;
+  document.querySelectorAll('.tut-point').forEach(e => e.classList.remove('tut-point'));
+  store.set('taught', true);
+  renderWind();
+  if(skipped){ $('windNote').textContent = 'Set aside what scores, then roll or strike.'; return; }
+  /* let the strike land before talking over it */
+  setTimeout(tutorDone, 1700);
+}
+
+function tutorDone(){
+  openPanel(`<h2>What the dice are worth</h2>
+    <div class="guide">${SCORE_ROWS.map(([f, n, v]) =>
+      `<div class="g-row">${miniDice(f)}<span>${n}</span><em>${v}</em></div>`).join('')}</div>
+    <p class="menu-note">Always under <b>Scoring</b>. Old Bram will show you again from <b>?</b>.</p>
+    <button class="btn big" data-act="close">Fight</button>`);
+}
+
+/* Asked once, the first time somebody stands in front of a monster. */
+function tutorOffer(){
+  openPanel(`<div class="eyebrow">Before you swing</div><h2>Know Farkle?</h2>
+    <p>If you have never played it, Old Bram will walk you through one turn on
+      the real dice. It takes about a minute.</p>
+    <button class="btn big" data-act="tutor">Show me</button>
+    <button class="btn big ghost" data-act="tutorNo">I know Farkle</button>`);
+}
+
 function guidePanel(){
   openPanel(`<div class="eyebrow">Old Bram's table</div><h2>What the dice are worth</h2>
     <div class="guide">${SCORE_ROWS.map(([f, n, v]) =>
@@ -1306,11 +1431,12 @@ function helpPanel(){
       <li><b>Tap the dice that score.</b> Only those light up, so you cannot pick wrong.</li>
       <li><b>Roll again</b> with what is left. The wind-up grows.</li>
       <li><b>Strike</b>, and the monster takes the whole wind-up.</li>
-      <li>Roll nothing that scores and that is a <b>farkle</b>: the wind-up is gone and the monster hits you.</li>
+      <li>Score nothing and you <b>farkle</b>: the wind-up is gone and the monster hits you.</li>
     </ol>
     <div class="tipbox">The longer you push, the harder you hit, and the more you have to lose.</div>
+    <button class="btn big" data-act="tutor">Show me on the table</button>
     <button class="btn big ghost" data-act="guide">What the dice are worth</button>
-    <button class="btn big" data-act="close">Back</button>`);
+    <button class="btn big ghost" data-act="close">Back</button>`);
 }
 
 /* ===================== brag pictures =====================
@@ -1620,6 +1746,8 @@ let wind = 0;        /* locked into this turn's wind-up, not counting the pick *
 let rolling = false; /* dice in the air: nothing is tappable */
 let busy = false;    /* a strike or a monster's move is playing out */
 let started = false; /* before the first roll the dice are blank, not showing six 1s */
+let rollNo = 0;      /* rolls taken this turn, so the walk-through knows where it is */
+let dealt = null;    /* faces the walk-through is dealing, in place of chance */
 
 const liveIdx  = () => D.map((d, i) => i).filter(i => D[i].where === 'live');
 const pickIdx  = () => D.map((d, i) => i).filter(i => D[i].where === 'pick');
@@ -1710,6 +1838,14 @@ function renderWind(){
   const stop = rolling || busy;
   $('rollBtn').disabled = stop || (started && add === 0);
   $('strikeBtn').disabled = stop || !started || add === 0;
+  /* Mid-lesson, the button the step is not about stays out of the way.
+     Striking at step two would leave the walk-through talking about a
+     roll that never came. */
+  if(tutor){
+    const want = LESSON[tutor.i].point;
+    if(want !== '#rollBtn') $('rollBtn').disabled = true;
+    if(want !== '#strikeBtn') $('strikeBtn').disabled = true;
+  }
 }
 
 function toggleDie(i){
@@ -1729,7 +1865,7 @@ function rollDice(){
   dailySeedOn();
   ix.forEach((i, k) => {
     const d = D[i], el = d.el;
-    d.f = 1 + (Math.random() * 6 | 0);
+    d.f = dealt && dealt.length ? dealt.shift() : 1 + (Math.random() * 6 | 0);
     el.classList.remove('land', 'shiver', 'hot', 'tumble');
     el.style.setProperty('--dur', dur + 'ms');
     if(reduced()){ paintFace(el, d.f); return; }
@@ -1765,7 +1901,13 @@ document.addEventListener('click', e => {
   if(act === 'close') return closePanel();
   if(act === 'roll') return doRoll();
   if(act === 'strike') return doStrike();
-  if(act === 'fight'){ clearInterval(typer); closePanel(); busy = false; renderDice(); return; }
+  if(act === 'fight'){
+    clearInterval(typer); closePanel(); busy = false; renderDice();
+    /* the one moment it is worth asking: a monster is up, nothing has
+       happened yet, and the dice are about to matter */
+    if(!store.get('taught', false) && !S.wins && !S.deaths) tutorOffer();
+    return;
+  }
   if(act === 'onward'){ closePanel(); return S.pendingLv ? levelPanel() : shopPanel(); }
   if(act === 'perk') return takePerk(b.dataset.perk);
   if(act === 'shopTab') return shopPanel(b.dataset.tab);
@@ -1813,6 +1955,9 @@ document.addEventListener('click', e => {
   if(act === 'dailyGo'){ closePanel(); S.idx = 0; return startFight(); }
   if(act === 'postDaily') return postDaily(b);
   if(act === 'dailyQuit') return dailyQuit();
+  if(act === 'tutor') return tutorStart();
+  if(act === 'tutSkip') return tutorEnd(true);
+  if(act === 'tutorNo'){ store.set('taught', true); return closePanel(); }
   if(act === 'guide') return guidePanel();
   if(act === 'help') return helpPanel();
   if(act === 'lb') return lbPanel();
@@ -1939,6 +2084,7 @@ async function doRoll(){
   if(busy) return;
   busy = true;
   started = true;
+  rollNo++;
   commitPick();
   if(!liveIdx().length){
     if(hasRule('nohot')){
@@ -2108,7 +2254,7 @@ async function foeTurn(farkleMult){
 }
 
 function newTurn(){
-  wind = 0; started = false; busy = false;
+  wind = 0; started = false; busy = false; rollNo = 0;
   S.block = hasCharm('cup') ? 20 : 0;
   D.forEach(d => {
     d.where = 'live';
@@ -2546,6 +2692,8 @@ else storyPanel('start');
 window.__FK = { phoneCSSLive, store, openPanel, closePanel, toast,
   get D(){ return D; }, get wind(){ return wind; }, get S(){ return S; },
   rollDice, doRoll, doStrike, newTurn, startFight, scoreOf, bestSplit, isFarkle, facesOf, rollIdx,
+  tutorStart, tutorEnd, tutorOffer, get tutor(){ return tutor; }, get LESSON(){ return LESSON; },
+  get rollNo(){ return rollNo; }, pickScore,
   setFaces(fs){ fs.forEach((f, i) => { D[i].f = f; D[i].where = 'live'; paintFace(D[i].el, f); }); started = true; placeDice(); } };
 })();
 </script>

@@ -16,6 +16,8 @@
        happens on a plain web server and whenever an ad fails to fill
      - a panel cancels the one before it, so no stale line lands in it
      - no page scroll and no panel that needs scrolling, at four phone sizes */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 
@@ -123,6 +125,7 @@ function serve() {
   p.on('request', r => { if (BANNED.test(r.url())) offsite.push(r.url()); });
 
   await p.goto(base, { waitUntil: 'load' });
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   await p.waitForTimeout(2500);
   ok('the page boots', await p.evaluate(() => !!document.getElementById('app')));
   ok('the game exposes its hooks', await p.evaluate(() => !!window.__FK && !!window.AA));
@@ -181,6 +184,7 @@ function serve() {
   q0.on('response', r => { if (r.status() >= 400) missing.push(r.status() + ' ' + r.url().replace(base, '')); });
   q0.on('request', r => { if (BANNED.test(r.url())) offsite.push(r.url()); });
   await q0.goto(base, { waitUntil: 'load' });
+  await q0.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   await q0.waitForTimeout(2200);
   /* A bot that plays the way the game means you to: set aside the best split
      the game's own scoring finds, keep rolling while the wind is small, strike
@@ -267,6 +271,7 @@ function serve() {
     const c = await b.newContext({ viewport: { width: w, height: h }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
     const q = await c.newPage();
     await q.goto(base, { waitUntil: 'load' });
+  await q.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
     await q.waitForTimeout(1800);
     const m = await q.evaluate(() => {
       const d = document.documentElement;

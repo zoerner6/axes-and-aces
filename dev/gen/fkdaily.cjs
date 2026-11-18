@@ -1,6 +1,8 @@
 /* Does the daily challenge really give everybody the same day?
    Two clean browsers, same day, must see the same monsters and the same dice.
      node dev/gen/fkdaily.cjs */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const http = require('http'), fs = require('fs'), path = require('path');
@@ -23,6 +25,7 @@ async function runOne(b, base){
   const errs = [];
   p.on('pageerror', e => errs.push(e.message));
   await p.goto(base, {waitUntil:'load'});
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   await p.waitForTimeout(600);
   await p.evaluate(x => window.__A.ev(x), 'startDaily();');
   await p.waitForTimeout(200);

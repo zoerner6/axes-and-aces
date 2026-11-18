@@ -9,6 +9,8 @@
    measurement is worth anything: is the phone CSS actually live? The source has
    no <head>, so a page built by hand has no viewport meta, and Chrome then lays
    it out at 980px while every max-width query silently reads false. */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
 const http = require('http');
@@ -85,6 +87,7 @@ function serve() {
       const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
       const p = await ctx.newPage();
       await p.goto(base, { waitUntil: 'load' });
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
       const r = await p.evaluate(() => ({
         layoutWidth: document.documentElement.clientWidth,
         phone560: matchMedia('(max-width:560px)').matches,
@@ -117,6 +120,7 @@ function serve() {
       p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });
       try {
         await p.goto(base, { waitUntil: 'load' });
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
         await p.waitForTimeout(700);
         if (!await p.evaluate(() => matchMedia('(max-width:560px)').matches))
           throw new Error('phone CSS is NOT live - the viewport meta is missing');

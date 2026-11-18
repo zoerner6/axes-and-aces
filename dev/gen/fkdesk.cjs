@@ -1,6 +1,8 @@
 /* Monster Farkle on a desktop: the monster fills the screen, nothing covers
    its face, and the dice stay readable.
      node dev/gen/fkdesk.cjs */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = require('path').join(__dirname, '..', '..');
@@ -26,6 +28,7 @@ const srv = http.createServer((q,r)=>{
     const p=await ctx.newPage();
     const errs=[]; p.on('pageerror',e=>errs.push(e.message));
     await p.goto(base,{waitUntil:'load'}); await p.waitForTimeout(900);
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
     await p.evaluate(x=>window.__A.ev(x), `closePanel(); S.level=5; S.maxHp=800; S.hp=620; S.gold=48;
       S.eq={main:{type:'axe',tier:3},off:null,shield:{type:'shield',tier:2},helm:{type:'helm',tier:3},armor:{type:'armor',tier:2}};
       S.pots=['heal','iron']; S.world=0; S.idx=1; startFight();

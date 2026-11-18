@@ -5,6 +5,8 @@
    page serving at all, its headers, its own icon and manifest, the share
    banner, the front-page link, and the leaderboard function answering on the
    new board. Then it opens the real page in a browser and plays a turn. */
+/* a bot has played before: take the one-time walk-through offer out
+   of the way, the same as a returning player */
 const { chromium } = require('playwright');
 
 const SITE = 'https://axesandaces.com';
@@ -67,6 +69,7 @@ async function head(path, want) {
   p.on('pageerror', e => errs.push(e.message));
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 120)); });
   await p.goto(SITE + '/farkle.html', { waitUntil: 'load' });
+  await p.evaluate(() => { try{ window.__FK.store.set('taught', true); }catch(e){} }).catch(() => {});
   await p.waitForTimeout(2500);
   const started = await p.evaluate(() => !!document.querySelector('.fklogo, #rollBtn'));
   ok('the page boots', started);
