@@ -1,0 +1,4667 @@
+{
+ "worlds": [
+  {
+   "id": "w1",
+   "i": 0,
+   "name": "The Rescue of Anna",
+   "quest": "Bring Anna Home",
+   "areas": [
+    {
+     "name": "The Gilded Ace",
+     "place": "In the shadows of the tavern"
+    },
+    {
+     "name": "The Cellar",
+     "place": "In the damp dark of the cellar"
+    },
+    {
+     "name": "The Dark Forest",
+     "place": "Between the twisted trees"
+    },
+    {
+     "name": "Castle Grimstone",
+     "place": "In the castle's cold halls"
+    }
+   ]
+  },
+  {
+   "id": "w2",
+   "i": 1,
+   "name": "The Frozen Peaks",
+   "quest": "The Frost Crown",
+   "intro": [
+    {
+     "title": "A summons from the King",
+     "text": "A royal rider gallops into the Gilded Ace. \"Sir Edward! The Frost Giant has stolen the King's Frost Crown. Without it, winter will never end.\""
+    },
+    {
+     "title": "Into the snow",
+     "text": "Anna presses a warm cloak into your hands. \"Come back to us, Sir Edward.\" You ride north, where the mountains are white and the wind howls like wolves."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Ice Caves",
+     "text": "The Yeti Chieftain falls in the snow. Huge footprints lead into a cave that glitters like a thousand blue diamonds."
+    },
+    "a2": {
+     "title": "The Frozen Lake",
+     "text": "Beyond the caves lies a frozen lake. On the far shore, the Frost Giant's hall smokes with blue fire."
+    },
+    "a3": {
+     "title": "The Giant's Hall",
+     "text": "The Frost Wyrm sinks beneath the ice. The doors of the Giant's hall stand open, and from inside comes a laugh like an avalanche."
+    },
+    "end": [
+     {
+      "title": "The crown returns",
+      "text": "The Frost Giant crashes down like a falling mountain. You lift the Frost Crown from the snow, and the clouds begin to part."
+     },
+     {
+      "title": "Spring comes",
+      "text": "The King places the crown on his head and warm wind sweeps the land. \"Rest well, Sir Edward. I fear we will need you again soon.\""
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Climb the Snowy Pass",
+     "Follow the Frost Giant's tracks"
+    ],
+    [
+     "Push through the blizzard",
+     "The trail goes higher"
+    ],
+    [
+     "Face the Yeti Chieftain",
+     "He guards the pass"
+    ],
+    [
+     "Enter the Ice Caves",
+     "The tracks lead inside"
+    ],
+    [
+     "Search the glittering tunnels",
+     "Something glows deeper in"
+    ],
+    [
+     "Find the Ice Witch",
+     "She serves the Giant"
+    ],
+    [
+     "Cross the Frozen Lake",
+     "The Giant's hall lies beyond"
+    ],
+    [
+     "Keep to the thick ice",
+     "The ice is cracking"
+    ],
+    [
+     "Face the Frost Wyrm",
+     "It rises from the lake"
+    ],
+    [
+     "Storm the Giant's Hall",
+     "Get the crown back"
+    ],
+    [
+     "Fight through the hall",
+     "The throne room is close"
+    ],
+    [
+     "Face the Frost Giant",
+     "Take back the Frost Crown"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Snowy Pass",
+     "place": "On the icy mountain trail"
+    },
+    {
+     "name": "The Ice Caves",
+     "place": "In the glittering ice caves"
+    },
+    {
+     "name": "The Frozen Lake",
+     "place": "On the cracking frozen lake"
+    },
+    {
+     "name": "The Giant's Hall",
+     "place": "In the Frost Giant's hall"
+    }
+   ]
+  },
+  {
+   "id": "w3",
+   "i": 2,
+   "name": "The Burning Sands",
+   "quest": "The Lost Caravan",
+   "intro": [
+    {
+     "title": "A cry for help",
+     "text": "A caravan carrying the kingdom's medicine has vanished in the Burning Sands. The last message says only: \"The dead walk at night.\""
+    },
+    {
+     "title": "The endless desert",
+     "text": "You cross the dunes under a blazing sun. Far away, half buried in sand, stands an ancient pyramid."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Oasis Ruins",
+     "text": "From inside the Sand Wyrm's coils you pull a torn caravan flag. Its trail leads to an old oasis in ruins."
+    },
+    "a2": {
+     "title": "The Pyramid",
+     "text": "The Djinn vanishes in smoke and leaves behind a golden key. It fits the great door of the pyramid."
+    },
+    "a3": {
+     "title": "The Sun Temple",
+     "text": "The Pharaoh crumbles to dust. Through a hidden passage you climb toward the Sun Temple, where the merchants are chained."
+    },
+    "end": [
+     {
+      "title": "The caravan is free",
+      "text": "The Scorched King falls and the flames go out. You break the merchants' chains, and they weep with joy."
+     },
+     {
+      "title": "Medicine for the kingdom",
+      "text": "The caravan rolls home with its medicine. Children cheer as Sir Edward rides beside the wagons."
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Cross the dunes",
+     "Find the lost caravan"
+    ],
+    [
+     "Follow the wagon tracks",
+     "They lead deeper into the desert"
+    ],
+    [
+     "Face the Sand Wyrm",
+     "It swallowed the last wagon"
+    ],
+    [
+     "Reach the Oasis Ruins",
+     "Water, and footprints"
+    ],
+    [
+     "Search the broken temple",
+     "The merchants were here"
+    ],
+    [
+     "Face the Dark Djinn",
+     "He holds the caravan's keys"
+    ],
+    [
+     "Enter the Pyramid",
+     "The dead walk inside"
+    ],
+    [
+     "Go deeper into the tombs",
+     "You hear crying below"
+    ],
+    [
+     "Face the Mummy Pharaoh",
+     "He wakes at last"
+    ],
+    [
+     "Climb to the Sun Temple",
+     "The caravan is held at the top"
+    ],
+    [
+     "Fight up the burning stairs",
+     "Almost there"
+    ],
+    [
+     "Face the Scorched King",
+     "Free the caravan"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Dunes",
+     "place": "Among the scorching dunes"
+    },
+    {
+     "name": "The Oasis Ruins",
+     "place": "In the ruined oasis"
+    },
+    {
+     "name": "The Pyramid",
+     "place": "In the pyramid's dark halls"
+    },
+    {
+     "name": "The Sun Temple",
+     "place": "In the burning Sun Temple"
+    }
+   ]
+  },
+  {
+   "id": "w4",
+   "i": 3,
+   "name": "The Sunken Coast",
+   "quest": "The Drowned Bell",
+   "intro": [
+    {
+     "title": "Ships are vanishing",
+     "text": "Every ship that sails past the Sunken Coast disappears. Fishermen whisper about a giant bell ringing under the waves."
+    },
+    {
+     "title": "To the coast",
+     "text": "You sail out on a fishing boat. Fog rolls in, and somewhere below the water, a bell begins to toll."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Shipwreck",
+     "text": "Captain Blacktide's map shows a wreck below the cove. You drink a sea-witch's potion, take a deep breath and dive."
+    },
+    "a2": {
+     "title": "The Coral Depths",
+     "text": "Past the ghost ship, the sea floor opens into a forest of glowing coral. The bell's toll shakes the water."
+    },
+    "a3": {
+     "title": "The Drowned Temple",
+     "text": "The Sea Serpent sinks into the dark. Ahead lies a temple, and inside it a giant bronze bell wrapped in tentacles."
+    },
+    "end": [
+     {
+      "title": "The bell falls silent",
+      "text": "The Kraken lets go and sinks into the deep. You cut the bell's chain, and the sea goes calm and still."
+     },
+     {
+      "title": "Safe waters",
+      "text": "Ships sail the coast again. The fishermen name their best boat the Sir Edward."
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Sneak into the smugglers' cove",
+     "The pirates know something"
+    ],
+    [
+     "Search the pirate docks",
+     "Find their captain"
+    ],
+    [
+     "Face Captain Blacktide",
+     "He sails for the Kraken"
+    ],
+    [
+     "Dive into the shipwreck",
+     "The bell rings below"
+    ],
+    [
+     "Search the flooded decks",
+     "Cursed sailors lurk here"
+    ],
+    [
+     "Face the Ghost Captain",
+     "He guards the way down"
+    ],
+    [
+     "Swim into the coral depths",
+     "The ringing grows louder"
+    ],
+    [
+     "Follow the glowing coral",
+     "The temple is near"
+    ],
+    [
+     "Face the Sea Serpent",
+     "It circles the temple"
+    ],
+    [
+     "Enter the Drowned Temple",
+     "Silence the bell"
+    ],
+    [
+     "Fight through the temple halls",
+     "The bell is right ahead"
+    ],
+    [
+     "Face the Kraken",
+     "End the curse of the coast"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Smugglers' Cove",
+     "place": "In the smugglers' cove"
+    },
+    {
+     "name": "The Shipwreck",
+     "place": "Inside the rotting shipwreck"
+    },
+    {
+     "name": "The Coral Depths",
+     "place": "In the glowing coral depths"
+    },
+    {
+     "name": "The Drowned Temple",
+     "place": "In the drowned temple"
+    }
+   ]
+  },
+  {
+   "id": "w5",
+   "i": 4,
+   "name": "The Plague Marsh",
+   "quest": "The Rotting Curse",
+   "intro": [
+    {
+     "title": "A sickness spreads",
+     "text": "A green fog drifts out of the Plague Marsh, and everyone it touches falls ill. An old healer begs for help: \"Someone is brewing the curse.\""
+    },
+    {
+     "title": "Into the fog",
+     "text": "You wrap a cloth over your face and wade into the marsh. The trees are dead and the water bubbles."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Plague Village",
+     "text": "The Croc sinks into the muck. Beyond the reeds, an empty village sits on stilts, its lanterns still burning."
+    },
+    "a2": {
+     "title": "The Witch's Bog",
+     "text": "In the Plague Beast's den you find empty potion jars, all marked with the same witch's sign. It points to the bog."
+    },
+    "a3": {
+     "title": "The Hag's Lair",
+     "text": "The Bog Troll falls with a splash. Inside a giant rotting tree, a green cauldron bubbles, and a cackle echoes."
+    },
+    "end": [
+     {
+      "title": "The cauldron breaks",
+      "text": "The Bog Hag shrieks and melts into the mud. You kick over her cauldron, and the green fog drains away."
+     },
+     {
+      "title": "The healing",
+      "text": "The sick wake up healthy. The old healer bows. \"The whole kingdom owes you its life, Sir Edward.\""
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Wade into the Rotting Fen",
+     "Find where the fog begins"
+    ],
+    [
+     "Push through the swamp",
+     "The fog grows thicker"
+    ],
+    [
+     "Face the Swamp King Croc",
+     "It guards the deep marsh"
+    ],
+    [
+     "Reach the plague village",
+     "Survivors may be hiding"
+    ],
+    [
+     "Search the empty houses",
+     "Someone left a trail of potions"
+    ],
+    [
+     "Face the Plague Beast",
+     "It spreads the sickness"
+    ],
+    [
+     "Enter the Witch's Bog",
+     "The potions came from here"
+    ],
+    [
+     "Follow the purple lights",
+     "The hag's hut is near"
+    ],
+    [
+     "Face the Bog Troll",
+     "He guards her door"
+    ],
+    [
+     "Enter the Hag's Lair",
+     "Stop the curse"
+    ],
+    [
+     "Fight past her creatures",
+     "The cauldron bubbles ahead"
+    ],
+    [
+     "Face the Bog Hag",
+     "Break the rotting curse"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Rotting Fen",
+     "place": "In the rotting fen"
+    },
+    {
+     "name": "The Plague Village",
+     "place": "In the abandoned plague village"
+    },
+    {
+     "name": "The Witch's Bog",
+     "place": "In the witch's bog"
+    },
+    {
+     "name": "The Hag's Lair",
+     "place": "In the Bog Hag's lair"
+    }
+   ]
+  },
+  {
+   "id": "w6",
+   "i": 5,
+   "name": "The Iron Mines",
+   "quest": "The Stolen Forge",
+   "intro": [
+    {
+     "title": "The forge goes cold",
+     "text": "The dwarves of the Iron Mines have sent no iron for months. A wounded dwarf crawls into the castle: \"The golems woke up... they took the Great Forge!\""
+    },
+    {
+     "title": "Into the mountain",
+     "text": "You light a lantern and step into the mine. Deep below, something heavy goes thump... thump... thump."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Crystal Cavern",
+     "text": "The Foreman drops a map scratched on leather. It shows a cavern full of crystals where the dwarves were taken."
+    },
+    "a2": {
+     "title": "The Lava Tunnels",
+     "text": "Beyond the Drake's nest, the air turns hot. Rivers of lava light the way down to the Great Forge."
+    },
+    "a3": {
+     "title": "The Great Forge",
+     "text": "The Lava Golem crumbles. Through the doors you see the dwarves chained to the anvils, and a giant made of iron."
+    },
+    "end": [
+     {
+      "title": "The forge burns again",
+      "text": "The Iron Golem crashes down. The dwarves break free and light the Great Forge with a mighty cheer."
+     },
+     {
+      "title": "A gift of steel",
+      "text": "The dwarf king hands you a shield marked with your name. \"No finer knight ever walked our halls, Sir Edward.\""
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Enter the mine shafts",
+     "Find the dwarves"
+    ],
+    [
+     "Follow the rail tracks",
+     "They go deeper"
+    ],
+    [
+     "Face the Goblin Foreman",
+     "He bosses the mine"
+    ],
+    [
+     "Climb into the crystal cavern",
+     "The thumping grows louder"
+    ],
+    [
+     "Search among the crystals",
+     "Dwarf tracks lead on"
+    ],
+    [
+     "Face the Crystal Drake",
+     "It nests in the cavern"
+    ],
+    [
+     "Cross the lava tunnels",
+     "The forge is below"
+    ],
+    [
+     "Brave the burning bridges",
+     "Keep going"
+    ],
+    [
+     "Face the Lava Golem",
+     "It blocks the forge door"
+    ],
+    [
+     "Storm the Great Forge",
+     "Free the dwarves"
+    ],
+    [
+     "Fight past the clockwork guards",
+     "The forge master waits"
+    ],
+    [
+     "Face the Iron Golem",
+     "Take back the forge"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Mine Shafts",
+     "place": "In the dark mine shafts"
+    },
+    {
+     "name": "The Crystal Cavern",
+     "place": "In the crystal cavern"
+    },
+    {
+     "name": "The Lava Tunnels",
+     "place": "In the scorching lava tunnels"
+    },
+    {
+     "name": "The Great Forge",
+     "place": "In the Great Forge"
+    }
+   ]
+  },
+  {
+   "id": "w7",
+   "i": 6,
+   "name": "The Haunted Abbey",
+   "quest": "The Silent Bells",
+   "intro": [
+    {
+     "title": "The bells stop",
+     "text": "The bells of the Holy Abbey have gone silent, and the monks have not been seen in weeks. At night, candles flicker in every window."
+    },
+    {
+     "title": "The abbey gates",
+     "text": "The gates creak open on their own. A cold voice whispers your name: \"Edwaaard...\""
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Cloister",
+     "text": "The Headless Knight falls apart. A key on a black ribbon opens the abbey door, and the cold voice laughs inside."
+    },
+    "a2": {
+     "title": "The Catacombs",
+     "text": "The Abbot sobs as the curse leaves him. \"The Lich... he hides below, in the bones.\""
+    },
+    "a3": {
+     "title": "The Bell Tower",
+     "text": "The Bone Dragon collapses into a pile of bones. Far above, in the tower, a green light pulses where the bells should ring."
+    },
+    "end": [
+     {
+      "title": "The bells ring",
+      "text": "The Lich shatters into dust. You pull the great rope, and the bells ring out across the land for the first time in weeks."
+     },
+     {
+      "title": "Peace returns",
+      "text": "The monks return, whole again. They carve your name in the abbey wall: Sir Edward, the Bell-Ringer."
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Enter the graveyard",
+     "The dead are restless"
+    ],
+    [
+     "Search among the graves",
+     "Something rides at night"
+    ],
+    [
+     "Face the Headless Knight",
+     "He guards the abbey"
+    ],
+    [
+     "Enter the cloister",
+     "The monks were last seen here"
+    ],
+    [
+     "Search the haunted halls",
+     "Candles float in the air"
+    ],
+    [
+     "Face the Cursed Abbot",
+     "He knows the truth"
+    ],
+    [
+     "Descend into the catacombs",
+     "The curse lies below"
+    ],
+    [
+     "Search the walls of bones",
+     "A dragon sleeps here"
+    ],
+    [
+     "Face the Bone Dragon",
+     "It wakes"
+    ],
+    [
+     "Climb the bell tower",
+     "Ring the bells again"
+    ],
+    [
+     "Fight up the tower stairs",
+     "Lightning strikes"
+    ],
+    [
+     "Face the Lich",
+     "Lift the abbey's curse"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Graveyard",
+     "place": "Among the abbey graves"
+    },
+    {
+     "name": "The Cloister",
+     "place": "In the haunted cloister"
+    },
+    {
+     "name": "The Catacombs",
+     "place": "In the bone-lined catacombs"
+    },
+    {
+     "name": "The Bell Tower",
+     "place": "In the cursed bell tower"
+    }
+   ]
+  },
+  {
+   "id": "w8",
+   "i": 7,
+   "name": "The Elven Wilds",
+   "quest": "The Thorned Heart",
+   "intro": [
+    {
+     "title": "The forest turns dark",
+     "text": "The peaceful elves of the Wilds have stopped trading. Travelers come back covered in thorns, whispering about a queen with a heart of briars."
+    },
+    {
+     "title": "The silver forest",
+     "text": "The trees of the Wilds shine like silver, but black thorns are choking them. Elven eyes watch you from the branches."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Moonlit Glade",
+     "text": "The Briar Bear falls and the thorns pull back. A small elf girl peeks out from behind a tree. \"Please... help our queen.\""
+    },
+    "a2": {
+     "title": "The Elven City",
+     "text": "The Dark Unicorn's horn cracks, and its red glow fades. The elf girl leads you to a city in the trees, wrapped in thorns."
+    },
+    "a3": {
+     "title": "The Heart Tree",
+     "text": "The Thorn General kneels, freed from the spell. \"The queen took the Heart of the Forest. Save her... from herself.\""
+    },
+    "end": [
+     {
+      "title": "The heart is free",
+      "text": "The thorns crumble from the Queen's crown. She opens her eyes, and they are kind again. \"What have I done?\""
+     },
+     {
+      "title": "Friends of the forest",
+      "text": "The silver trees bloom. The Elf Queen gives you a leaf of pure silver. \"The elves will always stand with Sir Edward.\""
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Enter the Silver Woods",
+     "Find the elves"
+    ],
+    [
+     "Cut through the thorns",
+     "Eyes watch from the trees"
+    ],
+    [
+     "Face the Briar Bear",
+     "It guards the woods"
+    ],
+    [
+     "Reach the Moonlit Glade",
+     "A friendly elf hides here"
+    ],
+    [
+     "Search the standing stones",
+     "The thorns spread from the city"
+    ],
+    [
+     "Face the Dark Unicorn",
+     "Its horn feeds the curse"
+    ],
+    [
+     "Enter the elven city",
+     "The elves are under a spell"
+    ],
+    [
+     "Cross the tree bridges",
+     "The Heart Tree is ahead"
+    ],
+    [
+     "Face the Thorn General",
+     "He leads the queen's army"
+    ],
+    [
+     "Reach the Heart Tree",
+     "Free the forest's heart"
+    ],
+    [
+     "Cut through the roots",
+     "The queen is waiting"
+    ],
+    [
+     "Face the Thorn Queen",
+     "Break the thorned heart"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Silver Woods",
+     "place": "In the silver woods"
+    },
+    {
+     "name": "The Moonlit Glade",
+     "place": "In the moonlit glade"
+    },
+    {
+     "name": "The Elven City",
+     "place": "In the overgrown elven city"
+    },
+    {
+     "name": "The Heart Tree",
+     "place": "Under the Heart Tree"
+    }
+   ]
+  },
+  {
+   "id": "w9",
+   "i": 8,
+   "name": "The Sky Fortress",
+   "quest": "The Storm Throne",
+   "intro": [
+    {
+     "title": "A storm that never ends",
+     "text": "Lightning strikes the kingdom every night, and a fortress has appeared floating in the clouds. The King's wizard says: \"The Storm Titan has awoken.\""
+    },
+    {
+     "title": "Up to the clouds",
+     "text": "The wizard's spell lifts you on a staircase of wind. Up and up you climb, into the storm."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Sky Gardens",
+     "text": "The Griffon King bows his golden head and lets you ride on his back to the floating gardens."
+    },
+    "a2": {
+     "title": "The Fortress Walls",
+     "text": "The Storm Drake falls into the clouds. Before you rise the huge walls of the Sky Fortress, crackling with lightning."
+    },
+    "a3": {
+     "title": "The Storm Throne",
+     "text": "The Storm Giant topples off the walls. At the very top, on a throne of lightning, the Titan opens his eyes."
+    },
+    "end": [
+     {
+      "title": "The storm breaks",
+      "text": "The Titan roars and fades into a harmless cloud. Sunlight pours over the fortress for the first time in a hundred years."
+     },
+     {
+      "title": "A dark warning",
+      "text": "In the empty throne you find a black letter: \"You cannot stop me forever. Come to the Abyss, Sir Edward.\" It is signed with a burning crown."
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Cross the cloud bridges",
+     "Reach the floating fortress"
+    ],
+    [
+     "Leap across the floating rocks",
+     "Harpies circle above"
+    ],
+    [
+     "Face the Griffon King",
+     "He rules the sky"
+    ],
+    [
+     "Explore the sky gardens",
+     "Find a way into the fortress"
+    ],
+    [
+     "Search the floating islands",
+     "Lightning strikes all around"
+    ],
+    [
+     "Face the Storm Drake",
+     "It guards the fortress gate"
+    ],
+    [
+     "Climb the fortress walls",
+     "The throne is at the top"
+    ],
+    [
+     "Fight along the battlements",
+     "Storm soldiers everywhere"
+    ],
+    [
+     "Face the Storm Giant",
+     "The Titan's guard"
+    ],
+    [
+     "Enter the throne room",
+     "End the storm"
+    ],
+    [
+     "Fight through the lightning",
+     "The Titan rises"
+    ],
+    [
+     "Face the Storm Titan",
+     "Calm the skies"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Cloud Bridges",
+     "place": "On the cloud bridges"
+    },
+    {
+     "name": "The Sky Gardens",
+     "place": "In the floating sky gardens"
+    },
+    {
+     "name": "The Fortress Walls",
+     "place": "On the fortress walls"
+    },
+    {
+     "name": "The Storm Throne",
+     "place": "Before the Storm Throne"
+    }
+   ]
+  },
+  {
+   "id": "w10",
+   "i": 9,
+   "name": "The Abyss",
+   "quest": "The Demon King",
+   "intro": [
+    {
+     "title": "The final quest",
+     "text": "The letter burns away in your hands. Every monster you ever fought was sent by one master: the Demon King, who waits in the Abyss."
+    },
+    {
+     "title": "The gates of the Abyss",
+     "text": "Anna, Old Bram, the King and all your friends see you off. You step through the burning gates into darkness."
+    }
+   ],
+   "story": {
+    "a1": {
+     "title": "The Chained Halls",
+     "text": "Cerberus whimpers and runs off. Below, you hear the rattle of chains and the cries of the Demon King's prisoners."
+    },
+    "a2": {
+     "title": "The Lake of Fire",
+     "text": "With the Warden's keys you free the prisoners. They point across a lake of fire to a castle of black glass."
+    },
+    "a3": {
+     "title": "The Demon Throne",
+     "text": "The Flame Fiend sinks into the lake. The doors of the black castle open, and a voice like thunder says: \"At last, Sir Edward.\""
+    },
+    "end": [
+     {
+      "title": "The Demon King falls",
+      "text": "With one last mighty hand, the Demon King crashes from his throne. His burning crown rolls to your feet and goes dark."
+     },
+     {
+      "title": "Legend of Sir Edward",
+      "text": "The whole kingdom celebrates for a week. Anna, Old Bram and the King raise their cups: \"To Sir Edward, the greatest hero who ever lived!\""
+     },
+     {
+      "title": "But the darkness stirs...",
+      "text": "Deep in the Abyss, the shadows gather again. New monsters rise, stronger than ever. The Endless Quest begins."
+     }
+    ]
+   },
+   "steps": [
+    [
+     "Cross the ash wastes",
+     "The Demon King waits below"
+    ],
+    [
+     "March through the fire",
+     "His hounds are hunting you"
+    ],
+    [
+     "Face Cerberus",
+     "It guards the way down"
+    ],
+    [
+     "Enter the chained halls",
+     "His prisoners call for help"
+    ],
+    [
+     "Search the cages",
+     "Free who you can"
+    ],
+    [
+     "Face the Pit Warden",
+     "He holds the keys"
+    ],
+    [
+     "Reach the lake of fire",
+     "The throne is across"
+    ],
+    [
+     "Cross the burning bridges",
+     "Do not look down"
+    ],
+    [
+     "Face the Flame Fiend",
+     "His last guardian"
+    ],
+    [
+     "Enter the Demon Throne",
+     "This ends now"
+    ],
+    [
+     "Fight to the throne",
+     "He rises to meet you"
+    ],
+    [
+     "Face the Demon King",
+     "Save the whole kingdom"
+    ]
+   ],
+   "areas": [
+    {
+     "name": "The Ash Wastes",
+     "place": "In the burning ash wastes"
+    },
+    {
+     "name": "The Chained Halls",
+     "place": "In the chained halls"
+    },
+    {
+     "name": "The Lake of Fire",
+     "place": "By the lake of fire"
+    },
+    {
+     "name": "The Demon Throne",
+     "place": "Before the Demon Throne"
+    }
+   ]
+  }
+ ],
+ "roster": [
+  {
+   "slug": "goblin",
+   "name": "Sneaky Goblin",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Gilded Ace",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    1.3,
+    1.0
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 3,
+   "lv_lo": 1,
+   "lv_hi": 3,
+   "lv": 2
+  },
+  {
+   "slug": "rat",
+   "name": "Giant Rat",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Gilded Ace",
+   "area_i": 0,
+   "hp": 1.2,
+   "atk": 0.8,
+   "pat": [
+    1.0,
+    1.0,
+    2.2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 3,
+   "lv_lo": 1,
+   "lv_hi": 3,
+   "lv": 2
+  },
+  {
+   "slug": "bat",
+   "name": "Tavern Bat",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Gilded Ace",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.1,
+   "pat": [
+    1.0,
+    1.0
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 3,
+   "lv_lo": 1,
+   "lv_hi": 3,
+   "lv": 2
+  },
+  {
+   "slug": "boar",
+   "name": "Wild Boar",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Gilded Ace",
+   "area_i": 0,
+   "hp": 1.4,
+   "atk": 1.0,
+   "pat": [
+    0.8,
+    1.8
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 3,
+   "lv_lo": 1,
+   "lv_hi": 3,
+   "lv": 2
+  },
+  {
+   "slug": "imp",
+   "name": "Little Imp",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Gilded Ace",
+   "area_i": 0,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1.0,
+    "H",
+    1.2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 3,
+   "lv_lo": 1,
+   "lv_hi": 3,
+   "lv": 2
+  },
+  {
+   "slug": "bandit",
+   "name": "Bandit Chief",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Gilded Ace",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    "B",
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 3,
+   "lv_lo": 1,
+   "lv_hi": 3,
+   "lv": 3
+  },
+  {
+   "slug": "skeleton",
+   "name": "Rattling Skeleton",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Cellar",
+   "area_i": 1,
+   "hp": 1.1,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    "B",
+    1.2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 5,
+   "lv_lo": 3,
+   "lv_hi": 5,
+   "lv": 4
+  },
+  {
+   "slug": "spider",
+   "name": "Giant Spider",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Cellar",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    0.8,
+    0.8,
+    2.2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 5,
+   "lv_lo": 3,
+   "lv_hi": 5,
+   "lv": 4
+  },
+  {
+   "slug": "snake",
+   "name": "Cellar Snake",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Cellar",
+   "area_i": 1,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1.0,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 5,
+   "lv_lo": 3,
+   "lv_hi": 5,
+   "lv": 4
+  },
+  {
+   "slug": "zombie",
+   "name": "Lost Zombie",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Cellar",
+   "area_i": 1,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    1.0,
+    "H",
+    1.0
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 5,
+   "lv_lo": 3,
+   "lv_hi": 5,
+   "lv": 4
+  },
+  {
+   "slug": "scorpion",
+   "name": "Giant Scorpion",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Cellar",
+   "area_i": 1,
+   "hp": 1.1,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    1.0,
+    1.8
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 5,
+   "lv_lo": 3,
+   "lv_hi": 5,
+   "lv": 4
+  },
+  {
+   "slug": "ghoul",
+   "name": "Cellar Ghoul",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Cellar",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    "H",
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 5,
+   "lv_lo": 3,
+   "lv_hi": 5,
+   "lv": 5
+  },
+  {
+   "slug": "wolf",
+   "name": "Dire Wolf",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Dark Forest",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.2,
+   "pat": [
+    1.0,
+    1.0,
+    1.0,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 7,
+   "lv_lo": 5,
+   "lv_hi": 7,
+   "lv": 6
+  },
+  {
+   "slug": "witch",
+   "name": "Swamp Witch",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Dark Forest",
+   "area_i": 2,
+   "hp": 0.9,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 7,
+   "lv_lo": 5,
+   "lv_hi": 7,
+   "lv": 6
+  },
+  {
+   "slug": "bear",
+   "name": "Angry Bear",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Dark Forest",
+   "area_i": 2,
+   "hp": 1.5,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    2.0
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 7,
+   "lv_lo": 5,
+   "lv_hi": 7,
+   "lv": 6
+  },
+  {
+   "slug": "treant",
+   "name": "Treant",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Dark Forest",
+   "area_i": 2,
+   "hp": 1.6,
+   "atk": 0.8,
+   "pat": [
+    "B",
+    1.0,
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 7,
+   "lv_lo": 5,
+   "lv_hi": 7,
+   "lv": 6
+  },
+  {
+   "slug": "toad",
+   "name": "Giant Toad",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Dark Forest",
+   "area_i": 2,
+   "hp": 1.1,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 7,
+   "lv_lo": 5,
+   "lv_hi": 7,
+   "lv": 6
+  },
+  {
+   "slug": "troll",
+   "name": "Troll King",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "The Dark Forest",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    "B",
+    2.0
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 7,
+   "lv_lo": 5,
+   "lv_hi": 7,
+   "lv": 7
+  },
+  {
+   "slug": "knight",
+   "name": "Dark Knight",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "Castle Grimstone",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    "B",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 10,
+   "lv_lo": 7,
+   "lv_hi": 9,
+   "lv": 8
+  },
+  {
+   "slug": "gargoyle",
+   "name": "Stone Gargoyle",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "Castle Grimstone",
+   "area_i": 3,
+   "hp": 1.5,
+   "atk": 1.0,
+   "pat": [
+    "B",
+    1.0,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 10,
+   "lv_lo": 7,
+   "lv_hi": 9,
+   "lv": 8
+  },
+  {
+   "slug": "ghost",
+   "name": "Castle Ghost",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "Castle Grimstone",
+   "area_i": 3,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1.0,
+    "H",
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 10,
+   "lv_lo": 7,
+   "lv_hi": 9,
+   "lv": 8
+  },
+  {
+   "slug": "vampire",
+   "name": "Vampire",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "Castle Grimstone",
+   "area_i": 3,
+   "hp": 1.1,
+   "atk": 1.0,
+   "pat": [
+    1.2,
+    "H",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 10,
+   "lv_lo": 7,
+   "lv_hi": 9,
+   "lv": 8
+  },
+  {
+   "slug": "babydragon",
+   "name": "Baby Dragon",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "Castle Grimstone",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1.2,
+   "pat": [
+    1.0,
+    1.0,
+    2.0
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 10,
+   "lv_lo": 7,
+   "lv_hi": 9,
+   "lv": 8
+  },
+  {
+   "slug": "dragon",
+   "name": "Grimstone Dragon",
+   "world": "The Rescue of Anna",
+   "world_i": 0,
+   "world_id": "w1",
+   "area": "Castle Grimstone",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1.0,
+    1.0,
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 10,
+   "lv_lo": 7,
+   "lv_hi": 9,
+   "lv": 10
+  },
+  {
+   "slug": "icewolf",
+   "name": "Ice Wolf",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Snowy Pass",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 12,
+   "lv_lo": 10,
+   "lv_hi": 12,
+   "lv": 11
+  },
+  {
+   "slug": "snowgoblin",
+   "name": "Snow Goblin",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Snowy Pass",
+   "area_i": 0,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 12,
+   "lv_lo": 10,
+   "lv_hi": 12,
+   "lv": 11
+  },
+  {
+   "slug": "frostbat",
+   "name": "Frost Bat",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Snowy Pass",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 12,
+   "lv_lo": 10,
+   "lv_hi": 12,
+   "lv": 11
+  },
+  {
+   "slug": "yetichief",
+   "name": "Yeti Chieftain",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Snowy Pass",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 12,
+   "lv_lo": 10,
+   "lv_hi": 12,
+   "lv": 12
+  },
+  {
+   "slug": "icegolem",
+   "name": "Ice Golem",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Ice Caves",
+   "area_i": 1,
+   "hp": 1.5,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 14,
+   "lv_lo": 12,
+   "lv_hi": 14,
+   "lv": 13
+  },
+  {
+   "slug": "frostspider",
+   "name": "Frost Spider",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Ice Caves",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    0.8,
+    0.8,
+    2.1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 14,
+   "lv_lo": 12,
+   "lv_hi": 14,
+   "lv": 13
+  },
+  {
+   "slug": "icewraith",
+   "name": "Ice Wraith",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Ice Caves",
+   "area_i": 1,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1,
+    "H",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 14,
+   "lv_lo": 12,
+   "lv_hi": 14,
+   "lv": 13
+  },
+  {
+   "slug": "icequeen",
+   "name": "The Ice Witch",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Ice Caves",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.8
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 14,
+   "lv_lo": 12,
+   "lv_hi": 14,
+   "lv": 14
+  },
+  {
+   "slug": "mammoth",
+   "name": "War Mammoth",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Frozen Lake",
+   "area_i": 2,
+   "hp": 1.6,
+   "atk": 1,
+   "pat": [
+    0.8,
+    2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 16,
+   "lv_lo": 14,
+   "lv_hi": 16,
+   "lv": 15
+  },
+  {
+   "slug": "icetroll",
+   "name": "Ice Troll",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Frozen Lake",
+   "area_i": 2,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    1,
+    "H",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 16,
+   "lv_lo": 14,
+   "lv_hi": 16,
+   "lv": 15
+  },
+  {
+   "slug": "seal",
+   "name": "Sabre Walrus",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Frozen Lake",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 16,
+   "lv_lo": 14,
+   "lv_hi": 16,
+   "lv": 15
+  },
+  {
+   "slug": "wyrm",
+   "name": "Frost Wyrm",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Frozen Lake",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 16,
+   "lv_lo": 14,
+   "lv_hi": 16,
+   "lv": 16
+  },
+  {
+   "slug": "frostknight",
+   "name": "Frost Knight",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Giant's Hall",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    1,
+    "B",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 18,
+   "lv_lo": 16,
+   "lv_hi": 18,
+   "lv": 17
+  },
+  {
+   "slug": "giantguard",
+   "name": "Giant's Hound",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Giant's Hall",
+   "area_i": 3,
+   "hp": 1.1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 18,
+   "lv_lo": 16,
+   "lv_hi": 18,
+   "lv": 17
+  },
+  {
+   "slug": "frostmage",
+   "name": "Frost Shaman",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Giant's Hall",
+   "area_i": 3,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.2,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 18,
+   "lv_lo": 16,
+   "lv_hi": 18,
+   "lv": 17
+  },
+  {
+   "slug": "frostgiant",
+   "name": "The Frost Giant",
+   "world": "The Frozen Peaks",
+   "world_i": 1,
+   "world_id": "w2",
+   "area": "The Giant's Hall",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    1,
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 18,
+   "lv_lo": 16,
+   "lv_hi": 18,
+   "lv": 18
+  },
+  {
+   "slug": "sandscorp",
+   "name": "Sand Scorpion",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Dunes",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1,
+    1.8
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 20,
+   "lv_lo": 18,
+   "lv_hi": 20,
+   "lv": 19
+  },
+  {
+   "slug": "vulture",
+   "name": "Bone Vulture",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Dunes",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 20,
+   "lv_lo": 18,
+   "lv_hi": 20,
+   "lv": 19
+  },
+  {
+   "slug": "raider",
+   "name": "Dune Raider",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Dunes",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.3,
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 20,
+   "lv_lo": 18,
+   "lv_hi": 20,
+   "lv": 19
+  },
+  {
+   "slug": "sandwyrm",
+   "name": "Sand Wyrm",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Dunes",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 20,
+   "lv_lo": 18,
+   "lv_hi": 20,
+   "lv": 20
+  },
+  {
+   "slug": "jackal",
+   "name": "Jackal Warrior",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Oasis Ruins",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 22,
+   "lv_lo": 20,
+   "lv_hi": 22,
+   "lv": 21
+  },
+  {
+   "slug": "cobra",
+   "name": "Giant Cobra",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Oasis Ruins",
+   "area_i": 1,
+   "hp": 0.9,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 22,
+   "lv_lo": 20,
+   "lv_hi": 22,
+   "lv": 21
+  },
+  {
+   "slug": "sandgolem",
+   "name": "Sand Golem",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Oasis Ruins",
+   "area_i": 1,
+   "hp": 1.5,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 22,
+   "lv_lo": 20,
+   "lv_hi": 22,
+   "lv": 21
+  },
+  {
+   "slug": "djinn",
+   "name": "The Dark Djinn",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Oasis Ruins",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 22,
+   "lv_lo": 20,
+   "lv_hi": 22,
+   "lv": 22
+  },
+  {
+   "slug": "mummy",
+   "name": "Ancient Mummy",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Pyramid",
+   "area_i": 2,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    1,
+    "H",
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 24,
+   "lv_lo": 22,
+   "lv_hi": 24,
+   "lv": 23
+  },
+  {
+   "slug": "scarab",
+   "name": "Scarab Swarm King",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Pyramid",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 24,
+   "lv_lo": 22,
+   "lv_hi": 24,
+   "lv": 23
+  },
+  {
+   "slug": "tombguard",
+   "name": "Tomb Guardian",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Pyramid",
+   "area_i": 2,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    1,
+    "B",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 24,
+   "lv_lo": 22,
+   "lv_hi": 24,
+   "lv": 23
+  },
+  {
+   "slug": "pharaoh",
+   "name": "The Mummy Pharaoh",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Pyramid",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "H",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 24,
+   "lv_lo": 22,
+   "lv_hi": 24,
+   "lv": 24
+  },
+  {
+   "slug": "firewisp",
+   "name": "Fire Spirit",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Sun Temple",
+   "area_i": 3,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 26,
+   "lv_lo": 24,
+   "lv_hi": 26,
+   "lv": 25
+  },
+  {
+   "slug": "sphinx",
+   "name": "Sphinx",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Sun Temple",
+   "area_i": 3,
+   "hp": 1.4,
+   "atk": 1,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 26,
+   "lv_lo": 24,
+   "lv_hi": 26,
+   "lv": 25
+  },
+  {
+   "slug": "priest",
+   "name": "Cult Priest",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Sun Temple",
+   "area_i": 3,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.2,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 26,
+   "lv_lo": 24,
+   "lv_hi": 26,
+   "lv": 25
+  },
+  {
+   "slug": "sunlord",
+   "name": "The Scorched King",
+   "world": "The Burning Sands",
+   "world_i": 2,
+   "world_id": "w3",
+   "area": "The Sun Temple",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    1,
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 26,
+   "lv_lo": 24,
+   "lv_hi": 26,
+   "lv": 26
+  },
+  {
+   "slug": "pirate",
+   "name": "Cutthroat Pirate",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Smugglers' Cove",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.3,
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 28,
+   "lv_lo": 26,
+   "lv_hi": 28,
+   "lv": 27
+  },
+  {
+   "slug": "crab",
+   "name": "Giant Crab",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Smugglers' Cove",
+   "area_i": 0,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 28,
+   "lv_lo": 26,
+   "lv_hi": 28,
+   "lv": 27
+  },
+  {
+   "slug": "seagull",
+   "name": "Gull Harpy",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Smugglers' Cove",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 28,
+   "lv_lo": 26,
+   "lv_hi": 28,
+   "lv": 27
+  },
+  {
+   "slug": "captain",
+   "name": "Captain Blacktide",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Smugglers' Cove",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 28,
+   "lv_lo": 26,
+   "lv_hi": 28,
+   "lv": 28
+  },
+  {
+   "slug": "drowned",
+   "name": "Drowned Sailor",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Shipwreck",
+   "area_i": 1,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    "H",
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 30,
+   "lv_lo": 28,
+   "lv_hi": 30,
+   "lv": 29
+  },
+  {
+   "slug": "eel",
+   "name": "Electric Eel",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Shipwreck",
+   "area_i": 1,
+   "hp": 0.9,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 30,
+   "lv_lo": 28,
+   "lv_hi": 30,
+   "lv": 29
+  },
+  {
+   "slug": "octopus",
+   "name": "Giant Octopus",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Shipwreck",
+   "area_i": 1,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 30,
+   "lv_lo": 28,
+   "lv_hi": 30,
+   "lv": 29
+  },
+  {
+   "slug": "ghostship",
+   "name": "The Ghost Captain",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Shipwreck",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.8
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 30,
+   "lv_lo": 28,
+   "lv_hi": 30,
+   "lv": 30
+  },
+  {
+   "slug": "merman",
+   "name": "Merman Warrior",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Coral Depths",
+   "area_i": 2,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 32,
+   "lv_lo": 30,
+   "lv_hi": 32,
+   "lv": 31
+  },
+  {
+   "slug": "shark",
+   "name": "Bull Shark",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Coral Depths",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.8
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 32,
+   "lv_lo": 30,
+   "lv_hi": 32,
+   "lv": 31
+  },
+  {
+   "slug": "siren",
+   "name": "Siren",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Coral Depths",
+   "area_i": 2,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.3,
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 32,
+   "lv_lo": 30,
+   "lv_hi": 32,
+   "lv": 31
+  },
+  {
+   "slug": "seaserpent",
+   "name": "The Sea Serpent",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Coral Depths",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 32,
+   "lv_lo": 30,
+   "lv_hi": 32,
+   "lv": 32
+  },
+  {
+   "slug": "anglerfish",
+   "name": "Abyss Angler",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Drowned Temple",
+   "area_i": 3,
+   "hp": 1.1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 34,
+   "lv_lo": 32,
+   "lv_hi": 34,
+   "lv": 33
+  },
+  {
+   "slug": "seawitch",
+   "name": "Sea Witch",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Drowned Temple",
+   "area_i": 3,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.2,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 34,
+   "lv_lo": 32,
+   "lv_hi": 34,
+   "lv": 33
+  },
+  {
+   "slug": "templeguard",
+   "name": "Coral Golem",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Drowned Temple",
+   "area_i": 3,
+   "hp": 1.5,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 34,
+   "lv_lo": 32,
+   "lv_hi": 34,
+   "lv": 33
+  },
+  {
+   "slug": "kraken",
+   "name": "The Kraken",
+   "world": "The Sunken Coast",
+   "world_i": 3,
+   "world_id": "w4",
+   "area": "The Drowned Temple",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    1,
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 34,
+   "lv_lo": 32,
+   "lv_hi": 34,
+   "lv": 34
+  },
+  {
+   "slug": "plaguerat",
+   "name": "Plague Rat",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Rotting Fen",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 36,
+   "lv_lo": 34,
+   "lv_hi": 36,
+   "lv": 35
+  },
+  {
+   "slug": "leech",
+   "name": "Giant Leech",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Rotting Fen",
+   "area_i": 0,
+   "hp": 1.2,
+   "atk": 0.9,
+   "pat": [
+    1,
+    "H",
+    1.2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 36,
+   "lv_lo": 34,
+   "lv_hi": 36,
+   "lv": 35
+  },
+  {
+   "slug": "bogman",
+   "name": "Bog Man",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Rotting Fen",
+   "area_i": 0,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 36,
+   "lv_lo": 34,
+   "lv_hi": 36,
+   "lv": 35
+  },
+  {
+   "slug": "crocodile",
+   "name": "The Swamp King Croc",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Rotting Fen",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 36,
+   "lv_lo": 34,
+   "lv_hi": 36,
+   "lv": 36
+  },
+  {
+   "slug": "plaguedoctor",
+   "name": "Mad Plague Doctor",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Plague Village",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 38,
+   "lv_lo": 36,
+   "lv_hi": 38,
+   "lv": 37
+  },
+  {
+   "slug": "sickzombie",
+   "name": "Rotting Villager",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Plague Village",
+   "area_i": 1,
+   "hp": 1.3,
+   "atk": 0.9,
+   "pat": [
+    1,
+    "H",
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 38,
+   "lv_lo": 36,
+   "lv_hi": 38,
+   "lv": 37
+  },
+  {
+   "slug": "crows",
+   "name": "Carrion Crow",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Plague Village",
+   "area_i": 1,
+   "hp": 0.8,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 38,
+   "lv_lo": 36,
+   "lv_hi": 38,
+   "lv": 37
+  },
+  {
+   "slug": "plaguebeast",
+   "name": "The Plague Beast",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Plague Village",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 38,
+   "lv_lo": 36,
+   "lv_hi": 38,
+   "lv": 38
+  },
+  {
+   "slug": "frogman",
+   "name": "Frog Brute",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Witch's Bog",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 40,
+   "lv_lo": 38,
+   "lv_hi": 40,
+   "lv": 39
+  },
+  {
+   "slug": "willowisp",
+   "name": "Will-o'-Wisp",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Witch's Bog",
+   "area_i": 2,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 40,
+   "lv_lo": 38,
+   "lv_hi": 40,
+   "lv": 39
+  },
+  {
+   "slug": "mosquito",
+   "name": "Giant Mosquito",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Witch's Bog",
+   "area_i": 2,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 40,
+   "lv_lo": 38,
+   "lv_hi": 40,
+   "lv": 39
+  },
+  {
+   "slug": "bogtroll",
+   "name": "The Bog Troll",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Witch's Bog",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 40,
+   "lv_lo": 38,
+   "lv_hi": 40,
+   "lv": 40
+  },
+  {
+   "slug": "hagspawn",
+   "name": "Hag Spawn",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Hag's Lair",
+   "area_i": 3,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 42,
+   "lv_lo": 40,
+   "lv_hi": 42,
+   "lv": 41
+  },
+  {
+   "slug": "rootbeast",
+   "name": "Root Horror",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Hag's Lair",
+   "area_i": 3,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 42,
+   "lv_lo": 40,
+   "lv_hi": 42,
+   "lv": 41
+  },
+  {
+   "slug": "slime",
+   "name": "Toxic Slime",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Hag's Lair",
+   "area_i": 3,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    "H",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 42,
+   "lv_lo": 40,
+   "lv_hi": 42,
+   "lv": 41
+  },
+  {
+   "slug": "boghag",
+   "name": "The Bog Hag",
+   "world": "The Plague Marsh",
+   "world_i": 4,
+   "world_id": "w5",
+   "area": "The Hag's Lair",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "H",
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 42,
+   "lv_lo": 40,
+   "lv_hi": 42,
+   "lv": 42
+  },
+  {
+   "slug": "kobold",
+   "name": "Kobold Miner",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Mine Shafts",
+   "area_i": 0,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 44,
+   "lv_lo": 42,
+   "lv_hi": 44,
+   "lv": 43
+  },
+  {
+   "slug": "caveworm",
+   "name": "Rock Worm",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Mine Shafts",
+   "area_i": 0,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 44,
+   "lv_lo": 42,
+   "lv_hi": 44,
+   "lv": 43
+  },
+  {
+   "slug": "minebat",
+   "name": "Cave Bat Swarm",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Mine Shafts",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 44,
+   "lv_lo": 42,
+   "lv_hi": 44,
+   "lv": 43
+  },
+  {
+   "slug": "foreman",
+   "name": "The Goblin Foreman",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Mine Shafts",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 44,
+   "lv_lo": 42,
+   "lv_hi": 44,
+   "lv": 44
+  },
+  {
+   "slug": "crystalgolem",
+   "name": "Crystal Golem",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Crystal Cavern",
+   "area_i": 1,
+   "hp": 1.5,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 46,
+   "lv_lo": 44,
+   "lv_hi": 46,
+   "lv": 45
+  },
+  {
+   "slug": "basilisk",
+   "name": "Basilisk",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Crystal Cavern",
+   "area_i": 1,
+   "hp": 1.1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 46,
+   "lv_lo": 44,
+   "lv_hi": 46,
+   "lv": 45
+  },
+  {
+   "slug": "gemspider",
+   "name": "Gem Spider",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Crystal Cavern",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    0.8,
+    0.8,
+    2
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 46,
+   "lv_lo": 44,
+   "lv_hi": 46,
+   "lv": 45
+  },
+  {
+   "slug": "crystaldrake",
+   "name": "The Crystal Drake",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Crystal Cavern",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 46,
+   "lv_lo": 44,
+   "lv_hi": 46,
+   "lv": 46
+  },
+  {
+   "slug": "magmaslime",
+   "name": "Magma Slime",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Lava Tunnels",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1,
+   "pat": [
+    1,
+    "H",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 48,
+   "lv_lo": 46,
+   "lv_hi": 48,
+   "lv": 47
+  },
+  {
+   "slug": "salamander",
+   "name": "Fire Salamander",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Lava Tunnels",
+   "area_i": 2,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 48,
+   "lv_lo": 46,
+   "lv_hi": 48,
+   "lv": 47
+  },
+  {
+   "slug": "firedwarf",
+   "name": "Cursed Dwarf",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Lava Tunnels",
+   "area_i": 2,
+   "hp": 1.1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.3,
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 48,
+   "lv_lo": 46,
+   "lv_hi": 48,
+   "lv": 47
+  },
+  {
+   "slug": "lavagolem",
+   "name": "The Lava Golem",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Lava Tunnels",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 48,
+   "lv_lo": 46,
+   "lv_hi": 48,
+   "lv": 48
+  },
+  {
+   "slug": "clockwork",
+   "name": "Clockwork Soldier",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Great Forge",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    1,
+    "B",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 50,
+   "lv_lo": 48,
+   "lv_hi": 50,
+   "lv": 49
+  },
+  {
+   "slug": "forgehound",
+   "name": "Forge Hound",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Great Forge",
+   "area_i": 3,
+   "hp": 1.1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 50,
+   "lv_lo": 48,
+   "lv_hi": 50,
+   "lv": 49
+  },
+  {
+   "slug": "smithimp",
+   "name": "Furnace Imp",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Great Forge",
+   "area_i": 3,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 50,
+   "lv_lo": 48,
+   "lv_hi": 50,
+   "lv": 49
+  },
+  {
+   "slug": "irongolem",
+   "name": "The Iron Golem",
+   "world": "The Iron Mines",
+   "world_i": 5,
+   "world_id": "w6",
+   "area": "The Great Forge",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    1,
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 50,
+   "lv_lo": 48,
+   "lv_hi": 50,
+   "lv": 50
+  },
+  {
+   "slug": "gravedigger",
+   "name": "Undead Gravedigger",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Graveyard",
+   "area_i": 0,
+   "hp": 1.1,
+   "atk": 1,
+   "pat": [
+    1,
+    1.3,
+    1
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 52,
+   "lv_lo": 50,
+   "lv_hi": 52,
+   "lv": 51
+  },
+  {
+   "slug": "ghoulhound",
+   "name": "Ghoul Hound",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Graveyard",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 52,
+   "lv_lo": 50,
+   "lv_hi": 52,
+   "lv": 51
+  },
+  {
+   "slug": "banshee",
+   "name": "Banshee",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Graveyard",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.3,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 52,
+   "lv_lo": 50,
+   "lv_hi": 52,
+   "lv": 51
+  },
+  {
+   "slug": "headless",
+   "name": "The Headless Knight",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Graveyard",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 52,
+   "lv_lo": 50,
+   "lv_hi": 52,
+   "lv": 52
+  },
+  {
+   "slug": "ghostmonk",
+   "name": "Ghost Monk",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Cloister",
+   "area_i": 1,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.2,
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 54,
+   "lv_lo": 52,
+   "lv_hi": 54,
+   "lv": 53
+  },
+  {
+   "slug": "gargoylepup",
+   "name": "Cloister Gargoyle",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Cloister",
+   "area_i": 1,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    "B",
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 54,
+   "lv_lo": 52,
+   "lv_hi": 54,
+   "lv": 53
+  },
+  {
+   "slug": "poltergeist",
+   "name": "Poltergeist",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Cloister",
+   "area_i": 1,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 54,
+   "lv_lo": 52,
+   "lv_hi": 54,
+   "lv": 53
+  },
+  {
+   "slug": "abbot",
+   "name": "The Cursed Abbot",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Cloister",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 54,
+   "lv_lo": 52,
+   "lv_hi": 54,
+   "lv": 54
+  },
+  {
+   "slug": "bonewalker",
+   "name": "Bone Walker",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Catacombs",
+   "area_i": 2,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 56,
+   "lv_lo": 54,
+   "lv_hi": 56,
+   "lv": 55
+  },
+  {
+   "slug": "cryptrat",
+   "name": "Crypt Rat King",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Catacombs",
+   "area_i": 2,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 56,
+   "lv_lo": 54,
+   "lv_hi": 56,
+   "lv": 55
+  },
+  {
+   "slug": "wight",
+   "name": "Barrow Wight",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Catacombs",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "H",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 56,
+   "lv_lo": 54,
+   "lv_hi": 56,
+   "lv": 55
+  },
+  {
+   "slug": "bonedragon",
+   "name": "The Bone Dragon",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Catacombs",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 56,
+   "lv_lo": 54,
+   "lv_hi": 56,
+   "lv": 56
+  },
+  {
+   "slug": "darkpriest",
+   "name": "Shadow Priest",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Bell Tower",
+   "area_i": 3,
+   "hp": 0.9,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.2,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 58,
+   "lv_lo": 56,
+   "lv_hi": 58,
+   "lv": 57
+  },
+  {
+   "slug": "vampirebat",
+   "name": "Vampire Bat",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Bell Tower",
+   "area_i": 3,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 58,
+   "lv_lo": 56,
+   "lv_hi": 58,
+   "lv": 57
+  },
+  {
+   "slug": "deathknight",
+   "name": "Death Knight",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Bell Tower",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "B",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 58,
+   "lv_lo": 56,
+   "lv_hi": 58,
+   "lv": 57
+  },
+  {
+   "slug": "lich",
+   "name": "The Lich",
+   "world": "The Haunted Abbey",
+   "world_i": 6,
+   "world_id": "w7",
+   "area": "The Bell Tower",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "H",
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 58,
+   "lv_lo": 56,
+   "lv_hi": 58,
+   "lv": 58
+  },
+  {
+   "slug": "thornelf",
+   "name": "Thorn Archer",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Silver Woods",
+   "area_i": 0,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 60,
+   "lv_lo": 58,
+   "lv_hi": 60,
+   "lv": 59
+  },
+  {
+   "slug": "wolfpack",
+   "name": "Shadow Stag",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Silver Woods",
+   "area_i": 0,
+   "hp": 1.3,
+   "atk": 1,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 60,
+   "lv_lo": 58,
+   "lv_hi": 60,
+   "lv": 59
+  },
+  {
+   "slug": "pixie",
+   "name": "Wicked Pixie",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Silver Woods",
+   "area_i": 0,
+   "hp": 0.7,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 60,
+   "lv_lo": 58,
+   "lv_hi": 60,
+   "lv": 59
+  },
+  {
+   "slug": "thornbear",
+   "name": "The Briar Bear",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Silver Woods",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 60,
+   "lv_lo": 58,
+   "lv_hi": 60,
+   "lv": 60
+  },
+  {
+   "slug": "dryad",
+   "name": "Corrupted Dryad",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Moonlit Glade",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.1,
+   "pat": [
+    "H",
+    1.2,
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 62,
+   "lv_lo": 60,
+   "lv_hi": 62,
+   "lv": 61
+  },
+  {
+   "slug": "werewolf",
+   "name": "Werewolf",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Moonlit Glade",
+   "area_i": 1,
+   "hp": 1.2,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 62,
+   "lv_lo": 60,
+   "lv_hi": 62,
+   "lv": 61
+  },
+  {
+   "slug": "mushroomman",
+   "name": "Fungal Brute",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Moonlit Glade",
+   "area_i": 1,
+   "hp": 1.4,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 62,
+   "lv_lo": 60,
+   "lv_hi": 62,
+   "lv": 61
+  },
+  {
+   "slug": "unicorn",
+   "name": "The Dark Unicorn",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Moonlit Glade",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 62,
+   "lv_lo": 60,
+   "lv_hi": 62,
+   "lv": 62
+  },
+  {
+   "slug": "elfknight",
+   "name": "Thorn Knight",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Elven City",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "B",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 64,
+   "lv_lo": 62,
+   "lv_hi": 64,
+   "lv": 63
+  },
+  {
+   "slug": "elfmage",
+   "name": "Thorn Mage",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Elven City",
+   "area_i": 2,
+   "hp": 0.9,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.2,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 64,
+   "lv_lo": 62,
+   "lv_hi": 64,
+   "lv": 63
+  },
+  {
+   "slug": "owlbear",
+   "name": "Owlbear",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Elven City",
+   "area_i": 2,
+   "hp": 1.4,
+   "atk": 1,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 64,
+   "lv_lo": 62,
+   "lv_hi": 64,
+   "lv": 63
+  },
+  {
+   "slug": "elfgeneral",
+   "name": "The Thorn General",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Elven City",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 64,
+   "lv_lo": 62,
+   "lv_hi": 64,
+   "lv": 64
+  },
+  {
+   "slug": "thornbeast",
+   "name": "Thorn Beast",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Heart Tree",
+   "area_i": 3,
+   "hp": 1.1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 66,
+   "lv_lo": 64,
+   "lv_hi": 66,
+   "lv": 65
+  },
+  {
+   "slug": "vinesnake",
+   "name": "Vine Serpent",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Heart Tree",
+   "area_i": 3,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 66,
+   "lv_lo": 64,
+   "lv_hi": 66,
+   "lv": 65
+  },
+  {
+   "slug": "rootgolem",
+   "name": "Heartwood Golem",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Heart Tree",
+   "area_i": 3,
+   "hp": 1.5,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 66,
+   "lv_lo": 64,
+   "lv_hi": 66,
+   "lv": 65
+  },
+  {
+   "slug": "thornqueen",
+   "name": "The Thorn Queen",
+   "world": "The Elven Wilds",
+   "world_i": 7,
+   "world_id": "w8",
+   "area": "The Heart Tree",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "H",
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 66,
+   "lv_lo": 64,
+   "lv_hi": 66,
+   "lv": 66
+  },
+  {
+   "slug": "harpy",
+   "name": "Storm Harpy",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Cloud Bridges",
+   "area_i": 0,
+   "hp": 0.9,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 68,
+   "lv_lo": 66,
+   "lv_hi": 68,
+   "lv": 67
+  },
+  {
+   "slug": "cloudgiant",
+   "name": "Cloud Ogre",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Cloud Bridges",
+   "area_i": 0,
+   "hp": 1.4,
+   "atk": 1,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 68,
+   "lv_lo": 66,
+   "lv_hi": 68,
+   "lv": 67
+  },
+  {
+   "slug": "windspirit",
+   "name": "Wind Spirit",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Cloud Bridges",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.3,
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 68,
+   "lv_lo": 66,
+   "lv_hi": 68,
+   "lv": 67
+  },
+  {
+   "slug": "griffon",
+   "name": "The Griffon King",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Cloud Bridges",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 68,
+   "lv_lo": 66,
+   "lv_hi": 68,
+   "lv": 68
+  },
+  {
+   "slug": "skyserpent",
+   "name": "Sky Serpent",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Sky Gardens",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 70,
+   "lv_lo": 68,
+   "lv_hi": 70,
+   "lv": 69
+  },
+  {
+   "slug": "thunderbird",
+   "name": "Thunderbird",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Sky Gardens",
+   "area_i": 1,
+   "hp": 0.9,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 70,
+   "lv_lo": 68,
+   "lv_hi": 70,
+   "lv": 69
+  },
+  {
+   "slug": "gardenguard",
+   "name": "Stone Sentinel",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Sky Gardens",
+   "area_i": 1,
+   "hp": 1.5,
+   "atk": 0.9,
+   "pat": [
+    "B",
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 70,
+   "lv_lo": 68,
+   "lv_hi": 70,
+   "lv": 69
+  },
+  {
+   "slug": "stormdrake",
+   "name": "The Storm Drake",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Sky Gardens",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    1.9
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 70,
+   "lv_lo": 68,
+   "lv_hi": 70,
+   "lv": 70
+  },
+  {
+   "slug": "stormsoldier",
+   "name": "Storm Soldier",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Fortress Walls",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "B",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 72,
+   "lv_lo": 70,
+   "lv_hi": 72,
+   "lv": 71
+  },
+  {
+   "slug": "airelemental",
+   "name": "Air Elemental",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Fortress Walls",
+   "area_i": 2,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 72,
+   "lv_lo": 70,
+   "lv_hi": 72,
+   "lv": 71
+  },
+  {
+   "slug": "djinnwarrior",
+   "name": "Cloud Djinn",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Fortress Walls",
+   "area_i": 2,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.2,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 72,
+   "lv_lo": 70,
+   "lv_hi": 72,
+   "lv": 71
+  },
+  {
+   "slug": "stormgiant",
+   "name": "The Storm Giant",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Fortress Walls",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Clubs",
+   "boss_lv": 72,
+   "lv_lo": 70,
+   "lv_hi": 72,
+   "lv": 72
+  },
+  {
+   "slug": "thunderknight",
+   "name": "Thunder Knight",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Storm Throne",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "B",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 74,
+   "lv_lo": 72,
+   "lv_hi": 74,
+   "lv": 73
+  },
+  {
+   "slug": "stormwraith",
+   "name": "Storm Wraith",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Storm Throne",
+   "area_i": 3,
+   "hp": 0.9,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.3,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 74,
+   "lv_lo": 72,
+   "lv_hi": 74,
+   "lv": 73
+  },
+  {
+   "slug": "rocbird",
+   "name": "Roc",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Storm Throne",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 74,
+   "lv_lo": 72,
+   "lv_hi": 74,
+   "lv": 73
+  },
+  {
+   "slug": "stormtitan",
+   "name": "The Storm Titan",
+   "world": "The Sky Fortress",
+   "world_i": 8,
+   "world_id": "w9",
+   "area": "The Storm Throne",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    1,
+    2.1
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 74,
+   "lv_lo": 72,
+   "lv_hi": 74,
+   "lv": 74
+  },
+  {
+   "slug": "hellhound",
+   "name": "Hellhound",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Ash Wastes",
+   "area_i": 0,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1,
+    1.7
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 76,
+   "lv_lo": 74,
+   "lv_hi": 76,
+   "lv": 75
+  },
+  {
+   "slug": "imp2",
+   "name": "Fire Imp",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Ash Wastes",
+   "area_i": 0,
+   "hp": 0.8,
+   "atk": 1.3,
+   "pat": [
+    1,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 76,
+   "lv_lo": 74,
+   "lv_hi": 76,
+   "lv": 75
+  },
+  {
+   "slug": "ashghoul",
+   "name": "Ash Ghoul",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Ash Wastes",
+   "area_i": 0,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "H",
+    1.3
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 76,
+   "lv_lo": 74,
+   "lv_hi": 76,
+   "lv": 75
+  },
+  {
+   "slug": "cerberus",
+   "name": "Cerberus",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Ash Wastes",
+   "area_i": 0,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 76,
+   "lv_lo": 74,
+   "lv_hi": 76,
+   "lv": 76
+  },
+  {
+   "slug": "chaindemon",
+   "name": "Chain Demon",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Chained Halls",
+   "area_i": 1,
+   "hp": 1.2,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 78,
+   "lv_lo": 76,
+   "lv_hi": 78,
+   "lv": 77
+  },
+  {
+   "slug": "succubus",
+   "name": "Shadow Fiend",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Chained Halls",
+   "area_i": 1,
+   "hp": 1,
+   "atk": 1.2,
+   "pat": [
+    "H",
+    1.2,
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 78,
+   "lv_lo": 76,
+   "lv_hi": 78,
+   "lv": 77
+  },
+  {
+   "slug": "jailer",
+   "name": "Demon Jailer",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Chained Halls",
+   "area_i": 1,
+   "hp": 1.4,
+   "atk": 1,
+   "pat": [
+    "B",
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 78,
+   "lv_lo": 76,
+   "lv_hi": 78,
+   "lv": 77
+  },
+  {
+   "slug": "warden",
+   "name": "The Pit Warden",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Chained Halls",
+   "area_i": 1,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2
+   ],
+   "boss": true,
+   "off_suit": "Diamonds",
+   "boss_lv": 78,
+   "lv_lo": 76,
+   "lv_hi": 78,
+   "lv": 78
+  },
+  {
+   "slug": "lavaserpent",
+   "name": "Lava Serpent",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Lake of Fire",
+   "area_i": 2,
+   "hp": 1.1,
+   "atk": 1.2,
+   "pat": [
+    1,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 80,
+   "lv_lo": 78,
+   "lv_hi": 80,
+   "lv": 79
+  },
+  {
+   "slug": "firegiant",
+   "name": "Fire Giant",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Lake of Fire",
+   "area_i": 2,
+   "hp": 1.5,
+   "atk": 1,
+   "pat": [
+    1,
+    "B",
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 80,
+   "lv_lo": 78,
+   "lv_hi": 80,
+   "lv": 79
+  },
+  {
+   "slug": "phoenix",
+   "name": "Dark Phoenix",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Lake of Fire",
+   "area_i": 2,
+   "hp": 1,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.3,
+    1.5
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 80,
+   "lv_lo": 78,
+   "lv_hi": 80,
+   "lv": 79
+  },
+  {
+   "slug": "balrog",
+   "name": "The Flame Fiend",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Lake of Fire",
+   "area_i": 2,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    "H",
+    1.2,
+    2
+   ],
+   "boss": true,
+   "off_suit": "Hearts",
+   "boss_lv": 80,
+   "lv_lo": 78,
+   "lv_hi": 80,
+   "lv": 80
+  },
+  {
+   "slug": "demonknight",
+   "name": "Demon Knight",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Demon Throne",
+   "area_i": 3,
+   "hp": 1.3,
+   "atk": 1.1,
+   "pat": [
+    1,
+    "B",
+    1.4
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 82,
+   "lv_lo": 80,
+   "lv_hi": 82,
+   "lv": 81
+  },
+  {
+   "slug": "abyssbeast",
+   "name": "Abyss Horror",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Demon Throne",
+   "area_i": 3,
+   "hp": 1.4,
+   "atk": 1.1,
+   "pat": [
+    1,
+    1,
+    1.8
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 82,
+   "lv_lo": 80,
+   "lv_hi": 82,
+   "lv": 81
+  },
+  {
+   "slug": "demonmage",
+   "name": "Demon Sorcerer",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Demon Throne",
+   "area_i": 3,
+   "hp": 1,
+   "atk": 1.3,
+   "pat": [
+    "H",
+    1.2,
+    1.6
+   ],
+   "boss": false,
+   "off_suit": null,
+   "boss_lv": 82,
+   "lv_lo": 80,
+   "lv_hi": 82,
+   "lv": 81
+  },
+  {
+   "slug": "demonking",
+   "name": "The Demon King",
+   "world": "The Abyss",
+   "world_i": 9,
+   "world_id": "w10",
+   "area": "The Demon Throne",
+   "area_i": 3,
+   "hp": 1.0,
+   "atk": 1.0,
+   "pat": [
+    1,
+    "B",
+    2.2
+   ],
+   "boss": true,
+   "off_suit": "Spades",
+   "boss_lv": 82,
+   "lv_lo": 80,
+   "lv_hi": 82,
+   "lv": 82
+  }
+ ]
+}
