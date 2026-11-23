@@ -13,6 +13,60 @@ const { execFileSync } = require('child_process');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
+const fs = require('fs');
+const SHOTS = path.join(ROOT, 'dev', 'gen', 'out', 'slbacks');
+fs.mkdirSync(SHOTS, { recursive: true });
+
+/* WHAT "THE TABLE" IS. This compared each back with body's background-color,
+   which was right while the page was one flat soot colour. The table is a
+   felt now - a lamp-lit gradient, bright in the middle where the cards sit
+   and near black at the rail - and background-color is only its darkest
+   edge, a colour no card ever sits on. Measured against that, four worlds
+   failed the 1.5 floor.
+
+   So the floor stays where it was and the measurement gets honest: hide the
+   cards, photograph the felt exactly where a face-down card sits, average
+   it, and compare the back with THAT. Both boards are checked, because the
+   two lay their backs out in different places on the gradient. */
+const feltUnder = async (p, sel, name) => {
+  /* on screen first: a full-page capture resizes the window, which lays the
+     board out again somewhere else, so the photo would miss the card */
+  const box = await p.evaluate(s => {
+    const e = document.querySelector(s);
+    if (!e) return null;
+    e.scrollIntoView({ block: 'center' });
+    const r = e.getBoundingClientRect();
+    return { x: r.left, y: r.top, width: r.width, height: r.height };
+  }, sel);
+  if (!box || box.width < 2 || box.height < 2) return null;
+  /* hide the cards with a tag of our own, and take back only that tag - the
+     first version removed "the last style on the page", which is the GAME'S
+     stylesheet, and every world after the first was measured unstyled */
+  await p.evaluate(() => {
+    const t = document.createElement('style');
+    t.id = 'slbacks-hide';
+    t.textContent = '#board .pk,#board .stockn{visibility:hidden!important}';
+    document.head.appendChild(t);
+  });
+  const file = path.join(SHOTS, name);
+  await p.screenshot({ path: file, clip: box });
+  await p.evaluate(() => document.getElementById('slbacks-hide').remove());
+  return file;
+};
+/* the card as it is actually drawn, for measuring its margin */
+const cardPhoto = async (p, sel, name) => {
+  const box = await p.evaluate(s => {
+    const e = document.querySelector(s);
+    if (!e) return null;
+    e.scrollIntoView({ block: 'center' });
+    const r = e.getBoundingClientRect();
+    return { x: r.left, y: r.top, width: r.width, height: r.height };
+  }, sel);
+  if (!box || box.width < 2 || box.height < 2) return null;
+  const file = path.join(SHOTS, name);
+  await p.screenshot({ path: file, clip: box });
+  return file;
+};
 execFileSync('python', ['dev/build.py'], { cwd: ROOT, stdio: 'pipe' });
 const file = path.join(ROOT, 'solitaire.html').replace(/\\/g, '/');
 
@@ -44,7 +98,7 @@ const parse = s => (s.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number);
     await openGame(p);          /* the game opens on its story now */
 
   let bad = 0;
-  const faces = [];
+  const faces = [], rows = [];
 
   for (let w = 0; w < 10; w++) {
     const m = await p.evaluate(wi => {
@@ -80,16 +134,67 @@ const parse = s => (s.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number);
       };
     }, w);
 
-    const hex = s => s.startsWith('#')
-      ? [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16))
-      : parse(s);
-    const r = ratio(hex(m.a), parse(m.bodyBg));
-    const ok = m.backs > 0 && r >= 1.5;
-    if (!ok) bad++;
     faces.push(m.face);
-    console.log(`world ${String(w + 1).padStart(2)}  back ${m.a} over ${m.b}  ` +
-      `${m.backs} face down at ${m.backBox}  stands off the table ${r.toFixed(2)}:1  ` +
-      `${ok ? '' : '*** TOO CLOSE TO THE TABLE ***'}`);
+    const peaksCard = await cardPhoto(p, '.peaks .pk.down', `card-peaks-w${w + 1}.png`);
+    const peaksShot = await feltUnder(p, '.peaks .pk.down', `felt-peaks-w${w + 1}.png`);
+
+    /* and the board everybody starts on: Klondike's deck is a whole back */
+    await p.evaluate(wi => {
+      const SOL = window.__SOL;
+      document.body.className = 'w' + wi;
+      SOL.R = SOL.dealRound({ kind: 'klondike' });
+      SOL.render();
+    }, w);
+    const klCard = await cardPhoto(p, '[data-act="draw"]', `card-klondike-w${w + 1}.png`);
+    const klShot = await feltUnder(p, '[data-act="draw"]', `felt-klondike-w${w + 1}.png`);
+    rows.push({ w, m, peaksShot, klShot, peaksCard, klCard });
+  }
+
+  /* average each photograph of the felt in one Python call */
+  /* The felt is the whole photograph averaged. The card's margin is a strip
+     of its own photograph: inside the 2.5px outline and before the thin dark
+     line that frames the pattern - 3 to 5 CSS pixels in, which at
+     deviceScaleFactor 2 is rows 6 to 10, across the middle half. */
+  const shots = rows.flatMap(r => [r.peaksShot, r.klShot]).filter(Boolean);
+  const cards = rows.flatMap(r => [r.peaksCard, r.klCard]).filter(Boolean);
+  const avg = JSON.parse(execFileSync('python', ['-I', '-c', `
+import json, sys
+from PIL import Image, ImageStat
+n = int(sys.argv[1]); files = sys.argv[2:]
+out = {}
+for i, f in enumerate(files):
+    im = Image.open(f).convert('RGB')
+    if i >= n:
+        w, h = im.size
+        im = im.crop((w // 4, 6, w - w // 4, 11))
+    out[f] = [round(c) for c in ImageStat.Stat(im).mean]
+print(json.dumps(out))
+`, String(shots.length), ...shots, ...cards], { encoding: 'utf8' }));
+
+  const hex = s => s.startsWith('#')
+    ? [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16))
+    : parse(s);
+  const css = c => '#' + c.map(v => v.toString(16).padStart(2, '0')).join('');
+  /* WHAT HAS TO STAND OFF THE TABLE IS THE CARD'S EDGE. Each back now sits
+     inside a cream margin, the way a real deck does, and that margin is the
+     thing a player sees separate the card from the felt - so that is what is
+     held to a floor, and the floor went UP, from 1.5 to 3:1, the contrast
+     the web's own guidance asks of any shape that has to be seen. The fill
+     against the felt is still printed, as information: it is the world's
+     colour, and it is allowed to be close to the table now that it is framed. */
+  console.log('margin against the felt under it, floor 3:1 - fill shown for reference\n');
+  for (const { w, m, peaksShot, klShot, peaksCard, klCard } of rows) {
+    const back = hex(m.a);
+    const mp = peaksShot && peaksCard ? ratio(avg[peaksCard], avg[peaksShot]) : 0;
+    const mk = klShot && klCard ? ratio(avg[klCard], avg[klShot]) : 0;
+    const fp = peaksShot ? ratio(back, avg[peaksShot]) : 0;
+    const fk = klShot ? ratio(back, avg[klShot]) : 0;
+    const ok = m.backs > 0 && mp >= 3 && mk >= 3;
+    if (!ok) bad++;
+    console.log(`world ${String(w + 1).padStart(2)}  back ${m.a}  ` +
+      `peaks: margin ${mp.toFixed(2)}:1 (fill ${fp.toFixed(2)})   ` +
+      `klondike deck: margin ${mk.toFixed(2)}:1 (fill ${fk.toFixed(2)})  ` +
+      `${ok ? '' : '*** THE CARD DOES NOT STAND OFF THE TABLE ***'}`);
   }
 
   const sameFace = faces.every(f => f === faces[0]);

@@ -64,7 +64,7 @@ open("farkle.webmanifest", "w", encoding="utf-8").write("""{
 # never drift from the real one.
 shead = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#14100d"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#083a23"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Monster Solitaire">
 <meta name="description" content="Monster Solitaire: a free card game. Three peaks, one monster. The longer the run, the harder the blow.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Monster Solitaire: three peaks, one monster">

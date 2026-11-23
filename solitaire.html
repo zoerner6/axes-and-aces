@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#14100d"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#083a23"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Monster Solitaire">
 <meta name="description" content="Monster Solitaire: a free card game. Three peaks, one monster. The longer the run, the harder the blow.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Axes &amp; Aces"><meta property="og:title" content="Monster Solitaire: three peaks, one monster">
@@ -32,7 +32,9 @@
    Oswald for numbers and buttons, Alegreya Sans for anything you read.
    Card suits are allowed - they are part of the cards. */
 :root{
-  --soot:#14100d; --leather:#1b1410; --wood:#241913; --wood-2:#33241b; --wood-3:#433025; --line:#5d4434;
+  --soot:#14100d;
+  /* the felt, lamp-lit to the rail */
+  --felt-hi:#1d7a4b;--felt:#0f5b36;--felt-lo:#083a23;--felt-edge:#03170d; --leather:#1b1410; --wood:#241913; --wood-2:#33241b; --wood-3:#433025; --line:#5d4434;
   --parch:#f3e6c8; --parch-dim:#c7b28c;
   --gold:#f2b632; --gold-hi:#ffd35c;
   --hp:#c8241f; --heal:#3fae4a; --heal-hi:#7be38a; --teal:#7fe3d8; --boss:#a63de0;
@@ -52,10 +54,26 @@
    measured. */
 html{overflow-x:clip}
 html,body{height:100%}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  box-shadow:
+    inset 0 0 0 5px #24120a,
+    inset 0 0 0 6px rgba(242,182,50,.42),
+    inset 0 0 0 9px rgba(0,0,0,.55),
+    inset 0 0 110px 10px rgba(0,0,0,.62);
+}
+/* THE TABLE. A card-room felt rather than the tavern's planks: green, lit
+   from one lamp hung over the middle, falling away to near black at the rail.
+   Three layers, top first - the felt's own fibre (a tile of SVG turbulence,
+   so there is no image to load), the lamp's warm pool, and the green itself.
+   The rail is body::after, so it sits over the felt and under nothing. */
 body{
-  margin:0;background:var(--soot);
-  background-image:repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, transparent 2px 46px),
-                   radial-gradient(ellipse at 50% 0%, rgba(242,182,50,.12), transparent 60%);
+  margin:0;background-color:var(--felt-lo);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)' opacity='.38'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 62% 48% at 50% 44%, rgba(255,236,170,.13), transparent 72%),
+    radial-gradient(ellipse 125% 95% at 50% 42%, var(--felt-hi) 0%, var(--felt) 34%, var(--felt-lo) 70%, var(--felt-edge) 100%);
+  background-attachment:fixed;
   color:var(--parch);font-family:var(--f-body);font-size:16px;
   -webkit-tap-highlight-color:transparent;overflow-x:hidden;
 }
@@ -258,6 +276,31 @@ img{max-width:100%}
 /* layoutKlondike sets each card's top, in script - see the note above */
 .kl-col > .pk{position:absolute;left:0;right:0;top:0;aspect-ratio:5/7;height:auto}
 
+/* A face-up card is picked up and carried, so the browser must not take the
+   same press as a scroll, a zoom, a text selection or a long-press menu. */
+.pk.kl[data-from]{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab}
+.pk.kl[data-from]:active{cursor:grabbing}
+
+/* an empty column is a marked place on the felt, and somewhere to drop */
+.kl-col > .kl-slot.col-empty{position:absolute;left:0;right:0;top:0;aspect-ratio:5/7;height:auto}
+
+/* a card tapped and waiting for you to tap where it goes */
+.pk.kl.picked{transform:translateY(-6px);
+  box-shadow:0 0 0 3px var(--gold-hi),0 0 18px rgba(242,182,50,.75),0 9px 14px rgba(0,0,0,.55)}
+
+/* where a carried card would land, lit only when it is allowed to */
+.kl-col.drop-ok{border-radius:9px;background:rgba(255,226,140,.07);
+  box-shadow:0 0 0 2px rgba(242,182,50,.75),0 0 22px rgba(242,182,50,.32)}
+.kl-cell.drop-ok > *{box-shadow:0 0 0 3px var(--gold-hi),0 0 20px rgba(242,182,50,.6)}
+
+/* the cards in your hand while you drag them: above everything, lifted, and
+   never in the way of finding what is underneath */
+#dragLayer{position:fixed;left:0;top:0;width:0;height:0;z-index:60;pointer-events:none;will-change:transform}
+#dragLayer > .pk{position:fixed;margin:0;transform:none;
+  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 14px 22px rgba(0,0,0,.55),0 4px 6px rgba(0,0,0,.4)}
+#dragLayer.snap{transition:transform .16s cubic-bezier(.3,1.25,.5,1)}
+#dragLayer.land{transition:transform .12s ease-out}
+
 /* A COVERED CARD SHOWS ITS RANK AND NOTHING ELSE. The corner is normally a
    rank with its suit under it, about 37px tall on a 79px card. In a deep
    column a card shows an 11px sliver, so the card below sliced every rank
@@ -276,12 +319,12 @@ img{max-width:100%}
    The rank gets .70 of the sliver rather than all of it because the corner
    starts two pixels in from the card's own top edge, and a glyph sized to
    the whole sliver lands two pixels past the card below. */
-.kl-col > .pk:not(:last-child) .cn{
+.kl-col > .pk:not(:last-child) .cn,#dragLayer > .pk:not(:last-child) .cn{
   line-height:1;top:0;left:2px;
   font-size:min(40cqw, 23px, calc(var(--step, 99px) * .70));
 }
-.kl-col > .pk:not(:last-child) .cn i{display:none}
-.kl-col > .pk:not(:last-child) .mid{display:none}
+.kl-col > .pk:not(:last-child) .cn i,#dragLayer > .pk:not(:last-child) .cn i{display:none}
+.kl-col > .pk:not(:last-child) .mid,#dragLayer > .pk:not(:last-child) .mid{display:none}
 
 /* a card on this board is the same card as on the other one, minus the lift:
    nothing is ever scaled here, because a column is a stack and growing one
@@ -292,7 +335,9 @@ img{max-width:100%}
 
 /* an empty place: the deck when it is out, a home waiting for its ace */
 .kl-slot{
-  border:2.5px dashed rgba(242,182,50,.34);border-radius:7px;background:rgba(0,0,0,.26);
+  border:2px solid rgba(255,236,190,.26);border-radius:7px;
+  background:radial-gradient(ellipse at 50% 40%, rgba(0,0,0,.10), rgba(0,0,0,.30));
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.18);
   display:grid;place-items:center;padding:0;color:rgba(242,182,50,.5);
   font-family:var(--f-num);font-weight:700;font-size:min(46cqw,26px);container-type:inline-size;
 }
@@ -302,7 +347,7 @@ img{max-width:100%}
 /* a finished suit stops being a pile and becomes a mark */
 .pk.kl.home.done,.kl-slot.home.done{box-shadow:0 0 0 3px var(--gold),0 0 14px rgba(242,182,50,.55)}
 
-.kl-cols .pk.kl.down{box-shadow:inset 0 0 0 2px rgba(242,182,50,.22),0 2px 0 rgba(0,0,0,.4)}
+.kl-cols .pk.kl.down{box-shadow:inset 0 0 0 3px #efe2c4,inset 0 0 0 4px rgba(90,58,20,.75),0 2px 0 rgba(0,0,0,.4)}
 
 /* the run sits under the board here rather than between the piles */
 .kl-cols + .runbox{margin-top:clamp(6px,2vw,12px);text-align:center}
@@ -393,11 +438,18 @@ img{max-width:100%}
 /* face down: the deck back, which is the one thing per world that is allowed
    to change. The faces never change - a face harder to read at 320px is wrong
    whatever it looks like. */
+/* A back is a pattern inside a margin of card stock, the way a real deck is.
+   The margin was missing while the table was soot: any back stood off near
+   black. On the felt it does not - measured against the green actually under
+   the cards, not one of the ten worlds' backs cleared the 1.5 floor on both
+   boards, because a dark back on dark felt is the same darkness twice. The
+   cream margin is what a real card has for exactly this reason, and it is
+   the same in every world, so the world's colour still lives in the pattern. */
 .pk.down{
   background:
     repeating-linear-gradient(45deg, rgba(0,0,0,.26) 0 3px, transparent 3px 7px),
     linear-gradient(160deg, var(--back-a,#4a2d1d), var(--back-b,#2a160e));
-  box-shadow:inset 0 0 0 2px rgba(242,182,50,.28), 0 3px 0 rgba(0,0,0,.45);
+  box-shadow:inset 0 0 0 3px #efe2c4, inset 0 0 0 4px rgba(90,58,20,.75), 0 3px 0 rgba(0,0,0,.45);
 }
 .pk.down .cn,.pk.down .mid{display:none}   /* the peek below is not one of those */
 
@@ -1705,7 +1757,8 @@ function drawKlondike(){
         : `<div class="kl-slot empty"></div>`);
   const w = wasteTop();
   const waste = w
-    ? klCardHTML(w, '', `data-from="w" aria-label="${RANKS[w.r]} of ${SUITS[w.s].name}"`)
+    ? klCardHTML(w, R.picked && R.picked.col < 0 ? 'picked' : '',
+        `data-from="w" aria-label="${RANKS[w.r]} of ${SUITS[w.s].name}"`)
     : `<div class="kl-slot empty"></div>`;
 
   const homes = R.found.map((top, s) => {
@@ -1736,10 +1789,14 @@ function drawKlondike(){
       klBackHTML('', `data-kind="down" tabindex="-1" aria-hidden="true"`)).join('');
     const up = col.up.map((card, n) => {
       const live = !!bestMove({ col:i, n, card });
-      return klCardHTML(card, live ? 'live' : '',
-        `data-kind="up" data-from="c" data-col="${i}" data-n="${n}"` + (live ? '' : ' tabindex="-1"'));
+      const picked = R.picked && R.picked.col === i && n >= R.picked.n;
+      return klCardHTML(card, (live ? 'live' : '') + (picked ? ' picked' : ''),
+        `data-kind="up" data-from="c" data-col="${i}" data-n="${n}"`);
     }).join('');
-    return `<div class="kl-col" data-col="${i}">${down}${up}</div>`;
+    const empty = !col.down.length && !col.up.length
+      ? `<div class="kl-slot col-empty" data-empty-col="${i}" tabindex="0" role="button" aria-label="Empty column ${i + 1}"></div>`
+      : '';
+    return `<div class="kl-col" data-col="${i}">${empty}${down}${up}</div>`;
   }).join('');
 
   return top + `<div class="kl-cols" id="klCols">${cols}</div>` + drawRunBox();
@@ -1776,7 +1833,7 @@ function layoutKlondike(){
 
   let tallest = ch;
   const plans = [...wrap.querySelectorAll('.kl-col')].map(col => {
-    const cards = [...col.children];
+    const cards = [...col.children].filter(e => e.classList.contains('pk'));
     const nDown = cards.filter(e => e.dataset.kind === 'down').length;
     const nUp = cards.length - nDown;
     const downY = nDown * KL_DOWN_F * ch;
@@ -1836,11 +1893,33 @@ function drawRunBox(){
 }
 
 /* ---------- playing it ---------- */
-async function klondikeTap(from){
-  if(busy) return;
-  const m = bestMove(from);
-  if(!m){ return; }
+/* ---------- the player says where; the game only checks ----------
+   It used to be tap-and-the-game-decides: bestMove picked the destination
+   and the card flew there. Josh played it and said no - you move a card in
+   solitaire, you do not ask for it to be moved. So a card goes where it is
+   DROPPED, or where you tap after picking it up, and nowhere else.
+
+   bestMove is still here, but only to light the cards that can move at all
+   and for the test tools, which need a quick way to play a whole game. */
+function moveOK(from, to){
+  const c = from && from.card;
+  if(!c || !to) return false;
+  if(to.to === 'found'){
+    /* one card at a time goes home: the waste, or the top of a column */
+    if(from.col >= 0 && from.n !== R.cols[from.col].up.length - 1) return false;
+    return foundOK(c);
+  }
+  if(to.j === from.col) return false;
+  const col = R.cols[to.j];
+  return col.up.length ? stackOK(c, colTop(col)) : emptyOK(c, col);
+}
+/* the test tools' shortcut: the game's own idea of the best move */
+const klondikeTap = from => klondikeMove(from, bestMove(from));
+
+async function klondikeMove(from, m){
+  if(busy || !moveOK(from, m)) return;
   busy = true;
+  R.picked = null;
 
   const card = from.card;
   let run = [];
@@ -1881,11 +1960,9 @@ async function klondikeTap(from){
     R.cols[m.j].up.push(...run);
     if(from.col >= 0) klFlip(R.cols[from.col]);
     render(); cardSnap();
-    /* The mark says "tap a card to move it", so moving a card is what ends
-       it. This only fired when a card went HOME, which left the mark stuck
-       on screen for anyone whose first tap was onto a column - and on a
-       320px board three of the opening cards move to a column and none goes
-       home, so that was most first taps. */
+    /* The mark says "drag a card to move it", so moving any card ends it -
+       not only a card going home, which left it stuck on screen for anyone
+       whose first move was onto a column. */
     coachDone('play');
   }
   busy = false;
@@ -1913,6 +1990,7 @@ async function suitHome(s){
 async function klondikeDraw(){
   if(busy) return;
   busy = true;
+  R.picked = null;
   if(R.run){
     await doStrike();
     if(S.fight.hp <= 0){ await won(); return; }
@@ -2937,7 +3015,7 @@ function menuPanel(){
 const HELP_SETS = {
   klondike: [
     {title:'How to play',
-     lines:['It is solitaire. Seven columns, four spaces up top, aces first and kings last. Tap a card and it goes wherever it can &mdash; home if it can go home, onto a column if it cannot.',
+     lines:['It is solitaire. Seven columns, four spaces up top, aces first and kings last. Drag a card where you want it &mdash; or tap it, then tap where it goes.',
             'Columns build <b>down in alternating colours</b>. A king goes into an empty column. Turn a card off the deck when you are out of moves.',
             'You get <b>three times through the deck</b>. A card sent <b>home</b> is a card that counts.']},
     {title:'How it fights',
@@ -3405,7 +3483,7 @@ const COACH = [
    sel:() => document.querySelector('.peaks .pk.free, .kl-cols .pk.live, [data-from="w"].live'),
    text:() => isPeaks()
      ? 'Tap a card <b>one above or one below</b> the one on the pile.'
-     : 'Tap a card to move it. The ones that go <b>home</b> are what hit.'},
+     : 'Drag a card to move it. The ones you send <b>home</b> are what hit.'},
   {id:'stock',
    when:() => isPeaks()
      ? (!document.querySelector('.peaks .pk.free') && R.si < R.stock.length)
@@ -3822,19 +3900,189 @@ $('board').addEventListener('click', e => {
     if(card) playCard(+card.dataset.i);
     return;
   }
-  /* Klondike: tap the deck to turn a card, tap a card to send it wherever it
-     wants to go. No dragging - a drag on a 41px card is a miss waiting to
-     happen. */
-  const d = e.target.closest('[data-act="draw"]');
-  if(d){ guard(klondikeDraw()); return; }
-  const w = e.target.closest('[data-from="w"]');
-  if(w){ guard(klondikeTap({ col:-1, n:-1, card:wasteTop() })); return; }
-  const k = e.target.closest('[data-from="c"]');
-  if(k){
-    const col = +k.dataset.col, n = +k.dataset.n;
-    guard(klondikeTap({ col, n, card:R.cols[col].up[n] }));
-  }
+  /* Klondike. A finger or a mouse is handled from the pointer events below,
+     taps included; this only hears the keyboard, whose Enter and Space
+     arrive as a click with no pointer behind it (detail 0).
+
+     Taps used to come through here too, as the click a browser makes out of
+     a touch. kldrag.cjs found that after a finger has dragged a card, the
+     next tap makes pointerdown and pointerup and then NO click at all - so
+     the card you tapped was simply never picked up. Waiting on the browser
+     to turn a touch into a click was the fragile part, and it is gone. */
+  if(e.detail !== 0) return;
+  tapAt(e.target);
 });
+
+/* One tap, from a finger, a mouse or a key: turn the deck, pick a card up,
+   or put the card you are holding down where you tapped. */
+function tapAt(target){
+  if(busy) return;
+  if(target.closest('[data-act="draw"]')){ guard(klondikeDraw()); return; }
+  const cardEl = target.closest('.pk.kl[data-from]');
+  if(R.picked){
+    const to = destOf(target);
+    if(to && moveOK(R.picked, to)){ const f = R.picked; guard(klondikeMove(f, to)); return; }
+    const f = cardEl && fromOf(cardEl);
+    if(f && f.card && !samePick(f, R.picked)){ pickUp(f); return; }
+    putBack(); return;
+  }
+  if(cardEl){ const f = fromOf(cardEl); if(f && f.card) pickUp(f); }
+}
+
+/* ===================== picking cards up =====================
+   Drag a face-up card, and every card on top of it comes too, the way they
+   would in your hand. Let go over a column or a home and it lands there if
+   the rules allow it, and goes back where it came from if they do not. A
+   press that never travels further than DRAG_SLOP is a tap instead. */
+const DRAG_SLOP = 6;
+let drag = null;
+
+function fromOf(el){
+  if(el.dataset.from === 'w') return { col:-1, n:-1, card:wasteTop() };
+  if(el.dataset.from === 'c'){
+    const col = +el.dataset.col, n = +el.dataset.n;
+    return { col, n, card:R.cols[col].up[n] };
+  }
+  return null;
+}
+const samePick = (a, b) => a && b && a.col === b.col && a.n === b.n;
+
+/* where something tapped or dropped on would put a card */
+function destOf(target){
+  if(target.closest('[data-home]') || (target.closest('.kl-cell') && target.closest('.kl-cell').querySelector('[data-home]')))
+    return { to:'found' };
+  const col = target.closest('.kl-col');
+  if(col) return { to:'col', j:+col.dataset.col };
+  return null;
+}
+function pickUp(f){ R.picked = f; render(); tone(740, .05, 'triangle', .03); }
+function putBack(){ if(R.picked){ R.picked = null; render(); } }
+
+/* the place a carried card overlaps most - generous on purpose, because a
+   thumb covers the card it is carrying and nobody can see the exact edge */
+function overlapTarget(r){
+  let best = null, bestA = 0;
+  const over = (el, to) => {
+    const b = el.getBoundingClientRect();
+    const w = Math.min(b.right, r.right) - Math.max(b.left, r.left);
+    const h = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
+    if(w > 0 && h > 0 && w * h > bestA){ bestA = w * h; best = { to, el }; }
+  };
+  document.querySelectorAll('#klCols .kl-col').forEach(el => over(el, { to:'col', j:+el.dataset.col }));
+  document.querySelectorAll('.kl-top .kl-cell').forEach(el => {
+    if(el.querySelector('[data-home]')) over(el, { to:'found' });
+  });
+  return best;
+}
+
+function startDrag(){
+  const { el, from } = drag;
+  const src = from.col < 0 ? [el]
+    : [...el.parentNode.querySelectorAll('[data-from="c"]')].filter(e => +e.dataset.n >= from.n);
+  const layer = document.createElement('div');
+  layer.id = 'dragLayer';
+  const step = el.parentNode.style.getPropertyValue('--step');
+  if(step) layer.style.setProperty('--step', step);
+  src.forEach(e => {
+    const b = e.getBoundingClientRect();
+    const c = e.cloneNode(true);
+    c.classList.remove('live', 'picked');
+    c.removeAttribute('id');
+    Object.assign(c.style, { left:b.left + 'px', top:b.top + 'px', width:b.width + 'px', height:b.height + 'px' });
+    layer.appendChild(c);
+    e.style.visibility = 'hidden';
+  });
+  document.body.appendChild(layer);
+  drag.src = src; drag.layer = layer; drag.lead = layer.firstChild;
+  if(R.picked){ R.picked = null; src.forEach(e => e.classList.remove('picked')); }
+  tone(620, .04, 'triangle', .025);
+}
+
+function moveDrag(x, y){
+  const dx = x - drag.x0, dy = y - drag.y0;
+  drag.layer.style.transform = `translate(${dx}px,${dy}px)`;
+  const t = overlapTarget(drag.lead.getBoundingClientRect());
+  const ok = t && moveOK(drag.from, t.to) ? t.el : null;
+  if(ok !== drag.lit){
+    if(drag.lit) drag.lit.classList.remove('drop-ok');
+    if(ok) ok.classList.add('drop-ok');
+    drag.lit = ok;
+  }
+}
+
+function endDrag(cancelled){
+  const d = drag; drag = null;
+  if(d.lit) d.lit.classList.remove('drop-ok');
+  const t = cancelled ? null : overlapTarget(d.lead.getBoundingClientRect());
+  const go = t && moveOK(d.from, t.to) ? t : null;
+  const cleanUp = () => { d.layer.remove(); d.src.forEach(e => e.style.visibility = ''); };
+
+  if(!go){
+    /* back where it came from */
+    if(reduced()){ cleanUp(); return; }
+    d.layer.classList.add('snap');
+    d.layer.style.transform = 'translate(0,0)';
+    setTimeout(cleanUp, 170);
+    return;
+  }
+  /* into place, then the board catches up with it */
+  const lead = d.lead.getBoundingClientRect();
+  let tx = lead.left, ty = lead.top;
+  if(go.to.to === 'found'){
+    const b = go.el.getBoundingClientRect(); tx = b.left; ty = b.top;
+  } else {
+    const colEl = go.el, cards = colEl.querySelectorAll('.pk');
+    const b = colEl.getBoundingClientRect();
+    tx = b.left; ty = b.top;
+    if(cards.length){
+      const last = cards[cards.length - 1].getBoundingClientRect();
+      const step = parseFloat(colEl.style.getPropertyValue('--step')) || 0;
+      ty = last.top + Math.max(step, last.height * .24);
+    }
+  }
+  const finish = () => { cleanUp(); guard(klondikeMove(d.from, go.to)); };
+  if(reduced()){ finish(); return; }
+  const cur = new DOMMatrixReadOnly(getComputedStyle(d.layer).transform);
+  d.layer.classList.add('land');
+  d.layer.style.transform = `translate(${cur.m41 + tx - lead.left}px,${cur.m42 + ty - lead.top}px)`;
+  setTimeout(finish, 125);
+}
+
+$('board').addEventListener('pointerdown', e => {
+  if(isPeaks() || busy || drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  /* the Jester's Coin is a button of its own and keeps its own click */
+  if(e.target.closest('[data-act="coin"]')) return;
+  const el = e.target.closest('.pk.kl[data-from]');
+  const from = el && fromOf(el);
+  drag = { el: from && from.card ? el : null, from, target:e.target,
+           x0:e.clientX, y0:e.clientY, id:e.pointerId, moved:false };
+  if(drag.el){ try{ el.setPointerCapture(e.pointerId); }catch(err){} }
+});
+$('board').addEventListener('pointermove', e => {
+  if(!drag || !drag.el || e.pointerId !== drag.id) return;
+  if(!drag.moved){
+    if(Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < DRAG_SLOP) return;
+    drag.moved = true;
+    startDrag();
+  }
+  e.preventDefault();
+  moveDrag(e.clientX, e.clientY);
+});
+const dropped = cancelled => e => {
+  if(!drag || e.pointerId !== drag.id) return;
+  if(!drag.moved){
+    /* a press that never travelled is a tap */
+    const t = drag.target; drag = null;
+    if(!cancelled) tapAt(t);
+    return;
+  }
+  endDrag(cancelled);
+};
+/* on the window, not the board: a press that starts on a card and lets go
+   off the edge of the board would otherwise never end, and the board would
+   ignore every press after it */
+addEventListener('pointerup', dropped(false));
+addEventListener('pointercancel', dropped(true));
 
 /* ===================== the first board =====================
    A player who has been here before picks a hero. A new one gets cards, at
@@ -3857,7 +4105,7 @@ Object.assign(window, { __SOL: { get R(){ return R; }, dealRound, render, LAYOUT
   get S(){ return S; }, set S(v){ S = v; },
   get SLOT(){ return SLOT; }, set SLOT(v){ SLOT = v; },
   startFight, makeFoe, WORLDS, BOSS_RULES,
-  klondikeLegal, klondikeTap, klondikeDraw, layoutKlondike, bestMove, foundOK, isPeaks,
+  klondikeLegal, klondikeTap, klondikeMove, moveOK, klondikeDraw, layoutKlondike, bestMove, foundOK, isPeaks,
   useBoard, boardKind, peaksOpen, switchBoard, FIGHT, HELP_SETS, BOSS_RULE_SETS,
   charmDesc, peek, RANKS, SUITS, perkCount, heroMaxHP,
   fightIntro, openPanel, closePanel, PERKS, hasPerk, levelPanel, victoryPanel,

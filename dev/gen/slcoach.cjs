@@ -14,6 +14,47 @@ const { chromium } = require('playwright');
    `[data-act="turn"]` outright, so on Klondike it clicked nothing and then
    reported the mark as failing to advance - a tool blaming the game for its
    own selector. */
+/* Play one card the way a player now has to: on Klondike a card is DRAGGED
+   to where it goes, because a click only picks it up. This used to click a
+   lit card and let the game choose where it went; the game no longer
+   chooses, so the tool carries it. Tri-Peaks still plays a card by clicking
+   it, so that board keeps its click. */
+async function playOne(p){
+  const plan = await p.evaluate(() => {
+    if (document.querySelector('.peaks')) {
+      const t = document.querySelector('.peaks .pk.free');
+      if (t) t.click();
+      return t ? { clicked: true } : null;
+    }
+    const X = window.__SOL, R = X.R;
+    const lit = document.querySelector('.pk.kl.live, [data-from="w"].live');
+    if (!lit) return null;
+    const from = lit.dataset.from === 'w'
+      ? { col: -1, n: -1, card: R.waste[R.waste.length - 1] }
+      : { col: +lit.dataset.col, n: +lit.dataset.n, card: R.cols[+lit.dataset.col].up[+lit.dataset.n] };
+    const m = X.bestMove(from);
+    if (!m) return null;
+    const dest = m.to === 'found'
+      ? document.querySelector(`[data-home="${from.card.s}"]`)
+      : (document.querySelector(`.kl-col[data-col="${m.j}"] .pk:last-child`) ||
+         document.querySelector(`.kl-col[data-col="${m.j}"]`));
+    const a = lit.getBoundingClientRect(), b = dest.getBoundingClientRect();
+    return { x0: a.left + a.width / 2, y0: a.top + Math.min(8, a.height / 4),
+             x1: b.left + b.width / 2, y1: b.top + b.height / 2 };
+  });
+  if (!plan) return false;
+  if (plan.clicked) { await p.waitForTimeout(900); return true; }
+  await p.mouse.move(plan.x0, plan.y0);
+  await p.mouse.down();
+  for (let i = 1; i <= 10; i++) {
+    await p.mouse.move(plan.x0 + (plan.x1 - plan.x0) * i / 10, plan.y0 + (plan.y1 - plan.y0) * i / 10);
+    await p.waitForTimeout(12);
+  }
+  await p.mouse.up();
+  await p.waitForTimeout(900);
+  return true;
+}
+
 const boardSel = async (p, want) => p.evaluate(w => {
   const peaks = !!document.querySelector('.peaks');
   if (w === 'stock') return peaks ? '[data-act="turn"]' : '[data-act="draw"]';
@@ -87,26 +128,32 @@ const markState = () => {
        should be seeing rather than insisting on one of them. */
     let m = await p.evaluate(markState);
     const openedPlayable = m.free > 0;
-    const firstWord = openedPlayable ? 'Tap a card' : 'Nothing to play';
-    check(`1. ${openedPlayable ? 'tap a card' : 'turn a card (dead board)'}`,
+    /* The words each mark opens with, from the board on screen. This said
+       'Nothing to play' for a dead board, which is no longer anywhere in the
+       game - the stock mark says 'Stuck?' on both boards - so a dead opening
+       board failed this every time, and it only ever passed because most
+       deals have something to play. Klondike's play mark says 'Drag' now
+       that a click only picks a card up. */
+    const onPeaks = await p.evaluate(() => !!document.querySelector('.peaks'));
+    const firstWord = !openedPlayable ? 'Stuck?' : onPeaks ? 'Tap a card' : 'Drag a card';
+    check(`1. ${openedPlayable ? 'move a card' : 'turn a card (dead board)'}`,
       m.up && m.at === '' && m.onScreen && m.size >= 10.5 && (m.text || '').startsWith(firstWord),
       m.up ? `"${(m.text || '').slice(0, 44)}" pointing at ${m.pointsAt}, ` +
              `${m.free} of ${m.cards} cards playable`
            : `nothing shown: busy ${m.busy}, panel ${m.panel}, ${m.free} of ${m.cards} playable`);
 
     /* and it goes when you do the thing it asked for */
-    const did = await p.evaluate(async playable => {
-      /* "turn" on Tri-Peaks, "draw" on Klondike. This said "turn" outright,
-         so on a dead Klondike opening board it clicked nothing and then
-         reported the mark as never being learned - the tool blaming the game
-         for its own selector, which is the same fault twice in one file. */
-      const t = playable ? document.querySelector('.peaks .pk.free, .pk.kl.live, [data-from="w"].live')
-                         : document.querySelector('[data-act="turn"], [data-act="draw"]');
+    /* "turn" on Tri-Peaks, "draw" on Klondike. This said "turn" outright,
+       so on a dead Klondike opening board it clicked nothing and then
+       reported the mark as never being learned - the tool blaming the game
+       for its own selector, which is the same fault twice in one file. */
+    const did = openedPlayable ? await playOne(p) : await p.evaluate(async () => {
+      const t = document.querySelector('[data-act="turn"], [data-act="draw"]');
       if (!t) return false;
       t.click();
       await new Promise(r => setTimeout(r, 900));
       return true;
-    }, openedPlayable);
+    });
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 10000 }).catch(() => {});
     m = await p.evaluate(markState);
     const firstId = openedPlayable ? 'play' : 'stock';
@@ -161,7 +208,8 @@ const markState = () => {
        is still playing something out does nothing at all and looks from out
        here exactly like the mark failing to advance */
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 8000 }).catch(() => {});
-    await p.click(await boardSel(p, second), { timeout: 4000 }).catch(() => {});
+    if (second === 'stock') await p.click(await boardSel(p, second), { timeout: 4000 }).catch(() => {});
+    else await playOne(p);
     await p.waitForFunction(() => !window.__SOL.busy, null, { timeout: 10000 }).catch(() => {});
     await p.waitForTimeout(400);
     m = await p.evaluate(markState);
