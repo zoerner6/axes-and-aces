@@ -15,7 +15,9 @@
 const { chromium } = require('playwright');
 const path = require('path');
 process.chdir(path.join(__dirname, '..', '..'));
-const URL = 'file:///' + path.resolve('solitaire.html').replace(/\\/g, '/');
+/* KL_URL=https://axesandaces.com/solitaire.html runs the same moves on the
+   live site, which is how a publish is proved rather than assumed */
+const URL = process.env.KL_URL || 'file:///' + path.resolve('solitaire.html').replace(/\\/g, '/');
 const OUT = path.resolve('dev/gen/out/kldrag');
 require('fs').mkdirSync(OUT, { recursive: true });
 

@@ -318,8 +318,13 @@ img{max-width:100%}
    nothing is ever scaled here, because a column is a stack and growing one
    card would push it through its neighbours */
 .pk.kl{transform:none}
-.pk.kl.live{box-shadow:0 0 0 2.5px var(--gold),0 0 11px rgba(242,182,50,.5),0 3px 0 rgba(0,0,0,.45)}
-.pk.kl.live:active{box-shadow:0 0 0 2.5px var(--gold-hi),0 0 16px rgba(242,182,50,.8),0 1px 0 rgba(0,0,0,.45)}
+/* No ring on a card that can move. There was one, gold, on every card with
+   somewhere to go - the game pointing at your moves for you. Once cards were
+   dragged rather than sent, Josh had it taken off: finding the move is the
+   game. The class is still set (.live), because the first coaching mark
+   points at a card that can move and the test tools use it to find one; it
+   just draws nothing. Tri-Peaks keeps its lifted free cards, because there
+   that marks a card that is uncovered, which you cannot otherwise tell. */
 
 /* an empty place: the deck when it is out, a home waiting for its ace */
 .kl-slot{
@@ -1887,8 +1892,9 @@ function drawRunBox(){
    solitaire, you do not ask for it to be moved. So a card goes where it is
    DROPPED, or where you tap after picking it up, and nowhere else.
 
-   bestMove is still here, but only to light the cards that can move at all
-   and for the test tools, which need a quick way to play a whole game. */
+   bestMove is still here, but only to mark (invisibly) the cards that can
+   move, for the first coaching mark to point at, and for the test tools,
+   which need a quick way to play a whole game. */
 function moveOK(from, to){
   const c = from && from.card;
   if(!c || !to) return false;
