@@ -10,7 +10,7 @@
   `ITSAppUsesNonExemptEncryption = false`, so later builds don't ask.
 - **Not submitted.** Left for Josh in the console:
   1. App Privacy: answer as below, then Publish.
-  2. Version 1.0 page: check it over, then **Add for Review** and submit.
+  2. Version 1.0 page: check it over, then **Add for Review** and submit. (Done by API 2026-11-27: China mainland removed from availability, content rights set, 13-inch iPad screenshots added; review submission b669b468.)
 
 ## Builds
 

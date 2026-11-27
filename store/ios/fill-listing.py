@@ -23,7 +23,12 @@ API = "https://api.appstoreconnect.apple.com"
 SUBTITLE = "Poker hands vs. monsters"
 KEYWORDS = "poker,cards,rpg,roguelike,monsters,fantasy,adventure,card battle,deckbuilder,dungeon,solitaire"
 PROMO = "Every fight is a hand of cards. Build the best poker hand you can and strike."
-SHOTS = ["iphone69-1-story.png", "iphone69-2-fight.png", "iphone69-3-aces-bonus.png"]
+SHOTS = {  # display type -> files (6.9-inch iPhone 1320x2868, 13-inch iPad 2048x2732)
+    "APP_IPHONE_67": ["iphone69-1-story.png", "iphone69-2-fight.png", "iphone69-3-aces-bonus.png"],
+    "APP_IPAD_PRO_3GEN_129": ["ipad13-1-story.png", "ipad13-2-fight.png", "ipad13-3-aces-bonus.png"],
+}
+# China mainland needs a Security Assessment and an AIGC filing, so the app is not sold there.
+EXCLUDED_TERRITORIES = {"CHN"}
 REVIEW_NOTES = (
     "No login needed. Tap NEW HERO, then START THE ADVENTURE. Leaderboards and cloud backup are anonymous "
     "(a random save code, no account). The game runs from files inside the app; the monster clips stream "
@@ -75,14 +80,30 @@ def set_free_price(app_id):
     print("price set: free")
 
 
+def exclude_territories(app_id):
+    """Turn off the territories in EXCLUDED_TERRITORIES on an existing availability."""
+    path = f"/v2/appAvailabilities/{app_id}/territoryAvailabilities?limit=200&include=territory"
+    while path:
+        page = call("GET", path)
+        for ta in page["data"]:
+            if ta["relationships"]["territory"]["data"]["id"] in EXCLUDED_TERRITORIES and ta["attributes"]["available"]:
+                call("PATCH", f"/v1/territoryAvailabilities/{ta['id']}", {"data": {"type": "territoryAvailabilities",
+                     "id": ta["id"], "attributes": {"available": False}}})
+                print("not sold in", ta["relationships"]["territory"]["data"]["id"])
+        nxt = page.get("links", {}).get("next")
+        path = nxt.replace(API, "") if nxt else None
+
+
 def set_availability(app_id):
-    """Sold in every territory, and in new ones Apple adds, unless availability already exists."""
+    """Sold in every territory except EXCLUDED_TERRITORIES, and in new ones Apple adds."""
     r = requests.get(API + f"/v1/apps/{app_id}/appAvailabilityV2", headers={"Authorization": "Bearer " + token()})
     if r.status_code == 200:
+        exclude_territories(app_id)
         print("availability already set")
         return
     terrs = call("GET", "/v1/territories?limit=200")["data"]
-    inc = [{"type": "territoryAvailabilities", "id": f"${{t{i}}}", "attributes": {"available": True},
+    inc = [{"type": "territoryAvailabilities", "id": f"${{t{i}}}",
+            "attributes": {"available": t["id"] not in EXCLUDED_TERRITORIES},
             "relationships": {"territory": {"data": {"type": "territories", "id": t["id"]}}}}
            for i, t in enumerate(terrs)]
     call("POST", "/v2/appAvailabilities", {
@@ -91,6 +112,31 @@ def set_availability(app_id):
                                    "territoryAvailabilities": {"data": [{"type": x["type"], "id": x["id"]} for x in inc]}}},
         "included": inc})
     print(f"available in {len(terrs)} territories")
+
+
+def upload_shots(vloc_id, display, files):
+    """Reserve, upload and commit each screenshot in the set; skips files already there."""
+    sets = call("GET", f"/v1/appStoreVersionLocalizations/{vloc_id}/appScreenshotSets")["data"]
+    sset = next((s for s in sets if s["attributes"]["screenshotDisplayType"] == display), None)
+    if not sset:
+        sset = call("POST", "/v1/appScreenshotSets", {"data": {"type": "appScreenshotSets",
+                    "attributes": {"screenshotDisplayType": display},
+                    "relationships": {"appStoreVersionLocalization": {"data": {"type": "appStoreVersionLocalizations", "id": vloc_id}}}}})["data"]
+    have = {s["attributes"]["fileName"] for s in call("GET", f"/v1/appScreenshotSets/{sset['id']}/appScreenshots")["data"]}
+    for name in files:
+        if name in have:
+            continue
+        data = (HERE / name).read_bytes()
+        shot = call("POST", "/v1/appScreenshots", {"data": {"type": "appScreenshots",
+                    "attributes": {"fileName": name, "fileSize": len(data)},
+                    "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": sset["id"]}}}}})["data"]
+        for op in shot["attributes"]["uploadOperations"]:
+            part = data[op["offset"]: op["offset"] + op["length"]]
+            requests.request(op["method"], op["url"], data=part,
+                             headers={h["name"]: h["value"] for h in op["requestHeaders"]}).raise_for_status()
+        call("PATCH", f"/v1/appScreenshots/{shot['id']}", {"data": {"type": "appScreenshots", "id": shot["id"],
+             "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
+        print("uploaded", display, name)
 
 
 def description():
@@ -104,6 +150,10 @@ def main():
         sys.exit("No App Store Connect app with this bundle ID yet. Josh makes it first (APP-STORE-LISTING.md).")
     app_id = apps[0]["id"]
     print("app", app_id)
+
+    # Content rights: all art, music and clips are our own.
+    call("PATCH", f"/v1/apps/{app_id}", {"data": {"type": "apps", "id": app_id,
+         "attributes": {"contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT"}}})
 
     # App info: subtitle, privacy URL, categories (Games > Card + Role Playing; Apple won't take Games twice)
     info = call("GET", f"/v1/apps/{app_id}/appInfos")["data"][0]
@@ -129,6 +179,7 @@ def main():
         "advertising": False, "gambling": False, "lootBox": False, "healthOrWellnessTopics": False,
         "messagingAndChat": False, "parentalControls": False, "unrestrictedWebAccess": False,
         "userGeneratedContent": True, "ageAssurance": False, "socialMedia": False,
+        "datingAndRelationships": False, "sharedLocation": False, "socialMediaAgeRestricted": False,
     }}}, ok=(200,))
 
     # Version 1.0 text
@@ -157,28 +208,8 @@ def main():
     set_free_price(app_id)
     set_availability(app_id)
 
-    # Screenshots (6.9-inch iPhone)
-    sets = call("GET", f"/v1/appStoreVersionLocalizations/{vloc['id']}/appScreenshotSets")["data"]
-    sset = next((s for s in sets if s["attributes"]["screenshotDisplayType"] == "APP_IPHONE_67"), None)
-    if not sset:
-        sset = call("POST", "/v1/appScreenshotSets", {"data": {"type": "appScreenshotSets",
-                    "attributes": {"screenshotDisplayType": "APP_IPHONE_67"},
-                    "relationships": {"appStoreVersionLocalization": {"data": {"type": "appStoreVersionLocalizations", "id": vloc["id"]}}}}})["data"]
-    have = {s["attributes"]["fileName"] for s in call("GET", f"/v1/appScreenshotSets/{sset['id']}/appScreenshots")["data"]}
-    for name in SHOTS:
-        if name in have:
-            continue
-        data = (HERE / name).read_bytes()
-        shot = call("POST", "/v1/appScreenshots", {"data": {"type": "appScreenshots",
-                    "attributes": {"fileName": name, "fileSize": len(data)},
-                    "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": sset["id"]}}}}})["data"]
-        for op in shot["attributes"]["uploadOperations"]:
-            part = data[op["offset"]: op["offset"] + op["length"]]
-            requests.request(op["method"], op["url"], data=part,
-                             headers={h["name"]: h["value"] for h in op["requestHeaders"]}).raise_for_status()
-        call("PATCH", f"/v1/appScreenshots/{shot['id']}", {"data": {"type": "appScreenshots", "id": shot["id"],
-             "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
-        print("uploaded", name)
+    for display, files in SHOTS.items():
+        upload_shots(vloc["id"], display, files)
 
     print("Listing filled. Left in the console: App Privacy answers, then pick the build and Add for Review.")
 
