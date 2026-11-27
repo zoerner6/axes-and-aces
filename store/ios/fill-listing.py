@@ -17,6 +17,7 @@ KEY_ID = os.environ.get("ASC_KEY_ID", "JL975X97K8")
 ISSUER = os.environ.get("ASC_ISSUER_ID", "609d047b-7c29-4529-8b10-1a5aed2efacd")
 BUNDLE = "io.github.zoerner6.axesandaces"
 HERE = Path(__file__).parent
+PHONE_FROM_APP = "6824769272"  # Brown Noise: its review contact phone is reused here
 API = "https://api.appstoreconnect.apple.com"
 
 SUBTITLE = "Poker hands vs. monsters"
@@ -44,6 +45,54 @@ def call(method, path, body=None, ok=(200, 201, 204)):
     return r.json() if r.content else {}
 
 
+def review_phone():
+    """Copy the review contact phone from another GSW app (never printed, never stored in the repo)."""
+    for v in call("GET", f"/v1/apps/{PHONE_FROM_APP}/appStoreVersions?limit=10")["data"]:
+        rd = call("GET", f"/v1/appStoreVersions/{v['id']}/appStoreReviewDetail", ok=(200, 404))
+        phone = (rd.get("data") or {}).get("attributes", {}).get("contactPhone")
+        if phone:
+            return phone
+    return None
+
+
+def set_free_price(app_id):
+    """Free in every territory (US base), unless a price schedule already exists."""
+    r = requests.get(API + f"/v1/appPriceSchedules/{app_id}/manualPrices",
+                     headers={"Authorization": "Bearer " + token()})
+    if r.status_code == 200 and r.json().get("data"):
+        print("price already set")
+        return
+    points = call("GET", f"/v1/apps/{app_id}/appPricePoints?filter[territory]=USA&limit=200")["data"]
+    free = next(p for p in points if float(p["attributes"]["customerPrice"]) == 0)
+    call("POST", "/v1/appPriceSchedules", {
+        "data": {"type": "appPriceSchedules", "relationships": {
+            "app": {"data": {"type": "apps", "id": app_id}},
+            "baseTerritory": {"data": {"type": "territories", "id": "USA"}},
+            "manualPrices": {"data": [{"type": "appPrices", "id": "${price1}"}]}}},
+        "included": [{"type": "appPrices", "id": "${price1}",
+                      "attributes": {"startDate": None},
+                      "relationships": {"appPricePoint": {"data": {"type": "appPricePoints", "id": free["id"]}}}}]})
+    print("price set: free")
+
+
+def set_availability(app_id):
+    """Sold in every territory, and in new ones Apple adds, unless availability already exists."""
+    r = requests.get(API + f"/v1/apps/{app_id}/appAvailabilityV2", headers={"Authorization": "Bearer " + token()})
+    if r.status_code == 200:
+        print("availability already set")
+        return
+    terrs = call("GET", "/v1/territories?limit=200")["data"]
+    inc = [{"type": "territoryAvailabilities", "id": f"${{t{i}}}", "attributes": {"available": True},
+            "relationships": {"territory": {"data": {"type": "territories", "id": t["id"]}}}}
+           for i, t in enumerate(terrs)]
+    call("POST", "/v2/appAvailabilities", {
+        "data": {"type": "appAvailabilities", "attributes": {"availableInNewTerritories": True},
+                 "relationships": {"app": {"data": {"type": "apps", "id": app_id}},
+                                   "territoryAvailabilities": {"data": [{"type": x["type"], "id": x["id"]} for x in inc]}}},
+        "included": inc})
+    print(f"available in {len(terrs)} territories")
+
+
 def description():
     text = (HERE.parent / "google-play" / "store-listing.txt").read_text(encoding="utf-8")
     return text.split("FULL DESCRIPTION", 1)[1].split("APP CATEGORY", 1)[0].strip()
@@ -56,28 +105,30 @@ def main():
     app_id = apps[0]["id"]
     print("app", app_id)
 
-    # App info: subtitle, privacy URL, categories
+    # App info: subtitle, privacy URL, categories (Games > Card + Role Playing; Apple won't take Games twice)
     info = call("GET", f"/v1/apps/{app_id}/appInfos")["data"][0]
     call("PATCH", f"/v1/appInfos/{info['id']}", {"data": {"type": "appInfos", "id": info["id"], "relationships": {
         "primaryCategory": {"data": {"type": "appCategories", "id": "GAMES"}},
         "primarySubcategoryOne": {"data": {"type": "appCategories", "id": "GAMES_CARD"}},
-        "secondaryCategory": {"data": {"type": "appCategories", "id": "GAMES"}},
-        "secondarySubcategoryOne": {"data": {"type": "appCategories", "id": "GAMES_ROLE_PLAYING"}},
+        "primarySubcategoryTwo": {"data": {"type": "appCategories", "id": "GAMES_ROLE_PLAYING"}},
     }}})
     for loc in call("GET", f"/v1/appInfos/{info['id']}/appInfoLocalizations")["data"]:
         call("PATCH", f"/v1/appInfoLocalizations/{loc['id']}", {"data": {"type": "appInfoLocalizations", "id": loc["id"],
              "attributes": {"subtitle": SUBTITLE, "privacyPolicyUrl": "https://axesandaces.com/privacy.html"}}})
 
-    # Age rating: fantasy violence only
+    # Age rating (Apple's 2025 schema): fantasy violence only. Leaderboard nicknames count as user content.
     ar = call("GET", f"/v1/appInfos/{info['id']}/ageRatingDeclaration")["data"]
     none = "NONE"
     call("PATCH", f"/v1/ageRatingDeclarations/{ar['id']}", {"data": {"type": "ageRatingDeclarations", "id": ar["id"], "attributes": {
         "alcoholTobaccoOrDrugUseOrReferences": none, "contests": none, "gamblingSimulated": none,
-        "horrorOrFearThemes": none, "matureOrSuggestiveThemes": none, "medicalOrTreatmentInformation": none,
-        "profanityOrCrudeHumor": none, "sexualContentGraphicAndNudity": none, "sexualContentOrNudity": none,
+        "gunsOrOtherWeapons": none, "horrorOrFearThemes": none, "matureOrSuggestiveThemes": none,
+        "medicalOrTreatmentInformation": none, "profanityOrCrudeHumor": none,
+        "sexualContentGraphicAndNudity": none, "sexualContentOrNudity": none,
         "violenceCartoonOrFantasy": "INFREQUENT_OR_MILD", "violenceRealistic": none,
-        "violenceRealisticProlongedGraphicOrSadistic": none, "gambling": False, "unrestrictedWebAccess": False,
-        "kidsAgeBand": None,
+        "violenceRealisticProlongedGraphicOrSadistic": none,
+        "advertising": False, "gambling": False, "lootBox": False, "healthOrWellnessTopics": False,
+        "messagingAndChat": False, "parentalControls": False, "unrestrictedWebAccess": False,
+        "userGeneratedContent": True, "ageAssurance": False, "socialMedia": False,
     }}}, ok=(200,))
 
     # Version 1.0 text
@@ -93,12 +144,18 @@ def main():
     rd = call("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreReviewDetail", ok=(200, 404))
     attrs = {"contactFirstName": "Josh", "contactLastName": "Zoerner", "contactEmail": "hello@goldstandardweb.com",
              "demoAccountRequired": False, "notes": REVIEW_NOTES}
+    phone = review_phone()
+    if phone:
+        attrs["contactPhone"] = phone
     if rd.get("data"):
         call("PATCH", f"/v1/appStoreReviewDetails/{rd['data']['id']}", {"data": {"type": "appStoreReviewDetails",
              "id": rd["data"]["id"], "attributes": attrs}})
     else:
         call("POST", "/v1/appStoreReviewDetails", {"data": {"type": "appStoreReviewDetails", "attributes": attrs,
              "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": ver["id"]}}}}})
+
+    set_free_price(app_id)
+    set_availability(app_id)
 
     # Screenshots (6.9-inch iPhone)
     sets = call("GET", f"/v1/appStoreVersionLocalizations/{vloc['id']}/appScreenshotSets")["data"]
